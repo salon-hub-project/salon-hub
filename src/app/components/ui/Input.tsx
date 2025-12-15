@@ -7,6 +7,7 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
     error?: string;
     required?: boolean;
     id?: string; 
+    iconName?: string;
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(({
@@ -17,6 +18,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({
     error,
     required = false,
     id,
+    iconName, 
     ...props
 }, ref) => {
     // Generate unique ID if not provided

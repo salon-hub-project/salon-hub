@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useId, useState } from "react";
 import { ChevronDown, Check, Search, X } from "lucide-react";
 import { cn } from "../../utils/cn";
 import Button from "./Button";
@@ -55,7 +55,8 @@ const Select = React.forwardRef<HTMLButtonElement, SelectProps>(({
     const [searchTerm, setSearchTerm] = useState<string>("");
 
     // Generate unique ID if not provided
-    const selectId = id || `select-${Math.random().toString(36).substr(2, 9)}`;
+    // const selectId = id || `select-${Math.random().toString(36).substr(2, 9)}`;
+    const selectId = useId();
 
     // Filter options based on search
     const filteredOptions = searchable && searchTerm

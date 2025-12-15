@@ -154,7 +154,7 @@ const RegistrationForm = ({
           checked={formData.termsAccepted}
           onChange={(e) => onInputChange('termsAccepted', e.target.checked)}
           error={errors.termsAccepted}
-          // required
+          required
           disabled={isSubmitting}
         />
 

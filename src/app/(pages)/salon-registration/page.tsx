@@ -23,7 +23,7 @@ const SalonRegistration = () => {
     address: '',
     password: '',
     confirmPassword: '',
-    termsAccepted: true, // default to accepted to avoid blocking submission
+    termsAccepted: false,
   });
 
   const [errors, setErrors] = useState<ValidationErrors>({});
