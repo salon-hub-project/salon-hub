@@ -1,0 +1,104 @@
+/* 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 240 10% 3.9%;
+  --card: 0 0% 100%;
+  --border: 240 5% 90%;
+  --primary: 240 5.9% 10%;
+  --muted-foreground: 240 3.8% 46.1%;
+
+  --header-height: 64px;
+  --bottom-nav-height: 56px;
+  --sidebar-width: 250px;
+}
+
+
+
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: Arial, Helvetica, sans-serif;
+} */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------- ROOT THEME (MATCHES YOUR REACT UI) ---------- */
+:root {
+  /* Backgrounds */
+  --background: 0 0% 98%;         /* #fafafa */
+  --card: 0 0% 100%;              /* white */
+  --popover: 0 0% 100%;
+
+  /* Borders */
+  --border: 240 5% 88%;           /* #e5e7eb */
+  --input: 240 5% 88%;
+
+  /* Text colors */
+  --foreground: 240 10% 3.9%;     /* dark gray (#111827) */
+  --muted: 240 4.8% 95%;
+  --muted-foreground: 240 3.8% 46.1%; /* gray-500 */
+
+  /* Brand / Primary - soft green */
+  --primary: 156 41% 35%;         /* #0F6C48 (your React primary) */
+  --primary-foreground: 0 0% 100%;
+
+  /* Accent (Blue tones like your React UI) */
+  --accent: 217 91% 60%;          /* #3b82f6 */
+  --accent-foreground: 0 0% 100%;
+
+  /* Success, Warning, Error */
+  --success: 142 71% 45%;         /* #22c55e */
+  --warning: 38 92% 50%;          /* #f59e0b */
+  --error: 0 84% 60%;             /* #ef4444 */
+
+  /* UI Layout Sizes */
+  --header-height: 64px;
+  --bottom-nav-height: 56px;
+  --sidebar-width: 250px;
+}
+
+/* ---------- DARK MODE ---------- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: 240 5% 10%;
+    --card: 240 5% 15%;
+    --popover: 240 5% 15%;
+    --border: 240 5% 25%;
+    --foreground: 0 0% 98%;
+    --muted: 240 5% 25%;
+    --muted-foreground: 240 5% 70%;
+    --primary: 156 41% 45%;
+    --accent: 217 91% 65%;
+  }
+}
+
+/* ---------- GLOBAL BODY ---------- */
+body {
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ---------- GLOBAL CARD STYLING (MATCHES REACT LOOK) ---------- */
+.card {
+  @apply bg-card border border-border rounded-xl shadow-sm;
+}
+
+/* ---------- SMOOTH TRANSITIONS ---------- */
+* {
+  @apply transition-colors duration-200;
+}
