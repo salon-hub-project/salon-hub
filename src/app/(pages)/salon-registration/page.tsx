@@ -101,8 +101,8 @@ const SalonRegistration = () => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 1500));
       // Skip OTP for now and go straight to dashboard
-      // router.push('/salon-dashboard');
-      setCurrentStep('otp');
+      router.push('/salon-login');
+      // setCurrentStep('otp');
     } catch (error) {
       console.error('Registration error:', error);
     } finally {
@@ -137,7 +137,7 @@ const SalonRegistration = () => {
   };
 
   const handleContinue = () => {
-    router.push('/salon-dashboard');
+    router.push('/salon-login');
     console.log('Navigated to salon dashboard');
   };
 

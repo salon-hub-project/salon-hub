@@ -274,23 +274,68 @@ const StaffManagement = () => {
     setIsDetailsOpen(true);
   };
 
+  // const handleSaveEmployee = (data: EmployeeFormData) => {
+  //   if (editingEmployee) {
+  //     setEmployees((prev) =>
+  //       prev.map((emp) =>
+  //         emp.id === editingEmployee.id
+  //           ? {
+  //               ...emp,
+  //               ...data,
+  //             }
+  //           : emp
+  //       )
+  //     );
+  //   } else {
+  //     const newEmployee: Employee = {
+  //       id: Date.now().toString(),
+  //       ...data,
+  //       role: data.role as Employee["role"], 
+  //       status: "active",
+  //       joinDate: new Date().toISOString(),
+  //       avatar: undefined,
+  //       performanceMetrics: {
+  //         completedServices: 0,
+  //         customerRating: 0,
+  //         revenueGenerated: 0,
+  //         bookingCompletionRate: 0,
+  //       },
+  //     };
+  //     setEmployees((prev) => [...prev, newEmployee]);
+  //   }
+  //   setIsFormOpen(false);
+  //   setEditingEmployee(null);
+  // };
+
+  // fixed ts error in handleSaveEmployee
   const handleSaveEmployee = (data: EmployeeFormData) => {
     if (editingEmployee) {
-      setEmployees((prev) =>
-        prev.map((emp) =>
-          emp.id === editingEmployee.id
-            ? {
-                ...emp,
-                ...data,
-              }
-            : emp
-        )
+      setEmployees((prev): Employee[] =>
+        prev.map((emp) => {
+          if (emp.id !== editingEmployee.id) return emp;
+  
+          return {
+            ...emp,
+            name: data.name,
+            role: data.role as Employee["role"],
+            phone: data.phone,
+            email: data.email,
+            commissionRate: data.commissionRate,
+            assignedServices: data.assignedServices,
+            availability: data.availability,
+          };
+        })
       );
     } else {
       const newEmployee: Employee = {
         id: Date.now().toString(),
-        ...data,
-        role: data.role as Employee["role"], 
+        name: data.name,
+        role: data.role as Employee["role"],
+        phone: data.phone,
+        email: data.email,
+        assignedServices: data.assignedServices,
+        availability: data.availability,
+        commissionRate: data.commissionRate,
         status: "active",
         joinDate: new Date().toISOString(),
         avatar: undefined,
@@ -301,12 +346,14 @@ const StaffManagement = () => {
           bookingCompletionRate: 0,
         },
       };
+  
       setEmployees((prev) => [...prev, newEmployee]);
     }
+  
     setIsFormOpen(false);
     setEditingEmployee(null);
   };
-
+  
   const activeEmployees = employees.filter(
     (emp) => emp.status === "active"
   ).length;
