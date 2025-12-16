@@ -21,7 +21,7 @@ import { useRouter } from 'next/navigation';
 
 const CustomerDatabase = () => {
   // const navigate = useNavigate();
-  const router = useRouter
+  const router = useRouter()
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [showProfile, setShowProfile] = useState(false);
@@ -222,7 +222,9 @@ const CustomerDatabase = () => {
   };
 
   const handleBookAppointment = (customerId: string) => {
-    router.push('/booking-management', { state: { customerId } });
+    // router.push('/booking-management', { state: { customerId } });
+    router.push(`/booking-management?customerId=${customerId}`);
+
   };
 
   const handleSendMessage = (customerId: string) => {

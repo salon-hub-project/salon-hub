@@ -26,6 +26,7 @@ import WeekView from './components/WeekView';
 import QuickFilters from './components/QuickFilters';
 import BookingForm from './components/BookingForm';
 import BookingDetailsModal from './components/BookingDetailsModal';
+import { useSearchParams } from 'next/navigation';
 
 
 const BookingManagement = () => {
@@ -37,7 +38,11 @@ const BookingManagement = () => {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [filters, setFilters] = useState<BookingFilters>({});
   const [searchQuery, setSearchQuery] = useState('');
+  
 
+  const searchParams = useSearchParams();
+  const customerId = searchParams.get('customerId');
+  
   const mockCustomers: Customer[] = [
     {
       id: 'c1',
