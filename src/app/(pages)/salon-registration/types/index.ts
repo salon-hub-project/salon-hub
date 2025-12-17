@@ -3,6 +3,8 @@ export interface RegistrationFormData {
     ownerName: string;
     mobileNumber: string;
     address: string;
+    emailId: string;
+    phoneNumber: string;
     password: string;
     confirmPassword: string;
     termsAccepted: boolean;
@@ -13,6 +15,8 @@ export interface RegistrationFormData {
     ownerName?: string;
     mobileNumber?: string;
     address?: string;
+    emailId?: string;
+    phoneNumber?: string;
     password?: string;
     confirmPassword?: string;
     termsAccepted?: string;

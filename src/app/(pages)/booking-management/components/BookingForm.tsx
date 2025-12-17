@@ -36,7 +36,7 @@ const BookingForm = ({
     notes: '',
   });
 
-  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [selectedServices, setSelectedServices] = useState<string[]>([]); // Multi-select for services
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -51,20 +51,14 @@ const BookingForm = ({
     }
   }, [selectedTime]);
 
-  const handleServiceChange = (serviceId: string) => {
-    const service = services.find((s) => s.id === serviceId);
-    setSelectedService(service || null);
-    setFormData((prev) => ({ ...prev, serviceId }));
-  };
-
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.customerId) {
       newErrors.customerId = 'Please select a customer';
     }
-    if (!formData.serviceId) {
-      newErrors.serviceId = 'Please select a service';
+    if (selectedServices.length === 0) {
+      newErrors.serviceId = 'Please select at least one service';
     }
     if (!formData.staffId) {
       newErrors.staffId = 'Please select a staff member';
@@ -80,7 +74,10 @@ const BookingForm = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
-      onSubmit(formData);
+      onSubmit({
+        ...formData,
+        serviceId: selectedServices.join(','), // Combine selected services into a single string
+      });
     }
   };
 
@@ -93,7 +90,7 @@ const BookingForm = ({
     .filter((service) => service.isActive)
     .map((service) => ({
       value: service.id,
-      label: `${service.name} - $${service.price} (${service.duration} min)`,
+      label: `${service.name} - INR${service.price} (${service.duration} min)`,
     }));
 
   const staffOptions = staff
@@ -133,32 +130,17 @@ const BookingForm = ({
         />
 
         <Select
-          label="Service"
-          placeholder="Select service..."
+          label="Services"
+          placeholder="Select services..."
           options={serviceOptions}
-          value={formData.serviceId}
-          onChange={(value) => handleServiceChange(value as string)}
+          value={selectedServices}
+          onChange={(value) => setSelectedServices(value as string[])} // Multi-select handler
           searchable
+          multiple // Enable multi-select
+          clearable
           required
           error={errors.serviceId}
         />
-
-        {selectedService && (
-          <div className="p-3 bg-muted rounded-md space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Duration:</span>
-              <span className="font-medium text-foreground">{selectedService.duration} minutes</span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Price:</span>
-              <span className="font-medium text-foreground">${selectedService.price.toFixed(2)}</span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Category:</span>
-              <span className="font-medium text-foreground">{selectedService.category}</span>
-            </div>
-          </div>
-        )}
 
         <Input
           type="date"

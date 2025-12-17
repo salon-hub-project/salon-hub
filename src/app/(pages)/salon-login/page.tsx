@@ -5,31 +5,45 @@ import { useRouter } from "next/navigation";
 import LoginHeader from "./components/LoginHeader";
 import LoginForm from "./components/LoginForm";
 import { LoginFormData, ValidationErrors } from "./types";
-// import { LoginFormData, ValidationErrors } from "./types";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { loginUser, clearError } from "../../store/slices/authSlice";
 
 const LoginPage = () => {
   const router = useRouter();
+  const dispatch = useAppDispatch();
+  const { isLoading, error, isAuthenticated } = useAppSelector((state) => state.auth);
 
   const [formData, setFormData] = useState<LoginFormData>({
-    mobileNumber: "",
+    email: "",
     password: "",
   });
 
   const [errors, setErrors] = useState<ValidationErrors>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     document.title = "Login - SalonHub";
   }, []);
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push("/salon-dashboard");
+    }
+  }, [isAuthenticated, router]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(clearError());
+    };
+  }, [dispatch]);
+
   const validateForm = () => {
     const newErrors: ValidationErrors = {};
-    const phoneRegex = /^\+?\d{10,14}$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!formData.mobileNumber.trim()) {
-      newErrors.mobileNumber = "Mobile number is required";
-    } else if (!phoneRegex.test(formData.mobileNumber.trim())) {
-      newErrors.mobileNumber = "Enter a valid mobile number";
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!emailRegex.test(formData.email.trim())) {
+      newErrors.email = "Enter a valid email address";
     }
 
     if (!formData.password) {
@@ -40,13 +54,13 @@ const LoginPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleInputChange = (
-    field: keyof LoginFormData,
-    value: string
-  ) => {
+  const handleInputChange = (field: keyof LoginFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
+    if (error) {
+      dispatch(clearError());
     }
   };
 
@@ -54,17 +68,12 @@ const LoginPage = () => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    setIsSubmitting(true);
-
-    try {
-      // mock login
-      await new Promise((res) => setTimeout(res, 1200));
-      router.push("/salon-dashboard");
-    } catch (err) {
-      console.error("Login error", err);
-    } finally {
-      setIsSubmitting(false);
-    }
+    dispatch(
+      loginUser({
+        email: formData.email.trim(),
+        password: formData.password,
+      })
+    );
   };
 
   return (
@@ -72,12 +81,19 @@ const LoginPage = () => {
       <div className="container mx-auto px-4 py-10">
         <div className="max-w-md mx-auto bg-card rounded-lg shadow-md p-6">
           <LoginHeader />
+
+          {error && (
+            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+              {error}
+            </div>
+          )}
+
           <LoginForm
             formData={formData}
             errors={errors}
             onInputChange={handleInputChange}
             onSubmit={handleSubmit}
-            isSubmitting={isSubmitting}
+            isSubmitting={isLoading}
           />
         </div>
       </div>

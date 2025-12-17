@@ -1,18 +1,20 @@
 "use client";
 import { useState, useEffect } from 'react';
-// import { useNavigate } from 'react-router-dom';
 import RegistrationHeader from './components/RegistrationHeader';
 import RegistrationForm from './components/RegistrationForm';
 import OTPVerificationModal from './components/OTPVerificationModal';
 import SuccessMessage from './components/SuccessMessage';
 import { RegistrationFormData, ValidationErrors } from './types';
 import { useRouter } from 'next/navigation';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { registerOwner, clearError, clearRegistrationSuccess } from '../../store/slices/authSlice';
 
 const SalonRegistration = () => {
-  // const navigate = useNavigate();
   const router = useRouter();
+  const dispatch = useAppDispatch();
+  const { isLoading, error, registrationSuccess } = useAppSelector((state) => state.auth);
+  
   const [currentStep, setCurrentStep] = useState<'form' | 'otp' | 'success'>('form');
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [registrationId, setRegistrationId] = useState('');
 
@@ -21,6 +23,8 @@ const SalonRegistration = () => {
     ownerName: '',
     mobileNumber: '',
     address: '',
+    emailId: '',
+    phoneNumber: '',
     password: '',
     confirmPassword: '',
     termsAccepted: false,
@@ -32,21 +36,32 @@ const SalonRegistration = () => {
     document.title = 'Salon Registration - SalonHub';
   }, []);
 
+  useEffect(() => {
+    if (registrationSuccess) {
+      router.push('/salon-login');
+      dispatch(clearRegistrationSuccess());
+    }
+  }, [registrationSuccess, router, dispatch]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(clearError());
+      dispatch(clearRegistrationSuccess());
+    };
+  }, [dispatch]);
+
   const validateForm = (): boolean => {
     const newErrors: ValidationErrors = {};
 
-    if (!formData.salonName.trim()) {
-      newErrors.salonName = 'Salon name is required';
-    } else if (formData.salonName.trim().length < 3) {
-      newErrors.salonName = 'Salon name must be at least 3 characters';
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.emailId.trim()) {
+      newErrors.emailId = 'Email is required';
+    } else if (!emailRegex.test(formData.emailId.trim())) {
+      newErrors.emailId = 'Please enter a valid email address';
     }
 
-    if (!formData.ownerName.trim()) {
-      newErrors.ownerName = 'Owner name is required';
-    } else if (formData.ownerName.trim().length < 3) {
-      newErrors.ownerName = 'Owner name must be at least 3 characters';
-    }
-
+    // Phone number validation
     const phoneRegex = /^\+?1?\s?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/;
     if (!formData.mobileNumber.trim()) {
       newErrors.mobileNumber = 'Mobile number is required';
@@ -54,26 +69,30 @@ const SalonRegistration = () => {
       newErrors.mobileNumber = 'Please enter a valid mobile number';
     }
 
+    // Address validation
     if (!formData.address.trim()) {
       newErrors.address = 'Address is required';
     } else if (formData.address.trim().length < 10) {
       newErrors.address = 'Please enter a complete address';
     }
 
+    // Password validation
     if (!formData.password) {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 8) {
       newErrors.password = 'Password must be at least 8 characters';
-    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-      newErrors.password = 'Password must contain uppercase, lowercase, and numbers';
+    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>])/.test(formData.password)) {
+      newErrors.password = 'Password must contain uppercase, lowercase, number, and special character';
     }
 
+    // Confirm password validation
     if (!formData.confirmPassword) {
       newErrors.confirmPassword = 'Please confirm your password';
     } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
 
+    // Terms acceptance
     if (!formData.termsAccepted) {
       newErrors.termsAccepted = 'You must accept the terms and conditions';
     }
@@ -87,6 +106,9 @@ const SalonRegistration = () => {
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
+    if (error) {
+      dispatch(clearError());
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -96,20 +118,15 @@ const SalonRegistration = () => {
       return;
     }
 
-    setIsSubmitting(true);
-
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      // Skip OTP for now and go straight to dashboard
-      router.push('/salon-login');
-      // setCurrentStep('otp');
-    } catch (error) {
-      console.error('Registration error:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
+    dispatch(
+      registerOwner({
+        email: formData.emailId.trim(),
+        address: formData.address.trim(),
+        password: formData.password,
+        phoneNumber: formData.mobileNumber.trim(),
+      })
+    );
   };
-  
   
   const handleOTPVerify = async (otp: string) => {
     setIsVerifying(true);
@@ -120,8 +137,8 @@ const SalonRegistration = () => {
       const mockRegistrationId = `REG${Date.now().toString().slice(-8)}`;
       setRegistrationId(mockRegistrationId);
       setCurrentStep('success');
-    } catch (error) {
-      console.error('OTP verification error:', error);
+    } catch (err) {
+      console.error('OTP verification error:', err);
     } finally {
       setIsVerifying(false);
     }
@@ -131,8 +148,8 @@ const SalonRegistration = () => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       console.log('OTP resent successfully');
-    } catch (error) {
-      console.error('OTP resend error:', error);
+    } catch (err) {
+      console.error('OTP resend error:', err);
     }
   };
 
@@ -148,13 +165,19 @@ const SalonRegistration = () => {
           {currentStep === 'form' && (
             <div className="bg-card rounded-lg shadow-md p-6 lg:p-8">
               <RegistrationHeader />
+              
+              {error && (
+                <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                  {error}
+                </div>
+              )}
+              
               <RegistrationForm
                 formData={formData}
                 errors={errors}
                 onInputChange={handleInputChange}
                 onSubmit={handleSubmit}
-                // onSubmit={handleContinue}
-                isSubmitting={isSubmitting}
+                isSubmitting={isLoading}
               />
             </div>
           )}

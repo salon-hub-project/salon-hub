@@ -264,7 +264,14 @@ const Sidebar = ({
       path: "/combo-offers-management",
       icon: "BadgePercent",
       roles: ["super_admin", "salon_owner", "staff"],
+    },
+    {
+      label: "Owner-Manager",
+      path: "/combo-offers-management",
+      icon: "BadgePercent",
+      roles: ["super_admin"],
     }
+
   ];
 
   const filteredMenuItems = menuItems.filter((item) =>

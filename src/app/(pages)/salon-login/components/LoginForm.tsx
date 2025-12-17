@@ -25,14 +25,14 @@ const LoginForm = ({
   return (
     <form onSubmit={onSubmit} className="space-y-6">
       <Input
-        label="Mobile Number"
-        type="tel"
-        placeholder="Enter registered mobile number"
-        value={formData.mobileNumber}
+        label="Email"
+        type="email"
+        placeholder="Enter your email address"
+        value={formData.email}
         onChange={(e) =>
-          onInputChange("mobileNumber", e.target.value)
+          onInputChange("email", e.target.value)
         }
-        error={errors.mobileNumber}
+        error={errors.email}
         disabled={isSubmitting}
         required
       />

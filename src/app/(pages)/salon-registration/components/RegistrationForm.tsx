@@ -60,7 +60,7 @@ const RegistrationForm = ({
 
   return (
     <form onSubmit={onSubmit} className="space-y-6">
-      <Input
+      {/* <Input
         label="Salon Name"
         type="text"
         placeholder="Enter your salon name"
@@ -69,9 +69,9 @@ const RegistrationForm = ({
         error={errors.salonName}
         required
         disabled={isSubmitting}
-      />
+      /> */}
 
-      <Input
+      {/* <Input
         label="Owner Name"
         type="text"
         placeholder="Enter owner's full name"
@@ -80,24 +80,33 @@ const RegistrationForm = ({
         error={errors.ownerName}
         required
         disabled={isSubmitting}
-      />
+      /> */}
 
       <Input
         label="Mobile Number"
         type="tel"
-        placeholder="+1 (555) 000-0000"
+        placeholder="Enter your mobile number"
         value={formData.mobileNumber}
         onChange={(e) => onInputChange('mobileNumber', e.target.value)}
         error={errors.mobileNumber}
-        description="We'll send an OTP to this number via WhatsApp"
+        // description="We'll send an OTP to this number via WhatsApp"
         required
         disabled={isSubmitting}
       />
-
+          <Input
+        label="Email"
+        type="email"
+        placeholder="Enter your email address"
+        value={formData.emailId}
+        onChange={(e) => onInputChange('emailId', e.target.value)}
+        error={errors.emailId}
+        required
+        disabled={isSubmitting}
+      />
       <Input
         label="Address"
         type="text"
-        placeholder="Enter salon address"
+        placeholder="Enter address"
         value={formData.address}
         onChange={(e) => onInputChange('address', e.target.value)}
         error={errors.address}

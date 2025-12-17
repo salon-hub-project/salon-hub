@@ -25,6 +25,7 @@ export interface SelectProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonE
     searchable?: boolean;
     clearable?: boolean;
     loading?: boolean;
+    isMulti?: boolean;
     name?: string;
     onChange?: (value: any) => void;
     onOpenChange?: (open: boolean) => void;
