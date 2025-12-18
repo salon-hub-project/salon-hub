@@ -13,8 +13,10 @@ import BulkOperationsBar from './components/BulkOperationsBar';
 import CategoryManager from './components/CategoryManager';
 import Button from '../../components/ui/Button';
 import Icon from '../../components/AppIcon';
+import { useAppSelector } from '../../store/hooks';
 
 const ServiceManagement = () => {
+  const authUser = useAppSelector((state) => state.auth.user);
   const [services, setServices] = useState<Service[]>([
     {
       id: '1',
@@ -347,8 +349,8 @@ const ServiceManagement = () => {
 
   const user = {
     name: 'Sarah Johnson',
-    email: 'sarah@glamoursalon.com',
-    role: 'salon_owner' as const,
+    email: authUser?.email || 'sarah@glamoursalon.com',
+    role: authUser?.role || 'salon_owner',
     salonName: 'Glamour Salon & Spa',
   };
 

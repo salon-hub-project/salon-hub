@@ -5,6 +5,7 @@ import Header from '../../components/Header';
 import MobileBottomNav from '../../components/MobileBottomNav';
 import Icon from '../../components/AppIcon';
 import Button from '../../components/ui/Button';
+import { useAppSelector } from '../../store/hooks';
 
 // import CalendarHeader from './components/CalendarHeader';
 // import DayView from './components/DayView';
@@ -29,6 +30,7 @@ import BookingDetailsModal from './components/BookingDetailsModal';
 
 
 const BookingManagement = () => {
+  const authUser = useAppSelector((state) => state.auth.user);
   const [viewMode, setViewMode] = useState<ViewMode>('day');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
@@ -390,8 +392,8 @@ const BookingManagement = () => {
 
   const currentUser = {
     name: 'John Smith',
-    email: 'john.smith@salonhub.com',
-    role: 'salon_owner' as const,
+    email: authUser?.email || 'john.smith@salonhub.com',
+    role: authUser?.role || 'salon_owner',
     salonName: 'Glamour Studio',
   };
 

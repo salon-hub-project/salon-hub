@@ -18,10 +18,12 @@ import {
   ServiceHistory,
 } from './types';
 import { useRouter } from 'next/navigation';
+import { useAppSelector } from '../../store/hooks';
 
 const CustomerDatabase = () => {
   // const navigate = useNavigate();
   const router = useRouter()
+  const authUser = useAppSelector((state) => state.auth.user);
   const [isMobile, setIsMobile] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false;
     return window.innerWidth < 1024;
@@ -244,8 +246,8 @@ const CustomerDatabase = () => {
 
   const user = {
     name: 'John Smith',
-    email: 'john.smith@salonhub.com',
-    role: 'salon_owner' as const,
+    email: authUser?.email || 'john.smith@salonhub.com',
+    role: authUser?.role || 'salon_owner',
     salonName: 'Glamour Studio',
   };
 

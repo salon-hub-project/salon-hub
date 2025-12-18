@@ -197,10 +197,11 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Icon from "./AppIcon";
+import { useAppSelector } from "../store/hooks";
 
 interface SidebarProps {
   isCollapsed?: boolean;
-  userRole?: "super_admin" | "salon_owner" | "staff";
+  userRole?: string;
   notificationCounts?: Record<string, number>;
   onNavigate?: (path: string) => void;
 }
@@ -213,14 +214,42 @@ interface MenuItem {
   badge?: number;
 }
 
+// Normalize role to standard format (handles API returning OWNER, owner, salon_owner, etc.)
+const normalizeRole = (role: string | undefined): string => {
+  if (!role) return 'salon_owner'; // Default fallback
+  
+  const normalizedRole = role.toLowerCase().trim();
+  
+  // Map various role formats to standard ones
+  if (normalizedRole === 'superadmin' || normalizedRole === 'super_admin' || normalizedRole === 'admin') {
+    return 'super_admin';
+  }
+  if (normalizedRole === 'owner' || normalizedRole === 'salon_owner') {
+    return 'salon_owner';
+  }
+  if (normalizedRole === 'staff' || normalizedRole === 'employee') {
+    return 'staff';
+  }
+  
+  return normalizedRole;
+};
+
 const Sidebar = ({
   isCollapsed = false,
-  userRole = "salon_owner",
+  userRole,
   notificationCounts = {},
 }: SidebarProps) => {
   const pathname = usePathname();
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(isCollapsed);
+  
+  // Get user role from Redux store if not provided as prop
+  const authUser = useAppSelector((state) => state.auth.user);
+  const roleFromStore = authUser?.role;
+  const effectiveRole = userRole || roleFromStore || 'salon_owner';
+  
+  // Normalize the user role for consistent matching
+  const normalizedUserRole = normalizeRole(effectiveRole);
 
   const menuItems: MenuItem[] = [
     {
@@ -267,7 +296,7 @@ const Sidebar = ({
     },
     {
       label: "Owner-Manager",
-      path: "/combo-offers-management",
+      path: "/owner-manager",
       icon: "BadgePercent",
       roles: ["super_admin"],
     }
@@ -275,7 +304,7 @@ const Sidebar = ({
   ];
 
   const filteredMenuItems = menuItems.filter((item) =>
-    item.roles.includes(userRole)
+    item.roles.includes(normalizedUserRole)
   );
 
   const handleNavigation = (path: string) => {

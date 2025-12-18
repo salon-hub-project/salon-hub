@@ -1,13 +1,32 @@
+'use client';
+
 import { useState, useRef, useEffect } from 'react';
 import Icon from './AppIcon';
 
 interface User {
   name: string;
   email: string;
-  role: 'super_admin' | 'salon_owner' | 'staff';
+  role: string;  // Made flexible to accept any role format from API
   avatar?: string;
   salonName?: string;
 }
+
+// Normalize role to standard format
+const normalizeRole = (role: string): string => {
+  const normalizedRole = role.toLowerCase().trim();
+  
+  if (normalizedRole === 'superadmin' || normalizedRole === 'super_admin' || normalizedRole === 'admin') {
+    return 'super_admin';
+  }
+  if (normalizedRole === 'owner' || normalizedRole === 'salon_owner') {
+    return 'salon_owner';
+  }
+  if (normalizedRole === 'staff' || normalizedRole === 'employee') {
+    return 'staff';
+  }
+  
+  return normalizedRole;
+};
 
 interface HeaderProps {
   user: User;
@@ -48,12 +67,13 @@ const Header = ({
   }, []);
 
   const getRoleLabel = (role: string) => {
+    const normalizedRole = normalizeRole(role);
     const roleMap: Record<string, string> = {
       super_admin: 'Super Admin',
       salon_owner: 'Salon Owner',
       staff: 'Staff Member',
     };
-    return roleMap[role] || role;
+    return roleMap[normalizedRole] || role;
   };
 
   const handleLogout = () => {
@@ -83,7 +103,7 @@ const Header = ({
         <div className="flex-1" />
 
         <div className="flex items-center gap-4">
-          {user.role === 'super_admin' && availableSalons.length > 0 && (
+          {normalizeRole(user.role) === 'super_admin' && availableSalons.length > 0 && (
             <div className="relative" ref={salonSwitcherRef}>
               <button
                 onClick={() => setIsSalonSwitcherOpen(!isSalonSwitcherOpen)}

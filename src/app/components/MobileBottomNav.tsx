@@ -114,12 +114,11 @@
 
 "use client";
 
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Icon from "./AppIcon";
 
 interface MobileBottomNavProps {
-  userRole?: "super_admin" | "salon_owner" | "staff";
+  userRole?: string;
   notificationCounts?: Record<string, number>;
   onNavigate?: (path: string) => void;
 }
@@ -131,6 +130,23 @@ interface NavItem {
   roles: string[];
 }
 
+// Normalize role to standard format (handles API returning OWNER, owner, salon_owner, etc.)
+const normalizeRole = (role: string): string => {
+  const normalizedRole = role.toLowerCase().trim();
+  
+  if (normalizedRole === 'superadmin' || normalizedRole === 'super_admin' || normalizedRole === 'admin') {
+    return 'super_admin';
+  }
+  if (normalizedRole === 'owner' || normalizedRole === 'salon_owner') {
+    return 'salon_owner';
+  }
+  if (normalizedRole === 'staff' || normalizedRole === 'employee') {
+    return 'staff';
+  }
+  
+  return normalizedRole;
+};
+
 const MobileBottomNav = ({
   userRole = "salon_owner",
   notificationCounts = {},
@@ -138,6 +154,9 @@ const MobileBottomNav = ({
 }: MobileBottomNavProps) => {
   const pathname = usePathname();
   const router = useRouter();
+  
+  // Normalize the user role for consistent matching
+  const normalizedUserRole = normalizeRole(userRole);
 
   const navItems: NavItem[] = [
     {
@@ -173,7 +192,7 @@ const MobileBottomNav = ({
   ];
 
   const filteredNavItems = navItems
-    .filter((item) => item.roles.includes(userRole))
+    .filter((item) => item.roles.includes(normalizedUserRole))
     .slice(0, 5);
 
   const handleNavigation = (path: string) => {

@@ -18,8 +18,10 @@ import {
   RoleFilter,
   Service,
 } from "./types";
+import { useAppSelector } from '../../store/hooks';
 
 const StaffManagement = () => {
+  const authUser = useAppSelector((state) => state.auth.user);
   const [isMobile, setIsMobile] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
     return window.innerWidth < 1024;
@@ -46,8 +48,8 @@ const StaffManagement = () => {
 
   const currentUser = {
     name: "Sarah Johnson",
-    email: "sarah@salonhub.com",
-    role: "salon_owner" as const,
+    email: authUser?.email || "sarah@salonhub.com",
+    role: authUser?.role || "salon_owner",
     salonName: "Elegance Beauty Salon",
   };
 

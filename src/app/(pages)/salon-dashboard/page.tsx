@@ -20,17 +20,19 @@ import {
   Notification,
 } from './types';
 import { useRouter } from 'next/navigation';
+import { useAppSelector } from '../../store/hooks';
 
 const SalonDashboard = () => {
   // const navigate = useNavigate();
   const router = useRouter();
+  const authUser = useAppSelector((state) => state.auth.user);
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const currentUser = {
     name: "Sarah Johnson",
-    email: "sarah@salonhub.com",
-    role: "salon_owner" as const,
+    email: authUser?.email || "sarah@salonhub.com",
+    role: authUser?.role || "salon_owner",
     avatar: "https://randomuser.me/api/portraits/women/44.jpg",
     salonName: "Elegance Beauty Salon",
   };

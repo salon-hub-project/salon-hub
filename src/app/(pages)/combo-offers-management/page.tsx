@@ -12,8 +12,10 @@ import ComboFormModal from './components/ComboFormModal';
 import ComboPreviewModal from './components/ComboPreviewModal';
 import Button from '../../components/ui/Button';
 import Icon from '../../components/AppIcon';
+import { useAppSelector } from '../../store/hooks';
 
 const ComboOffersManagement = () => {
+  const authUser = useAppSelector((state) => state.auth.user);
   // Mock services data for combo creation
   const availableServices = [
     { id: '1', name: 'Classic Haircut', duration: 45, price: 35.0 },
@@ -336,8 +338,8 @@ const ComboOffersManagement = () => {
 
   const user = {
     name: 'Sarah Johnson',
-    email: 'sarah@glamoursalon.com',
-    role: 'salon_owner' as const,
+    email: authUser?.email || 'sarah@glamoursalon.com',
+    role: authUser?.role || 'salon_owner',
     salonName: 'Glamour Salon & Spa',
   };
 

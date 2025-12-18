@@ -4,9 +4,14 @@ import config from '../../config';
 // Types
 export interface User {
   id?: string;
+  _id?: string;
   email: string;
   phoneNumber?: string;
   address?: string;
+  role?: string;
+  firstName?: string;
+  lastName?: string;
+  isVerified?: boolean;
 }
 
 export interface AuthState {
@@ -33,6 +38,8 @@ export interface RegisterPayload {
 interface ApiResponse {
   success?: boolean;
   message?: string;
+  token?: string;
+  user?: User;
   data?: {
     token?: string;
     user?: User;
@@ -40,12 +47,31 @@ interface ApiResponse {
   };
 }
 
+// Helper function to get user from localStorage
+const getUserFromStorage = (): User | null => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const userData = localStorage.getItem('authUser');
+    return userData ? JSON.parse(userData) : null;
+  } catch {
+    return null;
+  }
+};
+
+// Helper function to get initial auth state
+const getInitialAuthState = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  const token = localStorage.getItem('authToken');
+  const user = getUserFromStorage();
+  return !!(token && user);
+};
+
 // Initial state
 const initialState: AuthState = {
-  user: null,
+  user: getUserFromStorage(),
   token: typeof window !== 'undefined' ? localStorage.getItem('authToken') : null,
   isLoading: false,
-  isAuthenticated: false,
+  isAuthenticated: getInitialAuthState(),
   error: null,
   registrationSuccess: false,
 };
@@ -117,6 +143,7 @@ const authSlice = createSlice({
       state.error = null;
       if (typeof window !== 'undefined') {
         localStorage.removeItem('authToken');
+        localStorage.removeItem('authUser');
       }
     },
     clearError: (state) => {
@@ -129,6 +156,10 @@ const authSlice = createSlice({
       state.user = action.payload.user;
       state.token = action.payload.token;
       state.isAuthenticated = true;
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('authToken', action.payload.token);
+        localStorage.setItem('authUser', JSON.stringify(action.payload.user));
+      }
     },
   },
   extraReducers: (builder) => {
@@ -143,15 +174,22 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
         state.error = null;
         
-        if (action.payload.data?.token) {
-          state.token = action.payload.data.token;
+        // Handle both response structures: { token, user } or { data: { token, user } }
+        const token = action.payload.token || action.payload.data?.token;
+        const user = action.payload.user || action.payload.data?.user;
+        
+        if (token) {
+          state.token = token;
           if (typeof window !== 'undefined') {
-            localStorage.setItem('authToken', action.payload.data.token);
+            localStorage.setItem('authToken', token);
           }
         }
         
-        if (action.payload.data?.user) {
-          state.user = action.payload.data.user;
+        if (user) {
+          state.user = user;
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('authUser', JSON.stringify(user));
+          }
         }
       })
       .addCase(loginUser.rejected, (state, action) => {
@@ -182,4 +220,5 @@ const authSlice = createSlice({
 
 export const { logout, clearError, clearRegistrationSuccess, setCredentials } = authSlice.actions;
 export default authSlice.reducer;
+
 
