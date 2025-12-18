@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import * as LucideIcons from 'lucide-react';
 import { HelpCircle, LucideProps } from 'lucide-react';

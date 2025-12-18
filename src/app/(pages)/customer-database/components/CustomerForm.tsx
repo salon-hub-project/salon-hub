@@ -113,7 +113,7 @@ const CustomerForm = ({ customer, onClose, onSave }: CustomerFormProps) => {
             <Input
               label="Phone Number"
               type="tel"
-              placeholder="+1 (555) 123-4567"
+              placeholder="Enter phone number"
               value={formData.phone}
               onChange={(e) => handleChange('phone', e.target.value)}
               error={errors.phone}

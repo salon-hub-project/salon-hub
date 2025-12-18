@@ -45,7 +45,7 @@ const CustomerDatabase = () => {
     {
       id: '1',
       name: 'Emma Thompson',
-      phone: '+1 (555) 123-4567',
+      phone: '+91 1234567890',
       email: 'emma.thompson@email.com',
       gender: 'female',
       dateOfBirth: '1985-03-15',
@@ -62,7 +62,7 @@ const CustomerDatabase = () => {
     {
       id: '2',
       name: 'Michael Rodriguez',
-      phone: '+1 (555) 234-5678',
+      phone: '+91 1234567890',
       email: 'michael.r@email.com',
       gender: 'male',
       address: '456 Oak Avenue, Brooklyn, NY 11201',
@@ -78,7 +78,7 @@ const CustomerDatabase = () => {
     {
       id: '3',
       name: 'Sarah Williams',
-      phone: '+1 (555) 345-6789',
+      phone: '+91 1234567890',
       email: 'sarah.w@email.com',
       gender: 'female',
       dateOfBirth: '1992-07-22',
@@ -94,7 +94,7 @@ const CustomerDatabase = () => {
     {
       id: '4',
       name: 'James Chen',
-      phone: '+1 (555) 456-7890',
+      phone: '+91 1234567890',
       gender: 'male',
       address: '321 Elm Street, Queens, NY 11354',
       notes: 'VIP customer. Prefers premium services and products.',
@@ -109,7 +109,7 @@ const CustomerDatabase = () => {
     {
       id: '5',
       name: 'Lisa Anderson',
-      phone: '+1 (555) 567-8901',
+      phone: '+91 1234567890',
       email: 'lisa.anderson@email.com',
       gender: 'female',
       dateOfBirth: '1988-11-30',
@@ -124,7 +124,7 @@ const CustomerDatabase = () => {
     {
       id: '6',
       name: 'David Kim',
-      phone: '+1 (555) 678-9012',
+      phone: '+91 1234567890',
       gender: 'male',
       address: '654 Maple Drive, Bronx, NY 10451',
       notes: 'Has not visited in over 6 months. Send promotional offer.',
