@@ -57,10 +57,12 @@ const ownerSlice = createSlice({
     builder
       // FETCH OWNERS
       .addCase(fetchOwners.pending, (state) => {
+        
         state.isLoading = true;
         state.error = null;
       })
       .addCase(fetchOwners.fulfilled, (state, action) => {
+        console.log('FETCH OWNERS RESPONSE 👉', action.payload);
         state.isLoading = false;
         state.owners = action.payload.owners;
         state.total = action.payload.total;

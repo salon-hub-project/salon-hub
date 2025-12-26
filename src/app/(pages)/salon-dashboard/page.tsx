@@ -363,7 +363,8 @@ const SalonDashboard = () => {
         user={currentUser}
         notifications={notifications.filter((n) => !n.read).length}
         onLogout={handleLogout}
-        onProfileClick={handleProfileClick}
+        // onProfileClick={handleProfileClick}
+        onProfileClick={() => router.push('/profile')}
         onNotificationClick={handleNotificationClick}
       />
 

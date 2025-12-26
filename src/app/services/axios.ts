@@ -17,6 +17,12 @@ api.interceptors.request.use((config) => {
       config.headers.Authorization = `Bearer ${token}`;
     }
   }
+  
+  // Remove Content-Type header for FormData - axios will set it automatically with boundary
+  if (config.data instanceof FormData) {
+    delete config.headers['Content-Type'];
+  }
+  
   return config;
 });
 
@@ -31,10 +37,11 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && typeof window !== 'undefined') {
       localStorage.removeItem('authToken');
       localStorage.removeItem('authUser');
-      window.location.href = '/login';
+      window.location.href = '/salon-login';
     }
 
-    return Promise.reject(message);
+    // Preserve the original error object so error.response is still accessible
+    return Promise.reject(error);
   }
 );
 

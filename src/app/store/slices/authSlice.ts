@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { authApi, LoginPayload, RegisterPayload } from '../../services/auth.api';
+import axios from 'axios';
 
 /* TYPES */
 export interface User {
@@ -55,17 +56,35 @@ export const loginUser = createAsyncThunk(
   }
 );
 
+// export const registerOwner = createAsyncThunk(
+//   'auth/register',
+//   async (payload: RegisterPayload, { rejectWithValue }) => {
+//     try {
+//       return await authApi.registerOwner(payload);
+//     } catch (err) {
+//       return rejectWithValue(err);
+//     }
+//   }
+// );
+
+
+
 export const registerOwner = createAsyncThunk(
   'auth/register',
   async (payload: RegisterPayload, { rejectWithValue }) => {
     try {
-      return await authApi.registerOwner(payload);
-    } catch (err) {
-      return rejectWithValue(err);
+      const response = await authApi.registerOwner(payload);
+      return response;
+    } catch (err: any) {
+      if (axios.isAxiosError(err)) {
+        return rejectWithValue(
+          err.response?.data?.message || 'Registration failed'
+        );
+      }
+      return rejectWithValue('Something went wrong');
     }
   }
 );
-
 /* SLICE */
 const authSlice = createSlice({
   name: 'auth',
@@ -122,6 +141,7 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       });
+      
   },
 });
 

@@ -232,3 +232,5 @@ const SalonRegistrationClient = () => {
 export default SalonRegistrationClient;
 
 
+
+
