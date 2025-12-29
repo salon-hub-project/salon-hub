@@ -17,5 +17,5 @@ export const authApi = {
     api.post('/login', payload).then((res) => res.data),
 
   registerOwner: (payload: RegisterPayload) =>
-    api.post('/owner/register', payload).then((res) => res.data),
+    api.post('/owner', payload).then((res) => res.data),
 };

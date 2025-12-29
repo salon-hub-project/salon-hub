@@ -36,13 +36,35 @@ export const approveOwner = createAsyncThunk(
     return await ownerApi.approveOwner(ownerId);
   }
 );
+
+// UPDATE OWNER
+export const updateOwner = createAsyncThunk(
+  'owner/updateOwner',
+  async (
+    { ownerId, formData }: { ownerId: string; formData: FormData },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await ownerApi.updateOwner(ownerId, formData);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || 'Owner update failed'
+      );
+    }
+  }
+);
+
+
 /* DELETE OWNER */
 export const deleteOwner = createAsyncThunk(
   'owner/delete',
-  async(ownerId:string)=>{
-    return await ownerApi.deleteOwner(ownerId)
+  async (ownerId: string) => {
+    await ownerApi.deleteOwner(ownerId);
+    return ownerId; 
   }
-)
+);
+
 
 /* SLICE */
 const ownerSlice = createSlice({
@@ -84,9 +106,22 @@ const ownerSlice = createSlice({
           state.owners[index].isApproved = true;
         }
       })
+      //UPDATE OWNER
+      .addCase(updateOwner.fulfilled, (state, action) => {
+        state.isLoading = false;
+        const updatedOwner = action.payload;
+        const index = state.owners.findIndex(
+          (owner) => owner._id === updatedOwner._id
+        );
+      
+        if (index !== -1) {
+          state.owners[index] = updatedOwner;
+        }
+      })
+      
       // DELETE OWNER
       .addCase(deleteOwner.fulfilled,(state,action)=>{
-        const deletedOwnerId = action.payload._id
+        const deletedOwnerId = action.payload
         state.owners = state.owners.filter(owner=>owner._id !== deletedOwnerId)
       })
   },

@@ -1,7 +1,11 @@
 "use client";
 
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
-import { fetchOwners, approveOwner, deleteOwner } from "@/app/store/slices/ownerSlice";
+import {
+  fetchOwners,
+  approveOwner,
+  deleteOwner,
+} from "@/app/store/slices/ownerSlice";
 import { useEffect } from "react";
 
 import Sidebar from "@/app/components/Sidebar";
@@ -16,9 +20,14 @@ const GetAllOwners = () => {
   useEffect(() => {
     dispatch(fetchOwners({ page: 1, limit: 10 }));
   }, [dispatch]);
-  const handleDelete = (ownerId : string)=>{
-    dispatch(deleteOwner(ownerId))
-  }
+  const handleDelete = (ownerId: string) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete your profile?"
+    );
+
+    if (!confirmDelete) return;
+    dispatch(deleteOwner(ownerId));
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -82,7 +91,7 @@ const GetAllOwners = () => {
                           </button>
                         )}
                       </td>
-                      <td className="flex items-center gap-3">
+                      <td className="flex items-center gap-3 ">
                         <button
                           // onClick={() => handleView(user)}
                           className="text-gray-500 hover:text-indigo-600 transition"

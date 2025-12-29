@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Icon from '../../components/AppIcon';
 import Sidebar from '../../components/Sidebar';
@@ -8,15 +8,23 @@ import Header from '../../components/Header';
 import MobileBottomNav from '../../components/MobileBottomNav';
 import AuthGuard from '../../components/AuthGuard';
 import { useAppSelector } from '../../store/hooks';
+import { useAppDispatch } from '../../store/hooks';
+import { getProfile, deleteProfile } from '@/app/store/slices/profileSlice';
+
+interface ProfileItemProps {
+  icon: string;
+  label: string;
+  value: string;
+}
+
 
 const ProfilePage = () => {
   const router = useRouter();
   const { user } = useAppSelector((state) => state.auth);
   const { profile } = useAppSelector((state) => state.profile);
-
+  const dispatch = useAppDispatch();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   
-console.log('User data:', user);
   // if (!user) {
   //   return (
   //     <div className="p-6 text-center">
@@ -26,6 +34,12 @@ console.log('User data:', user);
   //     </div>
   //   );
   // }
+
+  useEffect(() => {
+    dispatch(getProfile());
+  }, [dispatch]);
+
+
   if (!user) {
     return (
       <AuthGuard>
@@ -48,6 +62,22 @@ console.log('User data:', user);
     salonName: profile?.salonName || '—',
     salonOwner: profile?.ownerName || '—',
   };
+
+  const handleDeleteProfile = async () => {
+    const confirmDelete = window.confirm(
+      'Are you sure you want to delete your profile?'
+    );
+  
+    if (!confirmDelete) return;
+  
+    try {
+      await dispatch(deleteProfile()).unwrap();
+      router.push('/profile'); // stay on profile page
+    } catch (error) {
+      console.error('Delete failed:', error);
+    }
+  };
+  
 
   return (<>
     <AuthGuard>
@@ -118,7 +148,7 @@ console.log('User data:', user);
                   value={user.role ?? 'Salon Owner'}
                 />
                  <ProfileItem icon="User" label="Owner Name" value={profile?.ownerName ?? '—'} />
-                 <ProfileItem icon="Scissors" label="Salon Name" value={profile?.salonName ?? '—'} />
+                 <ProfileItem icon="Scissors" label="Salon Name" value={profile?.salonName ?? '—'}/>
               </div>
             </div>
           </div>
@@ -136,13 +166,18 @@ console.log('User data:', user);
     Create Profile
   </button>
 
-  <button className="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90 transition">
+  <button className="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90 transition"
+          onClick={() => router.push('/profile/create')}>
     Update Profile
   </button>
 
-  <button className="px-4 py-2 rounded-md bg-destructive text-destructive-foreground text-sm hover:opacity-90 transition">
-    Delete Profile
-  </button>
+  <button
+  className="px-4 py-2 rounded-md bg-destructive text-destructive-foreground text-sm hover:opacity-90 transition"
+  onClick={handleDeleteProfile}
+>
+  Delete Profile
+</button>
+
 </div>
       </div>
     </AuthGuard>
@@ -152,7 +187,7 @@ console.log('User data:', user);
   );
 };
 
-const ProfileItem = ({ icon, label, value }) => (
+const ProfileItem: React.FC<ProfileItemProps> = ({ icon, label, value }) => (
   <div className="flex items-start gap-4">
     <div className="mt-1 text-muted-foreground">
       <Icon name={icon} size={18} />
@@ -161,9 +196,7 @@ const ProfileItem = ({ icon, label, value }) => (
       <p className="text-xs text-muted-foreground">{label}</p>
       <p className="font-medium text-foreground">{value}</p>
     </div>
-    
   </div>
-  
 );
 
 export default ProfilePage;

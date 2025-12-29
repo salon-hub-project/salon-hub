@@ -2,7 +2,6 @@
 // import api from './axios';
 
 import api from "./axios";
-
 // import api from "./axios";
 
 export interface CreateProfilePayload {
@@ -35,10 +34,22 @@ export interface CreateProfilePayload {
 //   },
 // };
 
-
 export const profileApi = {
   createProfile: async (formData: FormData) => {
-    const res = await api.post('/profile/create', formData);
+    const res = await api.post("/profile", formData);
+    console.log(res.data);
+    return res.data;
+  },
+  updateProfile: async (formData: FormData) => {
+    const res = await api.put("/profile", formData);
+    return res.data;
+  },
+  getProfile: async () => {
+    const res = await api.get("/profile");
+    return res.data;
+  },
+  deleteProfile: async () => {
+    const res = await api.delete(`/profile`);
     return res.data;
   },
 };
