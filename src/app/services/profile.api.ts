@@ -37,7 +37,6 @@ export interface CreateProfilePayload {
 export const profileApi = {
   createProfile: async (formData: FormData) => {
     const res = await api.post("/profile", formData);
-    console.log(res.data);
     return res.data;
   },
   updateProfile: async (formData: FormData) => {

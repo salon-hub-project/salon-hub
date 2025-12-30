@@ -30,7 +30,6 @@ export const createProfile = createAsyncThunk(
   async (formData: FormData, { rejectWithValue }) => {
     try {
       const response = await profileApi.createProfile(formData);
-      console.log(response);
       return response; // ✅ IMPORTANT
     } catch (error: any) {
       return rejectWithValue(

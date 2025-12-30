@@ -8,6 +8,7 @@ export interface User {
   email: string;
   phoneNumber?: string;
   address?: string;
+  avatar?: string;
   role?: string;
   firstName?: string;
   lastName?: string;
@@ -94,8 +95,6 @@ const authSlice = createSlice({
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('authUser');
     },
     clearError: (state) => {
       state.error = null;

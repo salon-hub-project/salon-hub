@@ -58,7 +58,7 @@ const ProfilePage = () => {
     name: fullName,
     email: user.email,
     role: user.role || 'salon_owner',
-    avatar: profile?.salonImage || '',
+    avatar: user.avatar || profile?.salonImage || '',
     salonName: profile?.salonName || '—',
     salonOwner: profile?.ownerName || '—',
   };
