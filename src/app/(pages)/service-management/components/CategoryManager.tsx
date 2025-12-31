@@ -4,6 +4,7 @@ import { ServiceCategory } from '../types';
 import Icon from '../../../components/AppIcon';
 import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
+import { categoryApi } from '@/app/services/category.api';
 
 interface CategoryManagerProps {
   categories: ServiceCategory[];
@@ -21,23 +22,91 @@ const CategoryManager = ({
   const [isOpen, setIsOpen] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [error, setError] = useState('');
+  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
+const [editingCategoryName, setEditingCategoryName] = useState('');
+const handleCancelEdit = () => {
+  setEditingCategoryId(null);
+  setEditingCategoryName('');
+};
 
-  const handleAddCategory = () => {
+const handleSaveEdit = async (categoryId: string) => {
+  if (!editingCategoryName.trim()) return;
+
+  try {
+    await categoryApi.updateCategory(categoryId, {
+      name: editingCategoryName.trim(),
+    });
+
+    // ✅ refresh categories from backend
+    await categoryApi. getAllCategories();
+
+    handleCancelEdit();
+  } catch (error) {
+    console.error('Error updating category:', error);
+  }
+};
+
+  // const handleAddCategory = () => {
+  //   if (!newCategoryName.trim()) {
+  //     setError('Category name is required');
+  //     return;
+  //   }
+
+  //   if (categories.some(cat => cat.name.toLowerCase() === newCategoryName.toLowerCase())) {
+  //     setError('Category already exists');
+  //     return;
+  //   }
+
+  //   onAddCategory(newCategoryName.trim());
+  //   setNewCategoryName('');
+  //   setError('');
+  // };
+  // const [categories, setCategories] = useState<any[]>([]);
+
+  const handleAddCategory = async () => {
     if (!newCategoryName.trim()) {
-      setError('Category name is required');
+      setError("Category name is required");
       return;
     }
-
-    if (categories.some(cat => cat.name.toLowerCase() === newCategoryName.toLowerCase())) {
-      setError('Category already exists');
+  
+    if (
+      categories.some(
+        (cat) => cat.name.toLowerCase() === newCategoryName.toLowerCase()
+      )
+    ) {
+      setError("Category already exists");
       return;
     }
-
-    onAddCategory(newCategoryName.trim());
-    setNewCategoryName('');
-    setError('');
+  
+    try {
+      await categoryApi.createCategory({ name: newCategoryName.trim() });
+  
+      // ✅ Tell parent to update UI
+      onAddCategory(newCategoryName.trim());
+  
+      setNewCategoryName("");
+      setError("");
+    } catch (err: any) {
+      setError(err?.response?.data?.message || "Failed to add category");
+    }
   };
-
+  const handleDeleteCategory = async (categoryId: string) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this category?"
+    );
+  
+    if (!confirmDelete) return;
+  
+    try {
+      await categoryApi.deleteCategory(categoryId);
+  
+      // ✅ update UI via parent
+      onDeleteCategory(categoryId);
+    } catch (err: any) {
+      alert(err?.response?.data?.message || "Failed to delete category");
+    }
+  };
+  
   const handleMoveUp = (index: number) => {
     if (index === 0) return;
     const newCategories = [...categories];
@@ -87,7 +156,7 @@ const CategoryManager = ({
               Add
             </Button>
           </div>
-
+       
           <div className="space-y-2">
             {categories.map((category, index) => (
               <div
@@ -126,7 +195,8 @@ const CategoryManager = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => onDeleteCategory(category.id)}
+                  // onClick={() => onDeleteCategory(category.id)}
+                  onClick={() => handleDeleteCategory(category.id)}
                   disabled={category.serviceCount > 0}
                   iconName="Trash2"
                   iconSize={16}

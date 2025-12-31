@@ -13,6 +13,7 @@ interface ServiceFormModalProps {
   onSubmit: (data: ServiceFormData) => void;
   service?: Service | null;
   categories: string[];
+  categoriesWithIds?: Array<{ id: string; name: string }>; // Optional: for ID to name conversion
 }
 
 const ServiceFormModal = ({
@@ -21,6 +22,7 @@ const ServiceFormModal = ({
   onSubmit,
   service,
   categories,
+  categoriesWithIds,
 }: ServiceFormModalProps) => {
   const [formData, setFormData] = useState<ServiceFormData>({
     name: '',
@@ -33,11 +35,24 @@ const ServiceFormModal = ({
 
   const [errors, setErrors] = useState<Partial<Record<keyof ServiceFormData, string>>>({});
 
+  // Helper function to convert category ID to name
+  const getCategoryNameById = (categoryId: string): string => {
+    if (categoriesWithIds) {
+      const category = categoriesWithIds.find(cat => cat.id === categoryId);
+      return category ? category.name : categoryId;
+    }
+    // If categoriesWithIds not provided, assume service.category is already a name
+    return categoryId;
+  };
+
   useEffect(() => {
     if (service) {
+      // Convert category ID to name if categoriesWithIds is provided
+      const categoryName = categoriesWithIds ? getCategoryNameById(service.category) : service.category;
+      
       setFormData({
         name: service.name,
-        category: service.category,
+        category: categoryName,
         duration: service.duration,
         price: service.price,
         isPopular: service.isPopular,
@@ -54,7 +69,7 @@ const ServiceFormModal = ({
       });
     }
     setErrors({});
-  }, [service, isOpen]);
+  }, [service, isOpen, categoriesWithIds]);
 
   const validateForm = (): boolean => {
     const newErrors: Partial<Record<keyof ServiceFormData, string>> = {};
@@ -81,16 +96,15 @@ const ServiceFormModal = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const valid = validateForm();
+    console.log(valid,"valid");
     if (validateForm()) {
       onSubmit(formData);
       onClose();
     }
-  };
+  
 
-  const categoryOptions = categories.map(cat => ({
-    value: cat,
-    label: cat,
-  }));
+  };
 
   const durationOptions = [
     { value: 15, label: '15 minutes' },
@@ -131,15 +145,23 @@ const ServiceFormModal = ({
             required
           />
 
-          <Select
-            label="Category"
-            options={categoryOptions}
-            value={formData.category}
-            onChange={(value) => setFormData({ ...formData, category: value as string })}
-            placeholder="Select category"
-            error={errors.category}
-            required
-          />
+          <div>
+            <Input
+              label="Category"
+              type="text"
+              list="category-list"
+              placeholder="e.g., Hair, Nail Care, Skin Care"
+              value={formData.category}
+              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              error={errors.category}
+              required
+            />
+            <datalist id="category-list">
+              {categories.map((cat) => (
+                <option key={cat} value={cat} />
+              ))}
+            </datalist>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Select

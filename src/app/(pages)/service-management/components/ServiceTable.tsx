@@ -12,6 +12,7 @@ interface ServiceTableProps {
   onTogglePopular: (serviceId: string) => void;
   onSelectService: (serviceId: string, selected: boolean) => void;
   selectedServices: string[];
+  categories?: Array<{ id: string; name: string }>; // Optional: for ID to name conversion
 }
 
 const ServiceTable = ({
@@ -22,8 +23,18 @@ const ServiceTable = ({
   onTogglePopular,
   onSelectService,
   selectedServices,
+  categories,
 }: ServiceTableProps) => {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+
+  // Helper function to convert category ID to name
+  const getCategoryName = (categoryId: string): string => {
+    if (categories) {
+      const category = categories.find(cat => cat.id === categoryId);
+      return category ? category.name : categoryId;
+    }
+    return categoryId;
+  };
 
   const handleDelete = (serviceId: string) => {
     if (deleteConfirm === serviceId) {
@@ -35,14 +46,45 @@ const ServiceTable = ({
     }
   };
 
-  const formatDuration = (minutes: number): string => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
+  // const formatDuration = (minutes: number): string => {
+  //   const hours = Math.floor(minutes / 60);
+  //   const mins = minutes % 60;
+  //   if (hours > 0 && mins > 0) return `${hours}h ${mins}m`;
+  //   if (hours > 0) return `${hours}h`;
+  //   return `${mins}m`;
+  // };
+
+  const formatDuration = (value: number): string => {
+    if (!value || value <= 0) return '-';
+  
+    /**
+     * CASE 1: value like 1, 2, 3 → HOURS
+     */
+    if (Number.isInteger(value) && value <= 12) {
+      return `${value}h`;
+    }
+  
+    /**
+     * CASE 2: value like 1.5 → HOURS (decimal)
+     */
+    if (value < 12 && !Number.isInteger(value)) {
+      const hours = Math.floor(value);
+      const mins = Math.round((value - hours) * 60);
+      return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+    }
+  
+    /**
+     * CASE 3: value is MINUTES (60, 90, 120)
+     */
+    const hours = Math.floor(value / 60);
+    const mins = value % 60;
+  
     if (hours > 0 && mins > 0) return `${hours}h ${mins}m`;
     if (hours > 0) return `${hours}h`;
     return `${mins}m`;
   };
-
+  
+  
   const formatPrice = (price: number): string => {
     return `INR ${price.toFixed(2)}`;
   };
@@ -119,7 +161,7 @@ const ServiceTable = ({
                 </td>
                 <td className="px-4 py-3">
                   <span className="inline-flex items-center px-2 py-1 rounded-md bg-muted text-xs font-medium text-foreground">
-                    {service.category}
+                    {getCategoryName(service.category)}
                   </span>
                 </td>
                 <td className="px-4 py-3">

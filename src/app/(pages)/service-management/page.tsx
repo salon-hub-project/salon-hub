@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Service, ServiceFormData, ServiceFilters, ServiceCategory, BulkOperation } from './types';
 import Sidebar from '../../components/Sidebar';
 import Header from '../../components/Header';
@@ -15,116 +15,22 @@ import Button from '../../components/ui/Button';
 import Icon from '../../components/AppIcon';
 import { useAppSelector } from '../../store/hooks';
 import AuthGuard from '../../components/AuthGuard';
+import { serviceApi, ServiceResponse } from '../../services/service.api';
+import { categoryApi, CategoryResponse } from '../../services/category.api';
 
 const ServiceManagement = () => {
   const authUser = useAppSelector((state) => state.auth.user);
-  const [services, setServices] = useState<Service[]>([
-    {
-      id: '1',
-      name: 'Classic Haircut',
-      category: 'Hair Services',
-      duration: 45,
-      price: 35.00,
-      isPopular: true,
-      isActive: true,
-      description: 'Professional haircut with styling consultation',
-      createdAt: new Date('2024-01-15'),
-      updatedAt: new Date('2024-01-15'),
-    },
-    {
-      id: '2',
-      name: 'Hair Coloring',
-      category: 'Hair Services',
-      duration: 120,
-      price: 85.00,
-      isPopular: true,
-      isActive: true,
-      description: 'Full hair coloring service with premium products',
-      createdAt: new Date('2024-01-15'),
-      updatedAt: new Date('2024-01-15'),
-    },
-    {
-      id: '3',
-      name: 'Manicure',
-      category: 'Nail Services',
-      duration: 30,
-      price: 25.00,
-      isPopular: false,
-      isActive: true,
-      description: 'Classic manicure with nail shaping and polish',
-      createdAt: new Date('2024-01-15'),
-      updatedAt: new Date('2024-01-15'),
-    },
-    {
-      id: '4',
-      name: 'Pedicure',
-      category: 'Nail Services',
-      duration: 45,
-      price: 35.00,
-      isPopular: false,
-      isActive: true,
-      description: 'Relaxing pedicure with foot massage',
-      createdAt: new Date('2024-01-15'),
-      updatedAt: new Date('2024-01-15'),
-    },
-    {
-      id: '5',
-      name: 'Facial Treatment',
-      category: 'Skin Care',
-      duration: 60,
-      price: 65.00,
-      isPopular: true,
-      isActive: true,
-      description: 'Deep cleansing facial with moisturizing treatment',
-      createdAt: new Date('2024-01-15'),
-      updatedAt: new Date('2024-01-15'),
-    },
-    {
-      id: '6',
-      name: 'Waxing',
-      category: 'Hair Removal',
-      duration: 30,
-      price: 30.00,
-      isPopular: false,
-      isActive: true,
-      description: 'Professional waxing service',
-      createdAt: new Date('2024-01-15'),
-      updatedAt: new Date('2024-01-15'),
-    },
-    {
-      id: '7',
-      name: 'Makeup Application',
-      category: 'Makeup',
-      duration: 60,
-      price: 75.00,
-      isPopular: false,
-      isActive: false,
-      description: 'Professional makeup for special occasions',
-      createdAt: new Date('2024-01-15'),
-      updatedAt: new Date('2024-01-15'),
-    },
-    {
-      id: '8',
-      name: 'Bridal Package',
-      category: 'Special Packages',
-      duration: 180,
-      price: 250.00,
-      isPopular: true,
-      isActive: true,
-      description: 'Complete bridal beauty package',
-      createdAt: new Date('2024-01-15'),
-      updatedAt: new Date('2024-01-15'),
-    },
-  ]);
-
-  const [categories, setCategories] = useState<ServiceCategory[]>([
-    { id: '1', name: 'Hair Services', order: 0, serviceCount: 2 },
-    { id: '2', name: 'Nail Services', order: 1, serviceCount: 2 },
-    { id: '3', name: 'Skin Care', order: 2, serviceCount: 1 },
-    { id: '4', name: 'Hair Removal', order: 3, serviceCount: 1 },
-    { id: '5', name: 'Makeup', order: 4, serviceCount: 1 },
-    { id: '6', name: 'Special Packages', order: 5, serviceCount: 1 },
-  ]);
+  const [services, setServices] = useState<Service[]>([]);
+  
+  // Hardcoded default categories (matching API expected format)
+  const defaultCategories: ServiceCategory[] = [
+    { id: 'cat-hair', name: 'Hair', order: 0, serviceCount: 0 },
+    { id: 'cat-nails', name: 'Nail Care', order: 1, serviceCount: 0 },
+    { id: 'cat-skincare', name: 'Skin Care', order: 2, serviceCount: 0 },
+  ];
+  
+  const [categories, setCategories] = useState<ServiceCategory[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [filters, setFilters] = useState<ServiceFilters>({
     category: 'all',
@@ -139,6 +45,180 @@ const ServiceManagement = () => {
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [isMobileView, setIsMobileView] = useState(false);
 
+  // Helper function to convert duration string to number (e.g., "45 minutes" -> 45)
+  const parseDuration = (duration: string): number => {
+    const match = duration.match(/(\d+)/);
+    return match ? parseInt(match[1], 10) : 0;
+  };
+
+  // Helper function to convert number to duration string matching backend format
+  const formatDuration = (duration: number): string => {
+    // Map duration values to backend expected format
+    const durationMap: Record<number, string> = {
+      15: '15 minutes',
+      30: '30 minutes',
+      45: '45 minutes',
+      60: '1 hour',
+      90: '1.5 hours',
+      120: '2 hours',
+      180: '3 hours',
+    };
+    
+    // Return mapped value if exists, otherwise format as minutes
+    return durationMap[duration] || `${duration} minutes`;
+  };
+
+  // Helper function to get category ID from category name
+  const getCategoryIdByName = (categoryName: string): string => {
+    const category = categories.find(cat => cat.name === categoryName);
+    return category ? category.id : categoryName; // Fallback to name if not found (for backward compatibility)
+  };
+
+  // Helper function to get category name from category ID
+  const getCategoryNameById = (categoryId: string): string => {
+    const category = categories.find(cat => cat.id === categoryId);
+    return category ? category.name : categoryId; // Fallback to ID if not found (for backward compatibility)
+  };
+
+  // Helper function to map API response to Service type
+  // const mapServiceResponseToService = (apiService: ServiceResponse): Service => {
+  //   return {
+  //     id: apiService._id,
+  //     name: apiService.serviceName,
+  //     category: apiService.category, // This is the category ID from API
+  //     duration: parseDuration(apiService.duration),
+  //     price: apiService.price,
+  //     isPopular: apiService.markAsPopularService,
+  //     isActive: apiService.isActive,
+  //     description: apiService.description,
+  //     createdAt: apiService.createdAt ? new Date(apiService.createdAt) : new Date(),
+  //     updatedAt: apiService.updatedAt ? new Date(apiService.updatedAt) : new Date(),
+  //   };
+  // };
+  const mapServiceResponseToService = (apiService: ServiceResponse): Service => {
+    return {
+      id: apiService._id,
+      name: apiService.serviceName,
+  
+      // ✅ ALWAYS normalize category to ID (string)
+      category:
+        typeof apiService.category === 'object'
+          ? apiService.category._id
+          : apiService.category,
+  
+      duration: parseDuration(apiService.duration),
+      price: apiService.price,
+      isPopular: apiService.markAsPopularService,
+      isActive: apiService.isActive,
+      description: apiService.description,
+      createdAt: apiService.createdAt ? new Date(apiService.createdAt) : new Date(),
+      updatedAt: apiService.updatedAt ? new Date(apiService.updatedAt) : new Date(),
+    };
+  };
+  
+  // Fetch categories from API
+  const fetchCategories = useCallback(async () => {
+    try {
+      const response = await categoryApi.getAllCategories({ page: 1, limit: 10 });
+      const categoriesData = response.data || response || [];
+      const mappedCategories: ServiceCategory[] = Array.isArray(categoriesData)
+        ? categoriesData.map((cat: CategoryResponse, index: number) => ({
+            id: cat._id,
+            name: cat.name,
+            order: index,
+            serviceCount: 0,
+          }))
+        : [];
+      
+      setCategories(mappedCategories);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      // Keep existing categories on error, or set defaults if empty
+      setCategories(prevCategories => {
+        if (prevCategories.length === 0) {
+          return defaultCategories;
+        }
+        return prevCategories;
+      });
+    }
+  }, []);
+
+  // Fetch services from API
+  const fetchServices = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const params: any = {
+        page: 1,
+        limit: 100, // Fetch a large number to get all services
+      };
+
+      // Add filters to API call if they're not 'all'
+      // Convert category name to ID for API call
+      if (filters.category !== 'all') {
+        params.category = getCategoryIdByName(filters.category);
+      }
+      if (filters.status !== 'all') {
+        params.isActive = filters.status === 'active';
+      }
+      if (filters.searchQuery) {
+        params.serviceName = filters.searchQuery;
+      }
+
+      const response = await serviceApi.getAllServices(params);
+      // Handle different response formats: { data: [...] } or [...] directly
+      const servicesData = Array.isArray(response) 
+        ? response 
+        : (response?.data || []);
+      const mappedServices = Array.isArray(servicesData) 
+        ? servicesData.map(mapServiceResponseToService)
+        : [];
+
+      setServices(mappedServices);
+
+      // Update categories based on fetched services
+      // service.category is now an ID, so we count by ID
+      const categoryMap = new Map<string, number>();
+      mappedServices.forEach(service => {
+        const categoryId =
+          typeof service.category === "string" && service.category.trim()
+            ? service.category.trim()
+            : "";
+      
+        if (categoryId) {
+          const count = categoryMap.get(categoryId) || 0;
+          categoryMap.set(categoryId, count + 1);
+        }
+      });
+      
+      // Preserve existing categories and update their service counts
+      setCategories(prevCategories => {
+        // Update service counts for existing categories by matching IDs
+        const updatedCategories = prevCategories.map(cat => {
+          const serviceCount = categoryMap.get(cat.id) || 0;
+          return {
+            ...cat,
+            serviceCount: serviceCount,
+          };
+        });
+        
+        // Return updated categories with service counts
+        return updatedCategories;
+      });
+    } catch (error) {
+      console.error('Error fetching services:', error);
+      // Keep existing services and categories on error
+      // Only set defaults if categories are completely empty
+      setCategories(prevCategories => {
+        if (prevCategories.length === 0) {
+          return defaultCategories;
+        }
+        return prevCategories;
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [filters.category, filters.status, filters.searchQuery]);
+
   useEffect(() => {
     const handleResize = () => {
       setIsMobileView(window.innerWidth < 1024);
@@ -149,9 +229,23 @@ const ServiceManagement = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Fetch categories on mount
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
+
+  // Fetch services on mount and when filters change
+  useEffect(() => {
+    fetchServices();
+  }, [fetchServices]);
+
   const filteredServices = services.filter(service => {
-    if (filters.category !== 'all' && service.category !== filters.category) {
-      return false;
+    // Convert filter category name to ID for comparison
+    if (filters.category !== 'all') {
+      const filterCategoryId = getCategoryIdByName(filters.category);
+      if (service.category !== filterCategoryId) {
+        return false;
+      }
     }
 
     if (filters.status === 'active' && !service.isActive) {
@@ -164,9 +258,11 @@ const ServiceManagement = () => {
 
     if (filters.searchQuery) {
       const query = filters.searchQuery.toLowerCase();
+      // Convert service category ID to name for search
+      const categoryName = getCategoryNameById(service.category);
       return (
         service.name.toLowerCase().includes(query) ||
-        service.category.toLowerCase().includes(query) ||
+        categoryName.toLowerCase().includes(query) ||
         service.description?.toLowerCase().includes(query)
       );
     }
@@ -186,55 +282,125 @@ const ServiceManagement = () => {
         comparison = a.duration - b.duration;
         break;
       case 'category':
-        comparison = a.category.localeCompare(b.category);
+        // Convert category IDs to names for sorting
+        const categoryA = getCategoryNameById(a.category);
+        const categoryB = getCategoryNameById(b.category);
+        comparison = categoryA.localeCompare(categoryB);
         break;
     }
 
     return filters.sortOrder === 'asc' ? comparison : -comparison;
   });
 
-  const handleAddService = (data: ServiceFormData) => {
-    const newService: Service = {
-      id: Date.now().toString(),
-      ...data,
-      isActive: true,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+  const handleAddService = async (data: ServiceFormData) => {
+    try {
+      // Convert category name to category ID
+      const categoryId = getCategoryIdByName(data.category);
+      
+      const payload = {
+        serviceName: data.name,
+        category: categoryId,
+        duration: formatDuration(data.duration),
+        price: data.price,
+        isActive: true,
+        markAsPopularService: data.isPopular,
+        description: data.description || '',
+      };
 
-    setServices([...services, newService]);
-    updateCategoryCount(data.category, 1);
+      await serviceApi.createService(payload);
+      
+      // Refresh services from API
+      await fetchServices();
+    } catch (error) {
+      console.error('Error creating service:', error);
+      // Optionally show error message to user
+    }
   };
 
-  const handleEditService = (data: ServiceFormData) => {
+  // const handleEditService = (data: ServiceFormData) => {
+  //   if (!editingService) return;
+
+  //   const oldCategory = editingService.category;
+  //   const newCategory = data.category;
+
+  //   setServices(services.map(service =>
+  //     service.id === editingService.id
+  //       ? { ...service, ...data, updatedAt: new Date() }
+  //       : service
+  //   ));
+
+  //   if (oldCategory !== newCategory) {
+  //     updateCategoryCount(oldCategory, -1);
+  //     updateCategoryCount(newCategory, 1);
+  //   }
+
+  //   setEditingService(null);
+  // };
+  const handleEditService = async (data: ServiceFormData) => {
     if (!editingService) return;
-
-    const oldCategory = editingService.category;
-    const newCategory = data.category;
-
-    setServices(services.map(service =>
-      service.id === editingService.id
-        ? { ...service, ...data, updatedAt: new Date() }
-        : service
-    ));
-
-    if (oldCategory !== newCategory) {
-      updateCategoryCount(oldCategory, -1);
-      updateCategoryCount(newCategory, 1);
+  
+    try {
+      // Convert category name to category ID
+      const categoryId = getCategoryIdByName(data.category);
+      
+      const payload = {
+        serviceName: data.name,
+        category: categoryId,
+        duration: formatDuration(data.duration),
+        price: data.price,
+        isActive: data.isActive ?? editingService.isActive,
+        markAsPopularService: data.isPopular,
+        description: data.description || '',
+      };
+  
+      await serviceApi.updateService(editingService.id, payload);
+  
+      // refresh from backend to stay in sync
+      await fetchServices();
+  
+      setEditingService(null);
+    } catch (error) {
+      console.error('Error updating service:', error);
     }
-
-    setEditingService(null);
   };
-
-  const handleDeleteService = (serviceId: string) => {
-    const service = services.find(s => s.id === serviceId);
-    if (service) {
-      setServices(services.filter(s => s.id !== serviceId));
-      updateCategoryCount(service.category, -1);
-      setSelectedServices(selectedServices.filter(id => id !== serviceId));
+  
+  // const handleDeleteService = (serviceId: string) => {
+  //   const service = services.find(s => s.id === serviceId);
+  //   if (service) {
+  //     setServices(services.filter(s => s.id !== serviceId));
+  //     updateCategoryCount(service.category, -1);
+  //     setSelectedServices(selectedServices.filter(id => id !== serviceId));
+  //   }
+  // };
+  // const handleDeleteService = async (serviceId: string) => {
+  //   try {
+  //     await serviceApi.deleteService(serviceId);
+  
+  //     const service = services.find(s => s.id === serviceId);
+  //     if (service) {
+  //       updateCategoryCount(service.category, -1);
+  //     }
+  
+  //     setServices(prev => prev.filter(s => s.id !== serviceId));
+  //     setSelectedServices(prev => prev.filter(id => id !== serviceId));
+  //   } catch (error) {
+  //     console.error('Error deleting service:', error);
+  //   }
+  // };
+  const handleDeleteService = async (serviceId: string) => {
+    try {
+      await serviceApi.deleteService(serviceId);
+  
+      // ✅ ALWAYS re-sync from backend
+      await fetchServices();
+  
+      // clear selection safely
+      setSelectedServices(prev => prev.filter(id => id !== serviceId));
+    } catch (error) {
+      console.error('Error deleting service:', error);
     }
   };
-
+  
   const handleToggleStatus = (serviceId: string) => {
     setServices(services.map(service =>
       service.id === serviceId
@@ -268,13 +434,14 @@ const ServiceManagement = () => {
           case 'status':
             return { ...service, isActive: operation.value as boolean, updatedAt: new Date() };
           case 'category':
-            const oldCategory = service.category;
-            const newCategory = operation.value as string;
-            if (oldCategory !== newCategory) {
-              updateCategoryCount(oldCategory, -1);
-              updateCategoryCount(newCategory, 1);
+            const oldCategoryId = service.category;
+            // Convert category name to ID
+            const newCategoryId = getCategoryIdByName(operation.value as string);
+            if (oldCategoryId !== newCategoryId) {
+              updateCategoryCount(oldCategoryId, -1);
+              updateCategoryCount(newCategoryId, 1);
             }
-            return { ...service, category: newCategory, updatedAt: new Date() };
+            return { ...service, category: newCategoryId, updatedAt: new Date() };
           default:
             return service;
         }
@@ -286,30 +453,23 @@ const ServiceManagement = () => {
     setSelectedServices([]);
   };
 
-  const handleAddCategory = (name: string) => {
-    const newCategory: ServiceCategory = {
-      id: Date.now().toString(),
-      name,
-      order: categories.length,
-      serviceCount: 0,
-    };
-    setCategories([...categories, newCategory]);
+  const handleAddCategory = async (name: string) => {
+    // Refresh categories from API after adding
+    await fetchCategories();
   };
 
-  const handleDeleteCategory = (categoryId: string) => {
-    const category = categories.find(c => c.id === categoryId);
-    if (category && category.serviceCount === 0) {
-      setCategories(categories.filter(c => c.id !== categoryId));
-    }
+  const handleDeleteCategory = async (categoryId: string) => {
+    // Refresh categories from API after deleting
+    await fetchCategories();
   };
 
   const handleReorderCategories = (newCategories: ServiceCategory[]) => {
     setCategories(newCategories);
   };
 
-  const updateCategoryCount = (categoryName: string, delta: number) => {
+  const updateCategoryCount = (categoryId: string, delta: number) => {
     setCategories(categories.map(cat =>
-      cat.name === categoryName
+      cat.id === categoryId
         ? { ...cat, serviceCount: Math.max(0, cat.serviceCount + delta) }
         : cat
     ));
@@ -410,54 +570,65 @@ const ServiceManagement = () => {
             categories={categories.map(c => c.name)}
           />
 
-          {isMobileView ? (
-            <div className="space-y-4 pb-bottom-nav">
-              {filteredServices.map(service => (
-                <ServiceMobileCard
-                  key={service.id}
-                  service={service}
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-16 bg-card border border-border rounded-lg">
+              <Icon name="Loader2" size={48} className="text-muted-foreground mb-4 animate-spin" />
+              <p className="text-sm text-muted-foreground">Loading services...</p>
+            </div>
+          ) : (
+            <>
+              {isMobileView ? (
+                <div className="space-y-4 pb-bottom-nav">
+                  {filteredServices.map(service => (
+                    <ServiceMobileCard
+                      key={service.id}
+                      service={service}
+                      onEdit={handleOpenEditModal}
+                      onDelete={handleDeleteService}
+                      onToggleStatus={handleToggleStatus}
+                      onTogglePopular={handleTogglePopular}
+                      isSelected={selectedServices.includes(service.id)}
+                      onSelect={(selected) => handleSelectService(service.id, selected)}
+                      categories={categories.map(c => ({ id: c.id, name: c.name }))}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <ServiceTable
+                  services={filteredServices}
                   onEdit={handleOpenEditModal}
                   onDelete={handleDeleteService}
                   onToggleStatus={handleToggleStatus}
                   onTogglePopular={handleTogglePopular}
-                  isSelected={selectedServices.includes(service.id)}
-                  onSelect={(selected) => handleSelectService(service.id, selected)}
+                  onSelectService={handleSelectService}
+                  selectedServices={selectedServices}
+                  categories={categories.map(c => ({ id: c.id, name: c.name }))}
                 />
-              ))}
-            </div>
-          ) : (
-            <ServiceTable
-              services={filteredServices}
-              onEdit={handleOpenEditModal}
-              onDelete={handleDeleteService}
-              onToggleStatus={handleToggleStatus}
-              onTogglePopular={handleTogglePopular}
-              onSelectService={handleSelectService}
-              selectedServices={selectedServices}
-            />
-          )}
-
-          {filteredServices.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-16 bg-card border border-border rounded-lg">
-              <Icon name="Scissors" size={64} className="text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">
-                No services found
-              </h3>
-              <p className="text-sm text-muted-foreground mb-6 text-center max-w-md">
-                {filters.searchQuery || filters.category !== 'all' || filters.status !== 'all' ?'Try adjusting your filters to see more results' :'Get started by adding your first service'}
-              </p>
-              {!filters.searchQuery && filters.category === 'all' && filters.status === 'all' && (
-                <Button
-                  variant="default"
-                  onClick={handleOpenAddModal}
-                  iconName="Plus"
-                  iconPosition="left"
-                  iconSize={16}
-                >
-                  Add Your First Service
-                </Button>
               )}
-            </div>
+
+              {filteredServices.length === 0 && !isLoading && (
+                <div className="flex flex-col items-center justify-center py-16 bg-card border border-border rounded-lg">
+                  <Icon name="Scissors" size={64} className="text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-semibold text-foreground mb-2">
+                    No services found
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-6 text-center max-w-md">
+                    {filters.searchQuery || filters.category !== 'all' || filters.status !== 'all' ?'Try adjusting your filters to see more results' :'Get started by adding your first service'}
+                  </p>
+                  {!filters.searchQuery && filters.category === 'all' && filters.status === 'all' && (
+                    <Button
+                      variant="default"
+                      onClick={handleOpenAddModal}
+                      iconName="Plus"
+                      iconPosition="left"
+                      iconSize={16}
+                    >
+                      Add Your First Service
+                    </Button>
+                  )}
+                </div>
+              )}
+            </>
           )}
         </div>
       </main>
@@ -470,6 +641,7 @@ const ServiceManagement = () => {
         onSubmit={handleFormSubmit}
         service={editingService}
         categories={categories.map(c => c.name)}
+        categoriesWithIds={categories.map(c => ({ id: c.id, name: c.name }))}
       />
     </div>
     </AuthGuard>

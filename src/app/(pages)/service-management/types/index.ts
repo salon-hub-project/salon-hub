@@ -25,6 +25,7 @@ export interface Service {
     price: number;
     isPopular: boolean;
     description?: string;
+    isActive?: boolean;
   }
   
   export interface BulkOperation {

@@ -12,6 +12,7 @@ interface ServiceMobileCardProps {
   onTogglePopular: (serviceId: string) => void;
   isSelected: boolean;
   onSelect: (selected: boolean) => void;
+  categories?: Array<{ id: string; name: string }>; // Optional: for ID to name conversion
 }
 
 const ServiceMobileCard = ({
@@ -22,9 +23,19 @@ const ServiceMobileCard = ({
   onTogglePopular,
   isSelected,
   onSelect,
+  categories,
 }: ServiceMobileCardProps) => {
   const [expanded, setExpanded] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
+
+  // Helper function to convert category ID to name
+  const getCategoryName = (categoryId: string): string => {
+    if (categories) {
+      const category = categories.find(cat => cat.id === categoryId);
+      return category ? category.name : categoryId;
+    }
+    return categoryId;
+  };
 
   const handleDelete = () => {
     if (deleteConfirm) {
@@ -70,7 +81,7 @@ const ServiceMobileCard = ({
                 )}
               </div>
               <span className="inline-flex items-center px-2 py-1 rounded-md bg-muted text-xs font-medium text-foreground">
-                {service.category}
+                {getCategoryName(service.category)}
               </span>
             </div>
 
