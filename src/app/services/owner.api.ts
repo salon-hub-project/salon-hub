@@ -1,4 +1,5 @@
 import api from "./axios";
+import { showToast } from "../components/ui/toast";
 
 /* TYPES */
 export interface Owner {
@@ -21,32 +22,78 @@ export interface OwnersResponse {
 export const ownerApi = {
   // GET ALL OWNERS
   getAllOwners: async (page = 1, limit = 10) => {
-    const res = await api.get(`/owner?page=${page}&limit=${limit}`);
+    try {
+      const res = await api.get(`/owner?page=${page}&limit=${limit}`);
 
-    return {
-      owners: res.data.data,
-      total: res.data.pagination.total,
-      page: res.data.pagination.page,
-      limit: res.data.pagination.limit,
-    };
+      return {
+        owners: res.data.data,
+        total: res.data.pagination.total,
+        page: res.data.pagination.page,
+        limit: res.data.pagination.limit,
+      };
+    } catch (error: any) {
+      showToast({
+        message: "Failed to fetch owners",
+        status: "error",
+      });
+      throw error;
+    }
   },
 
   // APPROVE OWNER
   approveOwner: async (ownerId: string) => {
-    const res = await api.post(`/approve/${ownerId}`);
-    return res.data.owner;
+    try {
+      const res = await api.post(`/approve/${ownerId}`);
+      showToast({
+        message: res?.data?.message || "Owner approved successfully ✅",
+        status: "success",
+      });
+      return res.data.owner;
+    } catch (error: any) {
+      showToast({
+        message:
+          error?.response?.data?.message || "Failed to approve owner",
+        status: "error",
+      });
+      throw error;
+    }
   },
 
   // UPDATE OWNER
-  updateOwner: async(ownerId: string, data: FormData) => {
-    const res= await api.put(`/owner/${ownerId}`, data)
-    return res.data;
+  updateOwner: async (ownerId: string, data: FormData) => {
+    try {
+      const res = await api.put(`/owner/${ownerId}`, data);
+      showToast({
+        message: res?.data?.message || "Owner updated successfully ✨",
+        status: "success",
+      });
+      return res.data;
+    } catch (error: any) {
+      showToast({
+        message:
+          error?.response?.data?.message || "Failed to update owner",
+        status: "error",
+      });
+      throw error;
+    }
   },
-  
-  // delete owner 
-  deleteOwner :async(ownerId :string)=>{
-    const res = await api.delete(`/owner/${ownerId}`);
-    return res.data;
-  }
 
+  // DELETE OWNER
+  deleteOwner: async (ownerId: string) => {
+    try {
+      const res = await api.delete(`/owner/${ownerId}`);
+      showToast({
+        message: res?.data?.message || "Owner deleted successfully 🗑️",
+        status: "success",
+      });
+      return res.data;
+    } catch (error: any) {
+      showToast({
+        message:
+          error?.response?.data?.message || "Failed to delete owner",
+        status: "error",
+      });
+      throw error;
+    }
+  },
 };

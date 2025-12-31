@@ -13,18 +13,6 @@ const initialState: ProfileState = {
   profile: null,
 };
 
-// export const createProfile = createAsyncThunk(
-//   'profile/create',
-//   async (formData: FormData, { rejectWithValue }) => {
-//     try {
-//       return await profileApi.createProfile(formData);
-//     } catch (error: any) {
-//       return rejectWithValue(
-//         error?.response?.data?.message || 'Profile creation failed'
-//       );
-//     }
-//   }
-// );
 export const createProfile = createAsyncThunk(
   "profile/create",
   async (formData: FormData, { rejectWithValue }) => {

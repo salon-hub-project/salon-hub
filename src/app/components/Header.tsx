@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { logout } from "../store/slices/authSlice";
 import { getProfile } from "../store/slices/profileSlice";
+import { showToast } from "./ui/toast";
 
 interface User {
   name: string;
@@ -122,16 +123,21 @@ const Header = ({
   const handleLogout = () => {
     // setIsProfileOpen(false);
     // onLogout?.();
-     localStorage.removeItem('authToken');
-    localStorage.removeItem('authUser');
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("authUser");
     dispatch(logout());
-    router.push('/salon-login');
+
+    showToast({
+      message: "Logged out successfully",
+      status: "success",
+    });
+    router.push("/salon-login");
   };
 
   const handleProfileClick = () => {
     // setIsProfileOpen(false);
     // onProfileClick?.();
-    router.push('/profile')
+    router.push("/profile");
   };
 
   const handleSalonSwitch = (salonId: string) => {

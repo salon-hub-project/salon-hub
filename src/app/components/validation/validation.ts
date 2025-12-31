@@ -36,7 +36,54 @@ export const registrationSchema = Yup.object({
     .oneOf([Yup.ref("password")], "Passwords do not match")
     .required("Please confirm your password"),
 
-  termsAccepted: Yup.boolean()
-    .oneOf([true], "You must accept the terms and conditions"),
+  termsAccepted: Yup.boolean().oneOf(
+    [true],
+    "You must accept the terms and conditions"
+  ),
 });
 
+export const customerValidationSchema = Yup.object({
+  name: Yup.string().required("Name is required"),
+  phone: Yup.string()
+    .required("Phone number is required")
+    .matches(/^\+?[\d\s-()]+$/, "Invalid phone number format"),
+  email: Yup.string()
+    .email("Invalid email format")
+    .required("Email is required"),
+  gender: Yup.string().required("Gender is required"),
+  preferredStaff: Yup.string().required("Please select one member"),
+  dateOfBirth: Yup.string().required("DOB is required"),
+});
+
+export const appointmentValidationSchema = Yup.object({
+  customerId: Yup.string().required("Please select a customer"),
+  services: Yup.array()
+    .of(Yup.string())
+    .min(1, "Please select at least one service"),
+  staffId: Yup.string().required("Please select a staff member"),
+  startTime: Yup.string().required("Please select a time"),
+  date: Yup.date().required("Date is required"),
+  notes: Yup.string(),
+});
+
+
+export const comboValidationSchema = Yup.object().shape({
+  name: Yup.string().trim().required("Combo name is required"),
+  description: Yup.string().nullable(),
+  services: Yup.array()
+    .min(2, "Please select at least 2 services")
+    .required(),
+  discountedPrice: Yup.number()
+    .moreThan(0, "Price must be greater than 0")
+    .required(),
+  validFrom: Yup.date().required(),
+  validUntil: Yup.date()
+    .min(Yup.ref("validFrom"), "End date must be after start date")
+    .required(),
+  minBookingRequirement: Yup.number().nullable(),
+  customerEligibility: Yup.string().oneOf(["all", "new", "existing", "vip"]),
+  staffCommissionRate: Yup.number()
+    .min(0)
+    .max(100)
+    .required(),
+});

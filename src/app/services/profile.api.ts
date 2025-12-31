@@ -1,8 +1,5 @@
-// services/profile.api.ts
-// import api from './axios';
-
 import api from "./axios";
-// import api from "./axios";
+import { showToast } from "../components/ui/toast";
 
 export interface CreateProfilePayload {
   salonName: string;
@@ -10,45 +7,68 @@ export interface CreateProfilePayload {
   salonImage: File;
 }
 
-// export const profileApi = {
-//   createProfile: async (payload: CreateProfilePayload) => {
-//     const formData = new FormData();
-
-//     formData.append('salonName', payload.salonName);
-//     formData.append('ownerName', payload.ownerName);
-//     formData.append('salonImage', payload.salonImage);
-
-//     // Debug: Log FormData contents (for development only)
-//     if (process.env.NODE_ENV === 'development') {
-//       console.log('FormData contents:');
-//       console.log('salonName:', payload.salonName);
-//       console.log('ownerName:', payload.ownerName);
-//       console.log('salonImage:', payload.salonImage instanceof File ? payload.salonImage.name : 'Not a File');
-//     }
-
-//     // ❌ DO NOT set Content-Type manually
-//     // Axios will automatically switch to multipart/form-data
-//     const res = await api.post('/profile/create', formData);
-
-//     return res.data;
-//   },
-// };
-
 export const profileApi = {
   createProfile: async (formData: FormData) => {
-    const res = await api.post("/profile", formData);
-    return res.data;
+    try {
+      const res = await api.post("/profile", formData);
+      showToast({
+        message: res?.data?.message || "Profile created successfully",
+        status: "success",
+      });
+      return res.data;
+    } catch (error: any) {
+      showToast({
+        message: error?.response?.data?.message || "Failed to create profile",
+        status: "error",
+      });
+      throw error;
+    }
   },
+
   updateProfile: async (formData: FormData) => {
-    const res = await api.put("/profile", formData);
-    return res.data;
+    try {
+      const res = await api.put("/profile", formData);
+      showToast({
+        message: res?.data?.message || "Profile updated successfully",
+        status: "success",
+      });
+      return res.data;
+    } catch (error: any) {
+      showToast({
+        message: error?.response?.data?.message || "Failed to update profile",
+        status: "error",
+      });
+      throw error;
+    }
   },
+
   getProfile: async () => {
-    const res = await api.get("/profile");
-    return res.data;
+    try {
+      const res = await api.get("/profile");
+      return res.data;
+    } catch (error: any) {
+      showToast({
+        message: error?.response?.data?.message || "Failed to fetch profile",
+        status: "error",
+      });
+      throw error;
+    }
   },
+
   deleteProfile: async () => {
-    const res = await api.delete(`/profile`);
-    return res.data;
+    try {
+      const res = await api.delete("/profile");
+      showToast({
+        message: res?.data?.message || "Profile deleted successfully",
+        status: "success",
+      });
+      return res.data;
+    } catch (error: any) {
+      showToast({
+        message: error?.response?.data?.message || "Failed to delete profile",
+        status: "error",
+      });
+      throw error;
+    }
   },
 };
