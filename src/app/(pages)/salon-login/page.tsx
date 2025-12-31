@@ -1,24 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import LoginHeader from "./components/LoginHeader";
 import LoginForm from "./components/LoginForm";
-import { LoginFormData, ValidationErrors } from "./types";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { loginUser, clearError } from "../../store/slices/authSlice";
+import { Formik } from "formik";
+import * as Yup from "yup";
+import { loginValidationSchema } from "@/app/components/validation/validation";
 
 const LoginPage = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { isLoading, error, isAuthenticated } = useAppSelector((state) => state.auth);
-
-  const [formData, setFormData] = useState<LoginFormData>({
-    email: "",
-    password: "",
-  });
-
-  const [errors, setErrors] = useState<ValidationErrors>({});
+  const { isLoading, error, isAuthenticated } = useAppSelector(
+    (state) => state.auth
+  );
 
   useEffect(() => {
     document.title = "Login - SalonHub";
@@ -36,46 +33,6 @@ const LoginPage = () => {
     };
   }, [dispatch]);
 
-  const validateForm = () => {
-    const newErrors: ValidationErrors = {};
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!emailRegex.test(formData.email.trim())) {
-      newErrors.email = "Enter a valid email address";
-    }
-
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleInputChange = (field: keyof LoginFormData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
-    if (error) {
-      dispatch(clearError());
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-
-    dispatch(
-      loginUser({
-        email: formData.email.trim(),
-        password: formData.password,
-      })
-    );
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-10">
@@ -88,13 +45,44 @@ const LoginPage = () => {
             </div>
           )}
 
-          <LoginForm
-            formData={formData}
-            errors={errors}
-            onInputChange={handleInputChange}
-            onSubmit={handleSubmit}
-            isSubmitting={isLoading}
-          />
+          <Formik
+            initialValues={{ email: "", password: "" }}
+            validationSchema={loginValidationSchema}
+            validateOnMount={false}
+            validateOnBlur={true}
+            validateOnChange={true}
+            onSubmit={(values) => {
+              dispatch(
+                loginUser({
+                  email: values.email.trim(),
+                  password: values.password,
+                })
+              );
+            }}
+          >
+            {({
+              values,
+              errors,
+              touched,
+              handleChange,
+              handleSubmit,
+              setFieldValue,
+            }) => (
+              <LoginForm
+                formData={values}
+                errors={{
+                  email: touched.email ? errors.email : undefined,
+                  password: touched.password ? errors.password : undefined,
+                }}
+                onInputChange={(field, value) => {
+                  setFieldValue(field, value);
+                  if (error) dispatch(clearError());
+                }}
+                onSubmit={handleSubmit}
+                isSubmitting={isLoading}
+              />
+            )}
+          </Formik>
         </div>
       </div>
     </div>

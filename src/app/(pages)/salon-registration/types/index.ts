@@ -1,13 +1,13 @@
 export interface RegistrationFormData {
-    salonName: string;
-    ownerName: string;
-    mobileNumber: string;
-    address: string;
-    emailId: string;
-    phoneNumber: string;
+    salonName?: string;
+    ownerName?: string;
+    mobileNumber?: string;
+    address?: string;
+    emailId?: string;
+    phoneNumber?: string;
     password: string;
     confirmPassword: string;
-    termsAccepted: boolean;
+    termsAccepted?: boolean;
   }
   
   export interface ValidationErrors {

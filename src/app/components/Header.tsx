@@ -120,20 +120,18 @@ const Header = ({
   };
 
   const handleLogout = () => {
-    setIsProfileOpen(false);
-    onLogout?.();
+    // setIsProfileOpen(false);
+    // onLogout?.();
+     localStorage.removeItem('authToken');
+    localStorage.removeItem('authUser');
+    dispatch(logout());
+    router.push('/salon-login');
   };
 
-  // const handleUserLogout = () => {
-  //   localStorage.removeItem('authToken');
-  //   localStorage.removeItem('authUser');
-  //   dispatch(logout());
-  //   router.push('/login');
-  // }
-
   const handleProfileClick = () => {
-    setIsProfileOpen(false);
-    onProfileClick?.();
+    // setIsProfileOpen(false);
+    // onProfileClick?.();
+    router.push('/profile')
   };
 
   const handleSalonSwitch = (salonId: string) => {

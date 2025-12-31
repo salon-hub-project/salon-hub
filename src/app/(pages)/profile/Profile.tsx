@@ -86,7 +86,7 @@ const ProfilePage = () => {
         <Sidebar
           isCollapsed={sidebarCollapsed}
           userRole={currentUser.role}
-          onNavigate={(path) => router.push(path)}
+          onNavigate={(path: any) => router.push(path)}
         />
 
         {/* Header */}

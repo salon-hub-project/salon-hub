@@ -9,7 +9,7 @@ interface Props {
   formData: LoginFormData;
   errors: ValidationErrors;
   onInputChange: (field: keyof LoginFormData, value: string) => void;
-  onSubmit: (e: React.FormEvent) => void;
+  onSubmit: any;
   isSubmitting: boolean;
 }
 
@@ -29,9 +29,7 @@ const LoginForm = ({
         type="email"
         placeholder="Enter your email address"
         value={formData.email}
-        onChange={(e) =>
-          onInputChange("email", e.target.value)
-        }
+        onChange={(e) => onInputChange("email", e.target.value)}
         error={errors.email}
         disabled={isSubmitting}
         required
@@ -43,9 +41,7 @@ const LoginForm = ({
           type={showPassword ? "text" : "password"}
           placeholder="Enter your password"
           value={formData.password}
-          onChange={(e) =>
-            onInputChange("password", e.target.value)
-          }
+          onChange={(e) => onInputChange("password", e.target.value)}
           error={errors.password}
           disabled={isSubmitting}
           required
@@ -60,10 +56,7 @@ const LoginForm = ({
       </div>
 
       <div className="text-right">
-        <a
-          href="#"
-          className="text-sm text-primary hover:underline"
-        >
+        <a href="#" className="text-sm text-primary hover:underline">
           Forgot password?
         </a>
       </div>

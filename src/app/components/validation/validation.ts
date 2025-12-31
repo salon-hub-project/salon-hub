@@ -1,5 +1,13 @@
 import * as Yup from "yup";
 
+export const loginValidationSchema = Yup.object({
+  email: Yup.string()
+    .trim()
+    .email("Enter a valid email address")
+    .required("Email is required"),
+  password: Yup.string().required("Password is required"),
+});
+
 export const registrationSchema = Yup.object({
   mobileNumber: Yup.string()
     .required("Mobile number is required")
@@ -31,3 +39,4 @@ export const registrationSchema = Yup.object({
   termsAccepted: Yup.boolean()
     .oneOf([true], "You must accept the terms and conditions"),
 });
+
