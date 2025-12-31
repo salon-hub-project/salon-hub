@@ -1,3 +1,4 @@
+import Loader from '@/app/components/Loader';
 import Icon from '../../../components/AppIcon';
 import Image from '../../../components/AppImage';
 import Button from '../../../components/ui/Button';
@@ -7,14 +8,43 @@ interface EmployeeDetailsPanelProps {
   employee: Employee | null;
   onClose: () => void;
   onEdit: (employee: Employee) => void;
+  loading?: boolean;
 }
 
-const EmployeeDetailsPanel = ({ employee, onClose, onEdit }: EmployeeDetailsPanelProps) => {
-  if (!employee) return null;
+const EmployeeDetailsPanel = ({ employee, onClose, onEdit, loading }: EmployeeDetailsPanelProps) => {
+  if (!employee && !loading) return null;
 
-  const workingDays = Object.entries(employee.availability)
-    .filter(([_, isWorking]) => isWorking)
-    .map(([day]) => day.charAt(0).toUpperCase() + day.slice(1));
+  // From here on, employee is guaranteed to exist when not loading
+  const workingDays = employee
+    ? Object.entries(employee.availability)
+        .filter(([_, isWorking]) => isWorking)
+        .map(([day]) => day.charAt(0).toUpperCase() + day.slice(1))
+    : [];
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
+        <div className="bg-card rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="sticky top-0 bg-card border-b border-border px-6 py-4 flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-foreground">Employee Details</h2>
+            <Button
+              variant="ghost"
+              size="icon"
+              iconName="X"
+              iconSize={20}
+              onClick={onClose}
+              className="text-muted-foreground hover:text-foreground"
+            />
+          </div>
+          <div className="p-6">
+            <Loader label="Loading employee details..." />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!employee) return null;
 
   return (
     <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
@@ -50,9 +80,8 @@ const EmployeeDetailsPanel = ({ employee, onClose, onEdit }: EmployeeDetailsPane
               <h3 className="text-2xl font-semibold text-foreground">{employee.name}</h3>
               <p className="text-muted-foreground mt-1">{employee.role}</p>
               <div className="flex items-center gap-4 mt-3">
-                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium ${
-                  employee.status === 'active' ?'bg-success/10 text-success' :'bg-muted text-muted-foreground'
-                }`}>
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium ${employee.status === 'active' ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'
+                  }`}>
                   <div className={`w-2 h-2 rounded-full ${employee.status === 'active' ? 'bg-success' : 'bg-muted-foreground'}`} />
                   {employee.status === 'active' ? 'Active' : 'Inactive'}
                 </span>

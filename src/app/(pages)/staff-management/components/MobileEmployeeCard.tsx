@@ -8,9 +8,10 @@ interface MobileEmployeeCardProps {
   onEdit: (employee: Employee) => void;
   onToggleStatus: (employeeId: string) => void;
   onViewDetails: (employee: Employee) => void;
+  onDelete: (id: string) => void;
 }
 
-const MobileEmployeeCard = ({ employee, onEdit, onToggleStatus, onViewDetails }: MobileEmployeeCardProps) => {
+const MobileEmployeeCard = ({ employee, onEdit, onToggleStatus, onViewDetails, onDelete }: MobileEmployeeCardProps) => {
   const getRoleColor = (role: string) => {
     const colors: Record<string, string> = {
       'Manager': 'bg-purple-100 text-purple-800',
@@ -46,9 +47,8 @@ const MobileEmployeeCard = ({ employee, onEdit, onToggleStatus, onViewDetails }:
         </div>
         <button
           onClick={() => onToggleStatus(employee.id)}
-          className={`flex-shrink-0 w-2 h-2 rounded-full ${
-            employee.status === 'active' ? 'bg-success' : 'bg-muted-foreground'
-          }`}
+          className={`flex-shrink-0 w-2 h-2 rounded-full ${employee.status === 'active' ? 'bg-success' : 'bg-muted-foreground'
+            }`}
           aria-label={`Toggle ${employee.name} status`}
         />
       </div>
@@ -85,14 +85,14 @@ const MobileEmployeeCard = ({ employee, onEdit, onToggleStatus, onViewDetails }:
         </div>
       </div>
 
-      <div className="flex items-center gap-2 pt-2 border-t border-border">
+      <div className="flex flex-col sm:flex-row items-center gap-2 pt-2 border-t border-border">
         <Button
           variant="outline"
           size="sm"
           iconName="Edit"
           iconPosition="left"
           onClick={() => onEdit(employee)}
-          fullWidth
+          className="flex-1"
         >
           Edit
         </Button>
@@ -102,11 +102,22 @@ const MobileEmployeeCard = ({ employee, onEdit, onToggleStatus, onViewDetails }:
           iconName="Eye"
           iconPosition="left"
           onClick={() => onViewDetails(employee)}
-          fullWidth
+          className="flex-1"
         >
           View
         </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          iconName="Trash2"
+          iconPosition="left"
+          onClick={() => onDelete(employee.id)}
+          className="flex-1 text-red-500 hover:text-red-700"
+        >
+          Delete
+        </Button>
       </div>
+
     </div>
   );
 };

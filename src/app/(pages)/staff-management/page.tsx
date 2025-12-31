@@ -12,13 +12,19 @@ import EmployeeFormModal from "./components/EmployeeFormModal";
 import MobileEmployeeCard from "./components/MobileEmployeeCard";
 import {
   Employee,
-  EmployeeFormData,
-  PerformancePeriod,
+  EmployeeApiResponse,
   RoleFilter,
   Service,
 } from "./types";
 import { useAppSelector } from '../../store/hooks';
 import AuthGuard from '../../components/AuthGuard';
+import { staffApi } from "@/app/services/staff.api";
+import Pagination from "@/app/components/Pagination";
+import Loader from "@/app/components/Loader";
+import NoData from "@/app/components/NoData";
+import ConfirmModal from "@/app/components/ui/ConfirmModal";
+import { toast } from "react-toastify";
+import { showSuccessToast } from "@/app/utils/toast";
 
 const StaffManagement = () => {
   const authUser = useAppSelector((state) => state.auth.user);
@@ -33,7 +39,16 @@ const StaffManagement = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const [roleFilter, setRoleFilter] = useState<string>("all");
-  const [performancePeriod, setPerformancePeriod] = useState<string>("month");
+  // const [performancePeriod, setPerformancePeriod] = useState<string>("month");
+
+  // Pagination
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [detailsLoading, setDetailsLoading] = useState(false);
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [employeeToDelete, setEmployeeToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -54,8 +69,8 @@ const StaffManagement = () => {
   };
 
   const services: Service[] = [
-    { id: "1", name: "Haircut & Styling", category: "Hair" },
-    { id: "2", name: "Hair Coloring", category: "Hair" },
+    { id: "69521066fbf208a2efb3ccf8", name: "Haircut & Styling", category: "Hair" },
+    { id: "6954b0847f3b2b8cf92f539b", name: "Hair Coloring", category: "Hair" },
     { id: "3", name: "Balayage", category: "Hair" },
     { id: "4", name: "Keratin Treatment", category: "Hair" },
     { id: "5", name: "Manicure", category: "Nails" },
@@ -66,173 +81,8 @@ const StaffManagement = () => {
     { id: "10", name: "Bridal Makeup", category: "Makeup" },
   ];
 
-  const [employees, setEmployees] = useState<Employee[]>([
-    {
-      id: "1",
-      name: "Emily Rodriguez",
-      role: "Stylist",
-      phone: "+91 1234567890",
-      email: "emily.rodriguez@salonhub.com",
-      avatar: "https://randomuser.me/api/portraits/women/1.jpg",
-      status: "active",
-      joinDate: "2023-01-15",
-      assignedServices: ["Haircut & Styling", "Hair Coloring", "Balayage"],
-      performanceMetrics: {
-        completedServices: 87,
-        customerRating: 4.8,
-        revenueGenerated: 12450,
-        bookingCompletionRate: 94,
-      },
-      availability: {
-        monday: true,
-        tuesday: true,
-        wednesday: true,
-        thursday: true,
-        friday: true,
-        saturday: true,
-        sunday: false,
-      },
-      commissionRate: 40,
-    },
-    {
-      id: "2",
-      name: "Michael Chen",
-      role: "Colorist",
-      phone: "+91 1234567890",
-      email: "michael.chen@salonhub.com",
-      avatar: "https://randomuser.me/api/portraits/men/2.jpg",
-      status: "active",
-      joinDate: "2022-08-20",
-      assignedServices: ["Hair Coloring", "Balayage", "Keratin Treatment"],
-      performanceMetrics: {
-        completedServices: 92,
-        customerRating: 4.9,
-        revenueGenerated: 15680,
-        bookingCompletionRate: 96,
-      },
-      availability: {
-        monday: true,
-        tuesday: true,
-        wednesday: true,
-        thursday: true,
-        friday: true,
-        saturday: false,
-        sunday: false,
-      },
-      commissionRate: 45,
-    },
-    {
-      id: "3",
-      name: "Jessica Martinez",
-      role: "Nail Technician",
-      phone: "+91 1234567890",
-      email: "jessica.martinez@salonhub.com",
-      avatar: "https://randomuser.me/api/portraits/women/3.jpg",
-      status: "active",
-      joinDate: "2023-03-10",
-      assignedServices: ["Manicure", "Pedicure", "Gel Nails"],
-      performanceMetrics: {
-        completedServices: 78,
-        customerRating: 4.7,
-        revenueGenerated: 9340,
-        bookingCompletionRate: 91,
-      },
-      availability: {
-        monday: true,
-        tuesday: true,
-        wednesday: false,
-        thursday: true,
-        friday: true,
-        saturday: true,
-        sunday: false,
-      },
-      commissionRate: 35,
-    },
-    {
-      id: "4",
-      name: "David Thompson",
-      role: "Manager",
-      phone: "+91 1234567890",
-      email: "david.thompson@salonhub.com",
-      avatar: "https://randomuser.me/api/portraits/men/4.jpg",
-      status: "active",
-      joinDate: "2021-05-01",
-      assignedServices: [
-        "Haircut & Styling",
-        "Facial Treatment",
-        "Makeup Application",
-      ],
-      performanceMetrics: {
-        completedServices: 65,
-        customerRating: 4.6,
-        revenueGenerated: 18920,
-        bookingCompletionRate: 89,
-      },
-      availability: {
-        monday: true,
-        tuesday: true,
-        wednesday: true,
-        thursday: true,
-        friday: true,
-        saturday: true,
-        sunday: false,
-      },
-      commissionRate: 50,
-    },
-    {
-      id: "5",
-      name: "Amanda Wilson",
-      role: "Receptionist",
-      phone: "+91 1234567890",
-      email: "amanda.wilson@salonhub.com",
-      avatar: "https://randomuser.me/api/portraits/women/5.jpg",
-      status: "active",
-      joinDate: "2023-06-15",
-      assignedServices: ["Facial Treatment", "Makeup Application"],
-      performanceMetrics: {
-        completedServices: 45,
-        customerRating: 4.5,
-        revenueGenerated: 5670,
-        bookingCompletionRate: 88,
-      },
-      availability: {
-        monday: true,
-        tuesday: true,
-        wednesday: true,
-        thursday: true,
-        friday: true,
-        saturday: false,
-        sunday: false,
-      },
-      commissionRate: 30,
-    },
-    {
-      id: "6",
-      name: "Robert Anderson",
-      role: "Stylist",
-      phone: "+91 1234567890",
-      email: "robert.anderson@salonhub.com",
-      status: "inactive",
-      joinDate: "2022-11-20",
-      assignedServices: ["Haircut & Styling", "Keratin Treatment"],
-      performanceMetrics: {
-        completedServices: 56,
-        customerRating: 4.4,
-        revenueGenerated: 7890,
-        bookingCompletionRate: 85,
-      },
-      availability: {
-        monday: true,
-        tuesday: true,
-        wednesday: true,
-        thursday: false,
-        friday: true,
-        saturday: true,
-        sunday: false,
-      },
-      commissionRate: 38,
-    },
-  ]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
+
 
   const roleFilterOptions: RoleFilter[] = [
     { value: "all", label: "All Roles" },
@@ -243,17 +93,12 @@ const StaffManagement = () => {
     { value: "Receptionist", label: "Receptionist" },
   ];
 
-  const performancePeriodOptions: PerformancePeriod[] = [
-    { value: "week", label: "This Week" },
-    { value: "month", label: "This Month" },
-    { value: "quarter", label: "This Quarter" },
-    { value: "year", label: "This Year" },
-  ];
-
-  const filteredEmployees = employees.filter((employee) => {
-    if (roleFilter === "all") return true;
-    return employee.role === roleFilter;
-  });
+  // const performancePeriodOptions: PerformancePeriod[] = [
+  //   { value: "week", label: "This Week" },
+  //   { value: "month", label: "This Month" },
+  //   { value: "quarter", label: "This Quarter" },
+  //   { value: "year", label: "This Year" },
+  // ];
 
   const handleAddEmployee = () => {
     setEditingEmployee(null);
@@ -276,59 +121,131 @@ const StaffManagement = () => {
     );
   };
 
-  const handleViewDetails = (employee: Employee) => {
-    setSelectedEmployee(employee);
-    setIsDetailsOpen(true);
-  };
+  useEffect(() => {
+    fetchEmployees();
+  }, [roleFilter, page]);
 
-  
-  // fixed ts error in handleSaveEmployee
-  const handleSaveEmployee = (data: EmployeeFormData) => {
-    if (editingEmployee) {
-      setEmployees((prev): Employee[] =>
-        prev.map((emp) => {
-          if (emp.id !== editingEmployee.id) return emp;
-  
-          return {
-            ...emp,
-            name: data.name,
-            role: data.role as Employee["role"],
-            phone: data.phone,
-            email: data.email,
-            commissionRate: data.commissionRate,
-            assignedServices: data.assignedServices,
-            availability: data.availability,
-          };
-        })
-      );
-    } else {
-      const newEmployee: Employee = {
-        id: Date.now().toString(),
-        name: data.name,
-        role: data.role as Employee["role"],
-        phone: data.phone,
-        email: data.email,
-        assignedServices: data.assignedServices,
-        availability: data.availability,
-        commissionRate: data.commissionRate,
-        status: "active",
-        joinDate: new Date().toISOString(),
-        avatar: undefined,
+  useEffect(() => {
+    setPage(1);
+  }, [roleFilter]);
+
+  const fetchEmployees = async () => {
+    try {
+      setLoading(true);
+      const res = await staffApi.getAllStaff({
+        page,
+        limit,
+        role: roleFilter === "all" ? undefined : roleFilter,
+      });
+      const employeesFromApi = res.data as EmployeeApiResponse[];
+      const mappedEmployees: Employee[] = employeesFromApi.map((emp) => ({
+        id: emp._id,
+        name: emp.fullName,
+        role: emp.role,
+        phone: emp.userId?.phoneNumber ?? "",
+        email: emp.userId?.email ?? "",
+        status: emp.isActive ? "active" : "inactive",
+        joinDate: emp.createdAt,
+        assignedServices: emp.assignedServices.map(
+          (s) => s.serviceName
+        ),
+        commissionRate: emp.commissionRate,
+        availability: {
+          monday: emp.workingDays.includes("Monday"),
+          tuesday: emp.workingDays.includes("Tuesday"),
+          wednesday: emp.workingDays.includes("Wednesday"),
+          thursday: emp.workingDays.includes("Thursday"),
+          friday: emp.workingDays.includes("Friday"),
+          saturday: emp.workingDays.includes("Saturday"),
+          sunday: emp.workingDays.includes("Sunday"),
+        },
         performanceMetrics: {
           completedServices: 0,
-          customerRating: 0,
+          customerRating: emp.rating ?? 0,
+          revenueGenerated: 0,
+          bookingCompletionRate: 0,
+        },
+      }));
+
+      setEmployees(mappedEmployees);
+      setTotalPages(res.pagination.totalPages);
+
+    } catch (error) {
+      console.error("Failed to fetch employees", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleViewDetails = async (employee: Employee) => {
+    try {
+      setDetailsLoading(true);
+      setIsDetailsOpen(true);
+
+      const res = await staffApi.getStaffDetails(employee.id);
+      const emp = res.staffDetails;
+
+      const mappedEmployee: Employee = {
+        id: emp._id,
+        name: emp.fullName,
+        role: emp.role,
+        phone: emp.userId?.phoneNumber ?? "",
+        email: emp.userId?.email ?? "",
+        status: emp.isActive ? "active" : "inactive",
+        joinDate: emp.createdAt,
+        assignedServices: emp.assignedServices.map(
+          (s: any) => s.serviceName
+        ),
+        commissionRate: emp.commissionRate,
+        availability: {
+          monday: emp.workingDays.includes("Monday"),
+          tuesday: emp.workingDays.includes("Tuesday"),
+          wednesday: emp.workingDays.includes("Wednesday"),
+          thursday: emp.workingDays.includes("Thursday"),
+          friday: emp.workingDays.includes("Friday"),
+          saturday: emp.workingDays.includes("Saturday"),
+          sunday: emp.workingDays.includes("Sunday"),
+        },
+        performanceMetrics: {
+          completedServices: 0,
+          customerRating: emp.rating ?? 0,
           revenueGenerated: 0,
           bookingCompletionRate: 0,
         },
       };
-  
-      setEmployees((prev) => [...prev, newEmployee]);
+
+      setSelectedEmployee(mappedEmployee);
+    } catch (err) {
+      console.error("Failed to fetch staff details", err);
+    } finally {
+      setDetailsLoading(false);
     }
-  
-    setIsFormOpen(false);
-    setEditingEmployee(null);
   };
-  
+
+  const handleDeleteClick = (employeeId: string) => {
+    setEmployeeToDelete(employeeId);
+    setConfirmModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!employeeToDelete) return;
+
+    try {
+      setLoading(true);
+      await staffApi.deleteStaff(employeeToDelete);
+      // showSuccessToast(res?.message);
+      setEmployees((prev) => prev.filter((emp) => emp.id !== employeeToDelete));
+    } catch (err) {
+      toast.error("Failed to delete staff")
+      console.error("Failed to delete employee", err);
+    } finally {
+      setLoading(false);
+      setConfirmModalOpen(false);
+      setEmployeeToDelete(null);
+    }
+  };
+
+
   const activeEmployees = employees.filter(
     (emp) => emp.status === "active"
   ).length;
@@ -345,248 +262,280 @@ const StaffManagement = () => {
   return (
     <AuthGuard>
       <>
-      
+
         <title>Staff Management - SalonHub</title>
         <meta
           name="description"
           content="Manage salon employees, track performance, and assign booking responsibilities efficiently"
         />
-      
 
-      <div className="min-h-screen bg-background">
-        <Sidebar userRole={currentUser.role} />
-        <Header user={currentUser} notifications={3} />
 
-        <main className="lg:ml-sidebar pt-header pb-safe lg:pb-4">
-          <div className="p-4 lg:p-6 space-y-6">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-              <div>
-                <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
-                  Staff Management
-                </h1>
-                <p className="text-muted-foreground mt-1">
-                  Manage employees and track performance
-                </p>
-              </div>
-              <Button
-                variant="default"
-                iconName="UserPlus"
-                iconPosition="left"
-                onClick={handleAddEmployee}
-                className="w-full lg:w-auto"
-              >
-                Add New Employee
-              </Button>
-            </div>
+        <div className="min-h-screen bg-background">
+          <Sidebar userRole={currentUser.role} />
+          <Header user={currentUser} notifications={3} />
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-card rounded-lg border border-border p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      Total Employees
-                    </p>
-                    <p className="text-3xl font-bold text-foreground mt-2">
-                      {employees.length}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Icon name="Users" size={24} className="text-primary" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-card rounded-lg border border-border p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      Active Staff
-                    </p>
-                    <p className="text-3xl font-bold text-foreground mt-2">
-                      {activeEmployees}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 rounded-full bg-success/10 flex items-center justify-center">
-                    <Icon name="UserCheck" size={24} className="text-success" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-card rounded-lg border border-border p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      Total Revenue
-                    </p>
-                    <p className="text-3xl font-bold text-foreground mt-2">
-                      INR {totalRevenue.toLocaleString()}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
-                    <Icon name="IndianRupee" size={24} className="text-accent" />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-card rounded-lg border border-border p-4 lg:p-6">
-              <div className="flex flex-col lg:flex-row lg:items-center gap-4 mb-6">
-                <div className="flex-1">
-                  <h2 className="text-lg font-semibold text-foreground">
-                    Employee Directory
-                  </h2>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {filteredEmployees.length}{" "}
-                    {filteredEmployees.length === 1 ? "employee" : "employees"}{" "}
-                    found
+          <main className="lg:ml-sidebar pt-header pb-safe lg:pb-4">
+            <div className="p-4 lg:p-6 space-y-6">
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div>
+                  <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
+                    Staff Management
+                  </h1>
+                  <p className="text-muted-foreground mt-1">
+                    Manage employees and track performance
                   </p>
                 </div>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <Select
-                    placeholder="Filter by role"
-                    options={roleFilterOptions}
-                    value={roleFilter}
-                    onChange={(value) => setRoleFilter(value as string)}
-                    className="w-full sm:w-48"
-                  />
-                  <Select
-                    placeholder="Performance period"
-                    options={performancePeriodOptions}
-                    value={performancePeriod}
-                    onChange={(value) => setPerformancePeriod(value as string)}
-                    className="w-full sm:w-48"
-                  />
+                <Button
+                  variant="default"
+                  iconName="UserPlus"
+                  iconPosition="left"
+                  onClick={handleAddEmployee}
+                  className="w-full lg:w-auto"
+                >
+                  Add New Employee
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-card rounded-lg border border-border p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Total Employees
+                      </p>
+                      <p className="text-3xl font-bold text-foreground mt-2">
+                        {employees.length}
+                      </p>
+                    </div>
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Icon name="Users" size={24} className="text-primary" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-card rounded-lg border border-border p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Active Staff
+                      </p>
+                      <p className="text-3xl font-bold text-foreground mt-2">
+                        {activeEmployees}
+                      </p>
+                    </div>
+                    <div className="w-12 h-12 rounded-full bg-success/10 flex items-center justify-center">
+                      <Icon name="UserCheck" size={24} className="text-success" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-card rounded-lg border border-border p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Total Revenue
+                      </p>
+                      <p className="text-3xl font-bold text-foreground mt-2">
+                        INR {totalRevenue.toLocaleString()}
+                      </p>
+                    </div>
+                    <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
+                      <Icon name="IndianRupee" size={24} className="text-accent" />
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {isMobile ? (
-                <div className="space-y-4">
-                  {filteredEmployees.map((employee) => (
-                    <MobileEmployeeCard
-                      key={employee.id}
-                      employee={employee}
-                      onEdit={handleEditEmployee}
-                      onToggleStatus={handleToggleStatus}
-                      onViewDetails={handleViewDetails}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <EmployeeTable
-                  employees={filteredEmployees}
-                  onEdit={handleEditEmployee}
-                  onToggleStatus={handleToggleStatus}
-                  onViewDetails={handleViewDetails}
-                />
-              )}
-            </div>
-
-            <div className="bg-card rounded-lg border border-border p-6">
-              <h2 className="text-lg font-semibold text-foreground mb-4">
-                Performance Overview
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-muted rounded-lg p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Icon
-                      name="CheckCircle"
-                      size={20}
-                      className="text-success"
-                    />
-                    <span className="text-sm text-muted-foreground">
-                      Avg. Completion Rate
-                    </span>
+              <div className="bg-card rounded-lg border border-border p-4 lg:p-6">
+                <div className="flex flex-col lg:flex-row lg:items-center gap-4 mb-6">
+                  <div className="flex-1">
+                    <h2 className="text-lg font-semibold text-foreground">
+                      Employee Directory
+                    </h2>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {employees.length}{" "}
+                      {employees.length === 1 ? "employee" : "employees"}{" "}
+                      found
+                    </p>
                   </div>
-                  <p className="text-2xl font-bold text-foreground">
-                    {(
-                      employees.reduce(
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Select
+                      placeholder="Filter by role"
+                      options={roleFilterOptions}
+                      value={roleFilter}
+                      onChange={(value) => setRoleFilter(value as string)}
+                      className="w-full sm:w-48"
+                    />
+                    {/* <Select
+                      placeholder="Performance period"
+                      options={performancePeriodOptions}
+                      value={performancePeriod}
+                      onChange={(value) => setPerformancePeriod(value as string)}
+                      className="w-full sm:w-48"
+                    /> */}
+                  </div>
+                </div>
+
+                {loading ? (
+                  <Loader label="Fetching staff members..." />
+                ) : employees.length === 0 ? (
+                  <NoData
+                    title="No employees found"
+                    description="Try adjusting filters or add a new employee."
+                  />
+                ) : isMobile ? (
+                  <div className="space-y-4">
+                    {employees.map((employee) => (
+                      <MobileEmployeeCard
+                        key={employee.id}
+                        onDelete={handleDeleteClick}
+                        employee={employee}
+                        onEdit={handleEditEmployee}
+                        onToggleStatus={handleToggleStatus}
+                        onViewDetails={handleViewDetails}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <EmployeeTable
+                    employees={employees}
+                    onDelete={handleDeleteClick}
+                    onEdit={handleEditEmployee}
+                    onToggleStatus={handleToggleStatus}
+                    onViewDetails={handleViewDetails}
+                  />
+                )}
+
+
+                {totalPages > 1 && (
+                  <div className="mt-6 flex justify-end">
+                    <Pagination
+                      page={page}
+                      totalPages={totalPages}
+                      onPageChange={setPage}
+                    />
+                  </div>
+                )}
+
+              </div>
+
+
+              <div className="bg-card rounded-lg border border-border p-6">
+                <h2 className="text-lg font-semibold text-foreground mb-4">
+                  Performance Overview
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="bg-muted rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Icon
+                        name="CheckCircle"
+                        size={20}
+                        className="text-success"
+                      />
+                      <span className="text-sm text-muted-foreground">
+                        Avg. Completion Rate
+                      </span>
+                    </div>
+                    <p className="text-2xl font-bold text-foreground">
+                      {(
+                        employees.reduce(
+                          (sum, emp) =>
+                            sum + emp.performanceMetrics.bookingCompletionRate,
+                          0
+                        ) / employees.length
+                      ).toFixed(1)}
+                      %
+                    </p>
+                  </div>
+
+                  <div className="bg-muted rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Icon name="Star" size={20} className="text-yellow-500" />
+                      <span className="text-sm text-muted-foreground">
+                        Avg. Rating
+                      </span>
+                    </div>
+                    <p className="text-2xl font-bold text-foreground">
+                      {averageRating.toFixed(1)}
+                    </p>
+                  </div>
+
+                  <div className="bg-muted rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Icon name="Briefcase" size={20} className="text-primary" />
+                      <span className="text-sm text-muted-foreground">
+                        Total Services
+                      </span>
+                    </div>
+                    <p className="text-2xl font-bold text-foreground">
+                      {employees.reduce(
                         (sum, emp) =>
-                          sum + emp.performanceMetrics.bookingCompletionRate,
+                          sum + emp.performanceMetrics.completedServices,
                         0
-                      ) / employees.length
-                    ).toFixed(1)}
-                    %
-                  </p>
-                </div>
-
-                <div className="bg-muted rounded-lg p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Icon name="Star" size={20} className="text-yellow-500" />
-                    <span className="text-sm text-muted-foreground">
-                      Avg. Rating
-                    </span>
+                      )}
+                    </p>
                   </div>
-                  <p className="text-2xl font-bold text-foreground">
-                    {averageRating.toFixed(1)}
-                  </p>
-                </div>
 
-                <div className="bg-muted rounded-lg p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Icon name="Briefcase" size={20} className="text-primary" />
-                    <span className="text-sm text-muted-foreground">
-                      Total Services
-                    </span>
+                  <div className="bg-muted rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Icon
+                        name="TrendingUp"
+                        size={20}
+                        className="text-success"
+                      />
+                      <span className="text-sm text-muted-foreground">
+                        Avg. Revenue
+                      </span>
+                    </div>
+                    <p className="text-2xl font-bold text-foreground">
+                      INR
+                      {(totalRevenue / employees.length).toLocaleString(
+                        undefined,
+                        { maximumFractionDigits: 0 }
+                      )}
+                    </p>
                   </div>
-                  <p className="text-2xl font-bold text-foreground">
-                    {employees.reduce(
-                      (sum, emp) =>
-                        sum + emp.performanceMetrics.completedServices,
-                      0
-                    )}
-                  </p>
-                </div>
-
-                <div className="bg-muted rounded-lg p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Icon
-                      name="TrendingUp"
-                      size={20}
-                      className="text-success"
-                    />
-                    <span className="text-sm text-muted-foreground">
-                      Avg. Revenue
-                    </span>
-                  </div>
-                  <p className="text-2xl font-bold text-foreground">
-                    INR
-                    {(totalRevenue / employees.length).toLocaleString(
-                      undefined,
-                      { maximumFractionDigits: 0 }
-                    )}
-                  </p>
                 </div>
               </div>
+
             </div>
-          </div>
-        </main>
+          </main>
 
-        {isMobile && <MobileBottomNav userRole={currentUser.role} />}
+          {isMobile && <MobileBottomNav userRole={currentUser.role} />}
 
-        {isDetailsOpen && (
-          <EmployeeDetailsPanel
-            employee={selectedEmployee}
-            onClose={() => {
-              setIsDetailsOpen(false);
-              setSelectedEmployee(null);
-            }}
-            onEdit={handleEditEmployee}
+          {isDetailsOpen && (
+            <EmployeeDetailsPanel
+              employee={selectedEmployee}
+              onClose={() => {
+                setIsDetailsOpen(false);
+                setSelectedEmployee(null);
+              }}
+              loading={detailsLoading}
+              onEdit={handleEditEmployee}
+            />
+          )}
+
+          {isFormOpen && (
+            <EmployeeFormModal
+              employee={editingEmployee}
+              services={services}
+              onClose={() => {
+                setIsFormOpen(false);
+                setEditingEmployee(null);
+                fetchEmployees();
+              }}
+            // onSave={handleSaveEmployee}
+            />
+          )}
+          <ConfirmModal
+            isOpen={confirmModalOpen}
+            title="Delete Employee"
+            description="Are you sure you want to delete this employee?"
+            onCancel={() => setConfirmModalOpen(false)}
+            onConfirm={handleConfirmDelete}
           />
-        )}
-
-        {isFormOpen && (
-          <EmployeeFormModal
-            employee={editingEmployee}
-            services={services}
-            onClose={() => {
-              setIsFormOpen(false);
-              setEditingEmployee(null);
-            }}
-            onSave={handleSaveEmployee}
-          />
-        )}
-      </div>
-    </>
+        </div>
+      </>
     </AuthGuard>
   );
 };
