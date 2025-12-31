@@ -10,9 +10,10 @@ interface EmployeeTableProps {
   onEdit: (employee: Employee) => void;
   onToggleStatus: (employeeId: string) => void;
   onViewDetails: (employee: Employee) => void;
+  onDelete:(id:string) => void;
 }
 
-const EmployeeTable = ({ employees, onEdit, onToggleStatus, onViewDetails }: EmployeeTableProps) => {
+const EmployeeTable = ({ employees, onEdit, onToggleStatus, onViewDetails,onDelete }: EmployeeTableProps) => {
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
 
@@ -75,6 +76,14 @@ const EmployeeTable = ({ employees, onEdit, onToggleStatus, onViewDetails }: Emp
     );
   };
 
+  const getWorkingDays = (availability: Employee["availability"]) => {
+    return Object.entries(availability)
+      .filter(([_, isWorking]) => isWorking)
+      .map(([day]) => day.slice(0, 3))
+      .join(", ");
+  };
+
+
   return (
     <div className="bg-card rounded-lg border border-border overflow-hidden">
       <div className="overflow-x-auto">
@@ -112,6 +121,10 @@ const EmployeeTable = ({ employees, onEdit, onToggleStatus, onViewDetails }: Emp
                 </button>
               </th>
               <th className="px-6 py-4 text-left">
+                <span className="text-sm font-semibold text-foreground">Working Days</span>
+              </th>
+
+              <th className="px-6 py-4 text-left">
                 <button
                   onClick={() => handleSort('revenue')}
                   className="flex items-center gap-2 text-sm font-semibold text-foreground hover:text-primary transition-smooth"
@@ -148,7 +161,6 @@ const EmployeeTable = ({ employees, onEdit, onToggleStatus, onViewDetails }: Emp
                     </div>
                     <div>
                       <button
-                        onClick={() => onViewDetails(employee)}
                         className="text-sm font-medium text-foreground hover:text-primary transition-smooth"
                       >
                         {employee.name}
@@ -185,6 +197,12 @@ const EmployeeTable = ({ employees, onEdit, onToggleStatus, onViewDetails }: Emp
                   </div>
                 </td>
                 <td className="px-6 py-4">
+                  <span className="text-sm text-muted-foreground">
+                    {getWorkingDays(employee.availability)}
+                  </span>
+                </td>
+
+                <td className="px-6 py-4">
                   <span className="text-sm font-medium text-foreground">
                     INR {employee.performanceMetrics.revenueGenerated.toLocaleString()}
                   </span>
@@ -192,9 +210,8 @@ const EmployeeTable = ({ employees, onEdit, onToggleStatus, onViewDetails }: Emp
                 <td className="px-6 py-4">
                   <button
                     onClick={() => onToggleStatus(employee.id)}
-                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-smooth ${
-                      employee.status === 'active' ?'bg-success/10 text-success hover:bg-success/20' :'bg-muted text-muted-foreground hover:bg-muted/80'
-                    }`}
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-smooth ${employee.status === 'active' ? 'bg-success/10 text-success hover:bg-success/20' : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                      }`}
                   >
                     <div className={`w-1.5 h-1.5 rounded-full ${employee.status === 'active' ? 'bg-success' : 'bg-muted-foreground'}`} />
                     {employee.status === 'active' ? 'Active' : 'Inactive'}
@@ -221,6 +238,16 @@ const EmployeeTable = ({ employees, onEdit, onToggleStatus, onViewDetails }: Emp
                       className="text-muted-foreground hover:text-primary"
                     >
                       View
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      iconName="Trash2" // or whatever trash/delete icon you have
+                      iconSize={16}
+                      onClick={() => onDelete(employee.id)} // pass employee ID
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      Delete
                     </Button>
                   </div>
                 </td>
