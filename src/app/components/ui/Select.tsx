@@ -76,7 +76,8 @@ const Select = React.forwardRef<HTMLButtonElement, SelectProps>(({
             const selectedOptions = options.filter(opt => valueArray.includes(opt.value));
             if (selectedOptions.length === 0) return placeholder;
             if (selectedOptions.length === 1) return selectedOptions[0].label;
-            return `${selectedOptions.length} items selected`;
+            // Show all selected service names separated by commas
+            return selectedOptions.map(opt => opt.label).join(", ");
         }
 
         const selectedOption = options.find(opt => opt.value === value);

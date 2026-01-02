@@ -79,5 +79,37 @@ export interface EmployeeApiResponse {
   };
 }
 
+export interface ServiceApiResponse {
+  _id: string;
+  serviceName: string;
+  category: {
+    _id: string;
+    name: string;
+  };
+  duration: string;
+  price: number;
+  description?: string;
+  markAsPopularService: boolean;
+  isActive: boolean;
+  ownerId: string;
+  isDeleted: boolean;
+  deletedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
+export interface ServicesApiResponse {
+  success: boolean;
+  data: ServiceApiResponse[];
+  pagination?: {
+    totalServices: number;
+    totalPages: number;
+    currentPage: number;
+    perPage: number;
+  };
+  message?: string;
+}
+
 export type SortField = 'name' | 'role' | 'rating' | 'revenue';
 export type SortOrder = 'asc' | 'desc';

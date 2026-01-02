@@ -68,19 +68,6 @@ const StaffManagement = () => {
     salonName: "Elegance Beauty Salon",
   };
 
-  const services: Service[] = [
-    { id: "69521066fbf208a2efb3ccf8", name: "Haircut & Styling", category: "Hair" },
-    { id: "6954b0847f3b2b8cf92f539b", name: "Hair Coloring", category: "Hair" },
-    { id: "3", name: "Balayage", category: "Hair" },
-    { id: "4", name: "Keratin Treatment", category: "Hair" },
-    { id: "5", name: "Manicure", category: "Nails" },
-    { id: "6", name: "Pedicure", category: "Nails" },
-    { id: "7", name: "Gel Nails", category: "Nails" },
-    { id: "8", name: "Facial Treatment", category: "Skincare" },
-    { id: "9", name: "Makeup Application", category: "Makeup" },
-    { id: "10", name: "Bridal Makeup", category: "Makeup" },
-  ];
-
   const [employees, setEmployees] = useState<Employee[]>([]);
 
 
@@ -518,7 +505,6 @@ const StaffManagement = () => {
           {isFormOpen && (
             <EmployeeFormModal
               employee={editingEmployee}
-              services={services}
               onClose={() => {
                 setIsFormOpen(false);
                 setEditingEmployee(null);
