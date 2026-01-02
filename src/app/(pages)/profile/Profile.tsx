@@ -27,15 +27,7 @@ const ProfilePage = () => {
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  // if (!user) {
-  //   return (
-  //     <div className="p-6 text-center">
-  //       <p className="text-muted-foreground">
-  //         User information not available
-  //       </p>
-  //     </div>
-  //   );
-  // }
+  
 
   useEffect(() => {
     dispatch(getProfile());
@@ -64,20 +56,7 @@ const ProfilePage = () => {
     salonOwner: profile?.ownerName || "—",
   };
 
-  // const handleDeleteProfile = async () => {
-  //   const confirmDelete = window.confirm(
-  //     "Are you sure you want to delete your profile?"
-  //   );
-
-  //   if (!confirmDelete) return;
-
-  //   try {
-  //     await dispatch(deleteProfile()).unwrap();
-  //     router.push("/profile"); // stay on profile page
-  //   } catch (error) {
-  //     console.error("Delete failed:", error);
-  //   }
-  // };
+  
   const handleDeleteProfile = async () => {
     setShowDeleteModal(true);
   };

@@ -40,28 +40,12 @@ const ServiceTable = ({
     return categoryId;
   };
 
-  // const handleDelete = (serviceId: string) => {
-  //   if (deleteConfirm === serviceId) {
-  //     onDelete(serviceId);
-  //     setDeleteConfirm(null);
-  //   } else {
-  //     setDeleteConfirm(serviceId);
-  //     setTimeout(() => setDeleteConfirm(null), 3000);
-  //   }
-  // };
 
   const handleDelete = (serviceId: string) => {
     setSelectedDeleteId(serviceId);
     setShowDeleteModal(true);
   };
 
-  // const formatDuration = (minutes: number): string => {
-  //   const hours = Math.floor(minutes / 60);
-  //   const mins = minutes % 60;
-  //   if (hours > 0 && mins > 0) return `${hours}h ${mins}m`;
-  //   if (hours > 0) return `${hours}h`;
-  //   return `${mins}m`;
-  // };
 
   const formatDuration = (value: number): string => {
     if (!value || value <= 0) return "-";

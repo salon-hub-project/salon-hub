@@ -39,15 +39,6 @@ const ServiceMobileCard = ({
     return categoryId;
   };
 
-  // const handleDelete = () => {
-  //   if (deleteConfirm) {
-  //     onDelete(service.id);
-  //     setDeleteConfirm(false);
-  //   } else {
-  //     setDeleteConfirm(true);
-  //     setTimeout(() => setDeleteConfirm(false), 3000);
-  //   }
-  // };
 
   const handleDelete = () => {
     setShowDeleteModal(true);
