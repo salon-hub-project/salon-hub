@@ -19,6 +19,9 @@ import {
 import { useRouter } from 'next/navigation';
 import { useAppSelector } from '../../store/hooks';
 import AuthGuard from '../../components/AuthGuard';
+import { customerApi } from '@/app/services/customer.api';
+import Pagination from '@/app/components/Pagination';
+import Loader from '@/app/components/Loader';
 
 const CustomerDatabase = () => {
   const router = useRouter()
@@ -32,6 +35,11 @@ const CustomerDatabase = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | undefined>(undefined);
 
+  //  Customer Data
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
   const [filters, setFilters] = useState<FilterType>({
     searchQuery: '',
     tags: [],
@@ -39,102 +47,49 @@ const CustomerDatabase = () => {
     sortBy: 'name',
     sortOrder: 'asc',
   });
+  const [customerLoading,setCustomerLoading] = useState(false)
 
-  const mockCustomers: Customer[] = [
-    {
-      id: '1',
-      name: 'Emma Thompson',
-      phone: '+91 1234567890',
-      email: 'emma.thompson@email.com',
-      gender: 'female',
-      dateOfBirth: '1985-03-15',
-      address: '123 Main Street, New York, NY 10001',
-      notes: 'Prefers natural hair treatments. Allergic to certain chemical dyes.',
-      tags: ['VIP', 'Frequent'],
-      lastVisit: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-      totalVisits: 24,
-      totalSpent: 1850.0,
-      createdAt: new Date('2023-01-15'),
-      preferredStaff: 'Sarah Johnson',
-      avatar: 'https://randomuser.me/api/portraits/women/1.jpg',
-    },
-    {
-      id: '2',
-      name: 'Michael Rodriguez',
-      phone: '+91 1234567890',
-      email: 'michael.r@email.com',
-      gender: 'male',
-      address: '456 Oak Avenue, Brooklyn, NY 11201',
-      notes: 'Regular customer for beard grooming. Prefers appointments on weekends.',
-      tags: ['Frequent'],
-      lastVisit: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-      totalVisits: 18,
-      totalSpent: 920.0,
-      createdAt: new Date('2023-03-20'),
-      preferredStaff: 'Michael Chen',
-      avatar: 'https://randomuser.me/api/portraits/men/2.jpg',
-    },
-    {
-      id: '3',
-      name: 'Sarah Williams',
-      phone: '+91 1234567890',
-      email: 'sarah.w@email.com',
-      gender: 'female',
-      dateOfBirth: '1992-07-22',
-      address: '789 Pine Street, Manhattan, NY 10002',
-      notes: 'First-time customer. Interested in hair coloring services.',
-      tags: ['New'],
-      lastVisit: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-      totalVisits: 1,
-      totalSpent: 120.0,
-      createdAt: new Date('2024-01-10'),
-      avatar: 'https://randomuser.me/api/portraits/women/3.jpg',
-    },
-    {
-      id: '4',
-      name: 'James Chen',
-      phone: '+91 1234567890',
-      gender: 'male',
-      address: '321 Elm Street, Queens, NY 11354',
-      notes: 'VIP customer. Prefers premium services and products.',
-      tags: ['VIP'],
-      lastVisit: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
-      totalVisits: 32,
-      totalSpent: 3200.0,
-      createdAt: new Date('2022-11-05'),
-      preferredStaff: 'Emily Rodriguez',
-      avatar: 'https://randomuser.me/api/portraits/men/4.jpg',
-    },
-    {
-      id: '5',
-      name: 'Lisa Anderson',
-      phone: '+91 1234567890',
-      email: 'lisa.anderson@email.com',
-      gender: 'female',
-      dateOfBirth: '1988-11-30',
-      notes: 'Regular manicure and pedicure customer.',
-      tags: ['Frequent'],
-      lastVisit: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
-      totalVisits: 15,
-      totalSpent: 750.0,
-      createdAt: new Date('2023-05-12'),
-      avatar: 'https://randomuser.me/api/portraits/women/5.jpg',
-    },
-    {
-      id: '6',
-      name: 'David Kim',
-      phone: '+91 1234567890',
-      gender: 'male',
-      address: '654 Maple Drive, Bronx, NY 10451',
-      notes: 'Has not visited in over 6 months. Send promotional offer.',
-      tags: ['Inactive'],
-      lastVisit: new Date(Date.now() - 200 * 24 * 60 * 60 * 1000),
-      totalVisits: 8,
-      totalSpent: 320.0,
-      createdAt: new Date('2023-02-18'),
-      avatar: 'https://randomuser.me/api/portraits/men/6.jpg',
-    },
-  ];
+  const fetchCustomers = async () => {
+    setLoading(true);
+    try {
+      const response = await customerApi.getCustomers({
+        page,
+        limit: 10,
+        fullName: filters.searchQuery,
+        gender: filters.gender,
+        customerTag: filters.tags,
+      });
+      const mappedCustomers: Customer[] = response.data.map((c: any) => ({
+        id: c._id,
+        name: c.fullName,
+        phone: c.userId.phoneNumber,
+        email: c.userId.email,
+        gender: c.gender,
+        dateOfBirth: c.DOB,
+        address: c.address || "",
+        notes: c.notes || "",
+        tags: c.customerTag || [],
+        lastVisit: c.lastVisit ? new Date(c.lastVisit) : undefined,
+        totalVisits: c.totalVisits,
+        totalSpent: c.totalSpent,
+        createdAt: new Date(c.createdAt),
+        preferredStaff: c.preferredStaff?.fullName || "",
+        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(c.fullName)}`,
+      }));
+      setCustomers(mappedCustomers);
+      setTotalPages(Math.ceil(response.meta.total / response.meta.limit));
+    } catch (error) {
+      console.error("Error fetching customers", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Refetch whenever filters or page change
+  useEffect(() => {
+    fetchCustomers();
+  }, [filters, page]);
+
 
   const mockServiceHistory: ServiceHistory[] = [
     {
@@ -186,28 +141,44 @@ const CustomerDatabase = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const filterCustomers = (customers: Customer[]): Customer[] => {
-    return customers.filter((customer) => {
-      const matchesSearch =
-        !filters.searchQuery ||
-        customer.name.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
-        customer.phone.includes(filters.searchQuery);
+  const filteredCustomers = customers;
 
-      const matchesTags =
-        filters.tags.length === 0 ||
-        filters.tags.some((tag) => customer.tags.includes(tag));
+  // const handleCustomerSelect = (customer: Customer) => {
+  //   setSelectedCustomer(customer);
+  //   setShowProfile(true);
+  // };
 
-      const matchesGender = !filters.gender || customer.gender === filters.gender;
+  const handleCustomerSelect = async (customerId: string) => {
+    try {
+      setCustomerLoading(true);
+      setShowProfile(true);
 
-      return matchesSearch && matchesTags && matchesGender;
-    });
-  };
+      const c = await customerApi.getCustomerById(customerId);
 
-  const filteredCustomers = filterCustomers(mockCustomers);
+      const mappedCustomer: Customer = {
+        id: c._id,
+        name: c.fullName,
+        phone: c.userId.phoneNumber,
+        email: c.userId.email,
+        gender: c.gender,
+        dateOfBirth: c.DOB.split('T')[0],
+        address: c.address || "",
+        notes: c.notes || "",
+        tags: c.customerTag || [],
+        lastVisit: c.lastVisit ? new Date(c.lastVisit) : null, 
+        totalVisits: c.totalVisits,
+        totalSpent: c.totalSpent,
+        createdAt: new Date(c.createdAt),
+        preferredStaff: c.preferredStaff?.fullName || "",
+        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(c.fullName)}`,
+      };
 
-  const handleCustomerSelect = (customer: Customer) => {
-    setSelectedCustomer(customer);
-    setShowProfile(true);
+      setSelectedCustomer(mappedCustomer);
+    } catch (error) {
+      console.error("Error fetching customer", error);
+    } finally {
+      setCustomerLoading(false);
+    }
   };
 
   const handleEditCustomer = (customer: Customer) => {
@@ -253,115 +224,127 @@ const CustomerDatabase = () => {
   return (
     <AuthGuard>
       <div className="min-h-screen bg-background">
-      <Sidebar userRole={user.role} />
-      <Header
-        user={user}
-        notifications={3}
-        onLogout={() =>  router.push('/salon-registration')}
-        onProfileClick={() => console.log('Profile clicked')}
-        onNotificationClick={() => console.log('Notifications clicked')}
-      />
+        <Sidebar userRole={user.role} />
+        <Header
+          user={user}
+          notifications={3}
+          onLogout={() => router.push('/salon-registration')}
+          onProfileClick={() => console.log('Profile clicked')}
+          onNotificationClick={() => console.log('Notifications clicked')}
+        />
 
-      <main className="lg:ml-sidebar pt-header pb-bottom-nav lg:pb-0">
-        <div className="p-4 lg:p-6 space-y-6">
-          <div className="flex items-center justify-between gap-4 flex-wrap">
-            <div>
-              <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
-                Customer Database
-              </h1>
-              <p className="text-muted-foreground">
-                Manage customer relationships and service history
-              </p>
+        <main className="lg:ml-sidebar pt-header pb-bottom-nav lg:pb-0">
+          <div className="p-4 lg:p-6 space-y-6">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <div>
+                <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
+                  Customer Database
+                </h1>
+                <p className="text-muted-foreground">
+                  Manage customer relationships and service history
+                </p>
+              </div>
+              <Button
+                variant="default"
+                iconName="UserPlus"
+                iconPosition="left"
+                onClick={handleAddCustomer}
+              >
+                Add Customer
+              </Button>
             </div>
-            <Button
-              variant="default"
-              iconName="UserPlus"
-              iconPosition="left"
-              onClick={handleAddCustomer}
-            >
-              Add Customer
-            </Button>
-          </div>
 
-          <CustomerFilters
-            filters={filters}
-            onFiltersChange={setFilters}
-            onExport={handleExport}
-            totalCustomers={filteredCustomers.length}
-          />
+            <CustomerFilters
+              filters={filters}
+              onFiltersChange={setFilters}
+              onExport={handleExport}
+              totalCustomers={filteredCustomers.length}
+            />
 
-          {filteredCustomers.length === 0 ? (
-            <div className="bg-card rounded-lg border border-border p-12 text-center">
-              <Icon name="Users" size={64} className="text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-foreground mb-2">No customers found</h3>
-              <p className="text-muted-foreground mb-6">
-                {filters.searchQuery || filters.tags.length > 0 || filters.gender
-                  ? 'Try adjusting your filters to see more results' :'Get started by adding your first customer'}
-              </p>
-              {!filters.searchQuery && filters.tags.length === 0 && !filters.gender && (
-                <Button
-                  variant="default"
-                  iconName="UserPlus"
-                  iconPosition="left"
-                  onClick={handleAddCustomer}
-                >
-                  Add Customer
-                </Button>
-              )}
-            </div>
-          ) : (
-            <>
-              {isMobile ? (
-                <div className="space-y-3">
-                  {filteredCustomers.map((customer) => (
-                    <MobileCustomerCard
-                      key={customer.id}
-                      customer={customer}
-                      onSelect={handleCustomerSelect}
+            {loading ? (
+              <Loader label="Loading customers..." />
+            ) : customers.length === 0 ? (
+              <div className="bg-card rounded-lg border border-border p-12 text-center">
+                <Icon name="Users" size={64} className="text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-foreground mb-2">No customers found</h3>
+                <p className="text-muted-foreground mb-6">
+                  {filters.searchQuery || filters.tags.length > 0 || filters.gender
+                    ? 'Try adjusting your filters to see more results'
+                    : 'Get started by adding your first customer'}
+                </p>
+                {!filters.searchQuery && filters.tags.length === 0 && !filters.gender && (
+                  <Button
+                    variant="default"
+                    iconName="UserPlus"
+                    iconPosition="left"
+                    onClick={handleAddCustomer}
+                  >
+                    Add Customer
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <>
+                {isMobile ? (
+                  <div className="space-y-3">
+                    {customers.map((customer) => (
+                      <MobileCustomerCard
+                        key={customer.id}
+                        customer={customer}
+                        onSelect={() => handleCustomerSelect(customer.id)}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <CustomerTable
+                    customers={customers}
+                    onCustomerSelect={(customer) => handleCustomerSelect(customer.id)}
+                    selectedCustomerId={selectedCustomer?.id || null}
+                  />
+                )}
+
+                {totalPages > 1 && (
+                  <div className="mt-6 flex justify-end">
+                    <Pagination
+                      page={page}
+                      totalPages={totalPages}
+                      onPageChange={setPage}
                     />
-                  ))}
-                </div>
-              ) : (
-                <CustomerTable
-                  customers={filteredCustomers}
-                  onCustomerSelect={handleCustomerSelect}
-                  selectedCustomerId={selectedCustomer?.id || null}
-                />
-              )}
-            </>
-          )}
-        </div>
-      </main>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </main>
 
-      <MobileBottomNav userRole={user.role} />
+        <MobileBottomNav userRole={user.role} />
 
-      {showProfile && selectedCustomer && (
-        <CustomerProfile
-          customer={selectedCustomer}
-          serviceHistory={mockServiceHistory.filter(
-            (h) => h.customerId === selectedCustomer.id
-          )}
-          onClose={() => {
-            setShowProfile(false);
-            setSelectedCustomer(null);
-          }}
-          onEdit={handleEditCustomer}
-          onBookAppointment={handleBookAppointment}
-          onSendMessage={handleSendMessage}
-        />
-      )}
+        {showProfile && (
+          <CustomerProfile
+            customer={selectedCustomer}
+            serviceHistory={selectedCustomer ? mockServiceHistory.filter(
+              (h) => h.customerId === selectedCustomer.id
+            ) : []}
+            onClose={() => {
+              setShowProfile(false);
+              setSelectedCustomer(null);
+            }}
+            loading={customerLoading}
+            onEdit={handleEditCustomer}
+            onBookAppointment={handleBookAppointment}
+            onSendMessage={handleSendMessage}
+          />
+        )}
 
-      {showForm && (
-        <CustomerForm
-          customer={editingCustomer}
-          onClose={() => {
-            setShowForm(false);
-            setEditingCustomer(undefined);
-          }}
-          onSave={handleSaveCustomer}
-        />
-      )}
-    </div>
+        {showForm && (
+          <CustomerForm
+            onClose={() => {
+              setShowForm(false);
+              setEditingCustomer(undefined);
+            }}
+          />
+        )}
+      </div>
     </AuthGuard>
   );
 };

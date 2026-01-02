@@ -4,14 +4,16 @@ import Icon from '../../../components/AppIcon';
 import Image from '../../../components/AppImage';
 import Button from '../../../components/ui/Button';
 import { Customer, CustomerTag, ServiceHistory } from '../types';
+import Loader from '@/app/components/Loader';
 
 interface CustomerProfileProps {
-  customer: Customer;
+  customer: Customer | null;
   serviceHistory: ServiceHistory[];
   onClose: () => void;
   onEdit: (customer: Customer) => void;
   onBookAppointment: (customerId: string) => void;
   onSendMessage: (customerId: string) => void;
+  loading?: boolean;
 }
 
 const CustomerProfile = ({
@@ -21,9 +23,36 @@ const CustomerProfile = ({
   onEdit,
   onBookAppointment,
   onSendMessage,
+  loading
 }: CustomerProfileProps) => {
   const [activeTab, setActiveTab] = useState<'details' | 'history'>('details');
 
+  if (!customer && !loading) return null;
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
+        <div className="bg-card rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="sticky top-0 bg-card border-b border-border px-6 py-4 flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-foreground">Customer Profile</h2>
+            <Button
+              variant="ghost"
+              size="icon"
+              iconName="X"
+              iconSize={20}
+              onClick={onClose}
+              className="text-muted-foreground hover:text-foreground"
+            />
+          </div>
+          <div className="p-6">
+            <Loader label="Loading customer details..." />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!customer) return null;
   const getTagColor = (tag: CustomerTag): string => {
     const colors: Record<CustomerTag, string> = {
       VIP: 'bg-accent text-accent-foreground',
