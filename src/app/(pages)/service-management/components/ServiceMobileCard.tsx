@@ -46,7 +46,11 @@ const ServiceMobileCard = ({
       setTimeout(() => setDeleteConfirm(false), 3000);
     }
   };
-
+  const normalizeDuration = (duration: number): number => {
+    // If duration is small, treat it as hours → convert to minutes
+    return duration <= 10 ? duration * 60 : duration;
+  };
+  
   const formatDuration = (minutes: number): string => {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
@@ -54,7 +58,7 @@ const ServiceMobileCard = ({
     if (hours > 0) return `${hours}h`;
     return `${mins}m`;
   };
-
+  console.log(service.duration,"duration");
   const formatPrice = (price: number): string => {
     return `${price.toFixed(2)}`;
   };
@@ -102,7 +106,9 @@ const ServiceMobileCard = ({
             <div className="flex items-center gap-1">
               <Icon name="Clock" size={14} className="text-muted-foreground" />
               <span className="text-sm text-foreground">
-                {formatDuration(service.duration)}
+                {/* {formatDuration(service.duration)} */}
+                {formatDuration(normalizeDuration(service.duration))}
+
               </span>
             </div>
             <div className="flex items-center gap-1">
