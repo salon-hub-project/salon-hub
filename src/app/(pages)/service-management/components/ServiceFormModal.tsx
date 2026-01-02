@@ -288,8 +288,8 @@ const ServiceFormModal = ({
               label="Price"
               type="number"
               placeholder="0.00"
-              value={formData.price}
-              onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })}
+              value={formData.price === 0 ? "" : formData.price}
+              onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
               error={errors.price}
               required
             />
