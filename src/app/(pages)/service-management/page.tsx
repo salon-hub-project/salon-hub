@@ -103,7 +103,7 @@ const ServiceManagement = () => {
       // ✅ ALWAYS normalize category to ID (string)
       category:
         typeof apiService.category === 'object'
-          ? apiService.category._id
+          ? ('_id' in (apiService.category as Record<string, unknown>) ? (apiService.category as { _id: string })._id : apiService.category)
           : apiService.category,
   
       duration: parseDuration(apiService.duration),
