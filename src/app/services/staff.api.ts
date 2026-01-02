@@ -1,3 +1,4 @@
+import { showToast } from "../components/ui/toast";
 import api from "./axios";
 
 /* TYPES */
@@ -23,8 +24,20 @@ export interface UpdateStaffPayload {
 export const staffApi = {
     // ADD STAFF
     addStaff: async (data: AddStaffPayload) => {
+        try{
         const res = await api.post("/staff", data);
+        showToast({
+          message: res?.data?.message || "Staff created successfully",
+          status: "success"
+        })
         return res.data;
+        }
+        catch(error: any){
+            showToast({
+                message: error?.response?.data?.message || "Failed to create Staff",
+                status: "error"
+            })
+        }
     },
     getAllStaff: async (params?: {
         page?: number;
@@ -41,12 +54,36 @@ export const staffApi = {
         return res.data;
     },
     updateStaff: async (staffId: string, data: UpdateStaffPayload) => {
+        try{
         const res = await api.put(`/staff/${staffId}`, data);
+        showToast({
+          message: res?.data?.message || "Staff updated successfully",
+          status: "success"
+        })
         return res.data;
+        }
+         catch(error: any){
+            showToast({
+                message: error?.response?.data?.message || "Failed to update Staff",
+                status: "error"
+            })
+        }
     },
     deleteStaff: async (staffId: string) => {
+        try{
         const res = await api.delete(`/staff/${staffId}`);
+        showToast({
+          message: res?.data?.message || "Staff deleted successfully",
+          status: "success"
+        })
         return res.data;
+        }
+         catch(error: any){
+            showToast({
+                message: error?.response?.data?.message || "Failed to delete Staff",
+                status: "error"
+            })
+        }
     },
 
 };

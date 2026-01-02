@@ -1,4 +1,5 @@
 import api from "./axios";
+import { showToast } from "../components/ui/toast";
 
 /* TYPES */
 export interface CreateServicePayload {
@@ -44,12 +45,25 @@ export interface ServicesResponse {
 export const serviceApi = {
   // CREATE SERVICE
   createService: async (payload: CreateServicePayload) => {
+    try{
     const res = await api.post("/service", payload);
+    showToast({
+      message: res?.data?.message || "Service created successfully",
+      status: "success"
+    })
     return res.data;
+    }
+    catch(error: any){
+      showToast({
+        message: error?.response?.data?.message || "Failed to update service",
+        status: "error" 
+      })
+    }
   },
 
   // GET ALL SERVICES
   getAllServices: async (params: GetServicesParams = {}) => {
+    try{
     const { page = 1, limit = 10, serviceName, category, isActive } = params;
     
     const queryParams = new URLSearchParams();
@@ -68,17 +82,49 @@ export const serviceApi = {
 
     const res = await api.get(`/service?${queryParams.toString()}`);
     return res.data;
+  }
+  catch(error: any){
+    showToast({
+      message: error?.response?.data?.message || "Failes to load services",
+      status: "error" 
+    })
+  }
   },
   // UPDATE SERVICE
 updateService: async (serviceId: string, payload: Partial<CreateServicePayload>) => {
-  const res = await api.put(`/service/${serviceId}`, payload);
-  return res.data;
+  try{
+     const res = await api.put(`/service/${serviceId}`, payload);
+     showToast({
+      message: res?.data?.message || "Service updated successfully",
+      status: "success"
+     })
+     return res.data;
+  }
+  catch(error: any){
+     showToast({
+      message: error?.response?.data?.message || "Failed to update service",
+      status: "error"
+     })
+  }
+ 
 },
 
 // DELETE SERVICE
 deleteService: async (serviceId: string) => {
+  try{
   const res = await api.delete(`/service/${serviceId}`);
+  showToast({
+    message: res?.data?.message || "Service deleted successfully",
+    status: "success"
+  })
   return res.data;
+  }
+  catch(error: any){
+    showToast({
+      message: error?.response?.data?.message || "Failed to delete data",
+      status: "error"
+    })
+  }
 },
 
 };
