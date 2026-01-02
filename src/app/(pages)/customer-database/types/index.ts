@@ -52,7 +52,41 @@ export interface Customer {
     gender: 'male' | 'female' | 'other';
     dateOfBirth: string;
     address: string;
-    notes: string;
+    notes?: string;
     tags: CustomerTag[];
     preferredStaff: string;
   }
+
+  export interface CustomerFormikValues {
+  name: string;
+  phone: string;
+  email: string;
+  gender: string;
+  dateOfBirth: string;
+  address: string;
+  tags: CustomerTag[];
+  preferredStaff: string;
+  password: string;
+  notes?:string;
+}
+
+export interface CustomerApiResponse {
+  _id: string;
+  fullName: string;
+  gender: string;
+  DOB: string;
+  preferredStaff?: {
+    _id: string;
+    fullName: string;
+  };
+  customerTag: string[];
+  totalVisits: number;
+  totalSpent: number;
+  lastVisit?: string;
+  createdAt: string;
+  userId: {
+    email?: string;
+    phoneNumber: string;
+  };
+}
+
