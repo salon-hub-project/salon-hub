@@ -18,9 +18,15 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   onConfirm,
 }) => {
   if (!isOpen) return null;
+    const getConfirmLabel = () => {
+    const t = title.toLowerCase();
+    if (t.includes("logout")) return "Logout";
+    if (t.includes("delete")) return "Delete";
+    return "Confirm";
+  };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 z-[999]">
       <div className="bg-card rounded-lg p-6 w-80">
         <h2 className="text-lg font-semibold mb-2">{title}</h2>
         <p className="text-sm text-muted-foreground mb-4">{description}</p>
@@ -29,7 +35,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
             Cancel
           </Button>
           <Button variant="destructive" className="bg-red-500" onClick={onConfirm}>
-            Delete
+            {getConfirmLabel()}
           </Button>
         </div>
       </div>

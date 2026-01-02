@@ -239,6 +239,7 @@ import Icon from "../../../components/AppIcon";
 import Button from "../../../components/ui/Button";
 import Input from "../../../components/ui/Input";
 import { categoryApi } from "@/app/services/category.api";
+import ConfirmModal from "@/app/components/ui/ConfirmModal";
 
 interface CategoryManagerProps {
   categories: ServiceCategory[];
@@ -258,14 +259,22 @@ const CategoryManager = ({
   const [isOpen, setIsOpen] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [error, setError] = useState("");
-  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
+  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(
+    null
+  );
   const [editingCategoryName, setEditingCategoryName] = useState("");
+
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
+    null
+  );
 
   const handleCancelEdit = () => {
     setEditingCategoryId(null);
     setEditingCategoryName("");
   };
 
+  
   const handleSaveEdit = async (categoryId: string) => {
     if (!editingCategoryName.trim()) return;
 
@@ -308,15 +317,24 @@ const CategoryManager = ({
     }
   };
 
-  const handleDeleteCategory = async (categoryId: string) => {
-    if (!window.confirm("Are you sure you want to delete this category?")) return;
+  const handleDeleteCategory = (categoryId: string) => {
+    setSelectedCategoryId(categoryId);
+    setConfirmOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!selectedCategoryId) return;
 
     try {
-      await categoryApi.deleteCategory(categoryId);
-      onDeleteCategory(categoryId);
+      await categoryApi.deleteCategory(selectedCategoryId);
+
+      onDeleteCategory(selectedCategoryId);
     } catch (err: any) {
       alert(err?.response?.data?.message || "Failed to delete category");
     }
+
+    setConfirmOpen(false);
+    setSelectedCategoryId(null);
   };
 
   const handleMoveUp = (index: number) => {
@@ -360,6 +378,7 @@ const CategoryManager = ({
               value={newCategoryName}
               onChange={(e) => {
                 setNewCategoryName(e.target.value);
+                setError("");
                 setError("");
               }}
               error={error}
@@ -444,8 +463,16 @@ const CategoryManager = ({
           </div>
         </div>
       )}
+      <ConfirmModal
+        isOpen={confirmOpen}
+        title="Delete Category"
+        description="Are you sure you want to delete this category? This action cannot be undone."
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 };
 
 export default CategoryManager;
+

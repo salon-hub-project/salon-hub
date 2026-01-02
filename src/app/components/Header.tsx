@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { logout } from "../store/slices/authSlice";
 import { getProfile } from "../store/slices/profileSlice";
+import { showToast } from "./ui/toast";
+import ConfirmModal from "./ui/ConfirmModal";
 
 interface User {
   name: string;
@@ -83,6 +85,7 @@ const Header = ({
   const { profile } = useAppSelector((state) => state.profile);
   const profileRef = useRef<HTMLDivElement>(null);
   const salonSwitcherRef = useRef<HTMLDivElement>(null);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   useEffect(() => {
     dispatch(getProfile());
@@ -120,18 +123,21 @@ const Header = ({
   };
 
   const handleLogout = () => {
-    // setIsProfileOpen(false);
-    // onLogout?.();
-     localStorage.removeItem('authToken');
-    localStorage.removeItem('authUser');
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("authUser");
     dispatch(logout());
-    router.push('/salon-login');
+
+    showToast({
+      message: "Logged out successfully",
+      status: "success",
+    });
+    router.push("/salon-login");
   };
 
   const handleProfileClick = () => {
     // setIsProfileOpen(false);
     // onProfileClick?.();
-    router.push('/profile')
+    router.push("/profile");
   };
 
   const handleSalonSwitch = (salonId: string) => {
@@ -244,7 +250,7 @@ const Header = ({
                 </button>
 
                 <button
-                  onClick={handleLogout}
+                  onClick={() => setShowLogoutModal(true)}
                   className="w-full px-4 py-2 hover:bg-muted flex items-center gap-2"
                 >
                   <Icon name="LogOut" size={16} /> Logout
@@ -254,6 +260,17 @@ const Header = ({
           </div>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={showLogoutModal}
+        title="Logout"
+        description="Are you sure you want to logout?"
+        onCancel={() => setShowLogoutModal(false)}
+        onConfirm={() => {
+          setShowLogoutModal(false);
+          handleLogout();
+        }}
+      />
     </header>
   );
 };

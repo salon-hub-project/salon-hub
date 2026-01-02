@@ -1,5 +1,5 @@
 "use client";
-
+import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import {
   fetchOwners,
@@ -12,21 +12,30 @@ import Sidebar from "@/app/components/Sidebar";
 import Header from "@/app/components/Header";
 import MobileBottomNav from "@/app/components/MobileBottomNav";
 import Icon from "@/app/components/AppIcon";
+import ConfirmModal from "@/app/components/ui/ConfirmModal";
 
 const GetAllOwners = () => {
   const dispatch = useAppDispatch();
   const { owners, isLoading, error } = useAppSelector((state) => state.owner);
 
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [selectedOwnerId, setSelectedOwnerId] = useState<string | null>(null);
+
   useEffect(() => {
     dispatch(fetchOwners({ page: 1, limit: 10 }));
   }, [dispatch]);
-  const handleDelete = (ownerId: string) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete your profile?"
-    );
 
-    if (!confirmDelete) return;
-    dispatch(deleteOwner(ownerId));
+  const handleDelete = (ownerId: string) => {
+    setSelectedOwnerId(ownerId);
+    setConfirmOpen(true);
+  };
+
+  const confirmDeleteOwner = () => {
+    if (selectedOwnerId) {
+      dispatch(deleteOwner(selectedOwnerId));
+    }
+    setConfirmOpen(false);
+    setSelectedOwnerId(null);
   };
 
   return (
@@ -123,6 +132,13 @@ const GetAllOwners = () => {
             </div>
           )}
         </div>
+        <ConfirmModal
+          isOpen={confirmOpen}
+          title="Delete Owner"
+          description="This action cannot be undone. Are you sure you want to delete this owner?"
+          onCancel={() => setConfirmOpen(false)}
+          onConfirm={confirmDeleteOwner}
+        />
       </main>
 
       <MobileBottomNav userRole="super_admin" />

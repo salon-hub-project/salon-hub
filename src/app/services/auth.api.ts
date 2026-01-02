@@ -1,4 +1,5 @@
 import api from "./axios";
+import { showToast } from "../components/ui/toast";
 
 export interface LoginPayload {
   email: string;
@@ -13,9 +14,38 @@ export interface RegisterPayload {
 }
 
 export const authApi = {
-  login: (payload: LoginPayload) =>
-    api.post('/login', payload).then((res) => res.data),
+  login: async (payload: LoginPayload) => {
+    try {
+      const res = await api.post("/login", payload);
+      showToast({
+        message: res?.data?.message || "Login Successfully",
+        status: "success",
+      });
+      return res.data;
+    } catch (error: any) {
+      console.log(error)
+      showToast({
+        message: error?.response?.data?.message || "Login failed",
+        status: "error",
+      });
+      throw error;
+    }
+  },
 
-  registerOwner: (payload: RegisterPayload) =>
-    api.post('/owner', payload).then((res) => res.data),
+  registerOwner: async (payload: RegisterPayload) => {
+    try {
+      const res = await api.post("/owner", payload);
+      showToast({
+        message: res?.data?.message || "Registerd successfully",
+        status: "success",
+      });
+      return res.data;
+    } catch (error: any) {
+      showToast({
+        message: error?.response?.data?.message || "Registration failed",
+        status: "error",
+      });
+      throw error;
+    }
+  },
 };

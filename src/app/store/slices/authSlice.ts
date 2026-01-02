@@ -57,19 +57,6 @@ export const loginUser = createAsyncThunk(
   }
 );
 
-// export const registerOwner = createAsyncThunk(
-//   'auth/register',
-//   async (payload: RegisterPayload, { rejectWithValue }) => {
-//     try {
-//       return await authApi.registerOwner(payload);
-//     } catch (err) {
-//       return rejectWithValue(err);
-//     }
-//   }
-// );
-
-
-
 export const registerOwner = createAsyncThunk(
   'auth/register',
   async (payload: RegisterPayload, { rejectWithValue }) => {
