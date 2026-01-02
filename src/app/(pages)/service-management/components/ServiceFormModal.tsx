@@ -7,13 +7,17 @@ import Select from '../../../components/ui/Select';
 import Button from '../../../components/ui/Button';
 import { Checkbox } from '../../../components/ui/Checkbox';
 
+import { categoryApi } from '../../../services/category.api';
+
+// ... (existing imports)
+
 interface ServiceFormModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: ServiceFormData) => void;
   service?: Service | null;
-  categories: string[];
-  categoriesWithIds?: Array<{ id: string; name: string }>; // Optional: for ID to name conversion
+  categories: string[]; // Keeping prop for backward compatibility but will prefer fetched data
+  categoriesWithIds?: Array<{ id: string; name: string }>;
 }
 
 const ServiceFormModal = ({
@@ -21,7 +25,7 @@ const ServiceFormModal = ({
   onClose,
   onSubmit,
   service,
-  categories,
+  categories: initialCategories, // Rename prop to initialCategories
   categoriesWithIds,
 }: ServiceFormModalProps) => {
   const [formData, setFormData] = useState<ServiceFormData>({
@@ -34,6 +38,10 @@ const ServiceFormModal = ({
   });
 
   const [errors, setErrors] = useState<Partial<Record<keyof ServiceFormData, string>>>({});
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const [fetchedCategories, setFetchedCategories] = useState<string[]>([]);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(false);
+  const [showAllCategories, setShowAllCategories] = useState(false);
 
   // Helper function to convert category ID to name
   const getCategoryNameById = (categoryId: string): string => {
@@ -41,9 +49,32 @@ const ServiceFormModal = ({
       const category = categoriesWithIds.find(cat => cat.id === categoryId);
       return category ? category.name : categoryId;
     }
-    // If categoriesWithIds not provided, assume service.category is already a name
     return categoryId;
   };
+
+  useEffect(() => {
+    const loadCategories = async () => {
+        try {
+            setIsLoadingCategories(true);
+            const response = await categoryApi.getAllCategories({ page: 1, limit: 100 });
+            // Handle various response structures safely
+            const data = response.data || response || [];
+            if (Array.isArray(data)) {
+                const names = data.map((cat: any) => cat.name);
+                setFetchedCategories(names);
+            }
+        } catch (error) {
+            console.error("Failed to fetch categories", error);
+            setFetchedCategories(initialCategories); // Fallback
+        } finally {
+            setIsLoadingCategories(false);
+        }
+    };
+
+    if (isOpen) {
+        loadCategories();
+    }
+  }, [isOpen, initialCategories]);
 
   useEffect(() => {
     if (service) {
@@ -116,6 +147,11 @@ const ServiceFormModal = ({
     { value: 180, label: '3 hours' },
   ];
 
+  // Logic to determine which categories to show
+  const visibleCategories = showAllCategories 
+    ? fetchedCategories 
+    : fetchedCategories.filter(cat => cat.toLowerCase().includes(formData.category.toLowerCase()));
+
   if (!isOpen) return null;
 
   return (
@@ -145,22 +181,97 @@ const ServiceFormModal = ({
             required
           />
 
-          <div>
-            <Input
-              label="Category"
-              type="text"
-              list="category-list"
-              placeholder="e.g., Hair, Nail Care, Skin Care"
-              value={formData.category}
-              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-              error={errors.category}
-              required
-            />
-            <datalist id="category-list">
-              {categories.map((cat) => (
-                <option key={cat} value={cat} />
-              ))}
-            </datalist>
+          <div className="relative z-[60]">
+            <div className="relative">
+              <Input
+                label="Category"
+                type="text"
+                placeholder="e.g., Hair, Nail Care, Skin Care"
+                className="pr-10 selection:bg-primary/20 selection:text-foreground"
+                value={formData.category}
+                onChange={(e) => {
+                  setFormData({ ...formData, category: e.target.value });
+                  setIsCategoryDropdownOpen(true);
+                  setShowAllCategories(false); // Typing activates filtering
+                }}
+                onFocus={() => {
+                   setIsCategoryDropdownOpen(true);
+                   // showAllCategories state remains whatever it was? 
+                   // Or maybe default to false (filtering) if there is text?
+                   // Usually focus doesn't imply "show all" if there is text.
+                }}
+                error={errors.category}
+                required
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-sm hover:bg-muted text-muted-foreground"
+                onClick={() => {
+                     // Toggle logic
+                     if (isCategoryDropdownOpen) {
+                         setIsCategoryDropdownOpen(false);
+                     } else {
+                         setIsCategoryDropdownOpen(true);
+                         setShowAllCategories(true); // Explicitly show all when opening via chevron
+                     }
+                }}
+              >
+                <Icon name="ChevronDown" size={16} className={`transition-transform duration-200 ${isCategoryDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+            </div>
+            
+            {isCategoryDropdownOpen && (
+              <div 
+              // className="absolute z-50 w-full mt-1 bg-popover text-popover-foreground border border-border rounded-md shadow-lg max-h-60 overflow-y-auto"
+              className="
+    absolute z-[120] w-full mt-2
+    bg-card text-foreground
+    border border-border
+    rounded-lg
+    shadow-xl
+    max-h-60 overflow-y-auto
+    ring-1 ring-black/5
+  "
+              >
+                {isLoadingCategories ? (
+                    <div className="px-3 py-2 text-sm text-muted-foreground bg-card">Loading...</div>
+                ) : visibleCategories.length > 0 ? (
+                  visibleCategories
+                    .map((cat) => (
+                      <div
+                        key={cat}
+                        // className="px-3 py-2 cursor-pointer hover:bg-muted text-sm"
+                        className="
+  px-3 py-2 text-sm
+  cursor-pointer
+  hover:bg-muted
+  transition-colors
+"
+
+                        onClick={() => {
+                          setFormData({ ...formData, category: cat });
+                          setIsCategoryDropdownOpen(false);
+                        }}
+                      >
+                        {cat}
+                      </div>
+                    ))
+                ) : (
+                  <div className="px-3 py-2 text-sm text-muted-foreground">No categories found</div>
+                )}
+                {!isLoadingCategories && !showAllCategories && visibleCategories.length === 0 && formData.category && (
+                   <div className="px-3 py-2 text-sm text-muted-foreground bg-card">
+                    Create "{formData.category}"
+                   </div>
+                )}
+              </div>
+            )}
+            {isCategoryDropdownOpen && (
+              <div 
+                className="fixed inset-0 z-[110]"
+                onClick={() => setIsCategoryDropdownOpen(false)}
+              />
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

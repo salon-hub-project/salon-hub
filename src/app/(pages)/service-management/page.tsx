@@ -474,6 +474,14 @@ const ServiceManagement = () => {
         : cat
     ));
   };
+  const handleUpdateCategory = async (id: string, name: string) => {
+    setCategories((prev) =>
+      prev.map((cat) =>
+        cat.id === id ? { ...cat, name } : cat
+      )
+    );
+  };
+  
 
   const handleResetFilters = () => {
     setFilters({
@@ -491,8 +499,8 @@ const ServiceManagement = () => {
   };
 
   const handleOpenEditModal = (service: Service) => {
-    setEditingService(service);
-    setIsFormModalOpen(true);
+      setEditingService(service);
+      setIsFormModalOpen(true);
   };
 
   const handleCloseModal = () => {
@@ -553,6 +561,7 @@ const ServiceManagement = () => {
             categories={categories}
             onAddCategory={handleAddCategory}
             onDeleteCategory={handleDeleteCategory}
+            onUpdateCategory={handleUpdateCategory}
             onReorderCategories={handleReorderCategories}
           />
 
