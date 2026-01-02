@@ -56,7 +56,7 @@ const ServiceMobileCard = ({
   };
 
   const formatPrice = (price: number): string => {
-    return `$INR{price.toFixed(2)}`;
+    return `${price.toFixed(2)}`;
   };
 
   return (
