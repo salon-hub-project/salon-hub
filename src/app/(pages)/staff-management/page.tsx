@@ -23,8 +23,8 @@ import Pagination from "@/app/components/Pagination";
 import Loader from "@/app/components/Loader";
 import NoData from "@/app/components/NoData";
 import ConfirmModal from "@/app/components/ui/ConfirmModal";
-import { toast } from "react-toastify";
-import { showSuccessToast } from "@/app/utils/toast";
+import { showToast } from "@/app/components/ui/toast";
+
 
 const StaffManagement = () => {
   const authUser = useAppSelector((state) => state.auth.user);
@@ -220,10 +220,12 @@ const StaffManagement = () => {
     try {
       setLoading(true);
       await staffApi.deleteStaff(employeeToDelete);
-      // showSuccessToast(res?.message);
       setEmployees((prev) => prev.filter((emp) => emp.id !== employeeToDelete));
     } catch (err) {
-      toast.error("Failed to delete staff")
+      showToast({
+        message: "Failed to delete employees",
+        status: "error"
+      })
       console.error("Failed to delete employee", err);
     } finally {
       setLoading(false);

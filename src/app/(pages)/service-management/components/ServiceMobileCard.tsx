@@ -1,8 +1,9 @@
 "use client";
-import { useState } from 'react';
-import { Service } from '../types';
-import Icon from '../../../components/AppIcon';
-import Button from '../../../components/ui/Button';
+import { useState } from "react";
+import { Service } from "../types";
+import Icon from "../../../components/AppIcon";
+import Button from "../../../components/ui/Button";
+import ConfirmModal from "@/app/components/ui/ConfirmModal";
 
 interface ServiceMobileCardProps {
   service: Service;
@@ -27,24 +28,29 @@ const ServiceMobileCard = ({
 }: ServiceMobileCardProps) => {
   const [expanded, setExpanded] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // Helper function to convert category ID to name
   const getCategoryName = (categoryId: string): string => {
     if (categories) {
-      const category = categories.find(cat => cat.id === categoryId);
+      const category = categories.find((cat) => cat.id === categoryId);
       return category ? category.name : categoryId;
     }
     return categoryId;
   };
 
+  // const handleDelete = () => {
+  //   if (deleteConfirm) {
+  //     onDelete(service.id);
+  //     setDeleteConfirm(false);
+  //   } else {
+  //     setDeleteConfirm(true);
+  //     setTimeout(() => setDeleteConfirm(false), 3000);
+  //   }
+  // };
+
   const handleDelete = () => {
-    if (deleteConfirm) {
-      onDelete(service.id);
-      setDeleteConfirm(false);
-    } else {
-      setDeleteConfirm(true);
-      setTimeout(() => setDeleteConfirm(false), 3000);
-    }
+    setShowDeleteModal(true);
   };
 
   const formatDuration = (minutes: number): string => {
@@ -77,7 +83,11 @@ const ServiceMobileCard = ({
                   {service.name}
                 </h3>
                 {service.isPopular && (
-                  <Icon name="Star" size={16} className="text-warning flex-shrink-0" />
+                  <Icon
+                    name="Star"
+                    size={16}
+                    className="text-warning flex-shrink-0"
+                  />
                 )}
               </div>
               <span className="inline-flex items-center px-2 py-1 rounded-md bg-muted text-xs font-medium text-foreground">
@@ -88,10 +98,10 @@ const ServiceMobileCard = ({
             <button
               onClick={() => setExpanded(!expanded)}
               className="flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-smooth flex-shrink-0"
-              aria-label={expanded ? 'Collapse' : 'Expand'}
+              aria-label={expanded ? "Collapse" : "Expand"}
             >
               <Icon
-                name={expanded ? 'ChevronUp' : 'ChevronDown'}
+                name={expanded ? "ChevronUp" : "ChevronDown"}
                 size={20}
                 className="text-muted-foreground"
               />
@@ -106,7 +116,11 @@ const ServiceMobileCard = ({
               </span>
             </div>
             <div className="flex items-center gap-1">
-              <Icon name="IndianRupee" size={14} className="text-muted-foreground" />
+              <Icon
+                name="IndianRupee"
+                size={14}
+                className="text-muted-foreground"
+              />
               <span className="text-sm font-medium text-foreground">
                 {formatPrice(service.price)}
               </span>
@@ -124,22 +138,27 @@ const ServiceMobileCard = ({
               onClick={() => onTogglePopular(service.id)}
               className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium transition-smooth ${
                 service.isPopular
-                  ? 'bg-warning bg-opacity-10 text-warning' :'bg-muted text-muted-foreground'
+                  ? "bg-warning bg-opacity-10 text-warning"
+                  : "bg-muted text-muted-foreground"
               }`}
             >
               <Icon name="Star" size={14} />
-              <span>{service.isPopular ? 'Popular' : 'Mark Popular'}</span>
+              <span>{service.isPopular ? "Popular" : "Mark Popular"}</span>
             </button>
 
             <button
               onClick={() => onToggleStatus(service.id)}
               className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium transition-smooth ${
                 service.isActive
-                  ? 'bg-success bg-opacity-10 text-success' :'bg-muted text-muted-foreground'
+                  ? "bg-success bg-opacity-10 text-success"
+                  : "bg-muted text-muted-foreground"
               }`}
             >
-              <Icon name={service.isActive ? 'CheckCircle' : 'XCircle'} size={14} />
-              <span>{service.isActive ? 'Active' : 'Inactive'}</span>
+              <Icon
+                name={service.isActive ? "CheckCircle" : "XCircle"}
+                size={14}
+              />
+              <span>{service.isActive ? "Active" : "Inactive"}</span>
             </button>
           </div>
 
@@ -157,20 +176,31 @@ const ServiceMobileCard = ({
                 Edit
               </Button>
               <Button
-                variant={deleteConfirm ? 'destructive' : 'outline'}
+                variant="outline"
                 size="sm"
                 onClick={handleDelete}
-                iconName={deleteConfirm ? 'AlertTriangle' : 'Trash2'}
+                iconName="Trash2"
                 iconPosition="left"
                 iconSize={14}
                 fullWidth
               >
-                {deleteConfirm ? 'Confirm' : 'Delete'}
+                Delete
               </Button>
             </div>
           )}
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        title="Delete Service?"
+        description="This action cannot be undone."
+        onCancel={() => setShowDeleteModal(false)}
+        onConfirm={() => {
+          onDelete(service.id);
+          setShowDeleteModal(false);
+        }}
+      />
     </div>
   );
 };

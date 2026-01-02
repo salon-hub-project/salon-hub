@@ -70,6 +70,7 @@ const RegistrationForm = ({
       <Input
         label="Mobile Number"
         type="tel"
+        placeholder="Enter your mobile number"
         value={formData.mobileNumber}
         onChange={(e) => onInputChange("mobileNumber", e.target.value)}
         error={errors.mobileNumber}
@@ -80,6 +81,7 @@ const RegistrationForm = ({
       <Input
         label="Email"
         type="email"
+        placeholder="Enter your email address"
         value={formData.emailId}
         onChange={(e) => onInputChange("emailId", e.target.value)}
         error={errors.emailId}
@@ -89,6 +91,7 @@ const RegistrationForm = ({
 
       <Input
         label="Address"
+        placeholder="Add your address"
         value={formData.address}
         onChange={(e) => onInputChange("address", e.target.value)}
         error={errors.address}
@@ -100,6 +103,7 @@ const RegistrationForm = ({
         <Input
           label="Password"
           type={showPassword ? "text" : "password"}
+          placeholder="Enter your password"
           value={formData.password}
           onChange={(e) => onInputChange("password", e.target.value)}
           error={errors.password}
@@ -124,6 +128,7 @@ const RegistrationForm = ({
         <Input
           label="Confirm Password"
           type={showConfirmPassword ? "text" : "password"}
+          placeholder="Re-enter your password"
           value={formData.confirmPassword}
           onChange={(e) => onInputChange("confirmPassword", e.target.value)}
           error={errors.confirmPassword}
