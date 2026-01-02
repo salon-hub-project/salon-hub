@@ -274,8 +274,7 @@ const CategoryManager = ({
     setEditingCategoryName("");
   };
 
-  const handleSaveEdit = async (categoryId: string) => {
-    if (!editingCategoryName.trim()) return;
+  
   const handleSaveEdit = async (categoryId: string) => {
     if (!editingCategoryName.trim()) return;
 
@@ -474,6 +473,6 @@ const CategoryManager = ({
     </div>
   );
 };
-}
+
 export default CategoryManager;
 
