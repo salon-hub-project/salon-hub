@@ -21,6 +21,7 @@ const CustomerProfile = ({
   serviceHistory,
   onClose,
   onEdit,
+  
   onBookAppointment,
   onSendMessage,
   loading

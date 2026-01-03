@@ -73,7 +73,7 @@ const CustomerDatabase = () => {
         totalVisits: c.totalVisits,
         totalSpent: c.totalSpent,
         createdAt: new Date(c.createdAt),
-        preferredStaff: c.preferredStaff?.fullName || "",
+        preferredStaff: c.preferredStaff?._id || c.preferredStaff?.fullName || "",
         avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(c.fullName)}`,
       }));
       setCustomers(mappedCustomers);
@@ -169,7 +169,7 @@ const CustomerDatabase = () => {
         totalVisits: c.totalVisits,
         totalSpent: c.totalSpent,
         createdAt: new Date(c.createdAt),
-        preferredStaff: c.preferredStaff?.fullName || "",
+        preferredStaff: c.preferredStaff?._id || c.preferredStaff?.fullName || "",
         avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(c.fullName)}`,
       };
 
@@ -192,10 +192,10 @@ const CustomerDatabase = () => {
     setShowForm(true);
   };
 
-  const handleSaveCustomer = (data: CustomerFormData) => {
-    console.log('Saving customer:', data);
+  const handleSaveCustomer = () => {
     setShowForm(false);
     setEditingCustomer(undefined);
+    fetchCustomers(); // Refetch customers after update
   };
 
   const handleBookAppointment = (customerId: string) => {
@@ -220,6 +220,7 @@ const CustomerDatabase = () => {
     role: authUser?.role || 'salon_owner',
     salonName: 'Glamour Studio',
   };
+  
 
   return (
     <AuthGuard>
@@ -338,10 +339,12 @@ const CustomerDatabase = () => {
 
         {showForm && (
           <CustomerForm
+            editingCustomer={editingCustomer}
             onClose={() => {
               setShowForm(false);
               setEditingCustomer(undefined);
             }}
+            onSuccess={handleSaveCustomer}
           />
         )}
       </div>

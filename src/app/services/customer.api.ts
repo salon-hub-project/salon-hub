@@ -24,6 +24,14 @@ export interface GetCustomersParams {
   gender?: string;
 }
 
+export interface UpdateCustomerPayload {
+  fullName: string;
+  gender: string;
+  DOB: string;
+  preferredStaff?: string;
+  customerTag?: string[];
+}
+
 export const customerApi = {
   addCustomer: async (data: AddCustomerPayload) => {
     const res = await api.post("/customer", data);
@@ -44,4 +52,9 @@ export const customerApi = {
     const res = await api.get(`/customer/${id}`);
     return res.data.customerDetails; 
   },
+  updateCustomer: async (id: string, data: UpdateCustomerPayload) => {
+    const res = await api.put(`/customer/${id}`, data);
+    return res.data;
+  },
+  
 };

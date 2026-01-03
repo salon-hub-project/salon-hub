@@ -11,11 +11,11 @@ import Select from "../../../components/ui/Select";
 import { Checkbox } from "../../../components/ui/Checkbox";
 import Loader from "@/app/components/Loader";
 
-import { CustomerFormikValues, CustomerTag } from "../types";
+import { CustomerFormikValues, CustomerTag, Customer } from "../types";
 import { customerApi } from "@/app/services/customer.api";
 import { staffApi } from "@/app/services/staff.api";
 
-const validationSchema = Yup.object({
+const getValidationSchema = (isEditMode: boolean) => Yup.object({
   name: Yup.string().trim().required("Name is required"),
   phone: Yup.string()
     .matches(/^\d{10}$/, "Invalid phone number")
@@ -23,18 +23,24 @@ const validationSchema = Yup.object({
   email: Yup.string().email("Invalid email"),
   gender: Yup.string().required(),
   dateOfBirth: Yup.string().required("Date of birth is required"),
-  password: Yup.string()
-    .min(8, "Minimum 8 characters")
-    .required("Password is required"),
+  password: isEditMode 
+    ? Yup.string()
+    : Yup.string()
+        .min(8, "Minimum 8 characters")
+        .required("Password is required"),
 });
 
 
 interface CustomerFormProps {
   onClose: () => void;
+  editingCustomer?: Customer;
+  onSuccess?: () => void;
 }
 
-const CustomerForm = ({ onClose }: CustomerFormProps) => {
+
+const CustomerForm = ({ onClose, editingCustomer, onSuccess }: CustomerFormProps) => {
   const tagOptions: CustomerTag[] = ["VIP", "New", "Frequent", "Inactive"];
+  const isEditMode = !!editingCustomer;
 
   const [staff, setStaff] = useState<any[]>([]);
   const [loadingStaff, setLoadingStaff] = useState(false);
@@ -62,6 +68,18 @@ const CustomerForm = ({ onClose }: CustomerFormProps) => {
     label: emp.fullName,
   }));
 
+  // Get the staff ID - if it's already an ID, use it; otherwise find by name
+  const getPreferredStaffId = (preferredStaff: string): string => {
+    if (!preferredStaff) return "";
+    // Check if it's already an ID (MongoDB ObjectId format - 24 hex characters)
+    if (/^[0-9a-fA-F]{24}$/.test(preferredStaff)) {
+      return preferredStaff;
+    }
+    // Otherwise, find by name
+    const foundStaff = staff.find((s) => s.fullName === preferredStaff);
+    return foundStaff?._id || "";
+  };
+
 const addCustomer = async (values: CustomerFormikValues) => {
   try {
     await customerApi.addCustomer({
@@ -79,8 +97,28 @@ const addCustomer = async (values: CustomerFormikValues) => {
     });
 
     onClose();
+    onSuccess?.();
   } catch (error) {
     console.error("Failed to add customer", error);
+  }
+};
+
+const updateCustomer = async (values: CustomerFormikValues) => {
+  if (!editingCustomer) return;
+  
+  try {
+    await customerApi.updateCustomer(editingCustomer.id, {
+      fullName: values.name,
+      gender: values.gender,
+      DOB: values.dateOfBirth,
+      preferredStaff: values.preferredStaff || undefined,
+      customerTag: values.tags.length ? values.tags : undefined,
+    });
+
+    onClose();
+    onSuccess?.();
+  } catch (error) {
+    console.error("Failed to update customer", error);
   }
 };
 
@@ -89,7 +127,9 @@ const addCustomer = async (values: CustomerFormikValues) => {
     <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
       <div className="bg-card rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         <div className="flex items-center justify-between p-6 border-b border-border">
-          <h2 className="text-xl font-semibold">Add New Customer</h2>
+          <h2 className="text-xl font-semibold">
+            {isEditMode ? "Edit Customer" : "Add New Customer"}
+          </h2>
           <button onClick={onClose} className="p-2 rounded-md hover:bg-muted">
             <Icon name="X" size={20} />
           </button>
@@ -97,19 +137,22 @@ const addCustomer = async (values: CustomerFormikValues) => {
 
         <Formik<CustomerFormikValues>
           initialValues={{
-            name: "",
-            phone: "",
-            email: "",
-            notes: "", 
-            gender: "female",
-            dateOfBirth: "",
-            address: "",
-            tags: [] as CustomerTag[],
-            preferredStaff: "",
+            name: editingCustomer?.name || "",
+            phone: editingCustomer?.phone || "",
+            email: editingCustomer?.email || "",
+            notes: editingCustomer?.notes || "", 
+            gender: editingCustomer?.gender || "female",
+            dateOfBirth: editingCustomer?.dateOfBirth || "",
+            address: editingCustomer?.address || "",
+            tags: editingCustomer?.tags || ([] as CustomerTag[]),
+            preferredStaff: editingCustomer?.preferredStaff 
+              ? getPreferredStaffId(editingCustomer.preferredStaff)
+              : "",
             password: "",
           }}
-          validationSchema={validationSchema}
-          onSubmit={addCustomer}
+          validationSchema={getValidationSchema(isEditMode)}
+          enableReinitialize={true}
+          onSubmit={isEditMode ? updateCustomer : addCustomer}
         >
           {({
             values,
@@ -149,15 +192,17 @@ const addCustomer = async (values: CustomerFormikValues) => {
                   error={touched.email ? errors.email : undefined}
                 />
 
-                <Input
-                  label="Password"
-                  type="password"
-                  name="password"
-                  placeholder="Enter customer password"
-                  value={values.password}
-                  onChange={handleChange}
-                  error={touched.password ? errors.password : undefined}
-                />
+                {!isEditMode && (
+                  <Input
+                    label="Password"
+                    type="password"
+                    name="password"
+                    placeholder="Enter customer password"
+                    value={values.password}
+                    onChange={handleChange}
+                    error={touched.password ? errors.password : undefined}
+                  />
+                )}
 
                 <Select
                   label="Gender"
@@ -245,7 +290,7 @@ const addCustomer = async (values: CustomerFormikValues) => {
                   {isSubmitting ? (
                     <Loader inline size="sm" label="Saving..." />
                   ) : (
-                    "Add Customer"
+                    isEditMode ? "Update Customer" : "Add Customer"
                   )}
                 </Button>
               </div>
