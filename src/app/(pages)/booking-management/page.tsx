@@ -227,14 +227,14 @@ const [staff, setStaff] = useState<Staff[]>([]);
 
   const handleCreateBooking = async (data: BookingFormData) => {
     try {
-      if (!data.customerId || !data.serviceId || !data.staffId || !data.date || !data.startTime) {
+      if (!data.customerId || data.services.length === 0 || !data.staffId || !data.date || !data.startTime) {
         console.error("Missing required booking data");
         return;
       }
 
       await appointmentApi.createAppointment({
         customerId: data.customerId,
-        serviceId: data.serviceId,
+        services: data.services,
         staffId: data.staffId,
         appointmentDate: data.date.toISOString().split("T")[0],
         appointmentTime: data.startTime,

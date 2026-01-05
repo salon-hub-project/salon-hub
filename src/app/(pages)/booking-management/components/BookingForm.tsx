@@ -72,7 +72,7 @@ const BookingForm = ({
           onSubmit={(values) =>
             onSubmit({
               customerId: values.customerId,
-              serviceId: values.services.join(","), // backend format
+              services: values.services, // Pass as array
               staffId: values.staffId,
               date: values.date,
               startTime: values.startTime,

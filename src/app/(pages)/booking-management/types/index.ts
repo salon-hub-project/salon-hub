@@ -72,7 +72,7 @@ export type PaymentStatus = "pending" | "paid";
 
 export interface BookingFormData {
   customerId: string;
-  serviceId: string;
+  services: string[];
   staffId: string;
   date: Date;
   startTime: string;

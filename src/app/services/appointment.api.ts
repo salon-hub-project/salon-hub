@@ -3,7 +3,7 @@ import { showToast } from "../components/ui/toast";
 
 export interface CreateAppointmentPayload {
   customerId: string;
-  serviceId: string;
+  services: string[];
   staffId: string;
   appointmentDate: string; // YYYY-MM-DD
   appointmentTime: string; // HH:mm
