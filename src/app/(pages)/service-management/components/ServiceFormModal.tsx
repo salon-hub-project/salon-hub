@@ -99,7 +99,7 @@ const ServiceFormModal = ({
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black bg-opacity-50">
       <div className="bg-card border border-border rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-6 border-b border-border">
+        <div className="sticky top-0 bg-card border-b border-border px-6 py-4 flex items-center justify-between">
           <h2 className="text-xl font-semibold text-foreground">
             {service ? "Edit Service" : "Add New Service"}
           </h2>

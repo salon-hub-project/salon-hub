@@ -186,7 +186,7 @@ const updateCustomer = async (values: CustomerFormikValues) => {
                 <Input
                   label="Email"
                   name="email"
-                  placeholder="customer@example.com"
+                  placeholder="Enter email address"
                   value={values.email}
                   onChange={handleChange}
                   error={touched.email ? errors.email : undefined}

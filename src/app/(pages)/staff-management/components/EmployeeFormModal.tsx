@@ -242,7 +242,7 @@ const EmployeeFormModal = ({
                   <>
                     <Input
                       label="Phone Number"
-                      placeholder="+1 (555) 000-0000"
+                      placeholder="Enter phone number"
                       name="phone"
                       value={values.phone}
                       onChange={handleChange}
@@ -252,7 +252,7 @@ const EmployeeFormModal = ({
                     <Input
                       label="Email Address"
                       name="email"
-                      placeholder="employee@example.com"
+                      placeholder="Enter email address"
                       value={values.email}
                       onChange={handleChange}
                       error={touched.email ? errors.email : undefined}
