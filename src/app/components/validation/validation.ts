@@ -87,3 +87,50 @@ export const comboValidationSchema = Yup.object().shape({
     .max(100)
     .required(),
 });
+
+//Service Component Validation SChema:-
+export const serviceValidationSchema = Yup.object({
+  name: Yup.string().trim().required("Service name is required"),
+  category: Yup.string().required("Category is required"),
+  duration: Yup.number().min(1, "Duration must be greater than 0"),
+  price: Yup.number().min(1, "Price must be greater than 0"),
+  description: Yup.string().optional(),
+});
+
+//Staff Components validation Schema:-
+export const addValidationSchema = Yup.object({
+  name: Yup.string().trim().required("Name is required"),
+  role: Yup.string().required("Role is required"),
+  phone: Yup.string()
+    .matches(/^\+?[\d\s-()]+$/, "Invalid phone number format")
+    .required("Phone number is required"),
+  email: Yup.string()
+    .email("Invalid email format")
+    .required("Email is required"),
+  commissionRate: Yup.number()
+    .min(0, "Must be at least 0")
+    .max(100, "Must be at most 100")
+    .required("Commission rate is required"),
+  assignedServices: Yup.array()
+    .of(Yup.string())
+    .min(1, "At least one service must be assigned"),
+  password: Yup.string()
+    .min(8, "Password must be at least 8 characters")
+    .required("Password is required"),
+  rating: Yup.number()
+    .min(0, "Minimum rating is 0")
+    .max(5, "Maximum rating is 5")
+    .required("Rating is required"),
+});
+
+export const updateValidationSchema = Yup.object({
+  name: Yup.string().trim().required("Name is required"),
+  role: Yup.string().required("Role is required"),
+  commissionRate: Yup.number()
+    .min(0, "Must be at least 0")
+    .max(100, "Must be at most 100")
+    .required("Commission rate is required"),
+  assignedServices: Yup.array()
+    .of(Yup.string())
+    .min(1, "At least one service must be assigned"),
+});

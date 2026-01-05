@@ -12,48 +12,12 @@ import { Employee, EmployeeFormData, ServiceApiResponse, ServicesApiResponse } f
 import { staffApi } from "@/app/services/staff.api";
 import Loader from "@/app/components/Loader";
 import { serviceApi } from "@/app/services/service.api";
+import { addValidationSchema, updateValidationSchema } from "@/app/components/validation/validation";
 
 interface EmployeeFormModalProps {
   employee: Employee | null;
   onClose: () => void;
 }
-
-const addValidationSchema = Yup.object({
-  name: Yup.string().trim().required("Name is required"),
-  role: Yup.string().required("Role is required"),
-  phone: Yup.string()
-    .matches(/^\+?[\d\s-()]+$/, "Invalid phone number format")
-    .required("Phone number is required"),
-  email: Yup.string()
-    .email("Invalid email format")
-    .required("Email is required"),
-  commissionRate: Yup.number()
-    .min(0, "Must be at least 0")
-    .max(100, "Must be at most 100")
-    .required("Commission rate is required"),
-  assignedServices: Yup.array()
-    .of(Yup.string())
-    .min(1, "At least one service must be assigned"),
-  password: Yup.string()
-    .min(8, "Password must be at least 8 characters")
-    .required("Password is required"),
-  rating: Yup.number()
-    .min(0, "Minimum rating is 0")
-    .max(5, "Maximum rating is 5")
-    .required("Rating is required"),
-});
-
-const updateValidationSchema = Yup.object({
-  name: Yup.string().trim().required("Name is required"),
-  role: Yup.string().required("Role is required"),
-  commissionRate: Yup.number()
-    .min(0, "Must be at least 0")
-    .max(100, "Must be at most 100")
-    .required("Commission rate is required"),
-  assignedServices: Yup.array()
-    .of(Yup.string())
-    .min(1, "At least one service must be assigned"),
-});
 
 const EmployeeFormModal = ({
   employee,
