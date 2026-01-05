@@ -21,6 +21,16 @@ import WeekView from './components/WeekView';
 import QuickFilters from './components/QuickFilters';
 import BookingForm from './components/BookingForm';
 import BookingDetailsModal from './components/BookingDetailsModal';
+import { useEffect } from "react";
+import { appointmentApi } from '@/app/services/appointment.api';
+import { customerApi } from '@/app/services/customer.api';
+import { serviceApi } from '@/app/services/service.api';
+import { staffApi } from '@/app/services/staff.api';
+// import { customerApi } from "../../services/customer";
+// import { customerApi } from "../../services/customer";
+// import { serviceApi } from "../../services/service";
+// import { staffApi } from "../../services/staff";
+// import { appointmentApi } from "../../services/appointment";
 
 
 const BookingManagement = () => {
@@ -33,190 +43,88 @@ const BookingManagement = () => {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [filters, setFilters] = useState<BookingFilters>({});
   const [searchQuery, setSearchQuery] = useState('');
+  const [customers, setCustomers] = useState<Customer[]>([]);
+const [services, setServices] = useState<Service[]>([]);
+const [staff, setStaff] = useState<Staff[]>([]);
 
-  const mockCustomers: Customer[] = [
-    {
-      id: 'c1',
-      name: 'Sarah Johnson',
-      phone: '+91 1234567890',
-      email: 'sarah.j@email.com',
-      gender: 'female',
-      tags: ['VIP', 'Frequent'],
-      avatar: 'https://randomuser.me/api/portraits/women/1.jpg',
-      totalVisits: 15,
-      lastVisit: new Date('2024-01-10'),
-    },
-    {
-      id: 'c2',
-      name: 'Michael Chen',
-      phone: '+91 1234567890',
-      email: 'michael.c@email.com',
-      gender: 'male',
-      tags: ['New'],
-      avatar: 'https://randomuser.me/api/portraits/men/2.jpg',
-      totalVisits: 2,
-      lastVisit: new Date('2024-01-08'),
-    },
-    {
-      id: 'c3',
-      name: 'Emily Rodriguez',
-      phone: '+91 1234567890',
-      email: 'emily.r@email.com',
-      gender: 'female',
-      tags: ['Frequent'],
-      avatar: 'https://randomuser.me/api/portraits/women/3.jpg',
-      totalVisits: 8,
-      lastVisit: new Date('2024-01-12'),
-    },
-  ];
 
-  const mockServices: Service[] = [
-    {
-      id: 's1',
-      name: 'Haircut & Styling',
-      category: 'Hair',
-      duration: 60,
-      price: 45.0,
-      isPopular: true,
-      isActive: true,
-    },
-    {
-      id: 's2',
-      name: 'Hair Coloring',
-      category: 'Hair',
-      duration: 120,
-      price: 85.0,
-      isPopular: true,
-      isActive: true,
-    },
-    {
-      id: 's3',
-      name: 'Manicure',
-      category: 'Nails',
-      duration: 45,
-      price: 30.0,
-      isPopular: false,
-      isActive: true,
-    },
-    {
-      id: 's4',
-      name: 'Pedicure',
-      category: 'Nails',
-      duration: 60,
-      price: 40.0,
-      isPopular: false,
-      isActive: true,
-    },
-    {
-      id: 's5',
-      name: 'Facial Treatment',
-      category: 'Skincare',
-      duration: 90,
-      price: 75.0,
-      isPopular: true,
-      isActive: true,
-    },
-  ];
 
-  const mockStaff: Staff[] = [
-    {
-      id: 'st1',
-      name: 'Jessica Martinez',
-      role: 'Senior Stylist',
-      phone: '+91 1234567890',
-      avatar: 'https://randomuser.me/api/portraits/women/10.jpg',
-      specializations: ['Hair', 'Styling'],
-      isAvailable: true,
-    },
-    {
-      id: 'st2',
-      name: 'David Kim',
-      role: 'Hair Colorist',
-      phone: '+91 1234567890',
-      avatar: 'https://randomuser.me/api/portraits/men/11.jpg',
-      specializations: ['Hair', 'Coloring'],
-      isAvailable: true,
-    },
-    {
-      id: 'st3',
-      name: 'Amanda Foster',
-      role: 'Nail Technician',
-      phone: '+91 1234567890',
-      avatar: 'https://randomuser.me/api/portraits/women/12.jpg',
-      specializations: ['Nails', 'Manicure', 'Pedicure'],
-      isAvailable: true,
-    },
-  ];
 
-  const mockBookings: Booking[] = [
-    {
-      id: 'b1',
-      customerId: 'c1',
-      customerName: 'Sarah Johnson',
-      customerPhone: '+91 1234567890',
-      customerAvatar: 'https://randomuser.me/api/portraits/women/1.jpg',
-      serviceId: 's1',
-      serviceName: 'Haircut & Styling',
-      serviceCategory: 'Hair',
-      serviceDuration: 60,
-      servicePrice: 45.0,
-      staffId: 'st1',
-      staffName: 'Jessica Martinez',
-      staffAvatar: 'https://randomuser.me/api/portraits/women/10.jpg',
-      date: new Date(),
-      startTime: '09:00',
-      endTime: '10:00',
-      status: 'confirmed',
-      notes: 'Customer prefers layered cut',
-      paymentStatus: 'pending',
-      createdAt: new Date(),
-    },
-    {
-      id: 'b2',
-      customerId: 'c2',
-      customerName: 'Michael Chen',
-      customerPhone: '+91 1234567890',
-      customerAvatar: 'https://randomuser.me/api/portraits/men/2.jpg',
-      serviceId: 's2',
-      serviceName: 'Hair Coloring',
-      serviceCategory: 'Hair',
-      serviceDuration: 120,
-      servicePrice: 85.0,
-      staffId: 'st2',
-      staffName: 'David Kim',
-      staffAvatar: 'https://randomuser.me/api/portraits/men/11.jpg',
-      date: new Date(),
-      startTime: '10:30',
-      endTime: '12:30',
-      status: 'pending',
-      paymentStatus: 'pending',
-      createdAt: new Date(),
-    },
-    {
-      id: 'b3',
-      customerId: 'c3',
-      customerName: 'Emily Rodriguez',
-      customerPhone: '+91 1234567890',
-      customerAvatar: 'https://randomuser.me/api/portraits/women/3.jpg',
-      serviceId: 's3',
-      serviceName: 'Manicure',
-      serviceCategory: 'Nails',
-      serviceDuration: 45,
-      servicePrice: 30.0,
-      staffId: 'st3',
-      staffName: 'Amanda Foster',
-      staffAvatar: 'https://randomuser.me/api/portraits/women/12.jpg',
-      date: new Date(),
-      startTime: '14:00',
-      endTime: '14:45',
-      status: 'completed',
-      paymentStatus: 'paid',
-      createdAt: new Date(),
-    },
-  ];
 
-  const [bookings, setBookings] = useState<Booking[]>(mockBookings);
 
+  const [bookings, setBookings] = useState<Booking[]>([]);
+
+  useEffect(() => {
+    loadInitialData();
+  }, []);
+  
+  const loadInitialData = async () => {
+    try {
+      const customerRes = await customerApi.getCustomers({ page: 1, limit: 100 });
+      const rawCustomers = Array.isArray(customerRes) ? customerRes : (customerRes?.data || []);
+      setCustomers(rawCustomers.map((c: any) => ({
+        ...c,
+        id: c._id || c.id,
+        name: c.fullName || c.name,
+        phone: c.phoneNumber || c.phone,
+        tags: c.customerTag || c.tags || [],
+      })));
+  
+      const serviceRes = await serviceApi.getAllServices({ page: 1, limit: 100 });
+      const rawServices = Array.isArray(serviceRes) ? serviceRes : (serviceRes?.data || []);
+      setServices(rawServices.map((s: any) => ({
+        ...s,
+        id: s._id || s.id,
+        name: s.serviceName || s.name,
+      })));
+  
+      const staffRes = await staffApi.getAllStaff({ page: 1, limit: 100 });
+      const rawStaff = Array.isArray(staffRes) ? staffRes : (staffRes?.data || []);
+      setStaff(rawStaff.map((s: any) => ({
+        ...s,
+        id: s._id || s.id,
+        name: s.fullName || s.name,
+        phone: s.phoneNumber || s.phone,
+        isAvailable: s.isActive,
+      })));
+
+      await loadBookings();
+    } catch (error) {
+      console.error("Failed to load booking dependencies", error);
+    }
+  };
+
+  const loadBookings = async () => {
+    try {
+      const res = await appointmentApi.getAllAppointments();
+      const rawBookings = Array.isArray(res) ? res : (res?.data || []);
+      
+      const mappedBookings: Booking[] = rawBookings.map((b: any) => ({
+        id: b._id,
+        customerId: b.customerId?._id,
+        customerName: b.customerId?.fullName || "Unknown Customer",
+        customerPhone: b.customerId?.phoneNumber,
+        serviceId: b.serviceId?._id,
+        serviceName: b.serviceId?.serviceName || "Unknown Service",
+        serviceCategory: b.serviceId?.category || "General",
+        serviceDuration: b.serviceId?.duration || 30, // Default duration if missing
+        servicePrice: b.serviceId?.price || 0,
+        staffId: b.staffId?._id,
+        staffName: b.staffId?.fullName || "Unknown Staff",
+        date: new Date(b.appointmentDate),
+        startTime: b.appointmentTime,
+        endTime: calculateEndTime(b.appointmentTime, b.serviceId?.duration || 30),
+        status: b.status || 'pending',
+        notes: b.notes,
+        paymentStatus: b.paymentStatus || 'pending',
+        createdAt: new Date(b.createdAt),
+      }));
+      setBookings(mappedBookings);
+    } catch (error) {
+      console.error("Failed to load bookings", error);
+    }
+  };
+  
   const generateTimeSlots = (): TimeSlot[] => {
     const slots: TimeSlot[] = [];
     for (let hour = 9; hour < 20; hour++) {
@@ -317,42 +225,35 @@ const BookingManagement = () => {
     }
   };
 
-  const handleCreateBooking = (data: BookingFormData) => {
-    const customer = mockCustomers.find((c) => c.id === data.customerId);
-    const service = mockServices.find((s) => s.id === data.serviceId);
-    const staff = mockStaff.find((s) => s.id === data.staffId);
+  const handleCreateBooking = async (data: BookingFormData) => {
+    try {
+      if (!data.customerId || !data.serviceId || !data.staffId || !data.date || !data.startTime) {
+        console.error("Missing required booking data");
+        return;
+      }
 
-    if (!customer || !service || !staff) return;
+      await appointmentApi.createAppointment({
+        customerId: data.customerId,
+        serviceId: data.serviceId,
+        staffId: data.staffId,
+        appointmentDate: data.date.toISOString().split("T")[0],
+        appointmentTime: data.startTime,
+        notes: data.notes,
+      });
 
-    const endTime = calculateEndTime(data.startTime, service.duration);
+      // Refetch bookings to update calendar
+      // Refetch bookings to update calendar
+      await loadBookings();
 
-    const newBooking: Booking = {
-      id: `b${bookings.length + 1}`,
-      customerId: customer.id,
-      customerName: customer.name,
-      customerPhone: customer.phone,
-      customerAvatar: customer.avatar,
-      serviceId: service.id,
-      serviceName: service.name,
-      serviceCategory: service.category,
-      serviceDuration: service.duration,
-      servicePrice: service.price,
-      staffId: staff.id,
-      staffName: staff.name,
-      staffAvatar: staff.avatar,
-      date: data.date,
-      startTime: data.startTime,
-      endTime,
-      status: 'pending',
-      notes: data.notes,
-      paymentStatus: 'pending',
-      createdAt: new Date(),
-    };
-
-    setBookings([...bookings, newBooking]);
-    setShowBookingForm(false);
-    setSelectedDate(undefined);
-    setSelectedTime(undefined);
+      setShowBookingForm(false);
+      setSelectedDate(undefined);
+      setSelectedTime(undefined);
+  
+      // OPTIONAL: You might want to show a success toast here if the API doesn't handle it
+    } catch (error) {
+      console.error("Failed to create appointment:", error);
+      // Toast is already handled in appointmentApi
+    }
   };
 
   const calculateEndTime = (startTime: string, duration: number): string => {
@@ -452,8 +353,8 @@ const BookingManagement = () => {
             <div className="space-y-4">
               <QuickFilters
                 filters={filters}
-                staff={mockStaff}
-                services={mockServices}
+                staff={staff}
+                services={services}
                 onFiltersChange={setFilters}
                 onClearFilters={handleClearFilters}
               />
@@ -498,7 +399,7 @@ const BookingManagement = () => {
       {showBookingForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4">
           <div className="max-w-2xl w-full">
-            <BookingForm
+            {/* <BookingForm
               customers={mockCustomers}
               services={mockServices}
               staff={mockStaff}
@@ -510,7 +411,21 @@ const BookingManagement = () => {
                 setSelectedDate(undefined);
                 setSelectedTime(undefined);
               }}
-            />
+            /> */}
+            <BookingForm
+  customers={customers}
+  services={services}
+  staff={staff}
+  selectedDate={selectedDate}
+  selectedTime={selectedTime}
+  onSubmit={handleCreateBooking}
+  onCancel={() => {
+    setShowBookingForm(false);
+    setSelectedDate(undefined);
+    setSelectedTime(undefined);
+  }}
+/>
+
           </div>
         </div>
       )}
