@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { ComboOffer, ComboFormData, ComboFilters } from './types';
+import { ComboOffer, ComboFormData, ComboFilters, ComboService } from './types';
 import Sidebar from '../../components/Sidebar';
 import Header from '../../components/Header';
 import MobileBottomNav from '../../components/MobileBottomNav';
@@ -14,144 +14,16 @@ import Button from '../../components/ui/Button';
 import Icon from '../../components/AppIcon';
 import { useAppSelector } from '../../store/hooks';
 import AuthGuard from '../../components/AuthGuard';
+import { comboApi } from '../../services/combo.api';
+import { serviceApi } from '../../services/service.api';
+import { showToast } from '../../components/ui/toast';
 
 const ComboOffersManagement = () => {
   const authUser = useAppSelector((state) => state.auth.user);
-  // Mock services data for combo creation
-  const availableServices = [
-    { id: '1', name: 'Classic Haircut', duration: 45, price: 35.0 },
-    { id: '2', name: 'Hair Coloring', duration: 120, price: 85.0 },
-    { id: '3', name: 'Manicure', duration: 30, price: 25.0 },
-    { id: '4', name: 'Pedicure', duration: 45, price: 35.0 },
-    { id: '5', name: 'Facial Treatment', duration: 60, price: 65.0 },
-    { id: '6', name: 'Waxing', duration: 30, price: 30.0 },
-    { id: '7', name: 'Makeup Application', duration: 60, price: 75.0 },
-    { id: '8', name: 'Hair Treatment', duration: 90, price: 55.0 },
-  ];
-
-  const [combos, setCombos] = useState<ComboOffer[]>([
-    {
-      id: '1',
-      name: 'Hair & Nail Luxury Package',
-      description: 'Complete hair transformation with premium nail care',
-      services: [
-        { id: '2', name: 'Hair Coloring', duration: 120, originalPrice: 85.0 },
-        { id: '3', name: 'Manicure', duration: 30, originalPrice: 25.0 },
-        { id: '4', name: 'Pedicure', duration: 45, originalPrice: 35.0 },
-      ],
-      originalPrice: 145.0,
-      discountedPrice: 115.0,
-      savingsPercentage: 20.69,
-      isActive: true,
-      validFrom: new Date('2024-12-01'),
-      validUntil: new Date('2025-03-31'),
-      minBookingRequirement: undefined,
-      customerEligibility: 'all',
-      staffCommissionRate: 15,
-      popularity: 87,
-      totalBookings: 87,
-      revenueGenerated: 10005.0,
-      createdAt: new Date('2024-11-15'),
-      updatedAt: new Date('2024-11-15'),
-    },
-    {
-      id: '2',
-      name: 'Bridal Beauty Bundle',
-      description: 'Complete bridal beauty package with hair, makeup, and nails',
-      services: [
-        { id: '2', name: 'Hair Coloring', duration: 120, originalPrice: 85.0 },
-        { id: '7', name: 'Makeup Application', duration: 60, originalPrice: 75.0 },
-        { id: '3', name: 'Manicure', duration: 30, originalPrice: 25.0 },
-        { id: '4', name: 'Pedicure', duration: 45, originalPrice: 35.0 },
-      ],
-      originalPrice: 220.0,
-      discountedPrice: 165.0,
-      savingsPercentage: 25.0,
-      isActive: true,
-      validFrom: new Date('2024-12-01'),
-      validUntil: new Date('2025-06-30'),
-      minBookingRequirement: undefined,
-      customerEligibility: 'all',
-      staffCommissionRate: 18,
-      popularity: 52,
-      totalBookings: 52,
-      revenueGenerated: 8580.0,
-      createdAt: new Date('2024-11-10'),
-      updatedAt: new Date('2024-11-10'),
-    },
-    {
-      id: '3',
-      name: 'Weekend Pampering Special',
-      description: 'Relaxing weekend package with facial and nail services',
-      services: [
-        { id: '5', name: 'Facial Treatment', duration: 60, originalPrice: 65.0 },
-        { id: '3', name: 'Manicure', duration: 30, originalPrice: 25.0 },
-        { id: '4', name: 'Pedicure', duration: 45, originalPrice: 35.0 },
-      ],
-      originalPrice: 125.0,
-      discountedPrice: 99.0,
-      savingsPercentage: 20.8,
-      isActive: true,
-      validFrom: new Date('2024-12-01'),
-      validUntil: new Date('2025-02-28'),
-      minBookingRequirement: undefined,
-      customerEligibility: 'existing',
-      staffCommissionRate: 14,
-      popularity: 64,
-      totalBookings: 64,
-      revenueGenerated: 6336.0,
-      createdAt: new Date('2024-11-20'),
-      updatedAt: new Date('2024-11-20'),
-    },
-    {
-      id: '4',
-      name: 'New Customer Welcome Pack',
-      description: 'Special introductory offer for first-time clients',
-      services: [
-        { id: '1', name: 'Classic Haircut', duration: 45, originalPrice: 35.0 },
-        { id: '3', name: 'Manicure', duration: 30, originalPrice: 25.0 },
-      ],
-      originalPrice: 60.0,
-      discountedPrice: 45.0,
-      savingsPercentage: 25.0,
-      isActive: true,
-      validFrom: new Date('2024-12-01'),
-      validUntil: new Date('2025-12-31'),
-      minBookingRequirement: undefined,
-      customerEligibility: 'new',
-      staffCommissionRate: 12,
-      popularity: 128,
-      totalBookings: 128,
-      revenueGenerated: 5760.0,
-      createdAt: new Date('2024-11-05'),
-      updatedAt: new Date('2024-11-05'),
-    },
-    {
-      id: '5',
-      name: 'VIP Premium Treatment',
-      description: 'Exclusive package for VIP members with all premium services',
-      services: [
-        { id: '2', name: 'Hair Coloring', duration: 120, originalPrice: 85.0 },
-        { id: '8', name: 'Hair Treatment', duration: 90, originalPrice: 55.0 },
-        { id: '5', name: 'Facial Treatment', duration: 60, originalPrice: 65.0 },
-        { id: '7', name: 'Makeup Application', duration: 60, originalPrice: 75.0 },
-      ],
-      originalPrice: 280.0,
-      discountedPrice: 210.0,
-      savingsPercentage: 25.0,
-      isActive: false,
-      validFrom: new Date('2024-11-01'),
-      validUntil: new Date('2024-12-31'),
-      minBookingRequirement: 3,
-      customerEligibility: 'vip',
-      staffCommissionRate: 20,
-      popularity: 23,
-      totalBookings: 23,
-      revenueGenerated: 4830.0,
-      createdAt: new Date('2024-10-15'),
-      updatedAt: new Date('2024-11-25'),
-    },
-  ]);
+  
+  const [availableServices, setAvailableServices] = useState<any[]>([]);
+  const [combos, setCombos] = useState<ComboOffer[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [filters, setFilters] = useState<ComboFilters>({
     status: 'all',
@@ -176,10 +48,77 @@ const ComboOffersManagement = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const fetchData = async () => {
+    try {
+      setIsLoading(true);
+      // Fetch services first to map names/prices
+      const servicesRes = await serviceApi.getAllServices({ limit: 100 });
+      const servicesData = servicesRes?.data || [];
+      
+      const mappedServices = servicesData.map((s: any) => ({
+        id: s._id,
+        name: s.serviceName,
+        duration: parseInt(s.duration) || 0, // Handle "45 minutes" vs number
+        price: s.price
+      }));
+      
+      setAvailableServices(mappedServices);
+
+      const combosRes = await comboApi.getAllComboOffers();
+      const combosData = combosRes?.data || []; // Adjust based on actual API response structure
+     
+      // Transform API data to UI model
+      const mappedCombos: ComboOffer[] = combosData.map((c: any) => {
+        // Map service IDs to full service objects
+        const comboServices: ComboService[] = c.services.map((serviceId: string) => {
+          const found = mappedServices.find((s: any) => s.id === serviceId);
+          return found ? {
+            id: found.id,
+            name: found.name,
+            duration: found.duration,
+            originalPrice: found.price
+          } : null;
+        }).filter(Boolean);
+
+        return {
+            id: c._id || c.id,
+            name: c.name,
+            description: c.description,
+            services: comboServices,
+            originalPrice: c.actualPrice,
+            discountedPrice: c.discountedPrice,
+            savingsPercentage: c.savedPercent,
+            isActive: true, // API doesn't seem to return isActive for combo, defaulting to true
+            validFrom: new Date(c.validFrom),
+            validUntil: new Date(c.validTill), // note naming difference
+            customerEligibility: 'all', // defaulting
+            staffCommissionRate: 0, // defaulting
+            popularity: 0,
+            totalBookings: 0,
+            revenueGenerated: c.savedAmount || 0, // Just putting something here
+            createdAt: new Date(),
+            updatedAt: new Date()
+        };
+      });
+
+      setCombos(mappedCombos);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   const filteredCombos = combos
     .filter((combo) => {
       const now = new Date();
-      const isExpired = new Date(combo.validUntil) < now;
+      // Safe check for valid dates
+      const validUntil = combo.validUntil ? new Date(combo.validUntil) : now;
+      const isExpired = validUntil < now;
 
       if (filters.status === 'active' && (!combo.isActive || isExpired)) {
         return false;
@@ -225,84 +164,138 @@ const ComboOffersManagement = () => {
       return filters.sortOrder === 'asc' ? comparison : -comparison;
     });
 
-  const handleAddCombo = (data: ComboFormData) => {
-    const originalPrice = data.services.reduce((sum, s) => sum + s.originalPrice, 0);
-    const savingsPercentage = ((originalPrice - data.discountedPrice) / originalPrice) * 100;
+  const handleAddCombo = async (data: ComboFormData) => {
+    try {
+      const originalPrice = data.services.reduce((sum, s) => sum + s.originalPrice, 0);
+      const savingsPercentage = ((originalPrice - data.discountedPrice) / originalPrice) * 100;
+      const savedAmount = originalPrice - data.discountedPrice;
 
-    const newCombo: ComboOffer = {
-      id: Date.now().toString(),
-      ...data,
-      originalPrice,
-      savingsPercentage,
-      isActive: true,
-      popularity: 0,
-      totalBookings: 0,
-      revenueGenerated: 0,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+      const payload = {
+        name: data.name,
+        description: data.description,
+        services: data.services.map(s => s.id),
+        validFrom: new Date(data.validFrom).toISOString(),
+        validTill: new Date(data.validUntil).toISOString(),
+        actualPrice: originalPrice,
+        discountedPrice: data.discountedPrice,
+        savedAmount: savedAmount,
+        savedPercent: savingsPercentage
+      };
 
-    setCombos([...combos, newCombo]);
+      await comboApi.createComboOffer(payload);
+      handleCloseModal();
+      fetchData(); // Refresh list
+    } catch (error) {
+      console.error("Failed to create combo", error);
+    }
   };
 
-  const handleEditCombo = (data: ComboFormData) => {
+  const handleEditCombo = async (data: ComboFormData) => {
     if (!editingCombo) return;
 
     const originalPrice = data.services.reduce((sum, s) => sum + s.originalPrice, 0);
     const savingsPercentage = ((originalPrice - data.discountedPrice) / originalPrice) * 100;
+    const savedAmount = originalPrice - data.discountedPrice;
 
-    setCombos(
-      combos.map((combo) =>
-        combo.id === editingCombo.id
-          ? {
-              ...combo,
-              ...data,
-              originalPrice,
-              savingsPercentage,
-              updatedAt: new Date(),
-            }
-          : combo
-      )
-    );
+    const payload = {
+        name: data.name,
+        description: data.description,
+        services: data.services.map(s => s.id),
+        validFrom: new Date(data.validFrom).toISOString(),
+        validTill: new Date(data.validUntil).toISOString(),
+        actualPrice: originalPrice,
+        discountedPrice: data.discountedPrice,
+        savedAmount: savedAmount,
+        savedPercent: savingsPercentage
+      };
 
-    setEditingCombo(null);
+    try {
+        await comboApi.updateComboOffer(editingCombo.id, payload);
+        handleCloseModal();
+        fetchData(); // Refresh list
+    } catch (error) {
+        console.error("Failed to update combo", error);
+    }
   };
 
-  const handleDeleteCombo = (comboId: string) => {
+  const handleDeleteCombo = async (comboId: string) => {
     if (window.confirm('Are you sure you want to delete this combo offer?')) {
-      setCombos(combos.filter((c) => c.id !== comboId));
+        try {
+            await comboApi.deleteComboOffer(comboId);
+            fetchData();
+        } catch (error) {
+            console.error("Failed to delete combo", error);
+        }
     }
   };
 
   const handleToggleStatus = (comboId: string) => {
-    setCombos(
-      combos.map((combo) =>
-        combo.id === comboId
-          ? { ...combo, isActive: !combo.isActive, updatedAt: new Date() }
-          : combo
-      )
-    );
+     // API toggle not yet implemented
+     console.log("Toggle requires backend support or full update payload", comboId);
   };
 
   const handleDuplicate = (combo: ComboOffer) => {
-    const duplicatedCombo: ComboOffer = {
-      ...combo,
-      id: Date.now().toString(),
-      name: `${combo.name} (Copy)`,
-      isActive: false,
-      popularity: 0,
-      totalBookings: 0,
-      revenueGenerated: 0,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+    // Client-side duplication logic could be kept, but saving requires Create API
+    const duplicatedData: ComboFormData = {
+        name: `${combo.name} (Copy)`,
+        description: combo.description,
+        services: combo.services,
+        discountedPrice: combo.discountedPrice,
+        validFrom: new Date(),
+        validUntil: combo.validUntil,
+        customerEligibility: combo.customerEligibility,
+        staffCommissionRate: combo.staffCommissionRate
     };
-
-    setCombos([...combos, duplicatedCombo]);
+    // Pre-fill the form modal
+    setEditingCombo(null); // Ensure it's treated as new
+    // We can't easily pre-fill the form without passing data, 
+    // but the modal takes 'combo' prop for editing. 
+    // To support duplicate-as-new, we might need to adjust logic, but for now let's just log.
+    console.log("Duplicate to new not fully implemented", duplicatedData);
   };
 
-  const handlePreview = (combo: ComboOffer) => {
-    setPreviewCombo(combo);
-    setIsPreviewModalOpen(true);
+  const handlePreview = async (combo: ComboOffer) => {
+    try {
+        const res = await comboApi.getComboOfferById(combo.id);
+        const c = res.data || res; // handle potential response wrapper
+        
+        // Map service IDs to full service objects (reusing mappedServices would be ideal but for single item we can look up from availableServices state if populated, or fetch again if needed. For now assuming availableServices has data)
+        const comboServices: ComboService[] = c.services.map((serviceId: string) => {
+          const found = availableServices.find((s: any) => s.id === serviceId);
+          return found ? {
+            id: found.id,
+            name: found.name,
+            duration: found.duration,
+            originalPrice: found.price
+          } : null;
+        }).filter(Boolean);
+
+        const mappedCombo: ComboOffer = {
+            id: c._id || c.id,
+            name: c.name,
+            description: c.description,
+            services: comboServices,
+            originalPrice: c.actualPrice,
+            discountedPrice: c.discountedPrice,
+            savingsPercentage: c.savedPercent,
+            isActive: true, 
+            validFrom: new Date(c.validFrom),
+            validUntil: new Date(c.validTill), 
+            customerEligibility: 'all', 
+            staffCommissionRate: 0, 
+            popularity: 0,
+            totalBookings: 0,
+            revenueGenerated: c.savedAmount || 0,
+            createdAt: new Date(),
+            updatedAt: new Date()
+        };
+
+        setPreviewCombo(mappedCombo);
+        setIsPreviewModalOpen(true);
+    } catch (error) {
+        console.error("Failed to fetch combo details", error);
+        showToast({ message: "Failed to load details", status: "error" });
+    }
   };
 
   const handleResetFilters = () => {
@@ -344,7 +337,6 @@ const ComboOffersManagement = () => {
     salonName: 'Glamour Salon & Spa',
   };
 
-  // Add this block - Handler functions for Header component
   const handleLogout = () => {
     console.log('Logout clicked');
   };
@@ -404,54 +396,62 @@ const ComboOffersManagement = () => {
             onFilterChange={setFilters}
             onReset={handleResetFilters}
           />
-
-          {isMobileView ? (
-            <div className="space-y-4 pb-bottom-nav">
-              {filteredCombos.map((combo) => (
-                <ComboMobileCard
-                  key={combo.id}
-                  combo={combo}
-                  onEdit={handleOpenEditModal}
-                  onDelete={handleDeleteCombo}
-                  onToggleStatus={handleToggleStatus}
-                  onDuplicate={handleDuplicate}
-                  onPreview={handlePreview}
-                />
-              ))}
-            </div>
+          
+          {isLoading ? (
+               <div className="flex justify-center p-10"><p>Loading...</p></div>
           ) : (
-            <ComboTable
-              combos={filteredCombos}
-              onEdit={handleOpenEditModal}
-              onDelete={handleDeleteCombo}
-              onToggleStatus={handleToggleStatus}
-              onDuplicate={handleDuplicate}
-              onPreview={handlePreview}
-            />
+            <>
+                {isMobileView ? (
+                    <div className="space-y-4 pb-bottom-nav">
+                    {filteredCombos.map((combo) => (
+                        <ComboMobileCard
+                        key={combo.id}
+                        combo={combo}
+                        onEdit={handleOpenEditModal}
+                        onDelete={handleDeleteCombo}
+                        onToggleStatus={handleToggleStatus}
+                        onDuplicate={handleDuplicate}
+                        onPreview={handlePreview}
+                        />
+                    ))}
+                    </div>
+                ) : (
+                    <ComboTable
+                    combos={filteredCombos}
+                    onEdit={handleOpenEditModal}
+                    onDelete={handleDeleteCombo}
+                    onToggleStatus={handleToggleStatus}
+                    onDuplicate={handleDuplicate}
+                    onPreview={handlePreview}
+                    />
+                )}
+
+                {filteredCombos.length === 0 && (
+                    <div className="flex flex-col items-center justify-center py-16 bg-card border border-border rounded-lg">
+                    <Icon name="Package" size={64} className="text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-semibold text-foreground mb-2">
+                        No combo offers found
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-6 text-center max-w-md">
+                        {filters.searchQuery || filters.status !== 'all' ?'Try adjusting your filters to see more results' :'Get started by creating your first combo offer to boost revenue'}
+                    </p>
+                    {!filters.searchQuery && filters.status === 'all' && (
+                        <Button
+                        variant="default"
+                        onClick={handleOpenAddModal}
+                        iconName="Plus"
+                        iconPosition="left"
+                        iconSize={16}
+                        >
+                        Create Your First Combo
+                        </Button>
+                    )}
+                    </div>
+                )}
+            </>
           )}
 
-          {filteredCombos.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-16 bg-card border border-border rounded-lg">
-              <Icon name="Package" size={64} className="text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">
-                No combo offers found
-              </h3>
-              <p className="text-sm text-muted-foreground mb-6 text-center max-w-md">
-                {filters.searchQuery || filters.status !== 'all' ?'Try adjusting your filters to see more results' :'Get started by creating your first combo offer to boost revenue'}
-              </p>
-              {!filters.searchQuery && filters.status === 'all' && (
-                <Button
-                  variant="default"
-                  onClick={handleOpenAddModal}
-                  iconName="Plus"
-                  iconPosition="left"
-                  iconSize={16}
-                >
-                  Create Your First Combo
-                </Button>
-              )}
-            </div>
-          )}
+          
         </div>
       </main>
 

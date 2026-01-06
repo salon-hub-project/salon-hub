@@ -13,7 +13,7 @@ export interface CreateAppointmentPayload {
 export const appointmentApi = {
   createAppointment: async (payload: CreateAppointmentPayload) => {
     try {
-      const res = await api.post("/appointment/create", payload);
+      const res = await api.post("/appointment", payload);
       showToast({
         message: res?.data?.message || "Appointment created successfully",
         status: "success",
