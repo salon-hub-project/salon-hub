@@ -9,6 +9,7 @@ export interface InputProps
   required?: boolean;
   id?: string;
   iconName?: string;
+  maxLength?:number
 
   // ✅ ADD THIS
   iconPosition?: "left" | "right";
@@ -25,6 +26,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       required = false,
       id,
       iconName,
+      maxLength,
 
       // ✅ REMOVE custom prop from DOM
       iconPosition,
@@ -89,6 +91,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
         <input
           type={type}
+          maxLength={maxLength}
           className={cn(
             baseInputClasses,
             error && "border-destructive focus-visible:ring-destructive",
