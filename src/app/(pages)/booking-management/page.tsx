@@ -59,29 +59,58 @@ const [staff, setStaff] = useState<Staff[]>([]);
 
   const loadBookings = useCallback(async () => {
     try {
-      const res = await appointmentApi.getAllAppointments();
+      const res = await appointmentApi.getAllAppointments({ limit: 1000 });
       const rawBookings = Array.isArray(res) ? res : (res?.data || []);
       
-      const mappedBookings: Booking[] = rawBookings.map((b: any) => ({
+      const mappedBookings: Booking[] = rawBookings.map((b: any) => {
+        // Handle new multiple services structure
+        const services = b.services || [];
+        const singleService = b.serviceId;
+        
+        let serviceName = "Unknown Service";
+        let serviceId = "";
+        let serviceCategory = "General";
+        let serviceDuration = 30;
+        let servicePrice = 0;
+
+        if (Array.isArray(services) && services.length > 0) {
+            // Aggregate data from multiple services
+            // Check if services are populated objects or strings. If strings, we can't get details here easily without looking them up.
+            // Assuming populated based on "Unknown Service" issue description usually implying it tries to access props.
+            // If they are not populated, we might need another approach, but let's assume standard population.
+            serviceName = services.map((s: any) => s.serviceName || s.name || "Service").join(", ");
+            serviceId = services[0]._id || services[0].id;
+            serviceCategory = services[0].category || "General";
+            serviceDuration = services.reduce((acc: number, s: any) => acc + (s.duration || 0), 0);
+            servicePrice = services.reduce((acc: number, s: any) => acc + (s.price || 0), 0);
+        } else if (singleService) {
+            serviceName = singleService.serviceName || "Unknown Service";
+            serviceId = singleService._id;
+            serviceCategory = singleService.category || "General";
+            serviceDuration = singleService.duration || 30;
+            servicePrice = singleService.price || 0;
+        }
+
+        return {
         id: b._id,
         customerId: b.customerId?._id,
         customerName: b.customerId?.fullName || "Unknown Customer",
         customerPhone: b.customerId?.phoneNumber,
-        serviceId: b.serviceId?._id,
-        serviceName: b.serviceId?.serviceName || "Unknown Service",
-        serviceCategory: b.serviceId?.category || "General",
-        serviceDuration: b.serviceId?.duration || 30,
-        servicePrice: b.serviceId?.price || 0,
+        serviceId,
+        serviceName,
+        serviceCategory,
+        serviceDuration,
+        servicePrice,
         staffId: b.staffId?._id,
         staffName: b.staffId?.fullName || "Unknown Staff",
         date: new Date(b.appointmentDate),
         startTime: b.appointmentTime,
-        endTime: calculateEndTime(b.appointmentTime, b.serviceId?.duration || 30),
+        endTime: calculateEndTime(b.appointmentTime, serviceDuration),
         status: b.status || 'pending',
         notes: b.notes,
         paymentStatus: b.paymentStatus || 'pending',
         createdAt: new Date(b.createdAt),
-      }));
+      }});
       
       if (mountedRef.current) {
         setBookings(mappedBookings);

@@ -43,6 +43,8 @@ export const staffApi = {
         page?: number;
         limit?: number;
         role?: string;
+        dateOfAppointment?: string;
+        timeOfAppointment?: string;
     }) => {
         const res = await api.get("/staff", {
             params,

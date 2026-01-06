@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
-import { Formik, Form } from "formik";
+import { useEffect, useState } from "react";
+import { Formik, Form, useFormikContext } from "formik";
 
 import Icon from "../../../components/AppIcon";
 import Button from "../../../components/ui/Button";
@@ -10,6 +10,76 @@ import Select from "../../../components/ui/Select";
 import { BookingFormProps } from "../types";
 import { Customer, Service, Staff, BookingFormData } from "../types";
 import { appointmentValidationSchema } from "@/app/components/validation/validation";
+import { staffApi } from "@/app/services/staff.api";
+
+// Helper component to handle side effects and data fetching inside Formik context
+const StaffFetcher = ({ 
+  selectedDate, 
+  selectedTime, 
+  setAvailableStaff,
+  initialStaff 
+}: { 
+  selectedDate?: Date; 
+  selectedTime?: string;
+  setAvailableStaff: (staff: Staff[]) => void;
+  initialStaff: Staff[];
+}) => {
+  const { values, setFieldValue } = useFormikContext<BookingFormData>();
+
+  // Sync external date
+  useEffect(() => {
+    if (selectedDate) setFieldValue("date", selectedDate);
+  }, [selectedDate, setFieldValue]);
+
+  // Sync external time
+  useEffect(() => {
+    if (selectedTime) setFieldValue("startTime", selectedTime);
+  }, [selectedTime, setFieldValue]);
+
+  // Fetch staff
+  useEffect(() => {
+    const fetchStaff = async () => {
+      if (values.date && values.startTime) {
+        try {
+          const formattedDate = values.date.toISOString().split("T")[0];
+          // Determine if we need to filter by role. 
+          // The user requested exactly as per the image which had role="Stylist".
+          // However, if we hardcode "Stylist", we might miss other roles. 
+          // But based on the instruction "fix it as per that [image]", I will include it.
+          // Or strictly follow the payload structure shown.
+          const res = await staffApi.getAllStaff({
+            page: 1,
+            limit: 100,
+            role: "Stylist", 
+            dateOfAppointment: formattedDate,
+            timeOfAppointment: values.startTime,
+          });
+
+          const rawStaff = Array.isArray(res) ? res : (res?.data || []);
+          const mappedStaff = rawStaff.map((s: any) => ({
+             id: s._id || s.id,
+             name: s.fullName || s.name,
+             role: s.role || "Staff",
+             phone: s.phoneNumber || s.phone,
+             avatar: s.avatar,
+             specializations: s.specializations || [],
+             isAvailable: s.isActive !== undefined ? s.isActive : true // Default to true if missing
+          })).filter((s:any) => s.isAvailable);
+          
+          setAvailableStaff(mappedStaff);
+        } catch (error) {
+          console.error("Failed to fetch available staff", error);
+        }
+      } else {
+         setAvailableStaff(initialStaff);
+      }
+    };
+
+    fetchStaff();
+  }, [values.date, values.startTime, initialStaff, setAvailableStaff]);
+
+  return null;
+};
 
 const BookingForm = ({
   customers,
@@ -21,6 +91,9 @@ const BookingForm = ({
   onCancel,
   isLoading = false,
 }: BookingFormProps) => {
+  // State for available staff, initialized with the passed staff list
+  const [availableStaff, setAvailableStaff] = useState<Staff[]>(staff);
+
   const customerOptions = customers.map((c) => ({
     value: c.id,
     label: `${c.name} - ${c.phone}`,
@@ -33,7 +106,8 @@ const BookingForm = ({
       label: `${s.name} - INR${s.price} (${s.duration} min)`,
     }));
 
-  const staffOptions = staff
+  // Use availableStaff for options instead of props.staff
+  const staffOptions = availableStaff
     .filter((m) => m.isAvailable)
     .map((m) => ({
       value: m.id,
@@ -81,17 +155,15 @@ const BookingForm = ({
           }
         >
           {({ values, errors, touched, setFieldValue }) => {
-            /* Sync external date/time */
-            useEffect(() => {
-              if (selectedDate) setFieldValue("date", selectedDate);
-            }, [selectedDate]);
-
-            useEffect(() => {
-              if (selectedTime) setFieldValue("startTime", selectedTime);
-            }, [selectedTime]);
-
             return (
               <Form className="flex-1 overflow-y-auto p-6 space-y-6">
+                <StaffFetcher 
+                  selectedDate={selectedDate}
+                  selectedTime={selectedTime}
+                  setAvailableStaff={setAvailableStaff}
+                  initialStaff={staff}
+                />
+
                 {/* Customer */}
                 <Select
                   label="Customer"
