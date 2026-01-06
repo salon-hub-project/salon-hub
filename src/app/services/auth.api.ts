@@ -23,12 +23,16 @@ export const authApi = {
       });
       return res.data;
     } catch (error: any) {
-      console.log(error)
+      let message = error?.response?.data?.message || "Login failed";
+      if (error?.response?.status === 403) {
+        message =
+          "Your account is not approved yet. Please contact the super admin.";
+      }
       showToast({
-        message: error?.response?.data?.message || "Login failed",
+        message,
         status: "error",
       });
-      throw error;
+      throw message;
     }
   },
 
@@ -42,7 +46,7 @@ export const authApi = {
       return res.data;
     } catch (error: any) {
       showToast({
-        message: error?.response?.data?.message || "Registration failed",
+        message: error?.response?.data?.errors || "Registration failed",
         status: "error",
       });
       throw error;

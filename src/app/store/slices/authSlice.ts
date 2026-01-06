@@ -52,7 +52,7 @@ export const loginUser = createAsyncThunk(
     try {
       return await authApi.login(payload);
     } catch (err) {
-      return rejectWithValue(err);
+      return rejectWithValue(err || "Login failed. Please try again");
     }
   }
 );

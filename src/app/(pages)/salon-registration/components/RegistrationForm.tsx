@@ -76,6 +76,7 @@ const RegistrationForm = ({
         error={errors.mobileNumber}
         required
         disabled={isSubmitting}
+        maxLength={10}
       />
 
       <Input

@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Formik } from "formik";
-import * as Yup from "yup";
 
 import { Service, ServiceFormData } from "../types";
 import Icon from "../../../components/AppIcon";
@@ -13,6 +12,7 @@ import { Checkbox } from "../../../components/ui/Checkbox";
 
 import { categoryApi } from "../../../services/category.api";
 import { serviceValidationSchema } from "@/app/components/validation/validation";
+import ConfirmModal from "@/app/components/ui/ConfirmModal";
 
 interface ServiceFormModalProps {
   isOpen: boolean;
@@ -31,11 +31,13 @@ const ServiceFormModal = ({
   categories: initialCategories,
   categoriesWithIds,
 }: ServiceFormModalProps) => {
-  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
-  const [fetchedCategories, setFetchedCategories] = useState<string[]>([]);
+  const [fetchedCategories, setFetchedCategories] = useState<any[]>([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(false);
-  const [showAllCategories, setShowAllCategories] = useState(false);
+  const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
 
+  const formikRef = useRef<any>(null);
+
+  // Helper to get category name from id if editing service
   const getCategoryNameById = (categoryId: string): string => {
     if (categoriesWithIds) {
       const category = categoriesWithIds.find((cat) => cat.id === categoryId);
@@ -44,19 +46,31 @@ const ServiceFormModal = ({
     return categoryId;
   };
 
+  // Load categories when modal opens
   useEffect(() => {
     const loadCategories = async () => {
       try {
         setIsLoadingCategories(true);
-        const response = await categoryApi.getAllCategories({ page: 1, limit: 100 });
+        const response = await categoryApi.getAllCategories({
+          page: 1,
+          limit: 100,
+        });
         const data = response.data || response || [];
+
         if (Array.isArray(data)) {
-          const names = data.map((cat: any) => cat.name);
-          setFetchedCategories(names);
+          // map to { value, label } for Select component
+          const list = data.map((cat: any) => ({
+            value: cat._id,
+            label: cat.name,
+          }));
+          setFetchedCategories(list);
         }
       } catch (error) {
         console.error("Failed to fetch categories", error);
-        setFetchedCategories(initialCategories);
+        // fallback: use initialCategories
+        setFetchedCategories(
+          initialCategories.map((name) => ({ value: name, label: name }))
+        );
       } finally {
         setIsLoadingCategories(false);
       }
@@ -65,6 +79,21 @@ const ServiceFormModal = ({
     if (isOpen) loadCategories();
   }, [isOpen, initialCategories]);
 
+  // Initial form values
+  const initialValues: ServiceFormData = {
+    name: service?.name || "",
+    category: service
+      ? categoriesWithIds
+        ? categoriesWithIds.find((cat) => cat.id === service.category)?.id || ""
+        : service.category
+      : "",
+    duration: service?.duration || 30,
+    price: service?.price || 0,
+    isPopular: service?.isPopular || false,
+    description: service?.description || "",
+  };
+
+  // Duration options
   const durationOptions = [
     { value: 15, label: "15 minutes" },
     { value: 30, label: "30 minutes" },
@@ -75,30 +104,76 @@ const ServiceFormModal = ({
     { value: 180, label: "3 hours" },
   ];
 
-  const initialValues: ServiceFormData = {
-    name: service?.name || "",
-    category: service
-      ? categoriesWithIds
-        ? getCategoryNameById(service.category)
-        : service.category
-      : "",
-    duration: service?.duration || 30,
-    price: service?.price || 0,
-    isPopular: service?.isPopular || false,
-    description: service?.description || "",
-  };
+  // Add new category
+  // const handleAddCategories = async () => {
+  //   const newName = prompt("Enter new category name:");
 
-  const visibleCategories = showAllCategories
-    ? fetchedCategories
-    : fetchedCategories.filter((cat) =>
-        cat.toLowerCase().includes(initialValues.category.toLowerCase())
-      );
+  //   if (!newName || !newName.trim()) return;
+
+  //   // Check for duplicates
+  //   if (fetchedCategories.some((cat) => cat.label.toLowerCase() === newName.trim().toLowerCase())) {
+  //     alert("Category already exists");
+  //     return;
+  //   }
+
+  //   try {
+  //     const res = await categoryApi.createCategory({ name: newName.trim() });
+
+  //     if (res?.category) {
+  //       const newCategory = {
+  //         value: res.category._id,
+  //         label: res.category.name,
+  //       };
+
+  //       // Update dropdown list
+  //       setFetchedCategories((prev: any[]) => [...prev, newCategory]);
+
+  //       // Set selected value in Formik
+  //       formikRef.current?.setFieldValue("category", newCategory.value);
+  //     }
+  //   } catch (error) {
+  //     console.error("Category creation failed", error);
+  //   }
+  // };
+
+  const handleAddCategories = async (newName?: string) => {
+    if (!newName || !newName.trim()) return;
+
+    // Check duplicate
+    if (
+      fetchedCategories.some(
+        (cat) => cat.label.toLowerCase() === newName.trim().toLowerCase()
+      )
+    ) {
+      alert("Category already exists");
+      return;
+    }
+
+    try {
+      const res = await categoryApi.createCategory({ name: newName.trim() });
+
+      if (res?.category) {
+        const newCategory = {
+          value: res.category._id,
+          label: res.category.name,
+        };
+
+        setFetchedCategories((prev) => [...prev, newCategory]);
+        formikRef.current?.setFieldValue("category", newCategory.value);
+      }
+    } catch (error) {
+      console.error("Failed to create category", error);
+    } finally {
+      setIsAddCategoryOpen(false);
+    }
+  };
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black bg-opacity-50">
       <div className="bg-card border border-border rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        {/* Header */}
         <div className="sticky top-0 bg-card border-b border-border px-6 py-4 flex items-center justify-between">
           <h2 className="text-xl font-semibold text-foreground">
             {service ? "Edit Service" : "Add New Service"}
@@ -111,7 +186,9 @@ const ServiceFormModal = ({
           </button>
         </div>
 
+        {/* Form */}
         <Formik
+          innerRef={formikRef}
           initialValues={initialValues}
           enableReinitialize
           validationSchema={serviceValidationSchema}
@@ -120,8 +197,16 @@ const ServiceFormModal = ({
             onClose();
           }}
         >
-          {({ values, errors, touched, handleChange, handleSubmit, setFieldValue }) => (
+          {({
+            values,
+            errors,
+            touched,
+            handleChange,
+            handleSubmit,
+            setFieldValue,
+          }) => (
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              {/* Service Name */}
               <Input
                 label="Service Name"
                 name="name"
@@ -131,99 +216,18 @@ const ServiceFormModal = ({
                 error={touched.name ? errors.name : undefined}
               />
 
-              {/* CATEGORY FIELD WITH DROPDOWN */}
-              <div className="relative z-[60]">
-                <div className="relative">
-                  <Input
-                    label="Category"
-                    name="category"
-                    value={values.category}
-                    onChange={(e) => {
-                      handleChange(e);
-                      setIsCategoryDropdownOpen(true);
-                      setShowAllCategories(false);
-                    }}
-                    onFocus={() => setIsCategoryDropdownOpen(true)}
-                    placeholder="e.g., Hair, Nail Care, Skin Care"
-                    className="pr-10"
-                    error={touched.category ? errors.category : undefined}
-                  />
+              {/* Category Select */}
+              <Select
+                label="Category"
+                name="category"
+                value={values.category}
+                onChange={(val) => setFieldValue("category", val)}
+                options={fetchedCategories}
+                error={touched.category ? errors.category : undefined}
+                onAddNew={() => setIsAddCategoryOpen(true)}
+              />
 
-                  <button
-                    type="button"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-sm hover:bg-muted text-muted-foreground"
-                    onClick={() => {
-                      if (isCategoryDropdownOpen) setIsCategoryDropdownOpen(false);
-                      else {
-                        setIsCategoryDropdownOpen(true);
-                        setShowAllCategories(true);
-                      }
-                    }}
-                  >
-                    <Icon
-                      name="ChevronDown"
-                      size={16}
-                      className={`transition-transform duration-200 ${
-                        isCategoryDropdownOpen ? "rotate-180" : ""
-                      }`}
-                    />
-                  </button>
-                </div>
-
-                {isCategoryDropdownOpen && (
-                  <>
-                    <div
-                      className="
-                      absolute z-[120] w-full mt-2
-                      bg-card text-foreground
-                      border border-border
-                      rounded-lg
-                      shadow-xl
-                      max-h-60 overflow-y-auto
-                    "
-                    >
-                      {isLoadingCategories ? (
-                        <div className="px-3 py-2 text-sm text-muted-foreground bg-card">
-                          Loading...
-                        </div>
-                      ) : visibleCategories.length > 0 ? (
-                        visibleCategories.map((cat) => (
-                          <div
-                            key={cat}
-                            className="px-3 py-2 text-sm cursor-pointer hover:bg-muted"
-                            onClick={() => {
-                              setFieldValue("category", cat);
-                              setIsCategoryDropdownOpen(false);
-                            }}
-                          >
-                            {cat}
-                          </div>
-                        ))
-                      ) : (
-                        <div className="px-3 py-2 text-sm text-muted-foreground">
-                          No categories found
-                        </div>
-                      )}
-
-                      {!isLoadingCategories &&
-                        !showAllCategories &&
-                        visibleCategories.length === 0 &&
-                        values.category && (
-                          <div className="px-3 py-2 text-sm text-muted-foreground">
-                            Create "{values.category}"
-                          </div>
-                        )}
-                    </div>
-
-                    <div
-                      className="fixed inset-0 z-[110]"
-                      onClick={() => setIsCategoryDropdownOpen(false)}
-                    />
-                  </>
-                )}
-              </div>
-
-              {/* DURATION + PRICE */}
+              {/* Duration & Price */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Select
                   label="Duration"
@@ -243,6 +247,7 @@ const ServiceFormModal = ({
                 />
               </div>
 
+              {/* Description */}
               <Input
                 label="Description (Optional)"
                 name="description"
@@ -250,6 +255,7 @@ const ServiceFormModal = ({
                 onChange={handleChange}
               />
 
+              {/* Popular Service */}
               <Checkbox
                 label="Mark as Popular Service"
                 description="Popular services will be highlighted to customers"
@@ -257,8 +263,14 @@ const ServiceFormModal = ({
                 onChange={(e) => setFieldValue("isPopular", e.target.checked)}
               />
 
+              {/* Actions */}
               <div className="flex items-center gap-3 pt-4 border-t border-border">
-                <Button type="button" variant="outline" onClick={onClose} fullWidth>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onClose}
+                  fullWidth
+                >
                   Cancel
                 </Button>
                 <Button type="submit" fullWidth>
@@ -269,6 +281,16 @@ const ServiceFormModal = ({
           )}
         </Formik>
       </div>
+      <ConfirmModal
+        isOpen={isAddCategoryOpen}
+        showInput
+        inputPlaceholder="Enter new category name"
+        title="Add New Category"
+        description="Enter the name for the new category"
+        onCancel={() => setIsAddCategoryOpen(false)}
+        onConfirm={handleAddCategories}
+        confirmColor="green"
+      />
     </div>
   );
 };

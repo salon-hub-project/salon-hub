@@ -10,6 +10,7 @@ export const loginValidationSchema = Yup.object({
 
 export const registrationSchema = Yup.object({
   mobileNumber: Yup.string()
+    .max(10,"Phone number must be 10 digits")
     .required("Mobile number is required")
     .matches(
       /^\+?1?\s?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/,

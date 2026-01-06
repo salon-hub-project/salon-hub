@@ -14,6 +14,7 @@ export interface DashboardMetric {
     customerAvatar: string;
     customerAvatarAlt: string;
     service: string;
+    serviceId: string;
     time: string;
     duration: number;
     staffName: string;
