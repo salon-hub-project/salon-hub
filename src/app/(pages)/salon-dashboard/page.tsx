@@ -41,6 +41,19 @@ const SalonDashboard = () => {
   );
   const [loadingDashboard, setLoadingDashboard] = useState(false);
 
+  const isToday = (dateString: string) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const d = new Date(dateString);
+    d.setHours(0, 0, 0, 0);
+
+    return d.getTime() === today.getTime();
+  };
+
+  const DEFAULT_APPOINTMENT_MINUTES = 60;
+  const WORKING_HOURS_PER_DAY = 8 * 60;
+
   const currentUser = {
     name: "Sarah Johnson",
     email: authUser?.email || "sarah@salonhub.com",
@@ -90,34 +103,26 @@ const SalonDashboard = () => {
   useEffect(() => {
     const fetchTodayAppointments = async () => {
       try {
-        setLoadingDashboard(true);
+        const res = await appointmentApi.getAllAppointments({ limit: 500 });
 
-        const res = await appointmentApi.getAllAppointments({ limit: 100 });
-
-        const today = new Date().toDateString();
-
-        const todays = res.data.filter(
-          (appt: any) => new Date(appt.date).toDateString() === today
+        const todaysAppointments = res.data.filter(
+          (appt: any) => appt.appointmentDate && isToday(appt.appointmentDate)
         );
 
         setTodayAppointments(
-          todays.map((appt: any) => ({
+          todaysAppointments.map((appt: any) => ({
             id: appt._id,
-            customerName: appt.customer?.fullName,
-            customerAvatar: appt.customer?.avatar,
-            service: appt.service?.serviceName,
-            time: appt.startTime,
-            duration: appt.duration,
-            staffName: appt.staff?.fullName,
-            staffAvatar: appt.staff?.staffImage,
+            customerName: appt.customerId?.fullName || "N/A",
+            service: "Service", // service details not populated
+            time: appt.appointmentTime,
+            duration: null,
+            staffName: appt.staffId?.fullName || "N/A",
             status: appt.status,
-            price: appt.price,
+            price: 0, // no price in appointment API
           }))
         );
       } catch (err) {
         console.error(err);
-      } finally {
-        setLoadingDashboard(false);
       }
     };
 
@@ -127,70 +132,69 @@ const SalonDashboard = () => {
   //fetch active customers:-
   useEffect(() => {
     const fetchCustomers = async () => {
-      const res = await customerApi.getCustomers({
-        page: 1,
-        limit: 1,
-      });
+      try {
+        const res = await customerApi.getCustomers({
+          page: 1,
+          limit: 1000,
+        });
 
-      setActiveCustomersCount(res.total || 0);
+        setActiveCustomersCount(res.data?.length || 0);
+      } catch (err) {
+        console.error(err);
+      }
     };
 
     fetchCustomers();
   }, []);
 
-  //fetch staff and staff utilization
-  // fetch staff and staff utilization (MANUAL CALCULATION)
+  //staff utilization
   useEffect(() => {
-    const fetchStaffAndCalculateUtilization = async () => {
+    const fetchStaffUtilization = async () => {
       try {
-        const staffRes = await staffApi.getAllStaff({ limit: 50 });
-        const apptRes = await appointmentApi.getAllAppointments({ limit: 200 });
+        const staffRes = await staffApi.getAllStaff({ limit: 100 });
+        const apptRes = await appointmentApi.getAllAppointments({ limit: 500 });
 
-        const today = new Date().toDateString();
-        const WORKING_MINUTES_PER_DAY = 8 * 60;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
 
-        const todaysAppointments = apptRes.data.filter(
-          (appt: any) => new Date(appt.date).toDateString() === today
-        );
+        const todaysAppointments = apptRes.data.filter((appt: any) => {
+          const d = new Date(appt.appointmentDate);
+          d.setHours(0, 0, 0, 0);
+          return d.getTime() === today.getTime();
+        });
 
-        const calculatedStaff = staffRes.data.map((staff: any) => {
-          const staffAppointments = todaysAppointments.filter(
-            (appt: any) => appt.staff?._id === staff._id
+        const WORKING_MINUTES = 8 * 60;
+
+        const staffPerformance = staffRes.data.map((staff: any) => {
+          const staffAppts = todaysAppointments.filter(
+            (a: any) => a.staffId?._id === staff._id
           );
 
-          const appointmentsToday = staffAppointments.length;
+          const appointmentsToday = staffAppts.length;
 
-          const revenue = staffAppointments.reduce(
-            (sum: number, a: any) => sum + (a.price || 0),
-            0
-          );
-
-          const bookedMinutes = staffAppointments.reduce(
-            (sum: number, a: any) => sum + (a.duration || 0),
-            0
-          );
-
+          const bookedMinutes = staffAppts.length * 60; // temp logic
           const utilizationRate = Math.round(
-            (bookedMinutes / WORKING_MINUTES_PER_DAY) * 100
+            (bookedMinutes / WORKING_MINUTES) * 100
           );
 
           return {
             id: staff._id,
             name: staff.fullName,
             avatar: staff.staffImage,
+            avatarAlt: staff.fullName,
             appointmentsToday,
-            revenue,
+            revenue: 0,
             utilizationRate: Math.min(utilizationRate, 100),
           };
         });
 
-        setStaffUtilization(calculatedStaff);
+        setStaffUtilization(staffPerformance);
       } catch (err) {
         console.error(err);
       }
     };
 
-    fetchStaffAndCalculateUtilization();
+    fetchStaffUtilization();
   }, []);
 
   const recentActivities: RecentActivity[] = [
@@ -399,7 +403,7 @@ const SalonDashboard = () => {
           onNotificationClick={handleNotificationClick}
         />
 
-        <main className="ml-0 lg:ml-sidebar pt-header pb-bottom-nav lg:pb-8">
+        <main className="ml-0 pb-bottom-nav lg:pb-8">
           <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
             <div className="mb-6">
               <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">

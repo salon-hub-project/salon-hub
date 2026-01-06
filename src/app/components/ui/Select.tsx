@@ -35,6 +35,7 @@ export interface SelectProps
   onOpenChange?: (open: boolean) => void;
   onAddNew?: () => void;
   iconName?: string;
+  closeOnSelect?: boolean;
 }
 
 const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
@@ -121,7 +122,11 @@ const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
         const updatedValue = currentValue.includes(option.value)
           ? currentValue.filter((v) => v !== option.value)
           : [...currentValue, option.value];
+
         onChange?.(updatedValue);
+
+        setIsOpen(false);
+        onOpenChange?.(false);
       } else {
         onChange?.(option.value);
         setIsOpen(false);

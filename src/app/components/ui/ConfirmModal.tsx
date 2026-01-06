@@ -43,7 +43,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
       : "bg-red-500 hover:bg-red-600";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center z-[999] bg-black/50">
       <div className="bg-card rounded-lg p-6 w-80">
         <h2 className="text-lg font-semibold mb-2">{title}</h2>
         <p className="text-sm text-muted-foreground mb-4">{description}</p>

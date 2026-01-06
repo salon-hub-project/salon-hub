@@ -186,6 +186,7 @@ const BookingForm = ({
                   multiple
                   clearable
                   searchable
+                  closeOnSelect
                   onChange={(v) => setFieldValue("services", v)}
                   error={
                     touched.services && typeof errors.services === "string"

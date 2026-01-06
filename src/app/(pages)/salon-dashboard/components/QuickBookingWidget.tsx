@@ -1,15 +1,23 @@
 "use client";
-import { useState } from 'react';
-import Icon from '../../../components/AppIcon';
-import Button from '../../../components/ui/Button';
-import Input from '../../../components/ui/Input';
-import Select from '../../../components/ui/Select';
+
+import { useEffect, useState } from "react";
+import { Formik, Form } from "formik";
+import Icon from "../../../components/AppIcon";
+import Button from "../../../components/ui/Button";
+import Input from "../../../components/ui/Input";
+import Select from "../../../components/ui/Select";
+
+import { appointmentApi } from "@/app/services/appointment.api";
+import { serviceApi } from "@/app/services/service.api";
+import { staffApi } from "@/app/services/staff.api";
+import { customerApi } from "@/app/services/customer.api";
+import { showToast } from "@/app/components/ui/toast";
 
 interface QuickBookingWidgetProps {
-  onCreateBooking: (data: BookingData) => void;
+  onCreateBooking: (data: any) => void;
 }
 
-interface BookingData {
+interface BookingFormValues {
   customer: string;
   service: string;
   date: string;
@@ -18,109 +26,185 @@ interface BookingData {
 }
 
 const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
-  const [bookingData, setBookingData] = useState<BookingData>({
-    customer: '',
-    service: '',
-    date: '',
-    time: '',
-    staff: '',
-  });
+  const [customerOptions, setCustomerOptions] = useState<
+    { value: string; label: string }[]
+  >([]);
+  const [serviceOptions, setServiceOptions] = useState<
+    { value: string; label: string }[]
+  >([]);
+  const [staffOptions, setStaffOptions] = useState<
+    { value: string; label: string }[]
+  >([]);
 
-  const serviceOptions = [
-    { value: 'haircut', label: 'Haircut' },
-    { value: 'coloring', label: 'Hair Coloring' },
-    { value: 'styling', label: 'Hair Styling' },
-    { value: 'facial', label: 'Facial Treatment' },
-    { value: 'manicure', label: 'Manicure' },
-    { value: 'pedicure', label: 'Pedicure' },
-  ];
+  // ================= FETCH DATA =================
 
-  const staffOptions = [
-    { value: 'sarah', label: 'Sarah Johnson' },
-    { value: 'emily', label: 'Emily Davis' },
-    { value: 'michael', label: 'Michael Brown' },
-    { value: 'jessica', label: 'Jessica Wilson' },
-  ];
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onCreateBooking(bookingData);
-    setBookingData({
-      customer: '',
-      service: '',
-      date: '',
-      time: '',
-      staff: '',
-    });
+  const fetchCustomers = async () => {
+    try {
+      const res = await customerApi.getCustomers({ limit: 1000 });
+      setCustomerOptions(
+        res.data.map((c: any) => ({
+          value: c._id,
+          label: c.fullName,
+        }))
+      );
+    } catch (error) {
+      console.error("Customer fetch error", error);
+    }
   };
+
+  const fetchServices = async () => {
+    try {
+      const res = await serviceApi.getAllServices({ limit: 100 });
+      setServiceOptions(
+        res.data.map((s: any) => ({
+          value: s._id,
+          label: s.serviceName,
+        }))
+      );
+    } catch (error) {
+      console.error("Service fetch error", error);
+    }
+  };
+
+  const fetchStaff = async () => {
+    try {
+      const res = await staffApi.getAllStaff({ limit: 100 });
+      setStaffOptions(
+        res.data.map((s: any) => ({
+          value: s._id,
+          label: s.fullName,
+        }))
+      );
+    } catch (error) {
+      console.error("Staff fetch error", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCustomers();
+    fetchServices();
+    fetchStaff();
+  }, []);
+
+  // ================= SUBMIT =================
+
+  const handleSubmit = async (
+    values: BookingFormValues,
+    { resetForm }: any
+  ) => {
+    try {
+      const payload = {
+        customerId: values.customer,      // ✅ ObjectId
+        services: [values.service],       // ✅ ObjectId[]
+        staffId: values.staff,            // ✅ ObjectId
+        appointmentDate: values.date,
+        appointmentTime: values.time,
+      };
+
+      await appointmentApi.createAppointment(payload);
+
+      onCreateBooking(values);
+      resetForm();
+    } catch (error: any) {
+      showToast({
+        message:
+          error?.response?.data?.message || "Failed to create appointment",
+        status: "error",
+      });
+    }
+  };
+
+  // ================= UI =================
 
   return (
     <div className="bg-card border border-border rounded-lg p-6">
       <div className="flex items-center gap-2 mb-4">
         <Icon name="CalendarPlus" size={20} className="text-primary" />
-        <h3 className="text-lg font-semibold text-foreground">Quick Booking</h3>
+        <h3 className="text-lg font-semibold text-foreground">
+          Quick Booking
+        </h3>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <Input
-          label="Customer Name"
-          type="text"
-          placeholder="Search or enter customer name"
-          value={bookingData.customer}
-          onChange={(e) =>
-            setBookingData({ ...bookingData, customer: e.target.value })
-          }
-          required
-        />
+      <Formik
+        initialValues={{
+          customer: "",
+          service: "",
+          date: "",
+          time: "",
+          staff: "",
+        }}
+        onSubmit={handleSubmit}
+      >
+        {({ values, setFieldValue }) => (
+          <Form className="space-y-4">
 
-        <Select
-          label="Service"
-          placeholder="Select service"
-          options={serviceOptions}
-          value={bookingData.service}
-          onChange={(value) =>
-            setBookingData({ ...bookingData, service: value as string })
-          }
-          required
-        />
+            {/* CUSTOMER */}
+            <Select
+              label="Customer"
+              placeholder="Select customer"
+              options={customerOptions}
+              value={values.customer}
+              onChange={(val) => setFieldValue("customer", val)}
+              required
+            />
 
-        <div className="grid grid-cols-2 gap-4">
-          <Input
-            label="Date"
-            type="date"
-            value={bookingData.date}
-            onChange={(e) =>
-              setBookingData({ ...bookingData, date: e.target.value })
-            }
-            required
-          />
+            {/* SERVICE */}
+            <Select
+              label="Service"
+              placeholder="Select service"
+              options={serviceOptions}
+              value={values.service}
+              onChange={(val) => setFieldValue("service", val)}
+              required
+              multiple
+              closeOnSelect
+            />
 
-          <Input
-            label="Time"
-            type="time"
-            value={bookingData.time}
-            onChange={(e) =>
-              setBookingData({ ...bookingData, time: e.target.value })
-            }
-            required
-          />
-        </div>
+            <div className="grid grid-cols-2 gap-4">
+              {/* DATE */}
+              <Input
+                label="Date"
+                type="date"
+                value={values.date}
+                onChange={(e) =>
+                  setFieldValue("date", e.target.value)
+                }
+                required
+              />
 
-        <Select
-          label="Staff Member"
-          placeholder="Select staff"
-          options={staffOptions}
-          value={bookingData.staff}
-          onChange={(value) =>
-            setBookingData({ ...bookingData, staff: value as string })
-          }
-          required
-        />
+              {/* TIME */}
+              <Input
+                label="Time"
+                type="time"
+                value={values.time}
+                onChange={(e) =>
+                  setFieldValue("time", e.target.value)
+                }
+                required
+              />
+            </div>
 
-        <Button type="submit" variant="default" fullWidth iconName="Plus">
-          Create Booking
-        </Button>
-      </form>
+            {/* STAFF */}
+            <Select
+              label="Staff Member"
+              placeholder="Select staff"
+              options={staffOptions}
+              value={values.staff}
+              onChange={(val) => setFieldValue("staff", val)}
+              required
+            />
+
+            <Button
+              type="submit"
+              variant="default"
+              fullWidth
+              iconName="Plus"
+            >
+              Create Booking
+            </Button>
+          </Form>
+        )}
+      </Formik>
     </div>
   );
 };

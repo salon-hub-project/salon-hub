@@ -334,6 +334,7 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
                     }
                     multiple
                     searchable
+                    closeOnSelect
                     disabled={loadingServices}
                   />
 
