@@ -121,6 +121,7 @@ const StaffManagement = () => {
         phone: emp.userId?.phoneNumber ?? "",
         email: emp.userId?.email ?? "",
         status: emp.isActive ? "active" : "inactive",
+        staffImage: emp.staffImage || "No image found", 
         joinDate: emp.createdAt,
         assignedServices: emp.assignedServices.map(
           (s) => s.serviceName
@@ -187,6 +188,7 @@ const StaffManagement = () => {
         phone: emp.userId?.phoneNumber ?? "",
         email: emp.userId?.email ?? "",
         status: emp.isActive ? "active" : "inactive",
+        staffImage: emp.staffImage || "No image found",
         joinDate: emp.createdAt,
         assignedServices: emp.assignedServices.map(
           (s: any) => s.serviceName

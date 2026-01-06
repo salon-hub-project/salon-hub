@@ -31,10 +31,11 @@ const MobileEmployeeCard = ({ employee, onEdit, onToggleStatus, onViewDetails, o
             <Image
               src={employee.avatar}
               alt={`${employee.name} profile photo showing professional headshot`}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover cursor-pointer"
+              onClick={()=> onViewDetails(employee)}
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-primary text-primary-foreground text-lg font-medium">
+            <div className="w-full h-full flex items-center justify-center bg-primary text-primary-foreground text-lg font-medium cursor-pointer" onClick={()=> onViewDetails(employee)}>
               {employee.name.charAt(0).toUpperCase()}
             </div>
           )}
