@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Formik } from "formik";
 import * as Yup from "yup";
 
@@ -39,28 +39,48 @@ interface CustomerFormProps {
 
 
 const CustomerForm = ({ onClose, editingCustomer, onSuccess }: CustomerFormProps) => {
-  const tagOptions: CustomerTag[] = ["VIP", "New", "Frequent", "Inactive"];
   const isEditMode = !!editingCustomer;
+  const tagOptions: CustomerTag[] = ["VIP", "New", "Frequent", "Inactive"];
 
   const [staff, setStaff] = useState<any[]>([]);
   const [loadingStaff, setLoadingStaff] = useState(false);
+  const fetchingStaffRef = useRef(false);
+  const mountedRef = useRef(true);
 
   useEffect(() => {
     const fetchStaff = async () => {
+      // Prevent duplicate calls
+      if (fetchingStaffRef.current) return;
+      
+      fetchingStaffRef.current = true;
+      mountedRef.current = true;
       try {
         setLoadingStaff(true);
         const res = await staffApi.getAllStaff({ limit: 100 });
         const list = res.data || res.staff || res;
-        setStaff(Array.isArray(list) ? list : []);
+        
+        if (mountedRef.current) {
+          setStaff(Array.isArray(list) ? list : []);
+        }
       } catch (err) {
-        console.error("Failed to fetch staff", err);
-        setStaff([]);
+        if (mountedRef.current) {
+          console.error("Failed to fetch staff", err);
+          setStaff([]);
+        }
       } finally {
-        setLoadingStaff(false);
+        if (mountedRef.current) {
+          setLoadingStaff(false);
+        }
+        fetchingStaffRef.current = false;
       }
     };
 
     fetchStaff();
+    
+    return () => {
+      mountedRef.current = false;
+      fetchingStaffRef.current = false;
+    };
   }, []);
 
   const staffOptions = staff.map((emp) => ({
@@ -186,7 +206,7 @@ const updateCustomer = async (values: CustomerFormikValues) => {
                 <Input
                   label="Email"
                   name="email"
-                  placeholder="Enter email address"
+                  placeholder="customer@example.com"
                   value={values.email}
                   onChange={handleChange}
                   error={touched.email ? errors.email : undefined}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Icon from "../../components/AppIcon";
 import Sidebar from "../../components/Sidebar";
@@ -21,16 +21,21 @@ interface ProfileItemProps {
 const ProfilePage = () => {
   const router = useRouter();
   const { user } = useAppSelector((state) => state.auth);
-  const { profile } = useAppSelector((state) => state.profile);
+  const { profile, isLoading } = useAppSelector((state) => state.profile);
   const dispatch = useAppDispatch();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-
-  
+  const fetchInitiatedRef = useRef(false);
 
   useEffect(() => {
-    dispatch(getProfile());
+    // Only fetch if:
+    // 1. Profile doesn't exist in store (Header might have already fetched it)
+    // 2. Not currently loading (prevents duplicate calls)
+    // 3. We haven't already initiated a fetch (prevents StrictMode double calls)
+    if (!profile && !isLoading && !fetchInitiatedRef.current) {
+      fetchInitiatedRef.current = true;
+      dispatch(getProfile());
+    }
   }, [dispatch]);
 
   if (!user) {

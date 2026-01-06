@@ -1,9 +1,6 @@
 "use client";
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Service, ServiceFormData, ServiceFilters, ServiceCategory, BulkOperation } from './types';
-import Sidebar from '../../components/Sidebar';
-import Header from '../../components/Header';
-import MobileBottomNav from '../../components/MobileBottomNav';
 import ServiceStats from './components/ServiceStats';
 import ServiceFiltersComponent from './components/ServiceFilters';
 import ServiceTable from './components/ServiceTable';
@@ -13,13 +10,10 @@ import BulkOperationsBar from './components/BulkOperationsBar';
 import CategoryManager from './components/CategoryManager';
 import Button from '../../components/ui/Button';
 import Icon from '../../components/AppIcon';
-import { useAppSelector } from '../../store/hooks';
-import AuthGuard from '../../components/AuthGuard';
 import { serviceApi, ServiceResponse } from '../../services/service.api';
 import { categoryApi, CategoryResponse } from '../../services/category.api';
 
 const ServiceManagement = () => {
-  const authUser = useAppSelector((state) => state.auth.user);
   const [services, setServices] = useState<Service[]>([]);
   
   // Hardcoded default categories (matching API expected format)
@@ -31,6 +25,9 @@ const ServiceManagement = () => {
   
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const fetchingCategoriesRef = useRef(false);
+  const fetchingServicesRef = useRef(false);
+  const mountedRef = useRef(true);
 
   const [filters, setFilters] = useState<ServiceFilters>({
     category: 'all',
@@ -118,6 +115,10 @@ const ServiceManagement = () => {
   
   // Fetch categories from API
   const fetchCategories = useCallback(async () => {
+    // Prevent duplicate calls
+    if (fetchingCategoriesRef.current) return;
+    
+    fetchingCategoriesRef.current = true;
     try {
       const response = await categoryApi.getAllCategories({ page: 1, limit: 10 });
       const categoriesData = response.data || response || [];
@@ -130,21 +131,31 @@ const ServiceManagement = () => {
           }))
         : [];
       
-      setCategories(mappedCategories);
+      if (mountedRef.current) {
+        setCategories(mappedCategories);
+      }
     } catch (error) {
-      console.error('Error fetching categories:', error);
-      // Keep existing categories on error, or set defaults if empty
-      setCategories(prevCategories => {
-        if (prevCategories.length === 0) {
-          return defaultCategories;
-        }
-        return prevCategories;
-      });
+      if (mountedRef.current) {
+        console.error('Error fetching categories:', error);
+        // Keep existing categories on error, or set defaults if empty
+        setCategories(prevCategories => {
+          if (prevCategories.length === 0) {
+            return defaultCategories;
+          }
+          return prevCategories;
+        });
+      }
+    } finally {
+      fetchingCategoriesRef.current = false;
     }
   }, []);
 
   // Fetch services from API
   const fetchServices = useCallback(async () => {
+    // Prevent duplicate calls
+    if (fetchingServicesRef.current) return;
+    
+    fetchingServicesRef.current = true;
     try {
       setIsLoading(true);
       const params: any = {
@@ -172,6 +183,8 @@ const ServiceManagement = () => {
       const mappedServices = Array.isArray(servicesData) 
         ? servicesData.map(mapServiceResponseToService)
         : [];
+
+      if (!mountedRef.current) return;
 
       setServices(mappedServices);
 
@@ -205,17 +218,22 @@ const ServiceManagement = () => {
         return updatedCategories;
       });
     } catch (error) {
-      console.error('Error fetching services:', error);
-      // Keep existing services and categories on error
-      // Only set defaults if categories are completely empty
-      setCategories(prevCategories => {
-        if (prevCategories.length === 0) {
-          return defaultCategories;
-        }
-        return prevCategories;
-      });
+      if (mountedRef.current) {
+        console.error('Error fetching services:', error);
+        // Keep existing services and categories on error
+        // Only set defaults if categories are completely empty
+        setCategories(prevCategories => {
+          if (prevCategories.length === 0) {
+            return defaultCategories;
+          }
+          return prevCategories;
+        });
+      }
     } finally {
-      setIsLoading(false);
+      if (mountedRef.current) {
+        setIsLoading(false);
+      }
+      fetchingServicesRef.current = false;
     }
   }, [filters.category, filters.status, filters.searchQuery]);
 
@@ -231,12 +249,24 @@ const ServiceManagement = () => {
 
   // Fetch categories on mount
   useEffect(() => {
+    mountedRef.current = true;
     fetchCategories();
+    
+    return () => {
+      mountedRef.current = false;
+      fetchingCategoriesRef.current = false;
+    };
   }, [fetchCategories]);
 
   // Fetch services on mount and when filters change
   useEffect(() => {
+    mountedRef.current = true;
     fetchServices();
+    
+    return () => {
+      mountedRef.current = false;
+      fetchingServicesRef.current = false;
+    };
   }, [fetchServices]);
 
   const filteredServices = services.filter(service => {
@@ -516,21 +546,9 @@ const ServiceManagement = () => {
     }
   };
 
-  const user = {
-    name: 'Sarah Johnson',
-    email: authUser?.email || 'sarah@glamoursalon.com',
-    role: authUser?.role || 'salon_owner',
-    salonName: 'Glamour Salon & Spa',
-  };
-
   return (
-    <AuthGuard>
-      <div className="min-h-screen bg-background">
-      <Sidebar userRole={user.role} />
-      <Header user={user} notifications={3} />
-
-      <main className="lg:ml-sidebar pt-header pb-safe lg:pb-4">
-        <div className="container mx-auto px-4 py-6">
+    <>
+    <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
             <div>
               <h1 className="text-2xl font-semibold text-foreground mb-1">
@@ -639,12 +657,9 @@ const ServiceManagement = () => {
               )}
             </>
           )}
-        </div>
-      </main>
+    </div>
 
-      <MobileBottomNav userRole={user.role} />
-
-      <ServiceFormModal
+    <ServiceFormModal
         isOpen={isFormModalOpen}
         onClose={handleCloseModal}
         onSubmit={handleFormSubmit}
@@ -652,8 +667,7 @@ const ServiceManagement = () => {
         categories={categories.map(c => c.name)}
         categoriesWithIds={categories.map(c => ({ id: c.id, name: c.name }))}
       />
-    </div>
-    </AuthGuard>
+    </>
   );
 };
 

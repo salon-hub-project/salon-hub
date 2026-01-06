@@ -1,12 +1,7 @@
 "use client";
-import { useState } from 'react';
-import Sidebar from '../../components/Sidebar';
-import Header from '../../components/Header';
-import MobileBottomNav from '../../components/MobileBottomNav';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Icon from '../../components/AppIcon';
 import Button from '../../components/ui/Button';
-import { useAppSelector } from '../../store/hooks';
-import AuthGuard from '../../components/AuthGuard';
 import { ViewMode,Booking,
       Customer,
       Service,
@@ -21,7 +16,6 @@ import WeekView from './components/WeekView';
 import QuickFilters from './components/QuickFilters';
 import BookingForm from './components/BookingForm';
 import BookingDetailsModal from './components/BookingDetailsModal';
-import { useEffect } from "react";
 import { appointmentApi } from '@/app/services/appointment.api';
 import { customerApi } from '@/app/services/customer.api';
 import { serviceApi } from '@/app/services/service.api';
@@ -34,7 +28,8 @@ import { staffApi } from '@/app/services/staff.api';
 
 
 const BookingManagement = () => {
-  const authUser = useAppSelector((state) => state.auth.user);
+  const fetchingRef = useRef(false);
+  const mountedRef = useRef(true);
   const [viewMode, setViewMode] = useState<ViewMode>('day');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
@@ -54,47 +49,15 @@ const [staff, setStaff] = useState<Staff[]>([]);
 
   const [bookings, setBookings] = useState<Booking[]>([]);
 
-  useEffect(() => {
-    loadInitialData();
-  }, []);
-  
-  const loadInitialData = async () => {
-    try {
-      const customerRes = await customerApi.getCustomers({ page: 1, limit: 100 });
-      const rawCustomers = Array.isArray(customerRes) ? customerRes : (customerRes?.data || []);
-      setCustomers(rawCustomers.map((c: any) => ({
-        ...c,
-        id: c._id || c.id,
-        name: c.fullName || c.name,
-        phone: c.phoneNumber || c.phone,
-        tags: c.customerTag || c.tags || [],
-      })));
-  
-      const serviceRes = await serviceApi.getAllServices({ page: 1, limit: 100 });
-      const rawServices = Array.isArray(serviceRes) ? serviceRes : (serviceRes?.data || []);
-      setServices(rawServices.map((s: any) => ({
-        ...s,
-        id: s._id || s.id,
-        name: s.serviceName || s.name,
-      })));
-  
-      const staffRes = await staffApi.getAllStaff({ page: 1, limit: 100 });
-      const rawStaff = Array.isArray(staffRes) ? staffRes : (staffRes?.data || []);
-      setStaff(rawStaff.map((s: any) => ({
-        ...s,
-        id: s._id || s.id,
-        name: s.fullName || s.name,
-        phone: s.phoneNumber || s.phone,
-        isAvailable: s.isActive,
-      })));
-
-      await loadBookings();
-    } catch (error) {
-      console.error("Failed to load booking dependencies", error);
-    }
+  const calculateEndTime = (startTime: string, duration: number): string => {
+    const [hours, minutes] = startTime.split(':').map(Number);
+    const totalMinutes = hours * 60 + minutes + duration;
+    const endHours = Math.floor(totalMinutes / 60);
+    const endMinutes = totalMinutes % 60;
+    return `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`;
   };
 
-  const loadBookings = async () => {
+  const loadBookings = useCallback(async () => {
     try {
       const res = await appointmentApi.getAllAppointments();
       const rawBookings = Array.isArray(res) ? res : (res?.data || []);
@@ -107,7 +70,7 @@ const [staff, setStaff] = useState<Staff[]>([]);
         serviceId: b.serviceId?._id,
         serviceName: b.serviceId?.serviceName || "Unknown Service",
         serviceCategory: b.serviceId?.category || "General",
-        serviceDuration: b.serviceId?.duration || 30, // Default duration if missing
+        serviceDuration: b.serviceId?.duration || 30,
         servicePrice: b.serviceId?.price || 0,
         staffId: b.staffId?._id,
         staffName: b.staffId?.fullName || "Unknown Staff",
@@ -119,11 +82,79 @@ const [staff, setStaff] = useState<Staff[]>([]);
         paymentStatus: b.paymentStatus || 'pending',
         createdAt: new Date(b.createdAt),
       }));
-      setBookings(mappedBookings);
+      
+      if (mountedRef.current) {
+        setBookings(mappedBookings);
+      }
     } catch (error) {
-      console.error("Failed to load bookings", error);
+      if (mountedRef.current) {
+        console.error("Failed to load bookings", error);
+      }
     }
-  };
+  }, []);
+
+  const loadInitialData = useCallback(async () => {
+    // Prevent duplicate calls
+    if (fetchingRef.current) return;
+    
+    fetchingRef.current = true;
+    try {
+      const customerRes = await customerApi.getCustomers({ page: 1, limit: 100 });
+      const rawCustomers = Array.isArray(customerRes) ? customerRes : (customerRes?.data || []);
+      
+      if (!mountedRef.current) return;
+      
+      setCustomers(rawCustomers.map((c: any) => ({
+        ...c,
+        id: c._id || c.id,
+        name: c.fullName || c.name,
+        phone: c.phoneNumber || c.phone,
+        tags: c.customerTag || c.tags || [],
+      })));
+  
+      const serviceRes = await serviceApi.getAllServices({ page: 1, limit: 100 });
+      const rawServices = Array.isArray(serviceRes) ? serviceRes : (serviceRes?.data || []);
+      
+      if (!mountedRef.current) return;
+      
+      setServices(rawServices.map((s: any) => ({
+        ...s,
+        id: s._id || s.id,
+        name: s.serviceName || s.name,
+      })));
+  
+      const staffRes = await staffApi.getAllStaff({ page: 1, limit: 100 });
+      const rawStaff = Array.isArray(staffRes) ? staffRes : (staffRes?.data || []);
+      
+      if (!mountedRef.current) return;
+      
+      setStaff(rawStaff.map((s: any) => ({
+        ...s,
+        id: s._id || s.id,
+        name: s.fullName || s.name,
+        phone: s.phoneNumber || s.phone,
+        isAvailable: s.isActive,
+      })));
+
+      await loadBookings();
+    } catch (error) {
+      if (mountedRef.current) {
+        console.error("Failed to load booking dependencies", error);
+      }
+    } finally {
+      fetchingRef.current = false;
+    }
+  }, [loadBookings]);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    loadInitialData();
+    
+    return () => {
+      mountedRef.current = false;
+      fetchingRef.current = false;
+    };
+  }, [loadInitialData]);
   
   const generateTimeSlots = (): TimeSlot[] => {
     const slots: TimeSlot[] = [];
@@ -256,14 +287,6 @@ const [staff, setStaff] = useState<Staff[]>([]);
     }
   };
 
-  const calculateEndTime = (startTime: string, duration: number): string => {
-    const [hours, minutes] = startTime.split(':').map(Number);
-    const totalMinutes = hours * 60 + minutes + duration;
-    const endHours = Math.floor(totalMinutes / 60);
-    const endMinutes = totalMinutes % 60;
-    return `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`;
-  };
-
   const handleStatusChange = (bookingId: string, status: Booking['status']) => {
     setBookings(
       bookings.map((b) => (b.id === bookingId ? { ...b, status } : b))
@@ -285,21 +308,9 @@ const [staff, setStaff] = useState<Staff[]>([]);
     setSearchQuery('');
   };
 
-  const currentUser = {
-    name: 'John Smith',
-    email: authUser?.email || 'john.smith@salonhub.com',
-    role: authUser?.role || 'salon_owner',
-    salonName: 'Glamour Studio',
-  };
-
   return (
-    <AuthGuard>
-      <div className="min-h-screen bg-background">
-      <Sidebar userRole={currentUser.role} />
-      <Header user={currentUser} notifications={3} />
-
-      <main className="lg:ml-sidebar pt-header pb-bottom-nav lg:pb-0">
-        <div className="p-4 lg:p-6 space-y-6">
+    <>
+    <div className="p-4 lg:p-6 space-y-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold text-foreground">Booking Management</h1>
@@ -393,10 +404,9 @@ const [staff, setStaff] = useState<Staff[]>([]);
               </div>
             </div>
           </div>
-        </div>
-      </main>
+    </div>
 
-      {showBookingForm && (
+    {showBookingForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4">
           <div className="max-w-2xl w-full">
             {/* <BookingForm
@@ -439,10 +449,7 @@ const [staff, setStaff] = useState<Staff[]>([]);
           onDelete={handleDeleteBooking}
         />
       )}
-
-      <MobileBottomNav userRole={currentUser.role} />
-    </div>
-    </AuthGuard>
+    </>
   );
 };
 

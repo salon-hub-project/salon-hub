@@ -1,8 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
-import Sidebar from "../../components/Sidebar";
-import Header from "../../components/Header";
-import MobileBottomNav from "../../components/MobileBottomNav";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Icon from "../../components/AppIcon";
 import Button from "../../components/ui/Button";
 import Select from "../../components/ui/Select";
@@ -16,8 +13,6 @@ import {
   RoleFilter,
   Service,
 } from "./types";
-import { useAppSelector } from '../../store/hooks';
-import AuthGuard from '../../components/AuthGuard';
 import { staffApi } from "@/app/services/staff.api";
 import Pagination from "@/app/components/Pagination";
 import Loader from "@/app/components/Loader";
@@ -27,7 +22,6 @@ import { showToast } from "@/app/components/ui/toast";
 
 
 const StaffManagement = () => {
-  const authUser = useAppSelector((state) => state.auth.user);
   const [isMobile, setIsMobile] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
     return window.innerWidth < 1024;
@@ -35,6 +29,8 @@ const StaffManagement = () => {
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
     null
   );
+  const fetchingRef = useRef(false);
+  const mountedRef = useRef(true);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
@@ -61,12 +57,6 @@ const StaffManagement = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const currentUser = {
-    name: "Sarah Johnson",
-    email: authUser?.email || "sarah@salonhub.com",
-    role: authUser?.role || "salon_owner",
-    salonName: "Elegance Beauty Salon",
-  };
 
   const [employees, setEmployees] = useState<Employee[]>([]);
 
@@ -108,15 +98,11 @@ const StaffManagement = () => {
     );
   };
 
-  useEffect(() => {
-    fetchEmployees();
-  }, [roleFilter, page]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [roleFilter]);
-
   const fetchEmployees = async () => {
+    // Prevent duplicate calls
+    if (fetchingRef.current) return;
+    
+    fetchingRef.current = true;
     try {
       setLoading(true);
       const res = await staffApi.getAllStaff({
@@ -124,6 +110,9 @@ const StaffManagement = () => {
         limit,
         role: roleFilter === "all" ? undefined : roleFilter,
       });
+      
+      if (!mountedRef.current) return;
+      
       const employeesFromApi = res.data as EmployeeApiResponse[];
       const mappedEmployees: Employee[] = employeesFromApi.map((emp) => ({
         id: emp._id,
@@ -158,11 +147,30 @@ const StaffManagement = () => {
       setTotalPages(res.pagination.totalPages);
 
     } catch (error) {
-      console.error("Failed to fetch employees", error);
+      if (mountedRef.current) {
+        console.error("Failed to fetch employees", error);
+      }
     } finally {
-      setLoading(false);
+      if (mountedRef.current) {
+        setLoading(false);
+      }
+      fetchingRef.current = false;
     }
   };
+
+  useEffect(() => {
+    mountedRef.current = true;
+    fetchEmployees();
+    
+    return () => {
+      mountedRef.current = false;
+      fetchingRef.current = false;
+    };
+  }, [roleFilter, page]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [roleFilter]);
 
   const handleViewDetails = async (employee: Employee) => {
     try {
@@ -249,22 +257,8 @@ const StaffManagement = () => {
     ) / employees.length;
 
   return (
-    <AuthGuard>
-      <>
-
-        <title>Staff Management - SalonHub</title>
-        <meta
-          name="description"
-          content="Manage salon employees, track performance, and assign booking responsibilities efficiently"
-        />
-
-
-        <div className="min-h-screen bg-background">
-          <Sidebar userRole={currentUser.role} />
-          <Header user={currentUser} notifications={3} />
-
-          <main className="lg:ml-sidebar pt-header pb-safe lg:pb-4">
-            <div className="p-4 lg:p-6 space-y-6">
+    <>
+    <div className="p-4 lg:p-6 space-y-6">
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div>
                   <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
@@ -486,45 +480,39 @@ const StaffManagement = () => {
                   </div>
                 </div>
               </div>
+    </div>
 
-            </div>
-          </main>
+    {isDetailsOpen && (
+      <EmployeeDetailsPanel
+        employee={selectedEmployee}
+        onClose={() => {
+          setIsDetailsOpen(false);
+          setSelectedEmployee(null);
+        }}
+        loading={detailsLoading}
+        onEdit={handleEditEmployee}
+      />
+    )}
 
-          {isMobile && <MobileBottomNav userRole={currentUser.role} />}
+    {isFormOpen && (
+      <EmployeeFormModal
+        employee={editingEmployee}
+        onClose={() => {
+          setIsFormOpen(false);
+          setEditingEmployee(null);
+          fetchEmployees();
+        }}
+      />
+    )}
 
-          {isDetailsOpen && (
-            <EmployeeDetailsPanel
-              employee={selectedEmployee}
-              onClose={() => {
-                setIsDetailsOpen(false);
-                setSelectedEmployee(null);
-              }}
-              loading={detailsLoading}
-              onEdit={handleEditEmployee}
-            />
-          )}
-
-          {isFormOpen && (
-            <EmployeeFormModal
-              employee={editingEmployee}
-              onClose={() => {
-                setIsFormOpen(false);
-                setEditingEmployee(null);
-                fetchEmployees();
-              }}
-            // onSave={handleSaveEmployee}
-            />
-          )}
-          <ConfirmModal
-            isOpen={confirmModalOpen}
-            title="Delete Employee"
-            description="Are you sure you want to delete this employee?"
-            onCancel={() => setConfirmModalOpen(false)}
-            onConfirm={handleConfirmDelete}
-          />
-        </div>
-      </>
-    </AuthGuard>
+    <ConfirmModal
+      isOpen={confirmModalOpen}
+      title="Delete Employee"
+      description="Are you sure you want to delete this employee?"
+      onCancel={() => setConfirmModalOpen(false)}
+      onConfirm={handleConfirmDelete}
+    />
+    </>
   );
 };
 

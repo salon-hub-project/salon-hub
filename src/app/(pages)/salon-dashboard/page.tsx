@@ -1,8 +1,5 @@
 "use client";
 import { useState } from 'react'; 
-import Sidebar from '../../components/Sidebar';
-import Header from '../../components/Header';
-import MobileBottomNav from '../../components/MobileBottomNav';
 import MetricCard from './components/MetricCard';
 import AppointmentCard from './components/AppointmentCard';
 import QuickBookingWidget from './components/QuickBookingWidget';
@@ -20,7 +17,6 @@ import {
 } from './types';
 import { useRouter } from 'next/navigation';
 import { useAppSelector } from '../../store/hooks';
-import AuthGuard from '../../components/AuthGuard';
 
 const SalonDashboard = () => {
   const router = useRouter();
@@ -351,25 +347,7 @@ const SalonDashboard = () => {
   };
 
   return (
-    <AuthGuard>
-      <div className="min-h-screen bg-background">
-      <Sidebar
-        isCollapsed={sidebarCollapsed}
-        userRole={currentUser.role}
-        onNavigate={handleNavigation}
-      />
-
-      <Header
-        user={currentUser}
-        notifications={notifications.filter((n) => !n.read).length}
-        onLogout={handleLogout}
-        // onProfileClick={handleProfileClick}
-        onProfileClick={() => router.push('/profile')}
-        onNotificationClick={handleNotificationClick}
-      />
-
-      <main className="ml-0 lg:ml-sidebar pt-header pb-bottom-nav lg:pb-8">
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
           <div className="mb-6">
             <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
               Welcome back, {currentUser.name.split(' ')[0]}!
@@ -432,15 +410,7 @@ const SalonDashboard = () => {
               onDismiss={handleDismissNotification}
             />
           </div>
-        </div>
-      </main>
-
-      <MobileBottomNav
-        userRole={currentUser.role}
-        onNavigate={handleNavigation}
-      />
     </div>
-    </AuthGuard>
   );
 };
 

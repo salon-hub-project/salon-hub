@@ -1,8 +1,5 @@
 "use client";
-import { useState, useEffect } from 'react';
-import Sidebar from '../../components/Sidebar';
-import Header from '../../components/Header';
-import MobileBottomNav from '../../components/MobileBottomNav';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Icon from '../../components/AppIcon';
 import Button from '../../components/ui/Button';
 import CustomerTable from './components/CustomerTable';
@@ -17,15 +14,12 @@ import {
   ServiceHistory,
 } from './types';
 import { useRouter } from 'next/navigation';
-import { useAppSelector } from '../../store/hooks';
-import AuthGuard from '../../components/AuthGuard';
 import { customerApi } from '@/app/services/customer.api';
 import Pagination from '@/app/components/Pagination';
 import Loader from '@/app/components/Loader';
 
 const CustomerDatabase = () => {
-  const router = useRouter()
-  const authUser = useAppSelector((state) => state.auth.user);
+  const router = useRouter();
   const [isMobile, setIsMobile] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false;
     return window.innerWidth < 1024;
@@ -47,9 +41,15 @@ const CustomerDatabase = () => {
     sortBy: 'name',
     sortOrder: 'asc',
   });
-  const [customerLoading,setCustomerLoading] = useState(false)
+  const [customerLoading, setCustomerLoading] = useState(false);
+  const fetchingRef = useRef(false);
+  const mountedRef = useRef(true);
 
-  const fetchCustomers = async () => {
+  const fetchCustomers = useCallback(async () => {
+    // Prevent duplicate calls
+    if (fetchingRef.current) return;
+    
+    fetchingRef.current = true;
     setLoading(true);
     try {
       const response = await customerApi.getCustomers({
@@ -59,6 +59,10 @@ const CustomerDatabase = () => {
         gender: filters.gender,
         customerTag: filters.tags,
       });
+      
+      // Only update state if component is still mounted
+      if (!mountedRef.current) return;
+
       const mappedCustomers: Customer[] = response.data.map((c: any) => ({
         id: c._id,
         name: c.fullName,
@@ -79,16 +83,27 @@ const CustomerDatabase = () => {
       setCustomers(mappedCustomers);
       setTotalPages(Math.ceil(response.meta.total / response.meta.limit));
     } catch (error) {
-      console.error("Error fetching customers", error);
+      if (mountedRef.current) {
+        console.error("Error fetching customers", error);
+      }
     } finally {
-      setLoading(false);
+      if (mountedRef.current) {
+        setLoading(false);
+      }
+      fetchingRef.current = false;
     }
-  };
+  }, [page, filters.searchQuery, filters.gender, filters.tags]);
 
   // Refetch whenever filters or page change
   useEffect(() => {
+    mountedRef.current = true;
     fetchCustomers();
-  }, [filters, page]);
+    
+    return () => {
+      mountedRef.current = false;
+      fetchingRef.current = false;
+    };
+  }, [fetchCustomers]);
 
 
   const mockServiceHistory: ServiceHistory[] = [
@@ -148,7 +163,13 @@ const CustomerDatabase = () => {
   //   setShowProfile(true);
   // };
 
+  const customerFetchingRef = useRef(false);
+
   const handleCustomerSelect = async (customerId: string) => {
+    // Prevent duplicate calls
+    if (customerFetchingRef.current) return;
+    
+    customerFetchingRef.current = true;
     try {
       setCustomerLoading(true);
       setShowProfile(true);
@@ -178,6 +199,7 @@ const CustomerDatabase = () => {
       console.error("Error fetching customer", error);
     } finally {
       setCustomerLoading(false);
+      customerFetchingRef.current = false;
     }
   };
 
@@ -214,28 +236,9 @@ const CustomerDatabase = () => {
     alert('Customer data export functionality will generate an Excel file with all customer information.');
   };
 
-  const user = {
-    name: 'John Smith',
-    email: authUser?.email || 'john.smith@salonhub.com',
-    role: authUser?.role || 'salon_owner',
-    salonName: 'Glamour Studio',
-  };
-  
-
   return (
-    <AuthGuard>
-      <div className="min-h-screen bg-background">
-        <Sidebar userRole={user.role} />
-        <Header
-          user={user}
-          notifications={3}
-          onLogout={() => router.push('/salon-registration')}
-          onProfileClick={() => console.log('Profile clicked')}
-          onNotificationClick={() => console.log('Notifications clicked')}
-        />
-
-        <main className="lg:ml-sidebar pt-header pb-bottom-nav lg:pb-0">
-          <div className="p-4 lg:p-6 space-y-6">
+    <>
+    <div className="p-4 lg:p-6 space-y-6">
             <div className="flex items-center justify-between gap-4 flex-wrap">
               <div>
                 <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
@@ -315,40 +318,36 @@ const CustomerDatabase = () => {
                 )}
               </>
             )}
-          </div>
-        </main>
+    </div>
 
-        <MobileBottomNav userRole={user.role} />
-
-        {showProfile && (
-          <CustomerProfile
-            customer={selectedCustomer}
-            serviceHistory={selectedCustomer ? mockServiceHistory.filter(
-              (h) => h.customerId === selectedCustomer.id
-            ) : []}
-            onClose={() => {
-              setShowProfile(false);
-              setSelectedCustomer(null);
-            }}
-            loading={customerLoading}
-            onEdit={handleEditCustomer}
-            onBookAppointment={handleBookAppointment}
-            onSendMessage={handleSendMessage}
-          />
+    {showProfile && selectedCustomer && (
+      <CustomerProfile
+        customer={selectedCustomer}
+        serviceHistory={mockServiceHistory.filter(
+          (h) => h.customerId === selectedCustomer.id
         )}
+        onClose={() => {
+          setShowProfile(false);
+          setSelectedCustomer(null);
+        }}
+        loading={customerLoading}
+        onEdit={handleEditCustomer}
+        onBookAppointment={handleBookAppointment}
+        onSendMessage={handleSendMessage}
+      />
+    )}
 
-        {showForm && (
-          <CustomerForm
-            editingCustomer={editingCustomer}
-            onClose={() => {
-              setShowForm(false);
-              setEditingCustomer(undefined);
-            }}
-            onSuccess={handleSaveCustomer}
-          />
-        )}
-      </div>
-    </AuthGuard>
+    {showForm && (
+      <CustomerForm
+        editingCustomer={editingCustomer}
+        onClose={() => {
+          setShowForm(false);
+          setEditingCustomer(undefined);
+        }}
+        onSuccess={handleSaveCustomer}
+      />
+    )}
+    </>
   );
 };
 

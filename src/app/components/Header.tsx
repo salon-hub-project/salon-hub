@@ -82,13 +82,21 @@ const Header = ({
   const dispatch = useAppDispatch();
   const router = useRouter();
 
-  const { profile } = useAppSelector((state) => state.profile);
+  const { profile, isLoading } = useAppSelector((state) => state.profile);
   const profileRef = useRef<HTMLDivElement>(null);
   const salonSwitcherRef = useRef<HTMLDivElement>(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const fetchInitiatedRef = useRef(false);
 
   useEffect(() => {
-    dispatch(getProfile());
+    // Only fetch profile once if:
+    // 1. Profile doesn't exist in store
+    // 2. Not currently loading (prevents duplicate calls)
+    // 3. We haven't already initiated a fetch (prevents StrictMode double calls)
+    if (!profile && !isLoading && !fetchInitiatedRef.current) {
+      fetchInitiatedRef.current = true;
+      dispatch(getProfile());
+    }
   }, [dispatch]);
 
   useEffect(() => {
