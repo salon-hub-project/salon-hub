@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Formik, Form, useFormikContext } from "formik";
+import { useEffect , useState} from "react";
+import { Formik, Form , useFormikContext} from "formik";
+import { useRouter } from "next/navigation";
 
 import Icon from "../../../components/AppIcon";
 import Button from "../../../components/ui/Button";
@@ -99,6 +100,7 @@ const BookingForm = ({
     label: `${c.name} - ${c.phone}`,
   }));
 
+  const router = useRouter();
   const serviceOptions = services
     .filter((s) => s.isActive)
     .map((s) => ({
@@ -222,6 +224,7 @@ const BookingForm = ({
                   searchable
                   onChange={(v) => setFieldValue("staffId", v)}
                   error={touched.staffId ? errors.staffId : undefined}
+                  onAddNew= {()=>router.push('/staff-management')}
                 />
 
                 {/* Notes */}

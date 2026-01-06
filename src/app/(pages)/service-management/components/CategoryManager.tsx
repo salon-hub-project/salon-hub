@@ -220,7 +220,7 @@ const CategoryManager = ({
                     size="icon"
                     variant="ghost"
                     iconName="Trash2"
-                    disabled={category.serviceCount > 0}
+                    // disabled={category.serviceCount < 0}
                     onClick={() => handleDeleteCategory(category.id)}
                   />
                 </div>

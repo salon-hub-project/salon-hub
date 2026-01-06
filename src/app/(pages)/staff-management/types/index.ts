@@ -9,6 +9,7 @@ export interface Employee {
   status: 'active' | 'inactive';
   joinDate: string;
   assignedServices: string[];
+  staffImage: null;
   performanceMetrics: {
     completedServices: number;
     customerRating: number;
@@ -46,6 +47,7 @@ export interface EmployeeFormData {
   rating: number;
   commissionRate: number;
   assignedServices: string[];
+  staffImage: File | string | null;
   availability: {
     monday: boolean;
     tuesday: boolean;

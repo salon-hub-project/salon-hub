@@ -1,5 +1,5 @@
 import React, { useId, useState } from "react";
-import { ChevronDown, Check, Search, X } from "lucide-react";
+import { ChevronDown, Check, Search, X, Plus } from "lucide-react";
 import { cn } from "../../utils/cn";
 import Button from "./Button";
 import Input from "./Input";
@@ -33,6 +33,8 @@ export interface SelectProps
   name?: string;
   onChange?: (value: any) => void;
   onOpenChange?: (open: boolean) => void;
+  onAddNew?: () => void;
+  iconName?: string;
 }
 
 const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
@@ -56,6 +58,8 @@ const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
       name,
       onChange,
       onOpenChange,
+      onAddNew,
+      iconName,
       ...props
     },
     ref
@@ -85,14 +89,16 @@ const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
     const getSelectedDisplay = (): string => {
       if (!value) return placeholder;
 
-        if (multiple) {
-            const valueArray = Array.isArray(value) ? value : [value];
-            const selectedOptions = options.filter(opt => valueArray.includes(opt.value));
-            if (selectedOptions.length === 0) return placeholder;
-            if (selectedOptions.length === 1) return selectedOptions[0].label;
-            // Show all selected service names separated by commas
-            return selectedOptions.map(opt => opt.label).join(", ");
-        }
+      if (multiple) {
+        const valueArray = Array.isArray(value) ? value : [value];
+        const selectedOptions = options.filter((opt) =>
+          valueArray.includes(opt.value)
+        );
+        if (selectedOptions.length === 0) return placeholder;
+        if (selectedOptions.length === 1) return selectedOptions[0].label;
+        // Show all selected service names separated by commas
+        return selectedOptions.map((opt) => opt.label).join(", ");
+      }
 
       const selectedOption = options.find((opt) => opt.value === value);
       return selectedOption ? selectedOption.label : placeholder;
@@ -210,12 +216,26 @@ const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
                 </Button>
               )}
 
-              <ChevronDown
-                className={cn(
-                  "h-4 w-4 transition-transform",
-                  isOpen && "rotate-180"
-                )}
-              />
+              {options.length === 0 ? (
+                // Show PLUS icon if no options available
+
+                <span
+                  onClick={(e) => {
+                    onAddNew?.(); // trigger navigation
+                  }}
+                  className="p-1"
+                >
+                  <Plus className="h-4 w-4 text-muted-foreground" />
+                </span>
+              ) : (
+                // Normal dropdown icon
+                <ChevronDown
+                  className={cn(
+                    "h-4 w-4 transition-transform",
+                    isOpen && "rotate-180"
+                  )}
+                />
+              )}
             </div>
           </button>
 

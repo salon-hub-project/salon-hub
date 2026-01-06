@@ -23,9 +23,11 @@ export interface UpdateStaffPayload {
 
 export const staffApi = {
     // ADD STAFF
-    addStaff: async (data: AddStaffPayload) => {
+    addStaff: async (data: FormData) => {
         try{
-        const res = await api.post("/staff", data);
+        const res = await api.post("/staff", data, {
+            headers: { "Content-Type": "multipart/form-data" },
+        });
         showToast({
           message: res?.data?.message || "Staff created successfully",
           status: "success"

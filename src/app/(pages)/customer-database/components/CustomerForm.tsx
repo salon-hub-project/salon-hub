@@ -26,8 +26,7 @@ const getValidationSchema = (isEditMode: boolean) => Yup.object({
   password: isEditMode 
     ? Yup.string()
     : Yup.string()
-        .min(8, "Minimum 8 characters")
-        .required("Password is required"),
+        .min(8, "Minimum 8 characters"),
 });
 
 
@@ -201,10 +200,11 @@ const updateCustomer = async (values: CustomerFormikValues) => {
                   value={values.phone}
                   onChange={handleChange}
                   error={touched.phone ? errors.phone : undefined}
+                  maxLength={10}
                 />
 
                 <Input
-                  label="Email"
+                  label="Email (Optional)"
                   name="email"
                   placeholder="customer@example.com"
                   value={values.email}
@@ -214,7 +214,7 @@ const updateCustomer = async (values: CustomerFormikValues) => {
 
                 {!isEditMode && (
                   <Input
-                    label="Password"
+                    label="Password (Optional)"
                     type="password"
                     name="password"
                     placeholder="Enter customer password"
