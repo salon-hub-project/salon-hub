@@ -322,7 +322,7 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
                     }
                     options={serviceOptions}
                     value={values.assignedServices}
-                    onChange={(value: string[]) =>
+                    onChange={(value: any[]) =>
                       setFieldValue("assignedServices", value)
                     }
                     error={
