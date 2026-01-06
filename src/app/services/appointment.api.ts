@@ -36,4 +36,13 @@ export const appointmentApi = {
       throw error;
     }
   },
+  getStaffAppointments: async (staffId: string) => {
+    try {
+      const res = await api.get(`/staff/appointments/${staffId}`);
+      return res.data;
+    } catch (error: any) {
+      console.error("Failed to fetch staff appointments", error);
+      throw error;
+    }
+  },
 };

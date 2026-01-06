@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Icon from '../../components/AppIcon';
 import Button from '../../components/ui/Button';
+import { useAppSelector } from '../../store/hooks';
 import { ViewMode,Booking,
       Customer,
       Service,
@@ -57,6 +58,8 @@ const [staff, setStaff] = useState<Staff[]>([]);
     return `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`;
   };
 
+
+  const user = useAppSelector((state) => state.auth.user);
   const loadBookings = useCallback(async () => {
     try {
       const res = await appointmentApi.getAllAppointments({ limit: 1000 });
@@ -120,7 +123,7 @@ const [staff, setStaff] = useState<Staff[]>([]);
         console.error("Failed to load bookings", error);
       }
     }
-  }, []);
+  }, [user]);
 
   const loadInitialData = useCallback(async () => {
     // Prevent duplicate calls

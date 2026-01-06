@@ -72,7 +72,12 @@ export const deleteProfile = createAsyncThunk(
 const profileSlice = createSlice({
   name: "profile",
   initialState,
-  reducers: {},
+  reducers: {
+    clearProfile: (state) => {
+      state.profile = null;
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(createProfile.pending, (state) => {
@@ -126,4 +131,5 @@ const profileSlice = createSlice({
   },
 });
 
+export const { clearProfile } = profileSlice.actions;
 export default profileSlice.reducer;

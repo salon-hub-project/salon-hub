@@ -5,7 +5,7 @@ import Icon from "./AppIcon";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { logout } from "../store/slices/authSlice";
-import { getProfile } from "../store/slices/profileSlice";
+import { getProfile, clearProfile } from "../store/slices/profileSlice";
 import { showToast } from "./ui/toast";
 import ConfirmModal from "./ui/ConfirmModal";
 
@@ -134,6 +134,7 @@ const Header = ({
     localStorage.removeItem("authToken");
     localStorage.removeItem("authUser");
     dispatch(logout());
+    dispatch(clearProfile());
 
     showToast({
       message: "Logged out successfully",

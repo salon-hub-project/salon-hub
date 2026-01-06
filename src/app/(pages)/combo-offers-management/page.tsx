@@ -357,14 +357,14 @@ const ComboOffersManagement = () => {
     <AuthGuard>
       <div className="min-h-screen bg-background">
       <Sidebar userRole={user.role} />
-      <Header 
+      {/* <Header 
         user={user} 
         notifications={3} 
         onLogout={handleLogout}
         onProfileClick={handleProfileClick}
         onNotificationClick={handleNotificationClick}
         onSalonSwitch={handleSalonSwitch}
-      />
+      /> */}
 
       <main className="lg:ml-sidebar pt-header pb-safe lg:pb-4">
         <div className="container mx-auto px-4 py-6">
