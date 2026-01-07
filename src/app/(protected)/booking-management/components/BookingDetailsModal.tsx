@@ -6,6 +6,8 @@ import Button from "../../../components/ui/Button";
 import Select from "../../../components/ui/Select";
 import ConfirmModal from "../../../components/ui/ConfirmModal"; // ✅ Added
 import { Booking } from "../types";
+import { useAppSelector } from "@/app/store/hooks";
+import { appointmentApi } from "@/app/services/appointment.api";
 
 interface BookingDetailsModalProps {
   booking: Booking;
@@ -16,6 +18,7 @@ interface BookingDetailsModalProps {
     status: "pending" | "paid"
   ) => void;
   onDelete: (bookingId: string) => void;
+  handleStatusUpdate: () => void;
 }
 
 const BookingDetailsModal = ({
@@ -24,9 +27,11 @@ const BookingDetailsModal = ({
   onStatusChange,
   onPaymentStatusChange,
   onDelete,
+  handleStatusUpdate,
 }: BookingDetailsModalProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const user = useAppSelector((state: any) => state.auth.user);
   // ✅ NEW — delete confirmation modal toggle
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
@@ -60,6 +65,20 @@ const BookingDetailsModal = ({
     setShowConfirmDelete(false);
     onClose();
   };
+
+  // const handleStatusUpdate = async () => {
+  //   try {
+  //     await appointmentApi.updateAppointmentStatus(booking?.id);
+
+  //     // update UI state in parent
+  //     onStatusChange(booking.id, "completed");
+
+  //     // close modal
+  //     onClose();
+  //   } catch (error) {
+  //     console.error("Failed to update status", error);
+  //   }
+  // };
 
   return (
     <>
@@ -194,14 +213,14 @@ const BookingDetailsModal = ({
             </div>
 
             <div className="space-y-4">
-              <Select
+              {/* <Select
                 label="Booking Status"
                 options={statusOptions}
                 value={booking.status}
                 onChange={(value) =>
                   onStatusChange(booking.id, value as Booking["status"])
                 }
-              />
+              /> */}
 
               <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
                 <div>
@@ -237,14 +256,15 @@ const BookingDetailsModal = ({
               <Button variant="outline" fullWidth onClick={onClose}>
                 Close
               </Button>
-
               <Button
                 variant="destructive"
                 fullWidth
                 loading={isDeleting}
-                onClick={handleDelete} // ✅ opens confirm modal
+                onClick={
+                  user?.role[0] === "STAFF" ? handleStatusUpdate : handleDelete
+                }
               >
-                Delete Booking
+                {user?.role[0] === "STAFF" ? "Update Status" : "Delete Booking"}
               </Button>
             </div>
           </div>
