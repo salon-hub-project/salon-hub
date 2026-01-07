@@ -61,6 +61,7 @@ const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
       onOpenChange,
       onAddNew,
       iconName,
+      closeOnSelect = true,
       ...props
     },
     ref
@@ -247,10 +248,19 @@ const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
           {/* Hidden native select for form submission */}
           <select
             name={name}
+            // value={
+            //   Array.isArray(value)
+            //     ? value.map((v) => String(v))
+            //     : value
+            //     ? String(value)
+            //     : ""
+            // }
             value={
-              Array.isArray(value)
-                ? value.map((v) => String(v))
-                : value
+              multiple
+                ? Array.isArray(value)
+                  ? value.map(String)
+                  : [] // ✅ ALWAYS array for multiple
+                : value !== undefined && value !== ""
                 ? String(value)
                 : ""
             }
