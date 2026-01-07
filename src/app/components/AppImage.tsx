@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface ImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
-  src: string;
+  src: File | string ;
   alt?: string;
   className?: string;
 }
@@ -14,7 +14,6 @@ function Image({
 }: ImageProps) {
   const handleError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     const target = e.target as HTMLImageElement;
-    target.src = "/assets/images/no_image.png";
   };
 
   return (

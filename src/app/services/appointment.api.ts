@@ -21,28 +21,46 @@ export const appointmentApi = {
       return res.data;
     } catch (error: any) {
       showToast({
-        message: error?.response?.data?.message || "Failed to create appointment",
+        message:
+          error?.response?.data?.message || "Failed to create appointment",
         status: "error",
       });
       throw error;
     }
   },
-  getAllAppointments: async (params?: { page?: number; limit?: number }) => {
+  getAllAppointments: async (params?: {
+    page?: number;
+    limit?: number;
+    // staffId?: string;
+  }) => {
     try {
       const res = await api.get("/appointment", { params });
-      return res.data;
-    } catch (error: any) {
+
+      // Ensure we ALWAYS return an array
+      return Array.isArray(res.data?.data) ? res.data.data : [];
+    } catch (error) {
       console.error("Failed to fetch appointments", error);
       throw error;
     }
   },
-  getStaffAppointments: async (staffId: string) => {
+  getStaffAppointments: async (params?: { page?: number; limit?: number }) => {
     try {
-      const res = await api.get(`/staff/appointments/${staffId}`);
-      return res.data;
-    } catch (error: any) {
-      console.error("Failed to fetch staff appointments", error);
+      const res = await api.get("/staff/appointments", { params });
+      console.log(res.data.appointmentDetails)
+      // Ensure we ALWAYS return an array
+      return Array.isArray(res.data?.appointmentDetails) ? res.data.appointmentDetails : [];
+    } catch (error) {
+      console.error("Failed to fetch appointments", error);
       throw error;
     }
   },
-};
+//   getStaffAppointments: async (staffId: string) => {
+//     try {
+//       const res = await api.get(`/staff/appointments/${staffId}`);
+//       return res.data;
+//     } catch (error: any) {
+//       console.error("Failed to fetch staff appointments", error);
+//       throw error;
+//     }
+//   },
+ };

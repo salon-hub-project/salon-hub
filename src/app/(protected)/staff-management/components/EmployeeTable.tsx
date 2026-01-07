@@ -4,6 +4,7 @@ import Icon from '../../../components/AppIcon';
 import Image from '../../../components/AppImage';
 import Button from '../../../components/ui/Button';
 import { Employee, SortField, SortOrder } from '../types';
+import EmployeeAvatar from '../types/EmployeeAvatar';
 
 interface EmployeeTableProps {
   employees: Employee[];
@@ -147,18 +148,7 @@ const EmployeeTable = ({ employees, onEdit, onToggleStatus, onViewDetails,onDele
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full overflow-hidden bg-muted flex-shrink-0">
-                      {employee.avatar ? (
-                        <Image
-                          src={employee.avatar}
-                          alt={`${employee.name} profile photo showing professional headshot`}
-                          className="w-full h-full object-cover cursor-pointer"
-                          onClick={()=> onViewDetails(employee)}
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-primary text-primary-foreground text-sm font-medium cursor-pointer"  onClick={()=> onViewDetails(employee)}>
-                          {employee.name.charAt(0).toUpperCase()}
-                        </div>
-                      )}
+                      <EmployeeAvatar employee={employee} onViewDetails={onViewDetails}/>
                     </div>
                     <div>
                       <button
