@@ -11,6 +11,7 @@ export interface AddStaffPayload {
     assignedServices: string[];
     workingDays: string[];
     phoneNumber: string;
+    staffImage?: string | File ;
 }
 
 export interface UpdateStaffPayload {
@@ -19,6 +20,7 @@ export interface UpdateStaffPayload {
     role: string;
     assignedServices: string[];
     workingDays: string[];
+    staffImage?: string | File ;
 }
 
 export const staffApi = {
@@ -57,7 +59,7 @@ export const staffApi = {
         const res = await api.get(`/staff/${staffId}`);
         return res.data;
     },
-    updateStaff: async (staffId: string, data: UpdateStaffPayload) => {
+    updateStaff: async (staffId: string, data: FormData) => {
         try{
         const res = await api.put(`/staff/${staffId}`, data);
         showToast({

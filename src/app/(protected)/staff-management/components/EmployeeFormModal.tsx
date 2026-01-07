@@ -36,7 +36,7 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
     password: "",
     rating: 0,
     commissionRate: 0,
-    staffImage: null,
+    staffImage: "",
     assignedServices: [],
     availability: {
       monday: true,
@@ -161,7 +161,7 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
         JSON.stringify(values.assignedServices)
       );
 
-      if (values.staffImage) {
+      if (values.staffImage instanceof File) {
         formData.append("staffImage", values.staffImage);
       }
 
@@ -173,26 +173,32 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
   };
 
   const updateEmployee = async (values: EmployeeFormData) => {
-    if (!employee?.id) return;
+  if (!employee?.id) return;
 
-    try {
-      const workingDays = Object.entries(values.availability)
-        .filter(([_, isWorking]) => isWorking)
-        .map(([day]) => day.charAt(0).toUpperCase() + day.slice(1));
+  try {
+    const workingDays = Object.entries(values.availability)
+      .filter(([_, isWorking]) => isWorking)
+      .map(([day]) => day.charAt(0).toUpperCase() + day.slice(1));
 
-      const payload = {
-        fullName: values.name,
-        commissionRate: values.commissionRate,
-        role: values.role,
-        assignedServices: values.assignedServices,
-        workingDays,
-      };
-      await staffApi.updateStaff(employee.id, payload);
-      onClose();
-    } catch (error) {
-      console.error("Failed to update staff", error);
+    const formData = new FormData();
+    formData.append("fullName", values.name);
+    formData.append("commissionRate", String(values.commissionRate));
+    formData.append("role", values.role);
+    formData.append("assignedServices", JSON.stringify(values.assignedServices));
+    formData.append("workingDays", JSON.stringify(workingDays));
+
+    // Append only if the user selected a new image (typeof File)
+    if (values.staffImage instanceof File) {
+      formData.append("staffImage", values.staffImage);
     }
-  };
+
+    await staffApi.updateStaff(employee.id, formData);
+    onClose();
+  } catch (error) {
+    console.error("Failed to update staff", error);
+  }
+};
+
 
   return (
     <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">

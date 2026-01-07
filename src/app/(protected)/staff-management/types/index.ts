@@ -9,7 +9,7 @@ export interface Employee {
   status: 'active' | 'inactive';
   joinDate: string;
   assignedServices: string[];
-  staffImage: File | String | null;
+  staffImage: File | string | null;
   performanceMetrics: {
     completedServices: number;
     customerRating: number;
@@ -79,7 +79,7 @@ export interface EmployeeApiResponse {
     email?: string;
     phoneNumber?: string;
   };
-  staffImage?: File | string | null; 
+  staffImage?: File | string | null ; 
 }
 
 export interface ServiceApiResponse {
