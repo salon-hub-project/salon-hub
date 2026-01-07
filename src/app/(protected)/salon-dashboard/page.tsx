@@ -19,18 +19,27 @@ import {
   Notification,
 } from "./types";
 import { useRouter } from "next/navigation";
-import { useAppSelector } from "../../store/hooks";
+import { useAppSelector, useAppDispatch } from "../../store/hooks";
 import AuthGuard from "../../components/AuthGuard";
 
 import { appointmentApi } from "@/app/services/appointment.api";
 import { customerApi } from "@/app/services/customer.api";
 import { staffApi } from "@/app/services/staff.api";
+import { getProfile } from "@/app/store/slices/profileSlice";
 
 const SalonDashboard = () => {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const authUser = useAppSelector((state) => state.auth.user);
+  const { profile } = useAppSelector((state) => state.profile);
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  useEffect(() => {
+    if (!profile) {
+      dispatch(getProfile());
+    }
+  }, [dispatch, profile]);
 
   const [todayAppointments, setTodayAppointments] = useState<
     TodayAppointment[]
@@ -55,11 +64,14 @@ const SalonDashboard = () => {
   const WORKING_HOURS_PER_DAY = 8 * 60;
 
   const currentUser = {
-    name: "Sarah Johnson",
-    email: authUser?.email || "sarah@salonhub.com",
+    name:
+      authUser?.firstName || authUser?.lastName
+        ? `${authUser?.firstName ?? ""} ${authUser?.lastName ?? ""}`.trim()
+        : profile?.ownerName || "Salon Owner",
+    email: authUser?.email || "",
     role: authUser?.role || "salon_owner",
-    avatar: "https://randomuser.me/api/portraits/women/44.jpg",
-    salonName: "Elegance Beauty Salon",
+    avatar: profile?.salonImage || authUser?.avatar || "",
+    salonName: profile?.salonName || "Salon Hub",
   };
 
   const dashboardMetrics: DashboardMetric[] = [

@@ -216,10 +216,11 @@ const Header = ({
               className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted"
             >
               <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center font-semibold">
-                {user.avatar ? (
+                {user.avatar || profile?.salonImage ? (
                   <img
-                    src={user.avatar}
-                    className="w-full h-full rounded-full"
+                    src={user.avatar || profile?.salonImage}
+                    alt="Profile"
+                    className="w-full h-full rounded-full object-cover"
                   />
                 ) : (
                   user.name.charAt(0).toUpperCase()
