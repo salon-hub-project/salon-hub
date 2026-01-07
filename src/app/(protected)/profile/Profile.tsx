@@ -3,10 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Icon from "../../components/AppIcon";
-import Sidebar from "../../components/Sidebar";
-import Header from "../../components/Header";
-import MobileBottomNav from "../../components/MobileBottomNav";
-import AuthGuard from "../../components/AuthGuard";
 import { useAppSelector } from "../../store/hooks";
 import { useAppDispatch } from "../../store/hooks";
 import { getProfile, deleteProfile } from "@/app/store/slices/profileSlice";
@@ -23,7 +19,6 @@ const ProfilePage = () => {
   const { user } = useAppSelector((state) => state.auth);
   const { profile, isLoading } = useAppSelector((state) => state.profile);
   const dispatch = useAppDispatch();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const fetchInitiatedRef = useRef(false);
 
@@ -40,11 +35,9 @@ const ProfilePage = () => {
 
   if (!user) {
     return (
-      <AuthGuard>
-        <div className="p-6 text-center text-muted-foreground">
-          Loading profile...
-        </div>
-      </AuthGuard>
+      <div className="p-6 text-center text-muted-foreground">
+        Loading profile...
+      </div>
     );
   }
   const fullName =
@@ -68,27 +61,7 @@ const ProfilePage = () => {
 
   return (
     <>
-      <AuthGuard>
-        <div className="min-h-screen bg-background">
-          {/* Sidebar */}
-          <Sidebar
-            isCollapsed={sidebarCollapsed}
-            userRole={currentUser.role}
-            onNavigate={(path: any) => router.push(path)}
-          />
-
-          {/* Header */}
-          <Header
-            user={currentUser}
-            notifications={0}
-            onLogout={() => router.push("/salon-registration")}
-            onProfileClick={() => router.push("/profile")}
-            onNotificationClick={() => {}}
-          />
-
-          {/* Main Content */}
-          <main className="ml-0 lg:ml-sidebar pt-header pb-bottom-nav lg:pb-8">
-            <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
               {/* Page Title */}
               <div className="mb-6">
                 <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
@@ -147,54 +120,47 @@ const ProfilePage = () => {
                   />
                 </div>
               </div>
-            </div>
-          </main>
 
-          {/* Mobile Nav */}
-          <MobileBottomNav
-            userRole={currentUser.role}
-            onNavigate={(path) => router.push(path)}
-          />
-          {/* Profile Actions */}
-          <div className="p-6 border-t flex flex-col sm:flex-row gap-3 justify-end">
-            <button
-              className="px-4 py-2 rounded-md border border-border text-sm hover:bg-secondary transition"
-              onClick={() => router.push("/profile/create")}
-            >
-              Create Profile
-            </button>
+              {/* Profile Actions */}
+              <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-end">
+                <button
+                  className="px-4 py-2 rounded-md border border-border text-sm hover:bg-secondary transition"
+                  onClick={() => router.push("/profile/create")}
+                >
+                  Create Profile
+                </button>
 
-            <button
-              className="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90 transition"
-              onClick={() => router.push("/profile/create")}
-            >
-              Update Profile
-            </button>
+                <button
+                  className="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90 transition"
+                  onClick={() => router.push("/profile/create")}
+                >
+                  Update Profile
+                </button>
 
-            <button
-              className="px-4 py-2 rounded-md bg-destructive text-destructive-foreground text-sm hover:opacity-90 transition"
-              onClick={handleDeleteProfile}
-            >
-              Delete Profile
-            </button>
-          </div>
-          <ConfirmModal
-            isOpen={showDeleteModal}
-            title="Delete Profile?"
-            description="Are you sure you want to delete your profile? This action cannot be undone."
-            onCancel={() => setShowDeleteModal(false)}
-            onConfirm={async () => {
-              try {
-                await dispatch(deleteProfile()).unwrap();
-                setShowDeleteModal(false);
-                router.push("/profile");
-              } catch (error) {
-                console.error("Delete failed:", error);
-              }
-            }}
-          />
-        </div>
-      </AuthGuard>
+                <button
+                  className="px-4 py-2 rounded-md bg-destructive text-destructive-foreground text-sm hover:opacity-90 transition"
+                  onClick={handleDeleteProfile}
+                >
+                  Delete Profile
+                </button>
+              </div>
+
+                <ConfirmModal
+                  isOpen={showDeleteModal}
+                  title="Delete Profile?"
+                  description="Are you sure you want to delete your profile? This action cannot be undone."
+                  onCancel={() => setShowDeleteModal(false)}
+                  onConfirm={async () => {
+                    try {
+                      await dispatch(deleteProfile()).unwrap();
+                      setShowDeleteModal(false);
+                      router.push("/profile");
+                    } catch (error) {
+                      console.error("Delete failed:", error);
+                    }
+                  }}
+                />
+      </div>
     </>
   );
 };

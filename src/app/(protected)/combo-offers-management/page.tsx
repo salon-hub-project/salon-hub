@@ -1,9 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { ComboOffer, ComboFormData, ComboFilters, ComboService } from './types';
-import Sidebar from '../../components/Sidebar';
-import Header from '../../components/Header';
-import MobileBottomNav from '../../components/MobileBottomNav';
+
 import ComboStats from './components/ComboStats';
 import ComboFiltersComponent from './components/ComboFilters';
 import ComboTable from './components/ComboTable';
@@ -13,7 +11,7 @@ import ComboPreviewModal from './components/ComboPreviewModal';
 import Button from '../../components/ui/Button';
 import Icon from '../../components/AppIcon';
 import { useAppSelector } from '../../store/hooks';
-import AuthGuard from '../../components/AuthGuard';
+
 import { comboApi } from '../../services/combo.api';
 import { serviceApi } from '../../services/service.api';
 import { showToast } from '../../components/ui/toast';
@@ -330,44 +328,11 @@ const ComboOffersManagement = () => {
     }
   };
 
-  const user = {
-    name: 'Sarah Johnson',
-    email: authUser?.email || 'sarah@glamoursalon.com',
-    role: authUser?.role || 'salon_owner',
-    salonName: 'Glamour Salon & Spa',
-  };
 
-  const handleLogout = () => {
-    console.log('Logout clicked');
-  };
-
-  const handleProfileClick = () => {
-    console.log('Profile clicked');
-  };
-
-  const handleNotificationClick = () => {
-    console.log('Notification clicked');
-  };
-
-  const handleSalonSwitch = () => {
-    console.log('Salon switch clicked');
-  };
 
   return (
-    <AuthGuard>
-      <div className="min-h-screen bg-background">
-      <Sidebar userRole={user.role} />
-      {/* <Header 
-        user={user} 
-        notifications={3} 
-        onLogout={handleLogout}
-        onProfileClick={handleProfileClick}
-        onNotificationClick={handleNotificationClick}
-        onSalonSwitch={handleSalonSwitch}
-      /> */}
-
-      <main className="lg:ml-sidebar pt-header pb-safe lg:pb-4">
-        <div className="container mx-auto px-4 py-6">
+    <>
+      <div className="p-4 lg:p-6 space-y-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
             <div>
               <h1 className="text-2xl font-semibold text-foreground mb-1">
@@ -453,10 +418,6 @@ const ComboOffersManagement = () => {
 
           
         </div>
-      </main>
-
-      <MobileBottomNav userRole={user.role} />
-
       <ComboFormModal
         isOpen={isFormModalOpen}
         onClose={handleCloseModal}
@@ -470,8 +431,7 @@ const ComboOffersManagement = () => {
         onClose={() => setIsPreviewModalOpen(false)}
         combo={previewCombo}
       />
-    </div>
-    </AuthGuard>
+    </>
   );
 };
 
