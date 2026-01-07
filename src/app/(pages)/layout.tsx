@@ -17,12 +17,25 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
   const pathname = usePathname();
   const authUser = useAppSelector((state) => state.auth.user);
 
+  // const user = {
+  //   name: authUser?.name || authUser?.fullName || "User",
+  //   email: authUser?.email || "",
+  //   role: authUser?.role || "salon_owner",
+  //   salonName: "Salon",
+  // };
   const user = {
-    name: authUser?.name || authUser?.fullName || "User",
-    email: authUser?.email || "",
-    role: authUser?.role || "salon_owner",
+    name:
+      authUser?.firstName || authUser?.lastName
+        ? `${authUser?.firstName ?? ""} ${authUser?.lastName ?? ""}`.trim()
+        : "User",
+    email: authUser?.email ?? "",
+    role: Array.isArray(authUser?.role)
+      ? authUser?.role[0]
+      : authUser?.role ?? "salon_owner",
     salonName: "Salon",
   };
+  
+  
 
   // Check if current route is an auth route (login/registration)
   const isAuthRoute = pathname === "/salon-login" || pathname === "/salon-registration";
