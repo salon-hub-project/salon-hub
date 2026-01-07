@@ -34,10 +34,15 @@ const SalonRegistrationClient = () => {
   }, []);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      router.push("/salon-dashboard");
-    }
+    if (!isAuthenticated) return;
+  
+    const redirectPath =
+      localStorage.getItem("lastProtectedRoute") || "/salon-dashboard";
+  
+    localStorage.removeItem("redirectAfterLogin");
+    router.replace(redirectPath);
   }, [isAuthenticated, router]);
+  
 
   // Registration success redirects
   useEffect(() => {
