@@ -59,7 +59,7 @@ const BookingManagement = () => {
       .padStart(2, "0")}`;
   };
 
-  const user = useAppSelector((state) => state.auth.user);
+  const user = useSelector((state:any) => state.auth.user);
   const loadBookings = useCallback(async () => {
     try {
       if(!user) return;

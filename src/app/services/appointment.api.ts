@@ -46,7 +46,7 @@ export const appointmentApi = {
   getStaffAppointments: async (params?: { page?: number; limit?: number }) => {
     try {
       const res = await api.get("/staff/appointments", { params });
-      console.log(res.data.appointmentDetails)
+      console.log(res.data)
       // Ensure we ALWAYS return an array
       return Array.isArray(res.data?.appointmentDetails) ? res.data.appointmentDetails : [];
     } catch (error) {

@@ -2,6 +2,7 @@ import Icon from '../../../components/AppIcon';
 import Image from '../../../components/AppImage';
 import Button from '../../../components/ui/Button';
 import { Employee } from '../types';
+import EmployeeAvatar from '../types/EmployeeAvatar';
 
 interface MobileEmployeeCardProps {
   employee: Employee;
@@ -27,18 +28,7 @@ const MobileEmployeeCard = ({ employee, onEdit, onToggleStatus, onViewDetails, o
     <div className="bg-card rounded-lg border border-border p-4 space-y-4">
       <div className="flex items-start gap-3">
         <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex-shrink-0">
-          {employee.avatar ? (
-            <Image
-              src={employee.avatar}
-              alt={`${employee.name} profile photo showing professional headshot`}
-              className="w-full h-full object-cover cursor-pointer"
-              onClick={()=> onViewDetails(employee)}
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-primary text-primary-foreground text-lg font-medium cursor-pointer" onClick={()=> onViewDetails(employee)}>
-              {employee.name.charAt(0).toUpperCase()}
-            </div>
-          )}
+          <EmployeeAvatar employee= {employee} onViewDetails={onViewDetails}/>
         </div>
         <div className="flex-1 min-w-0">
           <h3 className="text-base font-semibold text-foreground truncate">{employee.name}</h3>
