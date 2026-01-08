@@ -249,7 +249,7 @@ const ServiceFormModal = ({
 
               {/* Description */}
               <Input
-                label="Description (Optional)"
+                label="Description"
                 name="description"
                 placeholder="Enter description here"
                 value={values.description}

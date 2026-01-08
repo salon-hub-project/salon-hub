@@ -7,6 +7,7 @@ import { useAppSelector } from "../../store/hooks";
 import { useAppDispatch } from "../../store/hooks";
 import { getProfile, deleteProfile } from "@/app/store/slices/profileSlice";
 import ConfirmModal from "@/app/components/ui/ConfirmModal";
+import { normalizeRole } from "@/app/utils/normalizeRole";
 
 interface ProfileItemProps {
   icon: string;
@@ -16,22 +17,21 @@ interface ProfileItemProps {
 
 const ProfilePage = () => {
   const router = useRouter();
-  const { user } = useAppSelector((state) => state.auth);
+  const { user } = useAppSelector((state: any) => state.auth);
   const { profile, isLoading } = useAppSelector((state) => state.profile);
   const dispatch = useAppDispatch();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const fetchInitiatedRef = useRef(false);
 
-  useEffect(() => {
-    // Only fetch if:
-    // 1. Profile doesn't exist in store (Header might have already fetched it)
-    // 2. Not currently loading (prevents duplicate calls)
-    // 3. We haven't already initiated a fetch (prevents StrictMode double calls)
-    if (!profile && !isLoading && !fetchInitiatedRef.current) {
-      fetchInitiatedRef.current = true;
-      dispatch(getProfile());
-    }
-  }, [dispatch]);
+  const normalizedUserRole= normalizeRole(user.role);
+ 
+    useEffect(() => {
+      if (normalizedUserRole !== "OWNER") return;
+      if (!profile && !isLoading && !fetchInitiatedRef.current) {
+        fetchInitiatedRef.current = true;
+        dispatch(getProfile());
+      }
+    }, [dispatch, normalizedUserRole]);
 
   if (!user) {
     return (

@@ -21,7 +21,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useAppSelector, useAppDispatch } from "../../store/hooks";
 import AuthGuard from "../../components/AuthGuard";
-
+import { normalizeRole } from "@/app/utils/normalizeRole";
 import { appointmentApi } from "@/app/services/appointment.api";
 import { customerApi } from "@/app/services/customer.api";
 import { staffApi } from "@/app/services/staff.api";
@@ -32,14 +32,17 @@ const SalonDashboard = () => {
   const dispatch = useAppDispatch();
   const authUser = useAppSelector((state) => state.auth.user);
   const { profile } = useAppSelector((state) => state.profile);
-
+  const { user } = useAppSelector((state: any) => state.auth);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-
+  const isAuthenticated = useAppSelector((state) => !!state.auth.token);
+  
+  const normalizedUserRole = normalizeRole(user?.role);
   useEffect(() => {
+    if (normalizedUserRole !== "OWNER") return;
     if (!profile) {
       dispatch(getProfile());
     }
-  }, [dispatch, profile]);
+  }, [dispatch, normalizedUserRole]);
 
   const [todayAppointments, setTodayAppointments] = useState<
     TodayAppointment[]
@@ -72,10 +75,11 @@ const SalonDashboard = () => {
 
   //fetch Today Appointments:-
   useEffect(() => {
+    if (!isAuthenticated) return;
     const fetchTodayAppointments = async () => {
       try {
         const res = await appointmentApi.getAllAppointments({ limit: 500 });
-        console.log(res)
+        console.log(res);
         const todaysAppointments = res.filter(
           (appt: any) => appt.appointmentDate && isToday(appt.appointmentDate)
         );
@@ -98,10 +102,11 @@ const SalonDashboard = () => {
     };
 
     fetchTodayAppointments();
-  }, []);
+  }, [isAuthenticated]);
 
   //fetch active customers:-
   useEffect(() => {
+    if (!isAuthenticated) return;
     const fetchCustomers = async () => {
       try {
         const res = await customerApi.getCustomers({
@@ -116,19 +121,19 @@ const SalonDashboard = () => {
     };
 
     fetchCustomers();
-  }, []);
+  }, [isAuthenticated]);
 
   //staff utilization
   useEffect(() => {
+    if (!isAuthenticated) return;
     const fetchStaffUtilization = async () => {
       try {
         const staffRes = await staffApi.getAllStaff({ limit: 100 });
         const apptRes = await appointmentApi.getAllAppointments({ limit: 500 });
-
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        const todaysAppointments = apptRes.data.filter((appt: any) => {
+        const todaysAppointments = apptRes?.filter((appt: any) => {
           const d = new Date(appt.appointmentDate);
           d.setHours(0, 0, 0, 0);
           return d.getTime() === today.getTime();
@@ -166,7 +171,7 @@ const SalonDashboard = () => {
     };
 
     fetchStaffUtilization();
-  }, []);
+  }, [isAuthenticated]);
 
   
 
@@ -240,10 +245,6 @@ const SalonDashboard = () => {
     },
   ]);
 
-  const handleLogout = () => {
-    router.push("/salon-registration");
-  };
-
   const handleNotificationClick = () => {
     console.log("Notifications clicked");
   };
@@ -284,7 +285,6 @@ const SalonDashboard = () => {
         <Header
           user={currentUser}
           notifications={notifications.filter((n) => !n.read).length}
-          onLogout={handleLogout}
           // onProfileClick={handleProfileClick}
           onProfileClick={() => router.push("/profile")}
           onNotificationClick={handleNotificationClick}
