@@ -47,10 +47,10 @@ export const profileApi = {
       const res = await api.get("/profile");
       return res.data;
     } catch (error: any) {
-      showToast({
-        message: error?.response?.data?.message || "Failed to fetch profile",
-        status: "error",
-      });
+      // showToast({
+      //   message: error?.response?.data?.message || "Failed to fetch profile",
+      //   status: "error",
+      // });
       throw error;
     }
   },

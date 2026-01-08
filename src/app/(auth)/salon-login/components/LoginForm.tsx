@@ -49,7 +49,7 @@ const LoginForm = ({
         <button
           type="button"
           onClick={() => setShowPassword(!showPassword)}
-          className="absolute right-3 top-9 text-muted-foreground"
+          className="absolute right-3 top-10 text-muted-foreground"
         >
           {showPassword ? "👁️" : "👁️‍🗨️"}
         </button>
