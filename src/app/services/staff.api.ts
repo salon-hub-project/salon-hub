@@ -11,6 +11,8 @@ export interface AddStaffPayload {
     assignedServices: string[];
     workingDays: string[];
     phoneNumber: string;
+    target: number;
+    salary: number;
     staffImage?: string | File ;
 }
 
@@ -20,6 +22,8 @@ export interface UpdateStaffPayload {
     role: string;
     assignedServices: string[];
     workingDays: string[];
+    target?: number;
+    salary?: number;
     staffImage?: string | File ;
 }
 

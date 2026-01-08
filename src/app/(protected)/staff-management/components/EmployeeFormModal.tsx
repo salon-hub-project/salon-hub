@@ -36,6 +36,8 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
     password: "",
     rating: null,
     commissionRate: null,
+    target: 0,
+    salary: 0,
     staffImage: "",
     assignedServices: [],
     availability: {
@@ -107,6 +109,8 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
           name: emp.fullName || "",
           role: emp.role || "",
           commissionRate: emp.commissionRate || null,
+          target: emp.target || 0,
+          salary: emp.salary || 0,
           assignedServices: Array.isArray(emp.assignedServices)
             ? emp.assignedServices.map((s: any) => {
                 return typeof s === "object" ? s._id || s.serviceId || s.id : s;
@@ -149,6 +153,8 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
       formData.append("password", values.password);
       formData.append("fullName", values.name);
       formData.append("commissionRate", String(values.commissionRate));
+      formData.append("target", String(values.target));
+      formData.append("salary", String(values.salary));
       formData.append("role", values.role);
       formData.append("rating", String(values.rating));
       formData.append(
@@ -183,6 +189,8 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
     const formData = new FormData();
     formData.append("fullName", values.name);
     formData.append("commissionRate", String(values.commissionRate));
+    formData.append("target", String(values.target));
+    formData.append("salary", String(values.salary));
     formData.append("role", values.role);
     formData.append("assignedServices", JSON.stringify(values.assignedServices));
     formData.append("workingDays", JSON.stringify(workingDays));
@@ -304,6 +312,26 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
                           ? errors.commissionRate
                           : undefined
                       }
+                    />
+
+                    <Input
+                      label="Target"
+                      name="target"
+                      placeholder="2000"
+                      type="number"
+                      value={values.target}
+                      onChange={handleChange}
+                      error={touched.target ? errors.target : undefined}
+                    />
+
+                    <Input
+                      label="Salary"
+                      name="salary"
+                      placeholder="10000"
+                      type="number"
+                      value={values.salary}
+                      onChange={handleChange}
+                      error={touched.salary ? errors.salary : undefined}
                     />
                   </div>
 
