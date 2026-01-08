@@ -46,21 +46,34 @@ export const appointmentApi = {
   getStaffAppointments: async (params?: { page?: number; limit?: number }) => {
     try {
       const res = await api.get("/staff/appointments", { params });
-      console.log(res.data)
+      console.log(res.data);
       // Ensure we ALWAYS return an array
-      return Array.isArray(res.data?.appointmentDetails) ? res.data.appointmentDetails : [];
+      return Array.isArray(res.data?.appointmentDetails)
+        ? res.data.appointmentDetails
+        : [];
     } catch (error) {
       console.error("Failed to fetch appointments", error);
       throw error;
     }
   },
-//   getStaffAppointments: async (staffId: string) => {
-//     try {
-//       const res = await api.get(`/staff/appointments/${staffId}`);
-//       return res.data;
-//     } catch (error: any) {
-//       console.error("Failed to fetch staff appointments", error);
-//       throw error;
-//     }
-//   },
- };
+  getAppointmentDetails: async (appointmentId: string) => {
+    try {
+      const res = await api.get(`/appointment/${appointmentId}`);
+      return res.data?.data;
+    } catch (error: any) {
+      console.error("Failed to fetch appointment details:", error);
+      throw error;
+    }
+  },
+  updateAppointmentStatus: async (appointmentId: string) => {
+    try {
+      const res = await api.put(`/appointment/${appointmentId}`, {
+        status: "Completed",
+      });
+      return res.data;
+    } catch (error) {
+      console.error("Failed to update appointment status:", error);
+      throw error;
+    }
+  },
+};

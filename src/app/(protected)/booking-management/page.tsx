@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Icon from "../../components/AppIcon";
 import Button from "../../components/ui/Button";
-import { useAppSelector } from '../../store/hooks';
+import { useAppSelector } from "../../store/hooks";
 import {
   ViewMode,
   Booking,
@@ -59,10 +59,10 @@ const BookingManagement = () => {
       .padStart(2, "0")}`;
   };
 
-  const user = useSelector((state:any) => state.auth.user);
+  const user = useSelector((state: any) => state.auth.user);
   const loadBookings = useCallback(async () => {
     try {
-      if(!user) return;
+      if (!user) return;
       let res;
 
       if (user?.role?.[0] === "STAFF") {
@@ -323,16 +323,60 @@ const BookingManagement = () => {
     setViewMode("day");
   };
 
-  const handleBookingClick = (bookingId: string) => {
-    const booking = bookings.find((b) => b.id === bookingId);
-    if (booking) {
-      setSelectedBooking(booking);
+  const convertDuration = (durationString: string) => {
+    if (!durationString) return 30;
+    const num = parseInt(durationString);
+    if (durationString.includes("hour")) return num * 60;
+    return num;
+  };
+
+  const handleBookingClick = async (bookingId: string) => {
+    try {
+      // API CALL
+      const data = await appointmentApi.getAppointmentDetails(bookingId);
+      if (!data) return;
+
+      // MAP RESPONSE → Booking type used by modal
+      const mappedBooking: Booking = {
+        id: data._id,
+        customerId: data.customerId?._id,
+        customerName: data.customerId?.fullName || "Unknown Customer",
+        customerPhone: data.customerId?.phoneNumber,
+
+        serviceId: data.services?.[0]?._id || "",
+        serviceName: data.services?.map((s: any) => s.serviceName).join(", "),
+        serviceCategory: "General",
+        serviceDuration: convertDuration(data.services?.[0]?.duration),
+        servicePrice: data.services?.reduce(
+          (sum: number, s: any) => sum + (s.price || 0),
+          0
+        ),
+
+        staffId: data.staffId?._id,
+        staffName: data.staffId?.fullName,
+
+        date: new Date(data.appointmentDate),
+        startTime: data.appointmentTime,
+        endTime: calculateEndTime(
+          data.appointmentTime,
+          convertDuration(data.services?.[0]?.duration)
+        ),
+
+        status: data.status || "pending",
+        notes: data.notes,
+        paymentStatus: "pending",
+        createdAt: new Date(data.createdAt),
+      };
+
+      setSelectedBooking(mappedBooking);
+    } catch (err) {
+      console.error("Error fetching appointment details:", err);
     }
   };
 
   useEffect(() => {
-    if(user){
-    loadBookings();
+    if (user) {
+      loadBookings();
     }
   }, [user, loadBookings]);
 
@@ -395,6 +439,19 @@ const BookingManagement = () => {
   const handleClearFilters = () => {
     setFilters({});
     setSearchQuery("");
+  };
+
+  const handleStatusUpdate = async () => {
+    if (!selectedBooking) return;
+
+    try {
+      await appointmentApi.updateAppointmentStatus(selectedBooking.id);
+
+      await loadBookings(); // 🔥 Auto refresh UI
+      setSelectedBooking(null);
+    } catch (error) {
+      console.error("Failed to update status", error);
+    }
   };
 
   return (
@@ -544,6 +601,7 @@ const BookingManagement = () => {
       {selectedBooking && (
         <BookingDetailsModal
           booking={selectedBooking}
+          handleStatusUpdate={handleStatusUpdate}
           onClose={() => setSelectedBooking(null)}
           onStatusChange={handleStatusChange}
           onPaymentStatusChange={handlePaymentStatusChange}

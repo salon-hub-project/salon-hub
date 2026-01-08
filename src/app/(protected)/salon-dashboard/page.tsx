@@ -48,7 +48,6 @@ const SalonDashboard = () => {
   const [staffUtilization, setStaffUtilization] = useState<StaffUtilization[]>(
     []
   );
-  const [loadingDashboard, setLoadingDashboard] = useState(false);
 
   const isToday = (dateString: string) => {
     const today = new Date();
@@ -59,9 +58,6 @@ const SalonDashboard = () => {
 
     return d.getTime() === today.getTime();
   };
-
-  const DEFAULT_APPOINTMENT_MINUTES = 60;
-  const WORKING_HOURS_PER_DAY = 8 * 60;
 
   const currentUser = {
     name:
@@ -287,45 +283,6 @@ const SalonDashboard = () => {
     },
   ];
 
-  // const staffUtilization: StaffUtilization[] = [
-  //   {
-  //     id: "1",
-  //     name: "Sarah Johnson",
-  //     avatar: "https://randomuser.me/api/portraits/women/44.jpg",
-  //     avatarAlt: "Blonde woman in professional salon uniform with friendly smile",
-  //     appointmentsToday: 8,
-  //     revenue: 680,
-  //     utilizationRate: 92,
-  //   },
-  //   {
-  //     id: "2",
-  //     name: "Emily Davis",
-  //     avatar: "https://randomuser.me/api/portraits/women/45.jpg",
-  //     avatarAlt: "Brunette stylist in black salon apron with professional appearance",
-  //     appointmentsToday: 7,
-  //     revenue: 595,
-  //     utilizationRate: 85,
-  //   },
-  //   {
-  //     id: "3",
-  //     name: "Michael Brown",
-  //     avatar: "https://randomuser.me/api/portraits/men/46.jpg",
-  //     avatarAlt: "Male stylist in professional salon attire",
-  //     appointmentsToday: 6,
-  //     revenue: 510,
-  //     utilizationRate: 78,
-  //   },
-  //   {
-  //     id: "4",
-  //     name: "Jessica Wilson",
-  //     avatar: "https://randomuser.me/api/portraits/women/47.jpg",
-  //     avatarAlt: "Esthetician in white uniform with warm smile",
-  //     appointmentsToday: 5,
-  //     revenue: 425,
-  //     utilizationRate: 71,
-  //   },
-  // ];
-
   const [notifications, setNotifications] = useState<Notification[]>([
     {
       id: "1",
@@ -363,10 +320,6 @@ const SalonDashboard = () => {
 
   const handleLogout = () => {
     router.push("/salon-registration");
-  };
-
-  const handleProfileClick = () => {
-    console.log("Profile clicked");
   };
 
   const handleNotificationClick = () => {
