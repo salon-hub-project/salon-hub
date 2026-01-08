@@ -70,49 +70,12 @@ const SalonDashboard = () => {
     salonName: profile?.salonName || "Salon Hub",
   };
 
-  const dashboardMetrics: DashboardMetric[] = [
-    {
-      id: "1",
-      label: "Today's Appointments",
-      value: todayAppointments.length,
-      icon: "Calendar",
-      color: "bg-primary",
-    },
-    {
-      id: "2",
-      label: "Today's Revenue",
-      value: `INR ${todayAppointments.reduce(
-        (sum, a) => sum + (a.price || 0),
-        0
-      )}`,
-      icon: "IndianRupee",
-      color: "bg-success",
-    },
-    {
-      id: "3",
-      label: "Active Customers",
-      value: activeCustomersCount,
-      icon: "Users",
-      color: "bg-accent",
-    },
-    {
-      id: "4",
-      label: "Staff Utilization",
-      value: `${Math.round(
-        staffUtilization.reduce((a, b) => a + b.utilizationRate, 0) /
-          (staffUtilization.length || 1)
-      )}%`,
-      icon: "TrendingUp",
-      color: "bg-warning",
-    },
-  ];
-
   //fetch Today Appointments:-
   useEffect(() => {
     const fetchTodayAppointments = async () => {
       try {
         const res = await appointmentApi.getAllAppointments({ limit: 500 });
-
+         
         const todaysAppointments = res.data.filter(
           (appt: any) => appt.appointmentDate && isToday(appt.appointmentDate)
         );
@@ -205,48 +168,7 @@ const SalonDashboard = () => {
     fetchStaffUtilization();
   }, []);
 
-  const recentActivities: RecentActivity[] = [
-    {
-      id: "1",
-      type: "booking",
-      message: "New booking from Emma Wilson for Haircut & Styling",
-      timestamp: new Date(Date.now() - 300000),
-      icon: "Calendar",
-      color: "bg-primary",
-    },
-    {
-      id: "2",
-      type: "completion",
-      message: "Service completed for Michael Brown - Hair Coloring",
-      timestamp: new Date(Date.now() - 600000),
-      icon: "CheckCircle",
-      color: "bg-success",
-    },
-    {
-      id: "3",
-      type: "cancellation",
-      message: "Appointment cancelled by Jessica Taylor",
-      timestamp: new Date(Date.now() - 900000),
-      icon: "XCircle",
-      color: "bg-error",
-    },
-    {
-      id: "4",
-      type: "payment",
-      message: "Payment received from David Martinez - INR 95",
-      timestamp: new Date(Date.now() - 1200000),
-      icon: "IndianRupee",
-      color: "bg-success",
-    },
-    {
-      id: "5",
-      type: "booking",
-      message: "New booking from Lisa Anderson for Hair Styling",
-      timestamp: new Date(Date.now() - 1800000),
-      icon: "Calendar",
-      color: "bg-primary",
-    },
-  ];
+  
 
   const quickActions: QuickAction[] = [
     {
@@ -378,13 +300,6 @@ const SalonDashboard = () => {
                 Here's what's happening with your salon today
               </p>
             </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6">
-              {dashboardMetrics.map((metric) => (
-                <MetricCard key={metric.id} metric={metric} />
-              ))}
-            </div>
-
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
               <div className="lg:col-span-2">
                 <QuickActions actions={quickActions} />
@@ -420,7 +335,7 @@ const SalonDashboard = () => {
                 </div>
               </div>
               <div className="lg:col-span-1 space-y-6">
-                <ActivityFeed activities={recentActivities} />
+                {/* <ActivityFeed activities={recentActivities} /> */}
                 <StaffUtilizationCard staff={staffUtilization} />
               </div>
             </div>
