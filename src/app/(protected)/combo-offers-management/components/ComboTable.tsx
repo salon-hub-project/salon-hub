@@ -1,8 +1,9 @@
-import React from 'react';
-import Icon from '../../../components/AppIcon';
+import React, { useState } from "react";
+import Icon from "../../../components/AppIcon";
 
-import { ComboOffer } from '../types';
-import { format } from 'date-fns';
+import { ComboOffer } from "../types";
+import { format } from "date-fns";
+import ConfirmModal from "../../../components/ui/ConfirmModal";
 
 interface ComboTableProps {
   combos: ComboOffer[];
@@ -24,6 +25,8 @@ const ComboTable: React.FC<ComboTableProps> = ({
   const isExpired = (validUntil: Date) => {
     return new Date(validUntil) < new Date();
   };
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedComboId, setSelectedComboId] = useState<string | null>(null);
 
   return (
     <div className="bg-card border border-border rounded-lg overflow-hidden">
@@ -60,23 +63,30 @@ const ComboTable: React.FC<ComboTableProps> = ({
           <tbody className="divide-y divide-border">
             {combos.map((combo) => {
               const expired = isExpired(combo.validUntil);
-              
+
               return (
-                <tr key={combo.id} className="hover:bg-muted/50 transition-colors">
+                <tr
+                  key={combo.id}
+                  className="hover:bg-muted/50 transition-colors"
+                >
                   <td className="px-4 py-4">
                     <div className="flex flex-col">
                       <span className="font-medium text-foreground">
                         {combo.name}
                       </span>
                       <span className="text-sm text-muted-foreground mt-1">
-                        Valid: {format(combo.validFrom, 'MMM dd')} - {format(combo.validUntil, 'MMM dd, yyyy')}
+                        Valid: {format(combo.validFrom, "MMM dd")} -{" "}
+                        {format(combo.validUntil, "MMM dd, yyyy")}
                       </span>
                     </div>
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex flex-col">
                       {combo.services.slice(0, 2).map((service, idx) => (
-                        <span key={idx} className="text-sm text-muted-foreground">
+                        <span
+                          key={idx}
+                          className="text-sm text-muted-foreground"
+                        >
                           • {service.name}
                         </span>
                       ))}
@@ -138,41 +148,64 @@ const ComboTable: React.FC<ComboTableProps> = ({
                         className="p-1.5 hover:bg-muted rounded transition-colors"
                         title="Preview"
                       >
-                        <Icon name="Eye" size={16} className="text-muted-foreground" />
+                        <Icon
+                          name="Eye"
+                          size={16}
+                          className="text-muted-foreground"
+                        />
                       </button>
                       <button
                         onClick={() => onEdit(combo)}
                         className="p-1.5 hover:bg-muted rounded transition-colors"
                         title="Edit"
                       >
-                        <Icon name="Edit" size={16} className="text-muted-foreground" />
+                        <Icon
+                          name="Edit"
+                          size={16}
+                          className="text-muted-foreground"
+                        />
                       </button>
                       <button
                         onClick={() => onDuplicate(combo)}
                         className="p-1.5 hover:bg-muted rounded transition-colors"
                         title="Duplicate"
                       >
-                        <Icon name="Copy" size={16} className="text-muted-foreground" />
+                        <Icon
+                          name="Copy"
+                          size={16}
+                          className="text-muted-foreground"
+                        />
                       </button>
                       {!expired && (
                         <button
                           onClick={() => onToggleStatus(combo.id)}
                           className="p-1.5 hover:bg-muted rounded transition-colors"
-                          title={combo.isActive ? 'Deactivate' : 'Activate'}
+                          title={combo.isActive ? "Deactivate" : "Activate"}
                         >
                           <Icon
-                            name={combo.isActive ? 'ToggleRight' : 'ToggleLeft'}
+                            name={combo.isActive ? "ToggleRight" : "ToggleLeft"}
                             size={16}
-                            className={combo.isActive ? 'text-green-600' : 'text-muted-foreground'}
+                            className={
+                              combo.isActive
+                                ? "text-green-600"
+                                : "text-muted-foreground"
+                            }
                           />
                         </button>
                       )}
                       <button
-                        onClick={() => onDelete(combo.id)}
+                        onClick={() => {
+                          setSelectedComboId(combo.id);
+                          setIsDeleteModalOpen(true);
+                        }}
                         className="p-1.5 hover:bg-red-50 rounded transition-colors"
                         title="Delete"
                       >
-                        <Icon name="Trash2" size={16} className="text-red-600" />
+                        <Icon
+                          name="Trash2"
+                          size={16}
+                          className="text-red-600"
+                        />
                       </button>
                     </div>
                   </td>
@@ -181,6 +214,22 @@ const ComboTable: React.FC<ComboTableProps> = ({
             })}
           </tbody>
         </table>
+        <ConfirmModal
+          isOpen={isDeleteModalOpen}
+          title="Delete Combo Offer"
+          description="Are you sure you want to delete this combo offer? This action cannot be undone."
+          onCancel={() => {
+            setIsDeleteModalOpen(false);
+            setSelectedComboId(null);
+          }}
+          onConfirm={() => {
+            if (selectedComboId) {
+              onDelete(selectedComboId);
+            }
+            setIsDeleteModalOpen(false);
+            setSelectedComboId(null);
+          }}
+        />
       </div>
     </div>
   );

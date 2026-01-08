@@ -34,13 +34,13 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
     name: combo?.name || "",
     description: combo?.description || "",
     services: combo?.services || [],
-    discountedPrice: combo?.discountedPrice || 0,
+    discountedPrice: combo?.discountedPrice || null,
     validFrom: combo?.validFrom || new Date(),
     validUntil:
       combo?.validUntil || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     minBookingRequirement: combo?.minBookingRequirement || undefined,
     customerEligibility: combo?.customerEligibility || "all",
-    staffCommissionRate: combo?.staffCommissionRate || 15,
+    staffCommissionRate: combo?.staffCommissionRate || null,
   };
 
   const eligibilityOptions = [
@@ -79,9 +79,11 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
         >
           {({ values, setFieldValue, errors, touched }) => {
             const originalPrice = calculateOriginalPrice(values.services);
-            const savings = originalPrice
-              ? ((originalPrice - values.discountedPrice) / originalPrice) * 100
-              : 0;
+            const discounted = values.discountedPrice ?? 0;
+            const savings =
+              originalPrice && discounted
+                ? ((originalPrice - discounted) / originalPrice) * 100
+                : 0;
 
             return (
               <Form className="p-6">
@@ -215,7 +217,7 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                         <div className="flex justify-between text-sm">
                           <span>Discounted Price:</span>
                           <span className="font-bold text-lg text-primary">
-                            INR {values.discountedPrice.toFixed(2)}
+                            INR {(values.discountedPrice ?? 0).toFixed(2)}
                           </span>
                         </div>
 
@@ -224,7 +226,7 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                           <div className="flex items-center gap-2">
                             <span className="font-semibold text-green-600">
                               INR{" "}
-                              {(originalPrice - values.discountedPrice).toFixed(
+                              {(originalPrice - discounted).toFixed(
                                 2
                               )}
                             </span>
@@ -239,13 +241,15 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                     <Input
                       label="Combo Price *"
                       type="number"
-                      value={values.discountedPrice}
-                      onChange={(e) =>
+                      value={values.discountedPrice ?? ""}
+                      placeholder="0"
+                      onChange={(e) => {
+                        const value = e.target.value;
                         setFieldValue(
                           "discountedPrice",
-                          parseFloat(e.target.value)
-                        )
-                      }
+                          value === "" ? null : Number(value)
+                        );
+                      }}
                       error={
                         touched.discountedPrice
                           ? errors.discountedPrice
@@ -279,6 +283,7 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                       label="Staff Commission Rate (%)"
                       type="number"
                       value={values.staffCommissionRate}
+                      placeholder="0"
                       onChange={(e) =>
                         setFieldValue(
                           "staffCommissionRate",
@@ -290,7 +295,6 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                     />
                   </div>
                 </div>
-
 
                 <div className="flex items-center justify-end gap-3 mt-6 pt-6 border-t">
                   <Button

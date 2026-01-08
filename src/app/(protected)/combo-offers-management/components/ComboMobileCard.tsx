@@ -1,8 +1,9 @@
-import React from 'react';
-import Icon from '../../../components/AppIcon';
-import Button from '../../../components/ui/Button';
-import { ComboOffer } from '../types';
-import { format } from 'date-fns';
+import React, { useState } from "react";
+import Icon from "../../../components/AppIcon";
+import Button from "../../../components/ui/Button";
+import { ComboOffer } from "../types";
+import { format } from "date-fns";
+import ConfirmModal from "@/app/components/ui/ConfirmModal";
 
 interface ComboMobileCardProps {
   combo: ComboOffer;
@@ -22,6 +23,8 @@ const ComboMobileCard: React.FC<ComboMobileCardProps> = ({
   onPreview,
 }) => {
   const isExpired = new Date(combo.validUntil) < new Date();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedComboId, setSelectedComboId] = useState<string | null>(null);
 
   return (
     <div className="bg-card border border-border rounded-lg p-4 hover:shadow-md transition-shadow">
@@ -82,7 +85,7 @@ const ComboMobileCard: React.FC<ComboMobileCardProps> = ({
         <div className="flex items-center justify-between pt-2 border-t border-border">
           <span className="text-sm text-muted-foreground">Valid Until:</span>
           <span className="text-sm font-medium text-foreground">
-            {format(combo.validUntil, 'MMM dd, yyyy')}
+            {format(combo.validUntil, "MMM dd, yyyy")}
           </span>
         </div>
 
@@ -126,23 +129,44 @@ const ComboMobileCard: React.FC<ComboMobileCardProps> = ({
           <button
             onClick={() => onToggleStatus(combo.id)}
             className="p-2 hover:bg-muted rounded transition-colors"
-            title={combo.isActive ? 'Deactivate' : 'Activate'}
+            title={combo.isActive ? "Deactivate" : "Activate"}
           >
             <Icon
-              name={combo.isActive ? 'ToggleRight' : 'ToggleLeft'}
+              name={combo.isActive ? "ToggleRight" : "ToggleLeft"}
               size={18}
-              className={combo.isActive ? 'text-green-600' : 'text-muted-foreground'}
+              className={
+                combo.isActive ? "text-green-600" : "text-muted-foreground"
+              }
             />
           </button>
         )}
         <button
-          onClick={() => onDelete(combo.id)}
-          className="p-2 hover:bg-red-50 rounded transition-colors"
+          onClick={() => {
+            setSelectedComboId(combo.id);
+            setIsDeleteModalOpen(true);
+          }}
+          className="p-1.5 hover:bg-red-50 rounded transition-colors"
           title="Delete"
         >
           <Icon name="Trash2" size={18} className="text-red-600" />
         </button>
       </div>
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        title="Delete Combo Offer"
+        description="Are you sure you want to delete this combo offer? This action cannot be undone."
+        onCancel={() => {
+          setIsDeleteModalOpen(false);
+          setSelectedComboId(null);
+        }}
+        onConfirm={() => {
+          if (selectedComboId) {
+            onDelete(selectedComboId);
+          }
+          setIsDeleteModalOpen(false);
+          setSelectedComboId(null);
+        }}
+      />
     </div>
   );
 };

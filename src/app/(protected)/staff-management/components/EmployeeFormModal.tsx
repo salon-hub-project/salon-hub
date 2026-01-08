@@ -34,8 +34,8 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
     phone: "",
     email: "",
     password: "",
-    rating: 0,
-    commissionRate: 0,
+    rating: null,
+    commissionRate: null,
     staffImage: "",
     assignedServices: [],
     availability: {
@@ -106,7 +106,7 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
         setInitialFormValues({
           name: emp.fullName || "",
           role: emp.role || "",
-          commissionRate: emp.commissionRate || 0,
+          commissionRate: emp.commissionRate || null,
           assignedServices: Array.isArray(emp.assignedServices)
             ? emp.assignedServices.map((s: any) => {
                 return typeof s === "object" ? s._id || s.serviceId || s.id : s;
@@ -124,7 +124,7 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
           phone: "",
           email: "",
           password: "",
-          rating: 0,
+          rating: null,
           staffImage: emp.staffImage || null,
         });
       } catch (err) {

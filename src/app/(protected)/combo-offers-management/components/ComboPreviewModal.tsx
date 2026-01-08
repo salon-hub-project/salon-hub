@@ -25,7 +25,7 @@ const ComboPreviewModal: React.FC<ComboPreviewModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[999]">
       <div className="bg-card rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-card border-b border-border px-6 py-4 flex items-center justify-between">
           <h2 className="text-xl font-semibold text-foreground">Combo Offer Preview</h2>

@@ -1,4 +1,5 @@
 // app/services/customer.ts
+import { showToast } from "../components/ui/toast";
 import api from "./axios";
 
 /* TYPES */
@@ -34,9 +35,21 @@ export interface UpdateCustomerPayload {
 
 export const customerApi = {
   addCustomer: async (data: AddCustomerPayload) => {
+    try{
     const res = await api.post("/customer", data);
+    showToast({
+      message: res?.data?.message || "Create Customer Successfully",
+      status: "success"
+    })
     return res.data;
+    }catch(error: any){
+      showToast({
+        message: error?.response?.data?.message || "Failed to create Customer",
+        status: "error"
+      })
+    }
   },
+
     getCustomers: async (params: GetCustomersParams) => {
     const query = new URLSearchParams();
     if (params.page) query.append("page", params.page.toString());
@@ -53,8 +66,20 @@ export const customerApi = {
     return res.data.customerDetails; 
   },
   updateCustomer: async (id: string, data: UpdateCustomerPayload) => {
+    try{
     const res = await api.put(`/customer/${id}`, data);
+    showToast({
+      message: res?.data?.message || "Customer updated successfully",
+      status: "success"
+    });
     return res.data;
+    }
+    catch(error: any){
+      showToast({
+        message: error?.response?.data?.message || "Failed to Update Customer",
+        status: "error"
+      })
+    }
   },
   
 };

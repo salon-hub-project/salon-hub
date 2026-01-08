@@ -124,14 +124,6 @@ const BookingDetailsModal = ({
             {/* EVERYTHING BELOW IS UNCHANGED UI */}
 
             <div className="space-y-4">
-              <div className="flex items-center justify-between py-3 border-b border-border">
-                <span className="text-sm text-muted-foreground">
-                  Booking ID
-                </span>
-                <span className="text-sm font-medium text-foreground">
-                  {booking.id}
-                </span>
-              </div>
 
               <div className="flex items-center justify-between py-3 border-b border-border">
                 <span className="text-sm text-muted-foreground">Service</span>

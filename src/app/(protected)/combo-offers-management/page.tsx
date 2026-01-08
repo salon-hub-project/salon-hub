@@ -90,7 +90,7 @@ const ComboOffersManagement = () => {
             validFrom: new Date(c.validFrom),
             validUntil: new Date(c.validTill), // note naming difference
             customerEligibility: 'all', // defaulting
-            staffCommissionRate: 0, // defaulting
+            staffCommissionRate: null, // defaulting
             popularity: 0,
             totalBookings: 0,
             revenueGenerated: c.savedAmount || 0, // Just putting something here
@@ -165,8 +165,9 @@ const ComboOffersManagement = () => {
   const handleAddCombo = async (data: ComboFormData) => {
     try {
       const originalPrice = data.services.reduce((sum, s) => sum + s.originalPrice, 0);
-      const savingsPercentage = ((originalPrice - data.discountedPrice) / originalPrice) * 100;
-      const savedAmount = originalPrice - data.discountedPrice;
+      const discountedPrice = data.discountedPrice ?? 0;
+      const savingsPercentage =originalPrice > 0 ? ((originalPrice - discountedPrice) / originalPrice) * 100: 0;
+      const savedAmount = originalPrice - discountedPrice;
 
       const payload = {
         name: data.name,
@@ -175,7 +176,7 @@ const ComboOffersManagement = () => {
         validFrom: new Date(data.validFrom).toISOString(),
         validTill: new Date(data.validUntil).toISOString(),
         actualPrice: originalPrice,
-        discountedPrice: data.discountedPrice,
+        discountedPrice: discountedPrice,
         savedAmount: savedAmount,
         savedPercent: savingsPercentage
       };
@@ -190,10 +191,10 @@ const ComboOffersManagement = () => {
 
   const handleEditCombo = async (data: ComboFormData) => {
     if (!editingCombo) return;
-
+    const discountedPrice = data.discountedPrice ?? 0;
     const originalPrice = data.services.reduce((sum, s) => sum + s.originalPrice, 0);
-    const savingsPercentage = ((originalPrice - data.discountedPrice) / originalPrice) * 100;
-    const savedAmount = originalPrice - data.discountedPrice;
+    const savingsPercentage = ((originalPrice - discountedPrice) / originalPrice) * 100;
+    const savedAmount = originalPrice - discountedPrice;
 
     const payload = {
         name: data.name,
@@ -202,7 +203,7 @@ const ComboOffersManagement = () => {
         validFrom: new Date(data.validFrom).toISOString(),
         validTill: new Date(data.validUntil).toISOString(),
         actualPrice: originalPrice,
-        discountedPrice: data.discountedPrice,
+        discountedPrice: discountedPrice,
         savedAmount: savedAmount,
         savedPercent: savingsPercentage
       };
@@ -217,14 +218,12 @@ const ComboOffersManagement = () => {
   };
 
   const handleDeleteCombo = async (comboId: string) => {
-    if (window.confirm('Are you sure you want to delete this combo offer?')) {
         try {
             await comboApi.deleteComboOffer(comboId);
             fetchData();
         } catch (error) {
             console.error("Failed to delete combo", error);
         }
-    }
   };
 
   const handleToggleStatus = (comboId: string) => {

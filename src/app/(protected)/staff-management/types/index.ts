@@ -44,8 +44,8 @@ export interface EmployeeFormData {
   phone: string;
   email: string;
   password: string;
-  rating: number;
-  commissionRate: number;
+  rating: number | null;
+  commissionRate: number | null;
   assignedServices: string[];
   staffImage: File | string | null;
   availability: {
@@ -74,7 +74,7 @@ export interface EmployeeApiResponse {
   workingDays: string[];
   isActive: boolean;
   createdAt: string;
-  rating:number;
+  rating:number | null;
   userId?: {
     email?: string;
     phoneNumber?: string;

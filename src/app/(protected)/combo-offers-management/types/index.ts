@@ -11,7 +11,7 @@ export interface ComboOffer {
     validUntil: Date;
     minBookingRequirement?: number;
     customerEligibility: 'all' | 'new' | 'existing' | 'vip';
-    staffCommissionRate: number;
+    staffCommissionRate: number | null;
     popularity: number;
     totalBookings: number;
     revenueGenerated: number;
@@ -30,12 +30,12 @@ export interface ComboOffer {
     name: string;
     description: string;
     services: ComboService[];
-    discountedPrice: number;
+    discountedPrice: number | null;
     validFrom: Date;
     validUntil: Date;
     minBookingRequirement?: number;
     customerEligibility: 'all' | 'new' | 'existing' | 'vip';
-    staffCommissionRate: number;
+    staffCommissionRate: number | null;
   }
   
   export interface ComboFilters {
