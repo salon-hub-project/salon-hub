@@ -46,8 +46,8 @@ export interface EmployeeFormData {
   password: string;
   rating: number | null;
   commissionRate: number | null;
-  target: number;
-  salary: number;
+  target: number | null;
+  salary: number | null;
   assignedServices: string[];
   staffImage: File | string | null;
   availability: {
