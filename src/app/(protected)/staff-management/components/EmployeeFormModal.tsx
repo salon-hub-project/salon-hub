@@ -305,8 +305,14 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
                       name="commissionRate"
                       placeholder="0"
                       type="number"
-                      value={values.commissionRate}
-                      onChange={handleChange}
+                      value={values.commissionRate ?? ""}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setFieldValue(
+                          "commissionRate",
+                          val === "" ? null : parseFloat(val)
+                        );
+                      }}
                       error={
                         touched.commissionRate
                           ? errors.commissionRate
@@ -342,8 +348,14 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
                       type="number"
                       step="0.1"
                       placeholder="4.5"
-                      value={values.rating}
-                      onChange={handleChange}
+                      value={values.rating ?? ""}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setFieldValue(
+                          "rating",
+                          val === "" ? null : parseFloat(val)
+                        );
+                      }}
                       error={touched.rating ? errors.rating : undefined}
                     />
                   )}
