@@ -35,11 +35,7 @@ const SalonDashboard = () => {
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  useEffect(() => {
-    if (!profile) {
-      dispatch(getProfile());
-    }
-  }, [dispatch, profile]);
+
 
   const [todayAppointments, setTodayAppointments] = useState<
     TodayAppointment[]

@@ -86,18 +86,9 @@ const Header = ({
   const profileRef = useRef<HTMLDivElement>(null);
   const salonSwitcherRef = useRef<HTMLDivElement>(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const fetchInitiatedRef = useRef(false);
 
-  useEffect(() => {
-    // Only fetch profile once if:
-    // 1. Profile doesn't exist in store
-    // 2. Not currently loading (prevents duplicate calls)
-    // 3. We haven't already initiated a fetch (prevents StrictMode double calls)
-    if (!profile && !isLoading && !fetchInitiatedRef.current) {
-      fetchInitiatedRef.current = true;
-      dispatch(getProfile());
-    }
-  }, [dispatch]);
+
+
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
