@@ -105,7 +105,7 @@ const Sidebar = ({
       label: "Dashboard",
       path: "/salon-dashboard",
       icon: "LayoutDashboard",
-      roles: ["super_admin", "salon_owner", "staff"],
+      roles: ["super_admin", "salon_owner"],
     },
     {
       label: "Appointments",
@@ -117,7 +117,7 @@ const Sidebar = ({
       label: "Customers",
       path: "/customer-database",
       icon: "Users",
-      roles: ["super_admin", "salon_owner", "staff"],
+      roles: ["super_admin", "salon_owner"],
     },
     {
       label: "Services",
@@ -141,7 +141,7 @@ const Sidebar = ({
       label: "Combo-Offers",
       path: "/combo-offers-management",
       icon: "BadgePercent",
-      roles: ["super_admin", "salon_owner", "staff"],
+      roles: ["super_admin", "salon_owner"],
     },
     {
       label: "Owner-Manager",
