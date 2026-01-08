@@ -1,6 +1,6 @@
  "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Icon from "./AppIcon";
@@ -77,6 +77,21 @@ const Sidebar = ({
   const pathname = usePathname();
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(isCollapsed);
+
+  // Auto-expand on desktop view
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setCollapsed(false);
+      }
+    };
+
+    // Initial check
+    handleResize();
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Redux user
   const authUser = useAppSelector((state) => state.auth.user);
