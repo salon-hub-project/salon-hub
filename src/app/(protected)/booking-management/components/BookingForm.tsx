@@ -51,7 +51,6 @@ const StaffFetcher = ({
           const res = await staffApi.getAllStaff({
             page: 1,
             limit: 100,
-            role: "Stylist", 
             dateOfAppointment: formattedDate,
             timeOfAppointment: values.startTime,
           });
