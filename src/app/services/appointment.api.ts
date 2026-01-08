@@ -28,11 +28,7 @@ export const appointmentApi = {
       throw error;
     }
   },
-  getAllAppointments: async (params?: {
-    page?: number;
-    limit?: number;
-    // staffId?: string;
-  }) => {
+  getAllAppointments: async (params?: { page?: number; limit?: number }) => {
     try {
       const res = await api.get("/appointment", { params });
 
@@ -70,8 +66,16 @@ export const appointmentApi = {
       const res = await api.put(`/appointment/${appointmentId}`, {
         status: "Completed",
       });
+      showToast({
+        message: res?.data?.message || "Service Completed",
+        status: "success",
+      });
       return res.data;
-    } catch (error) {
+    } catch (error: any) {
+      showToast({
+        message: error?.response?.data?.message || "Failed to update appointment status",
+        status: "error",
+      });
       console.error("Failed to update appointment status:", error);
       throw error;
     }

@@ -251,6 +251,7 @@ const ServiceFormModal = ({
               <Input
                 label="Description (Optional)"
                 name="description"
+                placeholder="Enter description here"
                 value={values.description}
                 onChange={handleChange}
               />

@@ -75,8 +75,8 @@ const SalonDashboard = () => {
     const fetchTodayAppointments = async () => {
       try {
         const res = await appointmentApi.getAllAppointments({ limit: 500 });
-         
-        const todaysAppointments = res.data.filter(
+        console.log(res)
+        const todaysAppointments = res.filter(
           (appt: any) => appt.appointmentDate && isToday(appt.appointmentDate)
         );
 
@@ -184,7 +184,7 @@ const SalonDashboard = () => {
       label: "Manage Services",
       icon: "Scissors",
       path: "/service-management",
-      color: "bg-accent",
+      color: "bg-primary",
       description: "Edit services",
     },
     {
@@ -192,7 +192,7 @@ const SalonDashboard = () => {
       label: "Customer Database",
       icon: "Users",
       path: "/customer-database",
-      color: "bg-success",
+      color: "bg-primary",
       description: "View customers",
     },
     {
@@ -200,7 +200,7 @@ const SalonDashboard = () => {
       label: "Staff Management",
       icon: "UserCog",
       path: "/staff-management",
-      color: "bg-warning",
+      color: "bg-primary",
       description: "Manage team",
     },
   ];

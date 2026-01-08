@@ -34,8 +34,8 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
     phone: "",
     email: "",
     password: "",
-    rating: 0,
-    commissionRate: 0,
+    rating: null,
+    commissionRate: null,
     target: 0,
     salary: 0,
     staffImage: "",
@@ -108,7 +108,7 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
         setInitialFormValues({
           name: emp.fullName || "",
           role: emp.role || "",
-          commissionRate: emp.commissionRate || 0,
+          commissionRate: emp.commissionRate || null,
           target: emp.target || 0,
           salary: emp.salary || 0,
           assignedServices: Array.isArray(emp.assignedServices)
@@ -128,7 +128,7 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
           phone: "",
           email: "",
           password: "",
-          rating: 0,
+          rating: null,
           staffImage: emp.staffImage || null,
         });
       } catch (err) {

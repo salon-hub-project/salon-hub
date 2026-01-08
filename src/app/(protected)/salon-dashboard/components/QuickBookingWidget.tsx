@@ -19,7 +19,7 @@ interface QuickBookingWidgetProps {
 
 interface BookingFormValues {
   customer: string;
-  service: string;
+  service: string[];
   date: string;
   time: string;
   staff: string;
@@ -95,7 +95,7 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
     try {
       const payload = {
         customerId: values.customer,      // ✅ ObjectId
-        services: [values.service],       // ✅ ObjectId[]
+        services: values.service,       // ✅ ObjectId[]
         staffId: values.staff,            // ✅ ObjectId
         appointmentDate: values.date,
         appointmentTime: values.time,
@@ -128,7 +128,7 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
       <Formik
         initialValues={{
           customer: "",
-          service: "",
+          service: [],
           date: "",
           time: "",
           staff: "",
