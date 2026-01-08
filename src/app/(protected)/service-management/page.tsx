@@ -120,7 +120,7 @@ const ServiceManagement = () => {
     
     fetchingCategoriesRef.current = true;
     try {
-      const response = await categoryApi.getAllCategories({ page: 1, limit: 10 });
+      const response = await categoryApi.getAllCategories({ page: 1, limit: 100 });
       const categoriesData = response.data || response || [];
       const mappedCategories: ServiceCategory[] = Array.isArray(categoriesData)
         ? categoriesData.map((cat: CategoryResponse, index: number) => ({

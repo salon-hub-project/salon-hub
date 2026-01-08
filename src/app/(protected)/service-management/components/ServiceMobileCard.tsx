@@ -34,7 +34,7 @@ const ServiceMobileCard = ({
   const getCategoryName = (categoryId: string): string => {
     if (categories) {
       const category = categories.find((cat) => cat.id === categoryId);
-      return category ? category.name : categoryId;
+      return category ? category.name : "-";
     }
     return categoryId;
   };

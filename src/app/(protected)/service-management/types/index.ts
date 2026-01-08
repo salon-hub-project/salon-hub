@@ -11,6 +11,7 @@ export interface Service {
     updatedAt: Date;
   }
   
+  
   export interface ServiceCategory {
     id: string;
     name: string;

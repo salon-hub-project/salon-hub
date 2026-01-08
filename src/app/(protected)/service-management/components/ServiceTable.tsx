@@ -35,7 +35,7 @@ const ServiceTable = ({
   const getCategoryName = (categoryId: string): string => {
     if (categories) {
       const category = categories.find((cat) => cat.id === categoryId);
-      return category ? category.name : categoryId;
+      return category ? category.name : "-";
     }
     return categoryId;
   };
@@ -156,6 +156,12 @@ const ServiceTable = ({
                 <td className="px-4 py-3">
                   <span className="inline-flex items-center px-2 py-1 rounded-md bg-muted text-xs font-medium text-foreground">
                     {getCategoryName(service.category)}
+                   {/* {typeof service.category === "object"
+    ? service.category.name
+    : "-"} */}
+    {/* {
+      service.category.name?service.category.name:"-"
+    } */}
                   </span>
                 </td>
                 <td className="px-4 py-3">
