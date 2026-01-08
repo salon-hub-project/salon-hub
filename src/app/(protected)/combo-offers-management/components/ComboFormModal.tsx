@@ -282,14 +282,15 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                     <Input
                       label="Staff Commission Rate (%)"
                       type="number"
-                      value={values.staffCommissionRate}
+                      value={values.staffCommissionRate ?? ""}
                       placeholder="0"
-                      onChange={(e) =>
+                      onChange={(e) => {
+                        const val = e.target.value;
                         setFieldValue(
                           "staffCommissionRate",
-                          parseFloat(e.target.value)
-                        )
-                      }
+                          val === "" ? null : parseFloat(val)
+                        );
+                      }}
                       min="0"
                       max="100"
                     />
