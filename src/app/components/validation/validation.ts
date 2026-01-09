@@ -95,7 +95,7 @@ export const serviceValidationSchema = Yup.object({
   category: Yup.string().required("Category is required"),
   duration: Yup.number().min(1, "Duration must be greater than 0"),
   price: Yup.number().min(1, "Price must be greater than 0"),
-  description: Yup.string().optional(),
+  description: Yup.string().required("Description is required"),
 });
 
 //Staff Components validation Schema:-

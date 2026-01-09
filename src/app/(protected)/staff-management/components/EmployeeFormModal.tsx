@@ -36,8 +36,8 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
     password: "",
     rating: null,
     commissionRate: null,
-    target: 0,
-    salary: 0,
+    target: null,
+    salary: null,
     staffImage: "",
     assignedServices: [],
     availability: {

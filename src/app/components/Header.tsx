@@ -8,55 +8,15 @@ import { logout } from "../store/slices/authSlice";
 import { getProfile, clearProfile } from "../store/slices/profileSlice";
 import { showToast } from "./ui/toast";
 import ConfirmModal from "./ui/ConfirmModal";
+import { normalizeRole } from "../utils/normalizeRole";
 
 interface User {
   name: string;
   email: string;
-  role: unknown; // ✅ accept ANY role shape from API
+  role: unknown;
   avatar?: string;
   salonName?: string;
 }
-
-const normalizeRole = (role: unknown): string => {
-  if (!role) return "salon_owner";
-
-  // ✅ Handle array: ["OWNER"]
-  if (Array.isArray(role)) {
-    return normalizeRole(role[0]);
-  }
-
-  // ✅ Handle object: { role: "OWNER" } or { name: "OWNER" }
-  if (typeof role === "object") {
-    const extractedRole =
-      (role as any).role ??
-      (role as any).name ??
-      (role as any).type ??
-      (role as any).value;
-
-    return normalizeRole(extractedRole);
-  }
-
-  // ✅ Handle invalid primitives
-  if (typeof role !== "string") {
-    return "salon_owner";
-  }
-
-  const normalizedRole = role.toLowerCase().trim();
-
-  if (["superadmin", "super_admin", "admin"].includes(normalizedRole)) {
-    return "super_admin";
-  }
-
-  if (["owner", "salon_owner"].includes(normalizedRole)) {
-    return "salon_owner";
-  }
-
-  if (["staff", "employee"].includes(normalizedRole)) {
-    return "staff";
-  }
-
-  return "salon_owner";
-};
 
 interface HeaderProps {
   user: User;
@@ -87,8 +47,15 @@ const Header = ({
   const salonSwitcherRef = useRef<HTMLDivElement>(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
+  const normalizedUserRole = normalizeRole(user.role);
 
-
+  useEffect(() => {
+    if (normalizedUserRole !== "OWNER") return;
+    if (!profile && !isLoading && !fetchInitiatedRef.current) {
+      fetchInitiatedRef.current = true;
+      dispatch(getProfile());
+    }
+  }, [dispatch, normalizedUserRole]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -110,13 +77,11 @@ const Header = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const normalizedUserRole = normalizeRole(user.role);
-
   const getRoleLabel = (role: unknown) => {
     const roleMap: Record<string, string> = {
-      super_admin: "Super Admin",
-      salon_owner: "Owner",
-      staff: "Staff",
+      SUPERADMIN: "Super Admin",
+      OWNER: "Owner",
+      STAFF: "Staff",
     };
     return roleMap[normalizeRole(role)] ?? "Owner";
   };
@@ -126,7 +91,6 @@ const Header = ({
     localStorage.removeItem("authUser");
     dispatch(logout());
     dispatch(clearProfile());
-
     showToast({
       message: "Logged out successfully",
       status: "success",
@@ -144,7 +108,7 @@ const Header = ({
     setIsSalonSwitcherOpen(false);
     onSalonSwitch?.(salonId);
   };
-
+  
   return (
     <header className="fixed top-0 right-0 left-sidebar h-header bg-card border-b border-border z-[90]">
       <div className="flex items-center justify-between h-full pr-6">
@@ -156,7 +120,7 @@ const Header = ({
 
         <div className="flex items-center gap-4">
           {/* Salon Switcher (Super Admin only) */}
-          {normalizedUserRole === "super_admin" &&
+          {normalizedUserRole === "SUPERADMIN" &&
             availableSalons.length > 0 && (
               <div className="relative" ref={salonSwitcherRef}>
                 <button
@@ -220,7 +184,7 @@ const Header = ({
 
               <div className="hidden md:block text-left">
                 <div className="text-sm font-medium capitalize">
-                  {profile?.ownerName ?? user.name}
+                  {user.role == "OWNER" && `${profile?.ownerName ?? user.name}`}
                 </div>
                 <div className="text-xs text-muted-foreground">
                   {getRoleLabel(user.role)}
@@ -234,7 +198,8 @@ const Header = ({
               <div className="absolute right-0 mt-2 w-64 bg-card border rounded-lg shadow-lg">
                 <div className="p-4 border-b">
                   <div className="font-medium capitalize">
-                    {profile?.ownerName ?? user.name}
+                    {user.role == "OWNER" &&
+                      `${profile?.ownerName ?? user.name}`}
                   </div>
 
                   <div className="text-xs text-muted-foreground">
@@ -243,12 +208,14 @@ const Header = ({
                   <div className="text-xs mt-1">{getRoleLabel(user.role)}</div>
                 </div>
 
-                <button
-                  onClick={handleProfileClick}
-                  className="w-full px-4 py-2 hover:bg-muted flex items-center gap-2"
-                >
-                  <Icon name="User" size={16} /> Profile
-                </button>
+                {user.role == "OWNER" && (
+                  <button
+                    onClick={handleProfileClick}
+                    className="w-full px-4 py-2 hover:bg-muted flex items-center gap-2"
+                  >
+                    <Icon name="User" size={16} /> Profile
+                  </button>
+                )}
 
                 <button
                   onClick={() => setShowLogoutModal(true)}

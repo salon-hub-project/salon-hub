@@ -37,9 +37,15 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && typeof window !== 'undefined') {
       localStorage.removeItem('authToken');
       localStorage.removeItem('authUser');
+      import('../components/ui/toast').then(({ showToast }) => {
+        showToast({
+          message: 'Please login again.',
+          status: 'error',
+        });
+      });
       window.location.href = '/salon-login';
     }
-
+    
     // Preserve the original error object so error.response is still accessible
     return Promise.reject(error);
   }
