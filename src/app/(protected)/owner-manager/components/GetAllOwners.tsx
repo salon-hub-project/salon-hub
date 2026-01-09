@@ -1,22 +1,24 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import {
   fetchOwners,
   approveOwner,
   deleteOwner,
 } from "@/app/store/slices/ownerSlice";
-import { useEffect } from "react";
-
 import Sidebar from "@/app/components/Sidebar";
 import Header from "@/app/components/Header";
 import MobileBottomNav from "@/app/components/MobileBottomNav";
 import Icon from "@/app/components/AppIcon";
 import ConfirmModal from "@/app/components/ui/ConfirmModal";
+import { normalizeRole } from "@/app/utils/normalizeRole";
 
 const GetAllOwners = () => {
   const dispatch = useAppDispatch();
   const { owners, isLoading, error } = useAppSelector((state) => state.owner);
+  const authUser = useAppSelector((state) => state.auth.user);
+  const router = useRouter();
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [selectedOwnerId, setSelectedOwnerId] = useState<string | null>(null);
@@ -36,6 +38,27 @@ const GetAllOwners = () => {
     }
     setConfirmOpen(false);
     setSelectedOwnerId(null);
+  };
+
+  const effectiveRole = Array.isArray(authUser?.role)
+    ? authUser.role[0]
+    : authUser?.role ?? "salon_owner";
+  const normalizedRole = normalizeRole(effectiveRole);
+
+  // Only allow SUPERADMIN to access this page
+  useEffect(() => {
+    if (normalizedRole !== "SUPERADMIN") {
+      router.replace("/salon-dashboard");
+    }
+  }, [normalizedRole, router]);
+
+  const headerUser = {
+    name:
+      authUser && (authUser.firstName || authUser.lastName)
+        ? `${authUser.firstName ?? ""} ${authUser.lastName ?? ""}`.trim()
+        : authUser?.email ?? "User",
+    email: authUser?.email ?? "",
+    role: effectiveRole,
   };
 
   return (
@@ -141,7 +164,7 @@ const GetAllOwners = () => {
         />
       </main>
 
-      <MobileBottomNav userRole="super_admin" />
+      <MobileBottomNav userRole={effectiveRole} />
     </div>
   );
 };
