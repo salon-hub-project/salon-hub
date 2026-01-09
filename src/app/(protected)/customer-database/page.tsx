@@ -190,7 +190,7 @@ const CustomerDatabase = () => {
         totalVisits: c.totalVisits,
         totalSpent: c.totalSpent,
         createdAt: new Date(c.createdAt),
-        preferredStaff: c.preferredStaff?._id || c.preferredStaff?.fullName || "",
+        preferredStaff: c.preferredStaff?.fullName || "",
         avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(c.fullName)}`,
       };
 
