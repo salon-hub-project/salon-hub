@@ -323,10 +323,16 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
                     <Input
                       label="Target"
                       name="target"
-                      placeholder="2000"
+                      placeholder="20000000"
                       type="number"
-                      value={values.target}
-                      onChange={handleChange}
+                      value={values.target ?? ""}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setFieldValue(
+                          "target",
+                          val === "" ? null : parseFloat(val)
+                        );
+                      }}
                       error={touched.target ? errors.target : undefined}
                     />
 
@@ -335,8 +341,14 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
                       name="salary"
                       placeholder="10000"
                       type="number"
-                      value={values.salary}
-                      onChange={handleChange}
+                      value={values.salary ?? ""}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setFieldValue(
+                          "salary",
+                          val === "" ? null : parseFloat(val)
+                        );
+                      }}
                       error={touched.salary ? errors.salary : undefined}
                     />
                   </div>

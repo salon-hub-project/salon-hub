@@ -49,13 +49,13 @@ const Header = ({
 
   const normalizedUserRole = normalizeRole(user.role);
 
-  useEffect(() => {
-    if (normalizedUserRole !== "OWNER") return;
-    if (!profile && !isLoading && !fetchInitiatedRef.current) {
-      fetchInitiatedRef.current = true;
-      dispatch(getProfile());
-    }
-  }, [dispatch, normalizedUserRole]);
+  // useEffect(() => {
+  //   if (normalizedUserRole !== "OWNER") return;
+  //   if (!profile && !isLoading && !fetchInitiatedRef.current) {
+  //     fetchInitiatedRef.current = true;
+  //     dispatch(getProfile());
+  //   }
+  // }, [dispatch, normalizedUserRole]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
