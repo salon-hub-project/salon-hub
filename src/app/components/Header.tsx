@@ -46,7 +46,6 @@ const Header = ({
   const profileRef = useRef<HTMLDivElement>(null);
   const salonSwitcherRef = useRef<HTMLDivElement>(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const fetchInitiatedRef = useRef(false);
 
   const normalizedUserRole = normalizeRole(user.role);
 
