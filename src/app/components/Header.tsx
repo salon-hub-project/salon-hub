@@ -46,18 +46,19 @@ const Header = ({
   const profileRef = useRef<HTMLDivElement>(null);
   const salonSwitcherRef = useRef<HTMLDivElement>(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const isAuthenticated = useAppSelector((state) => !!state.auth.token);
 
-  const normalizedUserRole = normalizeRole(user.role);
-
-  // useEffect(() => {
-  //   if (normalizedUserRole !== "OWNER") return;
-  //   if (!profile && !isLoading && !fetchInitiatedRef.current) {
-  //     fetchInitiatedRef.current = true;
-  //     dispatch(getProfile());
-  //   }
-  // }, [dispatch, normalizedUserRole]);
+  const normalizedUserRole = normalizeRole(user?.role);
 
   useEffect(() => {
+    if (normalizedUserRole !== "OWNER") return;
+    if (!profile && !isLoading ) {
+      dispatch(getProfile());
+    }
+  }, [dispatch, normalizedUserRole]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
     const handleClickOutside = (event: MouseEvent) => {
       if (
         profileRef.current &&
@@ -121,7 +122,7 @@ const Header = ({
         <div className="flex items-center gap-4">
           {/* Salon Switcher (Super Admin only) */}
           {normalizedUserRole === "SUPERADMIN" &&
-            availableSalons.length > 0 && (
+            availableSalons?.length > 0 && (
               <div className="relative" ref={salonSwitcherRef}>
                 <button
                   onClick={() => setIsSalonSwitcherOpen(!isSalonSwitcherOpen)}
@@ -129,14 +130,14 @@ const Header = ({
                 >
                   <Icon name="Building2" size={20} />
                   <span className="hidden sm:inline text-sm">
-                    {user.salonName || "Select Salon"}
+                    {user?.salonName || "Select Salon"}
                   </span>
                   <Icon name="ChevronDown" size={16} />
                 </button>
 
                 {isSalonSwitcherOpen && (
                   <div className="absolute right-0 mt-2 w-64 bg-popover border rounded-lg shadow-lg">
-                    {availableSalons.map((salon) => (
+                    {availableSalons?.map((salon) => (
                       <button
                         key={salon.id}
                         onClick={() => handleSalonSwitch(salon.id)}
@@ -171,14 +172,14 @@ const Header = ({
               className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted"
             >
               <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center font-semibold">
-                {user.avatar || profile?.salonImage ? (
+                {user?.avatar || profile?.salonImage ? (
                   <img
-                    src={user.avatar || profile?.salonImage}
+                    src={user?.avatar || profile?.salonImage}
                     alt="Profile"
                     className="w-full h-full rounded-full object-cover"
                   />
                 ) : (
-                  user.name.charAt(0).toUpperCase()
+                  user?.name?.charAt(0).toUpperCase()
                 )}
               </div>
 

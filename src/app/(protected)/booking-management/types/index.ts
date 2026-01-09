@@ -47,7 +47,7 @@ export interface Booking {
   date: Date;
   startTime: string;
   endTime: string;
-  status: "pending" | "Confirmed" | "Completed" | "cancelled";
+  status: "Confirmed" | "Completed" | "cancelled";
   notes?: string;
   paymentStatus: "pending" | "paid";
   createdAt: Date;
@@ -66,8 +66,8 @@ export interface CalendarDay {
   bookingCount: number;
 }
 
-export type ViewMode = "day" | "week";
-export type BookingStatus = "pending" | "confirmed" | "completed" | "cancelled";
+export type ViewMode = "day" | "week" | "viewAll";
+export type BookingStatus = "Confirmed" | "Completed" | "cancelled";
 export type PaymentStatus = "pending" | "paid";
 
 export interface BookingFormData {

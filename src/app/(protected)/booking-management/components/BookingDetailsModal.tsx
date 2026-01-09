@@ -12,13 +12,13 @@ import { appointmentApi } from "@/app/services/appointment.api";
 interface BookingDetailsModalProps {
   booking: Booking;
   onClose: () => void;
-  onStatusChange: (bookingId: string, status: Booking["status"]) => void;
-  onPaymentStatusChange: (
+  onStatusChange?: (bookingId: string, status: Booking["status"]) => void;
+  onPaymentStatusChange?: (
     bookingId: string,
     status: "pending" | "paid"
   ) => void;
-  onDelete: (bookingId: string) => void;
-  handleStatusUpdate: () => void;
+  onDelete?: (bookingId: string) => void;
+  handleStatusUpdate?: () => void;
 }
 
 const BookingDetailsModal = ({
@@ -45,8 +45,8 @@ const BookingDetailsModal = ({
   const getStatusColor = (status: Booking["status"]) => {
     const colors = {
       pending: "text-warning",
-      confirmed: "text-primary",
-      completed: "text-success",
+      Confirmed: "text-primary",
+      Completed: "text-success",
       cancelled: "text-destructive",
     };
     return colors[status];
@@ -59,6 +59,8 @@ const BookingDetailsModal = ({
 
   // 🔹 FINAL DELETE ACTION
   const confirmDelete = async () => {
+    if (!onDelete) return;
+
     setIsDeleting(true);
     await onDelete(booking.id);
     setIsDeleting(false);
@@ -124,7 +126,6 @@ const BookingDetailsModal = ({
             {/* EVERYTHING BELOW IS UNCHANGED UI */}
 
             <div className="space-y-4">
-
               <div className="flex items-center justify-between py-3 border-b border-border">
                 <span className="text-sm text-muted-foreground">Service</span>
                 <div className="text-right">
@@ -225,22 +226,24 @@ const BookingDetailsModal = ({
                       : "Payment pending"}
                   </div>
                 </div>
-                <Button
-                  variant={
-                    booking.paymentStatus === "paid" ? "outline" : "default"
-                  }
-                  size="sm"
-                  onClick={() =>
-                    onPaymentStatusChange(
-                      booking.id,
-                      booking.paymentStatus === "paid" ? "pending" : "paid"
-                    )
-                  }
-                >
-                  {booking.paymentStatus === "paid"
-                    ? "Mark Unpaid"
-                    : "Mark Paid"}
-                </Button>
+                {onPaymentStatusChange && (
+                  <Button
+                    variant={
+                      booking.paymentStatus === "paid" ? "outline" : "default"
+                    }
+                    size="sm"
+                    onClick={() =>
+                      onPaymentStatusChange(
+                        booking.id,
+                        booking.paymentStatus === "paid" ? "pending" : "paid"
+                      )
+                    }
+                  >
+                    {booking.paymentStatus === "paid"
+                      ? "Mark Unpaid"
+                      : "Mark Paid"}
+                  </Button>
+                )}
               </div>
             </div>
 

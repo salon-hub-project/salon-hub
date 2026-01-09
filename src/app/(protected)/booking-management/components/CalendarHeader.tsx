@@ -72,6 +72,14 @@ const CalendarHeader = ({
       <div className="flex items-center gap-2">
         <div className="flex items-center bg-muted rounded-md p-1">
           <button
+            onClick={() => onViewModeChange('viewAll')}
+            className={`px-3 py-1.5 text-sm font-medium rounded transition-smooth min-h-touch ${
+              viewMode === 'viewAll' ?'bg-card text-foreground shadow-sm' :'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            View All
+          </button>
+          <button
             onClick={() => onViewModeChange('day')}
             className={`px-3 py-1.5 text-sm font-medium rounded transition-smooth min-h-touch ${
               viewMode === 'day' ?'bg-card text-foreground shadow-sm' :'text-muted-foreground hover:text-foreground'

@@ -40,9 +40,9 @@ const GetAllOwners = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Sidebar userRole="super_admin" />
+      {/* <Sidebar userRole="super_admin" /> */}
 
-      <Header
+      {/* <Header
         user={{
           name: "Super Admin",
           email: "admin@salonhub.com",
@@ -52,7 +52,7 @@ const GetAllOwners = () => {
         onLogout={() => {}}
         onProfileClick={() => {}}
         onNotificationClick={() => {}}
-      />
+      /> */}
 
       <main className="lg:ml-sidebar pt-header pb-bottom-nav lg:pb-0">
         <div className="p-4 lg:p-6 space-y-6">
