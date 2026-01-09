@@ -16,7 +16,7 @@ interface Appointment {
   customerId: UserRef;
   staffId: UserRef;
   status: string;
-  commission: string;
+  commisionEarned: number;
 }
 
 interface ViewAllAppointmentsProps {
@@ -171,7 +171,7 @@ const ViewAllAppointments = ({ onBookingClick }: ViewAllAppointmentsProps) => {
                     {item.staffId?.fullName ?? "-"}
                   </td>
                   <td className="p-3">{getStatusBadge(item.status)}</td>
-                  <td className="p-3 pl-10">{item?.commission ?? "-"}</td>
+                  <td className="p-3 pl-10">{item?.commisionEarned ?? "-"}</td>
                   <td className="p-3">
                     <div className="flex justify-center gap-3">
                       <Icon
