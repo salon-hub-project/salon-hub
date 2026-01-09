@@ -47,7 +47,7 @@ export interface Booking {
   date: Date;
   startTime: string;
   endTime: string;
-  status: "pending" | "confirmed" | "completed" | "cancelled";
+  status: "pending" | "Confirmed" | "Completed" | "cancelled";
   notes?: string;
   paymentStatus: "pending" | "paid";
   createdAt: Date;

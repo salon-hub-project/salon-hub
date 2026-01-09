@@ -542,7 +542,7 @@ const BookingManagement = () => {
                     Confirmed
                   </span>
                   <span className="text-sm font-semibold text-primary">
-                    {bookings.filter((b) => b.status === "confirmed").length}
+                    {bookings.filter((b) => b.status === "Confirmed").length}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
@@ -556,7 +556,7 @@ const BookingManagement = () => {
                     Completed
                   </span>
                   <span className="text-sm font-semibold text-success">
-                    {bookings.filter((b) => b.status === "completed").length}
+                    {bookings.filter((b) => b.status === "Completed").length}
                   </span>
                 </div>
               </div>
