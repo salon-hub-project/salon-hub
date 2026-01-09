@@ -6,6 +6,10 @@ interface WeekViewProps {
   bookingsByDay: Record<string, Booking[]>;
   onDayClick: (date: Date) => void;
   onBookingClick: (bookingId: string) => void;
+  onStatusChange?: (
+    bookingId: string,
+    status: "Completed" | "Confirmed" | "cancelled"
+  ) => void;
 }
 
 const WeekView = ({
@@ -16,14 +20,16 @@ const WeekView = ({
 }: WeekViewProps) => {
   const getBookingsForDay = (date: Date): Booking[] => {
     const dateKey = date.toISOString().split('T')[0];
-    return bookingsByDay[dateKey] || [];
+    const allBookings = bookingsByDay[dateKey] || [];
+    // Only show bookings with status "Confirmed"
+    return allBookings.filter(booking => booking.status === "Confirmed");
   };
 
   const getStatusColor = (status: Booking['status']) => {
     const colors = {
       pending: 'bg-warning',
-      confirmed: 'bg-primary',
-      completed: 'bg-success',
+      Confirmed: 'bg-card',
+      Completed: 'bg-success',
       cancelled: 'bg-destructive',
     };
     return colors[status];
@@ -34,7 +40,7 @@ const WeekView = ({
       <div className="min-w-[800px] p-4">
         <div className="grid grid-cols-7 gap-2">
           {weekDays.map((day) => {
-            const bookings = getBookingsForDay(day.date);
+            const bookings = getBookingsForDay(day.date); // filtered bookings
             const dayName = day.date.toLocaleDateString('en-US', { weekday: 'short' });
             const dayNumber = day.date.getDate();
 

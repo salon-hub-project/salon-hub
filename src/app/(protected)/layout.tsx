@@ -33,7 +33,7 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
   return (
     <AuthGuard>
       <div className="min-h-screen bg-background">
-        <Sidebar userRole={user.role} />
+        <Sidebar userRole={user?.role} />
 
         <Header
           user={user}

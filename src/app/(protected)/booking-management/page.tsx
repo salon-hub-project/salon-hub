@@ -17,6 +17,7 @@ import {
 import CalendarHeader from "./components/CalendarHeader";
 import DayView from "./components/DayView";
 import WeekView from "./components/WeekView";
+import ViewAllAppointments from "./components/viewAll";
 import QuickFilters from "./components/QuickFilters";
 import BookingForm from "./components/BookingForm";
 import BookingDetailsModal from "./components/BookingDetailsModal";
@@ -490,19 +491,27 @@ const BookingManagement = () => {
               />
 
               <div className="min-h-[600px]">
-                {viewMode === "day" ? (
+                {viewMode === "day" && (
                   <DayView
                     timeSlots={generateTimeSlots()}
                     onBookingClick={handleBookingClick}
                     onTimeSlotClick={handleTimeSlotClick}
                     onStatusChange={handleStatusChange}
                   />
-                ) : (
+                )}
+
+                {viewMode === "week" && (
                   <WeekView
                     weekDays={generateWeekDays()}
                     bookingsByDay={getBookingsByDay()}
                     onDayClick={handleDayClick}
                     onBookingClick={handleBookingClick}
+                  />
+                )}
+
+                {viewMode === "viewAll" && (
+                  <ViewAllAppointments
+                     onBookingClick={handleBookingClick}
                   />
                 )}
               </div>
@@ -542,13 +551,7 @@ const BookingManagement = () => {
                     Confirmed
                   </span>
                   <span className="text-sm font-semibold text-primary">
-                    {bookings.filter((b) => b.status === "confirmed").length}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Pending</span>
-                  <span className="text-sm font-semibold text-warning">
-                    {bookings.filter((b) => b.status === "pending").length}
+                    {bookings.filter((b) => b.status === "Confirmed").length}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
@@ -556,7 +559,7 @@ const BookingManagement = () => {
                     Completed
                   </span>
                   <span className="text-sm font-semibold text-success">
-                    {bookings.filter((b) => b.status === "completed").length}
+                    {bookings.filter((b) => b.status === "Completed").length}
                   </span>
                 </div>
               </div>

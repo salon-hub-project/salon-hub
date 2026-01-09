@@ -12,8 +12,8 @@ const BookingCard = ({ booking, onClick, onStatusChange }: BookingCardProps) => 
   const getStatusColor = (status: Booking['status']) => {
     const colors = {
       pending: 'bg-warning/10 text-warning border-warning/20',
-      confirmed: 'bg-primary/10 text-primary border-primary/20',
-      completed: 'bg-success/10 text-success border-success/20',
+      Confirmed: 'bg-primary/10 text-primary border-primary/20',
+      Completed: 'bg-success/10 text-success border-success/20',
       cancelled: 'bg-destructive/10 text-destructive border-destructive/20',
     };
     return colors[status];
@@ -22,8 +22,8 @@ const BookingCard = ({ booking, onClick, onStatusChange }: BookingCardProps) => 
   const getStatusIcon = (status: Booking['status']) => {
     const icons = {
       pending: 'Clock',
-      confirmed: 'CheckCircle',
-      completed: 'CheckCircle2',
+      Confirmed: 'CheckCircle',
+      Completed: 'CheckCircle2',
       cancelled: 'XCircle',
     };
     return icons[status];

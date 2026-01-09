@@ -276,19 +276,18 @@ const SalonDashboard = () => {
   return (
     <AuthGuard>
       <div className="min-h-screen bg-background">
-        <Sidebar
+        {/* <Sidebar
           isCollapsed={sidebarCollapsed}
           userRole={currentUser.role}
           onNavigate={handleNavigation}
-        />
+        /> */}
 
-        <Header
-          user={currentUser}
-          notifications={notifications.filter((n) => !n.read).length}
-          // onProfileClick={handleProfileClick}
+        {/* <Header
+          user={user}
+          notifications={3}
+          onLogout={() => router.push("/salon-login")}
           onProfileClick={() => router.push("/profile")}
-          onNotificationClick={handleNotificationClick}
-        />
+        /> */}
 
         <main className="ml-0 pb-bottom-nav lg:pb-8">
           <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
