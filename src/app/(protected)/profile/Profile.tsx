@@ -23,15 +23,15 @@ const ProfilePage = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const fetchInitiatedRef = useRef(false);
 
-  const normalizedUserRole= normalizeRole(user.role);
- 
-    useEffect(() => {
-      if (normalizedUserRole !== "OWNER") return;
-      if (!profile && !isLoading && !fetchInitiatedRef.current) {
-        fetchInitiatedRef.current = true;
-        dispatch(getProfile());
-      }
-    }, [dispatch, normalizedUserRole]);
+  const normalizedUserRole = normalizeRole(user.role);
+
+  useEffect(() => {
+    if (normalizedUserRole !== "OWNER") return;
+    if (!profile && !isLoading && !fetchInitiatedRef.current) {
+      fetchInitiatedRef.current = true;
+      dispatch(getProfile());
+    }
+  }, [dispatch, normalizedUserRole]);
 
   if (!user) {
     return (
@@ -54,7 +54,6 @@ const ProfilePage = () => {
     salonOwner: profile?.ownerName || "—",
   };
 
-  
   const handleDeleteProfile = async () => {
     setShowDeleteModal(true);
   };
@@ -62,104 +61,111 @@ const ProfilePage = () => {
   return (
     <>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-              {/* Page Title */}
-              <div className="mb-6">
-                <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
-                  Profile
-                </h1>
-                <p className="text-muted-foreground">
-                  View and manage your account information
-                </p>
-              </div>
+        {/* Page Title */}
+        <div className="mb-6">
+          <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
+            Profile
+          </h1>
+          <p className="text-muted-foreground">
+            View and manage your account information
+          </p>
+        </div>
 
-              {/* Profile Card */}
-              <div className="bg-card border border-border rounded-lg overflow-hidden">
-                {/* Header */}
-                <div className="p-6 border-b flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center text-2xl font-bold">
-                    {fullName.charAt(0).toUpperCase()}
-                  </div>
+        {/* Profile Card */}
+        <div className="bg-card border border-border rounded-lg overflow-hidden">
+          {/* Header */}
+          <div className="p-6 border-b flex items-center gap-4">
+            <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center text-2xl font-bold">
+              {fullName.charAt(0).toUpperCase()}
+            </div>
 
-                  <div>
-                    <h2 className="text-xl font-semibold text-foreground">
-                      {fullName}
-                    </h2>
-                    <p className="text-sm text-muted-foreground">
-                      {user.email}
-                    </p>
-                  </div>
-                </div>
+            <div>
+              <h2 className="text-xl font-semibold text-foreground">
+                {fullName}
+              </h2>
+              <p className="text-sm text-muted-foreground">{user.email}</p>
+            </div>
+          </div>
 
-                {/* Details */}
-                <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <ProfileItem icon="Mail" label="Email" value={user.email} />
-                  <ProfileItem
-                    icon="Phone"
-                    label="Phone Number"
-                    value={user.phoneNumber ?? "—"}
-                  />
-                  <ProfileItem
-                    icon="MapPin"
-                    label="Address"
-                    value={user.address ?? "—"}
-                  />
-                  <ProfileItem
-                    icon="Shield"
-                    label="Role"
-                    value={user.role ?? "Salon Owner"}
-                  />
-                  <ProfileItem
-                    icon="User"
-                    label="Owner Name"
-                    value={profile?.ownerName ?? "—"}
-                  />
-                  <ProfileItem
-                    icon="Scissors"
-                    label="Salon Name"
-                    value={profile?.salonName ?? "—"}
-                  />
-                </div>
-              </div>
+          {/* Details */}
+          <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <ProfileItem icon="Mail" label="Email" value={user.email} />
+            <ProfileItem
+              icon="Phone"
+              label="Phone Number"
+              value={user.phoneNumber ?? "—"}
+            />
+            <ProfileItem
+              icon="MapPin"
+              label="Address"
+              value={user.address ?? "—"}
+            />
+            <ProfileItem
+              icon="Shield"
+              label="Role"
+              value={user.role ?? "Salon Owner"}
+            />
+            <ProfileItem
+              icon="User"
+              label="Owner Name"
+              value={profile?.ownerName ?? "—"}
+            />
+            <ProfileItem
+              icon="Scissors"
+              label="Salon Name"
+              value={profile?.salonName ?? "—"}
+            />
+          </div>
+        </div>
 
-              {/* Profile Actions */}
-              <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-end">
-                <button
-                  className="px-4 py-2 rounded-md border border-border text-sm hover:bg-secondary transition"
-                  onClick={() => router.push("/profile/create")}
-                >
-                  Create Profile
-                </button>
+        {/* Profile Actions */}
+        {/* Profile Actions */}
+        <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-end">
+          {/* IF profile does NOT exist */}
+          {!profile && (
+            <button
+              className="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90 transition"
+              onClick={() => router.push("/profile/create")}
+            >
+              Create Profile
+            </button>
+          )}
 
-                <button
-                  className="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90 transition"
-                  onClick={() => router.push("/profile/create")}
-                >
-                  Update Profile
-                </button>
+          {/* IF profile EXISTS */}
+          {profile && (
+            <>
+              <button
+                className="px-4 py-2 rounded-md border border-border text-sm hover:bg-secondary transition"
+                onClick={() => router.push("/profile/create")}
+              >
+                Update Profile
+              </button>
 
-                <button
-                  className="px-4 py-2 rounded-md bg-destructive text-destructive-foreground text-sm hover:opacity-90 transition"
-                  onClick={handleDeleteProfile}
-                >
-                  Delete Profile
-                </button>
-              </div>
+              <button
+                className="px-4 py-2 rounded-md bg-destructive text-destructive-foreground text-sm hover:opacity-90 transition"
+                onClick={handleDeleteProfile}
+              >
+                Delete Profile
+              </button>
+            </>
+          )}
+        </div>
 
-                <ConfirmModal
-                  isOpen={showDeleteModal}
-                  title="Delete Profile?"
-                  description="Are you sure you want to delete your profile? This action cannot be undone."
-                  onCancel={() => setShowDeleteModal(false)}
-                  onConfirm={async () => {
-                    try {
-                      await dispatch(deleteProfile()).unwrap();
-                      setShowDeleteModal(false);
-                      router.push("/profile");
-                    } catch (error) {
-                      console.error("Delete failed:", error);
-                    }
-                  }}
-                />
+        <ConfirmModal
+          isOpen={showDeleteModal}
+          title="Delete Profile?"
+          description="Are you sure you want to delete your profile? This action cannot be undone."
+          onCancel={() => setShowDeleteModal(false)}
+          onConfirm={async () => {
+            try {
+              await dispatch(deleteProfile()).unwrap();
+              setShowDeleteModal(false);
+              router.push("/profile");
+            } catch (error) {
+              console.error("Delete failed:", error);
+            }
+          }}
+        />
       </div>
     </>
   );

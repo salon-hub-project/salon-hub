@@ -37,12 +37,12 @@ const SalonDashboard = () => {
   const isAuthenticated = useAppSelector((state) => !!state.auth.token);
   
   const normalizedUserRole = normalizeRole(user?.role);
-  useEffect(() => {
-    if (normalizedUserRole !== "OWNER") return;
-    if (!profile) {
-      dispatch(getProfile());
-    }
-  }, [dispatch, normalizedUserRole]);
+  // useEffect(() => {
+  //   if (normalizedUserRole !== "OWNER") return;
+  //   if (!profile) {
+  //     dispatch(getProfile());
+  //   }
+  // }, [dispatch, normalizedUserRole]);
 
   const [todayAppointments, setTodayAppointments] = useState<
     TodayAppointment[]

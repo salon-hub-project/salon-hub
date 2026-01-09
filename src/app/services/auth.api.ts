@@ -13,6 +13,15 @@ export interface RegisterPayload {
   phoneNumber: string;
 }
 
+export interface ForgotPasswordPayload {
+  email: string;
+}
+
+export interface ResetPasswordPayload {
+  token: string;
+  newPassword: string;
+}
+
 export const authApi = {
   login: async (payload: LoginPayload) => {
     try {
@@ -47,6 +56,40 @@ export const authApi = {
     } catch (error: any) {
       showToast({
         message: error?.response?.data?.errors || "Registration failed",
+        status: "error",
+      });
+      throw error;
+    }
+  },
+
+  forgotPassword: async (payload: ForgotPasswordPayload) => {
+    try {
+      const res = await api.post("/forgotpassword", payload);
+      showToast({
+        message: res?.data?.message || "Password reset email sent successfully",
+        status: "success",
+      });
+      return res.data;
+    } catch (error: any) {
+      showToast({
+        message: error?.response?.data?.message || "Failed to send reset email",
+        status: "error",
+      });
+      throw error;
+    }
+  },
+
+  resetPassword: async (payload: ResetPasswordPayload) => {
+    try {
+      const res = await api.post("/reset", payload);
+      showToast({
+        message: res?.data?.message || "Password reset successfully",
+        status: "success",
+      });
+      return res.data;
+    } catch (error: any) {
+      showToast({
+        message: error?.response?.data?.message || "Failed to reset password",
         status: "error",
       });
       throw error;

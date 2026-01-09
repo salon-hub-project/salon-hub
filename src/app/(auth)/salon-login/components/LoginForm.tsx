@@ -4,6 +4,7 @@ import { useState } from "react";
 import Input from "../../../components/ui/Input";
 import Button from "../../../components/ui/Button";
 import { LoginFormData, ValidationErrors } from "../types";
+import ForgotPasswordModal from "./ForgotPasswordModal";
 
 interface Props {
   formData: LoginFormData;
@@ -21,9 +22,11 @@ const LoginForm = ({
   isSubmitting,
 }: Props) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
 
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
+    <>
+      <form onSubmit={onSubmit} className="space-y-6">
       <Input
         label="Email"
         type="email"
@@ -56,9 +59,13 @@ const LoginForm = ({
       </div>
 
       <div className="text-right">
-        <a href="#" className="text-sm text-primary hover:underline">
+        <button
+          type="button"
+          onClick={() => setShowForgotPasswordModal(true)}
+          className="text-sm text-primary hover:underline"
+        >
           Forgot password?
-        </a>
+        </button>
       </div>
 
       <Button
@@ -80,6 +87,12 @@ const LoginForm = ({
         </a>
       </p>
     </form>
+
+    <ForgotPasswordModal
+      isOpen={showForgotPasswordModal}
+      onClose={() => setShowForgotPasswordModal(false)}
+    />
+    </>
   );
 };
 
