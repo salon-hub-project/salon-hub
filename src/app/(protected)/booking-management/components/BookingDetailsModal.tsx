@@ -35,12 +35,12 @@ const BookingDetailsModal = ({
   // ✅ NEW — delete confirmation modal toggle
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
-  const statusOptions = [
-    { value: "pending", label: "Pending" },
-    { value: "confirmed", label: "Confirmed" },
-    { value: "completed", label: "Completed" },
-    { value: "cancelled", label: "Cancelled" },
-  ];
+  // const statusOptions = [
+  //   { value: "pending", label: "Pending" },
+  //   { value: "confirmed", label: "Confirmed" },
+  //   { value: "completed", label: "Completed" },
+  //   { value: "cancelled", label: "Cancelled" },
+  // ];
 
   const getStatusColor = (status: Booking["status"]) => {
     const colors = {
