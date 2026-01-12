@@ -32,11 +32,8 @@ export const authApi = {
       });
       return res.data;
     } catch (error: any) {
-      let message = error?.response?.data?.message || "Login failed";
-      if (error?.response?.status === 403) {
-        message =
-          "Your account is not approved yet. Please contact the super admin.";
-      }
+      const message = error?.response?.data?.message || error?.message || "Login failed";
+      
       showToast({
         message,
         status: "error",
