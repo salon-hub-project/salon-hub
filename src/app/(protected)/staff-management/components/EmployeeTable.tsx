@@ -97,8 +97,8 @@ const EmployeeTable = ({
   };
 
   return (
-    <div className="bg-card rounded-lg border border-border overflow-hidden">
-      <div className="overflow-x-auto">
+     <div className="bg-card rounded-lg border border-border overflow-hidden overflow-x-auto">
+      {/* <div className=""> */}
         <table className="w-full">
           <thead className="bg-muted">
             <tr>
@@ -319,7 +319,7 @@ const EmployeeTable = ({
             ))}
           </tbody>
         </table>
-      </div>
+      {/* </div> */}
     </div>
   );
 };

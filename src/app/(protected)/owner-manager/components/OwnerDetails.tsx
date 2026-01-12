@@ -72,28 +72,28 @@ const OwnerDetails = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-muted-foreground">Role</p>
-                  <p className="font-medium">
+                  <p className="font-small">
                     {owner?.userId?.role?.[0] ?? "OWNER"}
                   </p>
                 </div>
 
                 <div>
                   <p className="text-sm text-muted-foreground">Phone</p>
-                  <p className="font-medium">
+                  <p className="font-small">
                     {owner?.data?.userId?.phoneNumber || "-"}
                   </p>
                 </div>
 
                 <div className="sm:col-span-2">
                   <p className="text-sm text-muted-foreground">Address</p>
-                  <p className="font-medium">
+                  <p className="font-small">
                     {owner?.data?.userId?.address || "Not provided"}
                   </p>
                 </div>
 
                 <div>
                   <p className="text-sm text-muted-foreground">Created At</p>
-                  <p className="font-medium">
+                  <p className="font-small">
                     {owner?.data?.createdAt
                       ? new Date(owner?.data?.createdAt).toLocaleDateString()
                       : "-"}
@@ -102,7 +102,7 @@ const OwnerDetails = ({
 
                 <div>
                   <p className="text-sm text-muted-foreground">Last Updated</p>
-                  <p className="font-medium">
+                  <p className="font-small">
                     {owner?.data?.updatedAt
                       ? new Date(owner?.data?.updatedAt).toLocaleDateString()
                       : "-"}

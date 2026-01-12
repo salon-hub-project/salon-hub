@@ -64,7 +64,6 @@ export interface Customer {
   dateOfBirth: string;
   tags: CustomerTag[];
   preferredStaff: string;
-  password: string;
   notes?:string;
 }
 

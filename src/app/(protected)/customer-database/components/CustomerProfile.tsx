@@ -178,14 +178,6 @@ const CustomerProfile = ({
                   >
                     Book Appointment
                   </Button>
-                  <Button
-                    variant="outline"
-                    iconName="MessageCircle"
-                    iconPosition="left"
-                    onClick={() => onSendMessage(customer.id)}
-                  >
-                    Send Message
-                  </Button>
                 </div>
               </div>
             </div>

@@ -106,8 +106,6 @@ const addCustomer = async (values: CustomerFormikValues) => {
       gender: values.gender,
       DOB: values.dateOfBirth,
       phoneNumber: values.phone,
-      password: values.password,
-
       preferredStaff: values.preferredStaff || undefined,
       customerTag: values.tags.length ? values.tags : undefined,
       email: values.email || undefined,
@@ -165,7 +163,6 @@ const updateCustomer = async (values: CustomerFormikValues) => {
             preferredStaff: editingCustomer?.preferredStaff 
               ? getPreferredStaffId(editingCustomer.preferredStaff)
               : "",
-            password: "",
           }}
           validationSchema={getValidationSchema(isEditMode)}
           enableReinitialize={true}
@@ -211,18 +208,6 @@ const updateCustomer = async (values: CustomerFormikValues) => {
                   error={touched.email ? errors.email : undefined}
                   disabled= {isEditMode}
                 />
-
-                {!isEditMode && (
-                  <Input
-                    label="Password (Optional)"
-                    type="password"
-                    name="password"
-                    placeholder="Enter customer password"
-                    value={values.password}
-                    onChange={handleChange}
-                    error={touched.password ? errors.password : undefined}
-                  />
-                )}
 
                 <Select
                   label="Gender"
