@@ -9,7 +9,6 @@ import {
 } from "@/app/store/slices/ownerSlice";
 import Sidebar from "@/app/components/Sidebar";
 import Header from "@/app/components/Header";
-import MobileBottomNav from "@/app/components/MobileBottomNav";
 import Icon from "@/app/components/AppIcon";
 import ConfirmModal from "@/app/components/ui/ConfirmModal";
 import { normalizeRole } from "@/app/utils/normalizeRole";
@@ -77,7 +76,7 @@ const GetAllOwners = () => {
         onNotificationClick={() => {}}
       /> */}
 
-      <main className="lg:ml-sidebar pt-header pb-bottom-nav lg:pb-0">
+      <div className="w-full lg:pb-0">
         <div className="p-4 lg:p-6 space-y-6">
           <div>
             <h1 className="text-2xl lg:text-3xl font-bold">Salon Owners</h1>
@@ -162,9 +161,9 @@ const GetAllOwners = () => {
           onCancel={() => setConfirmOpen(false)}
           onConfirm={confirmDeleteOwner}
         />
-      </main>
+      </div>
 
-      <MobileBottomNav userRole={effectiveRole} />
+
     </div>
   );
 };

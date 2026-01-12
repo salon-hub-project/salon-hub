@@ -24,15 +24,15 @@ const ProfilePage = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const fetchInitiatedRef = useRef(false);
 
-  const normalizedUserRole = normalizeRole(user.role);
+  // const normalizedUserRole = normalizeRole(user.role);
 
-  useEffect(() => {
-    if (normalizedUserRole !== "OWNER") return;
-    if (!profile && !isLoading && !fetchInitiatedRef.current) {
-      fetchInitiatedRef.current = true;
-      dispatch(getProfile());
-    }
-  }, [dispatch, normalizedUserRole]);
+  // useEffect(() => {
+  //   if (normalizedUserRole !== "OWNER") return;
+  //   if (!profile && !isLoading && !fetchInitiatedRef.current) {
+  //     fetchInitiatedRef.current = true;
+  //     dispatch(getProfile());
+  //   }
+  // }, [dispatch, normalizedUserRole]);
 
   if (!user) {
     return (

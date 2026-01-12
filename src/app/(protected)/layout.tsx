@@ -7,7 +7,6 @@ import { useAppSelector } from "../store/hooks";
 import AuthGuard from "../components/AuthGuard";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
-import MobileBottomNav from "../components/MobileBottomNav";
 
 export default function ProtectedLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -42,11 +41,9 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
           onProfileClick={() => router.push("/profile")}
         />
 
-        <main className="lg:ml-sidebar pt-header pb-bottom-nav lg:pb-0">
+        <main className="ml-16 lg:ml-sidebar pt-header lg:pb-0">
           {children}
         </main>
-
-        <MobileBottomNav userRole={user.role} />
       </div>
     </AuthGuard>
   );
