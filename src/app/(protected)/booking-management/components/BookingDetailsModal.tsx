@@ -200,7 +200,7 @@ const BookingDetailsModal = ({
                 }
               /> */}
 
-              <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+              {/* <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
                 <div>
                   <div className="text-sm font-medium text-foreground">
                     Payment Status
@@ -229,7 +229,7 @@ const BookingDetailsModal = ({
                       : "Mark Paid"}
                   </Button>
                 )}
-              </div>
+              </div> */}
             </div>
 
             <div className="flex items-center gap-3 pt-4">

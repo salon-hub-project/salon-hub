@@ -165,7 +165,7 @@ const ComboTable: React.FC<ComboTableProps> = ({
                           className="text-muted-foreground"
                         />
                       </button>
-                      <button
+                      {/* <button
                         onClick={() => onDuplicate(combo)}
                         className="p-1.5 hover:bg-muted rounded transition-colors"
                         title="Duplicate"
@@ -175,8 +175,8 @@ const ComboTable: React.FC<ComboTableProps> = ({
                           size={16}
                           className="text-muted-foreground"
                         />
-                      </button>
-                      {!expired && (
+                      </button> */}
+                      {/* {!expired && (
                         <button
                           onClick={() => onToggleStatus(combo.id)}
                           className="p-1.5 hover:bg-muted rounded transition-colors"
@@ -192,7 +192,7 @@ const ComboTable: React.FC<ComboTableProps> = ({
                             }
                           />
                         </button>
-                      )}
+                      )} */}
                       <button
                         onClick={() => {
                           setSelectedComboId(combo.id);

@@ -20,10 +20,10 @@ const QuickFilters = ({
 }: QuickFiltersProps) => {
   const statusOptions = [
     { value: '', label: 'All Statuses' },
-    { value: 'pending', label: 'Pending' },
+    // { value: 'pending', label: 'Pending' },
     { value: 'confirmed', label: 'Confirmed' },
     { value: 'completed', label: 'Completed' },
-    { value: 'cancelled', label: 'Cancelled' },
+    // { value: 'cancelled', label: 'Cancelled' },
   ];
 
   const staffOptions = [

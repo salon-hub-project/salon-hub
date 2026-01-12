@@ -87,8 +87,8 @@ const ServiceTable = ({
         <table className="w-full">
           <thead className="bg-muted border-b border-border">
             <tr>
-              <th className="px-4 py-3 text-left">
-                <input
+              <th className="px-4 py-3 text-left" aria-label="Select service">
+                {/* <input
                   type="checkbox"
                   checked={
                     selectedServices.length === services.length &&
@@ -100,7 +100,7 @@ const ServiceTable = ({
                     );
                   }}
                   className="w-4 h-4 rounded border-border"
-                />
+                /> */}
               </th>
               <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">
                 Service Name

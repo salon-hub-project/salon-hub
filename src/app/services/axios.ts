@@ -38,10 +38,10 @@ api.interceptors.response.use(
       localStorage.removeItem('authToken');
       localStorage.removeItem('authUser');
       import('../components/ui/toast').then(({ showToast }) => {
-        showToast({
-          message: 'Please login again.',
-          status: 'error',
-        });
+        // showToast({
+        //   message: 'Please login again.',
+        //   status: 'error',
+        // });
       });
       window.location.href = '/salon-login';
     }
