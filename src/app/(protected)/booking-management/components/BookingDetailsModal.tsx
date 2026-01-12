@@ -7,7 +7,6 @@ import Select from "../../../components/ui/Select";
 import ConfirmModal from "../../../components/ui/ConfirmModal"; // ✅ Added
 import { Booking } from "../types";
 import { useAppSelector } from "@/app/store/hooks";
-import { appointmentApi } from "@/app/services/appointment.api";
 
 interface BookingDetailsModalProps {
   booking: Booking;
@@ -67,20 +66,6 @@ const BookingDetailsModal = ({
     setShowConfirmDelete(false);
     onClose();
   };
-
-  // const handleStatusUpdate = async () => {
-  //   try {
-  //     await appointmentApi.updateAppointmentStatus(booking?.id);
-
-  //     // update UI state in parent
-  //     onStatusChange(booking.id, "completed");
-
-  //     // close modal
-  //     onClose();
-  //   } catch (error) {
-  //     console.error("Failed to update status", error);
-  //   }
-  // };
 
   return (
     <>

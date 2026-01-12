@@ -12,6 +12,7 @@ interface CustomerProfileProps {
   onClose: () => void;
   onEdit: (customer: Customer) => void;
   onBookAppointment: (customerId: string) => void;
+  onDelete? : (customerId: string) => void;
   onSendMessage: (customerId: string) => void;
   loading?: boolean;
 }
@@ -21,7 +22,6 @@ const CustomerProfile = ({
   serviceHistory,
   onClose,
   onEdit,
-  
   onBookAppointment,
   onSendMessage,
   loading

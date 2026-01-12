@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect , useState} from "react";
-import { Formik, Form , useFormikContext} from "formik";
+import { useEffect, useState } from "react";
+import { Formik, Form, useFormikContext } from "formik";
 import { useRouter } from "next/navigation";
 
 import Icon from "../../../components/AppIcon";
@@ -9,18 +9,19 @@ import Button from "../../../components/ui/Button";
 import Input from "../../../components/ui/Input";
 import Select from "../../../components/ui/Select";
 import { BookingFormProps } from "../types";
-import { Customer, Service, Staff, BookingFormData } from "../types";
+import { Staff, BookingFormData } from "../types";
 import { appointmentValidationSchema } from "@/app/components/validation/validation";
 import { staffApi } from "@/app/services/staff.api";
+import { formatTo12Hour } from "../utils/formatHour";
 
 // Helper component to handle side effects and data fetching inside Formik context
-const StaffFetcher = ({ 
-  selectedDate, 
-  selectedTime, 
+const StaffFetcher = ({
+  selectedDate,
+  selectedTime,
   setAvailableStaff,
-  initialStaff 
-}: { 
-  selectedDate?: Date; 
+  initialStaff,
+}: {
+  selectedDate?: Date;
   selectedTime?: string;
   setAvailableStaff: (staff: Staff[]) => void;
   initialStaff: Staff[];
@@ -43,11 +44,6 @@ const StaffFetcher = ({
       if (values.date && values.startTime) {
         try {
           const formattedDate = values.date.toISOString().split("T")[0];
-          // Determine if we need to filter by role. 
-          // The user requested exactly as per the image which had role="Stylist".
-          // However, if we hardcode "Stylist", we might miss other roles. 
-          // But based on the instruction "fix it as per that [image]", I will include it.
-          // Or strictly follow the payload structure shown.
           const res = await staffApi.getAllStaff({
             page: 1,
             limit: 100,
@@ -55,23 +51,25 @@ const StaffFetcher = ({
             timeOfAppointment: values.startTime,
           });
 
-          const rawStaff = Array.isArray(res) ? res : (res?.data || []);
-          const mappedStaff = rawStaff.map((s: any) => ({
-             id: s._id || s.id,
-             name: s.fullName || s.name,
-             role: s.role || "Staff",
-             phone: s.phoneNumber || s.phone,
-             avatar: s.avatar,
-             specializations: s.specializations || [],
-             isAvailable: s.isActive !== undefined ? s.isActive : true // Default to true if missing
-          })).filter((s:any) => s.isAvailable);
-          
+          const rawStaff = Array.isArray(res) ? res : res?.data || [];
+          const mappedStaff = rawStaff
+            .map((s: any) => ({
+              id: s._id || s.id,
+              name: s.fullName || s.name,
+              role: s.role || "Staff",
+              phone: s.phoneNumber || s.phone,
+              avatar: s.avatar,
+              specializations: s.specializations || [],
+              isAvailable: s.isActive !== undefined ? s.isActive : true, // Default to true if missing
+            }))
+            .filter((s: any) => s.isAvailable);
+
           setAvailableStaff(mappedStaff);
         } catch (error) {
           console.error("Failed to fetch available staff", error);
         }
       } else {
-         setAvailableStaff(initialStaff);
+        setAvailableStaff(initialStaff);
       }
     };
 
@@ -93,10 +91,10 @@ const BookingForm = ({
 }: BookingFormProps) => {
   // State for available staff, initialized with the passed staff list
   const [availableStaff, setAvailableStaff] = useState<Staff[]>(staff);
-
+  console.log(customers)
   const customerOptions = customers.map((c) => ({
-    value: c.id,
-    label: `${c.name} - ${c.phone}`,
+    value: c.id ,
+    label: `${c.name}`,
   }));
 
   const router = useRouter();
@@ -115,11 +113,19 @@ const BookingForm = ({
       label: m.name,
     }));
 
-  const timeSlots = Array.from({ length: 24 }, (_, i) => {
-    const hour = i.toString().padStart(2, "0");
+  const timeSlots = Array.from({ length: 13 }, (_, i) => {
+    const hour24 = i + 9; 
+    const hour = hour24.toString().padStart(2, "0");
+
     return [
-      { value: `${hour}:00`, label: `${hour}:00` },
-      { value: `${hour}:30`, label: `${hour}:30` },
+      {
+        value: `${hour}:00`, // 24-hour (API safe)
+        label: formatTo12Hour(`${hour}:00`), // 12-hour UI
+      },
+      {
+        value: `${hour}:30`,
+        label: formatTo12Hour(`${hour}:30`),
+      },
     ];
   }).flat();
 
@@ -147,7 +153,7 @@ const BookingForm = ({
           onSubmit={(values) =>
             onSubmit({
               customerId: values.customerId,
-              services: values.services, // Pass as array
+              services: values.services, 
               staffId: values.staffId,
               date: values.date,
               startTime: values.startTime,
@@ -158,7 +164,7 @@ const BookingForm = ({
           {({ values, errors, touched, setFieldValue }) => {
             return (
               <Form className="flex-1 overflow-y-auto p-6 space-y-6">
-                <StaffFetcher 
+                <StaffFetcher
                   selectedDate={selectedDate}
                   selectedTime={selectedTime}
                   setAvailableStaff={setAvailableStaff}
@@ -224,7 +230,7 @@ const BookingForm = ({
                   searchable
                   onChange={(v) => setFieldValue("staffId", v)}
                   error={touched.staffId ? errors.staffId : undefined}
-                  onAddNew= {()=>router.push('/staff-management')}
+                  onAddNew={() => router.push("/staff-management")}
                 />
 
                 {/* Notes */}

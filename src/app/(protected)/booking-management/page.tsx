@@ -2,7 +2,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Icon from "../../components/AppIcon";
 import Button from "../../components/ui/Button";
-import { useAppSelector } from "../../store/hooks";
 import {
   ViewMode,
   Booking,
@@ -26,14 +25,9 @@ import { customerApi } from "@/app/services/customer.api";
 import { serviceApi } from "@/app/services/service.api";
 import { staffApi } from "@/app/services/staff.api";
 import { useSelector } from "react-redux";
-// import { customerApi } from "../../services/customer";
-// import { customerApi } from "../../services/customer";
-// import { serviceApi } from "../../services/service";
-// import { staffApi } from "../../services/staff";
-// import { appointmentApi } from "../../services/appointment";
+import Loader from "@/app/components/Loader";
 
 const BookingManagement = () => {
-  //const { user } = useSelector((state: any) => state.auth);
   const fetchingRef = useRef(false);
   const mountedRef = useRef(true);
   const [viewMode, setViewMode] = useState<ViewMode>("day");
@@ -47,6 +41,7 @@ const BookingManagement = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [staff, setStaff] = useState<Staff[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const [bookings, setBookings] = useState<Booking[]>([]);
 
@@ -64,14 +59,12 @@ const BookingManagement = () => {
   const loadBookings = useCallback(async () => {
     try {
       if (!user) return;
+      setLoading(true);
       let res;
 
       if (user?.role?.[0] === "STAFF") {
-        // Call staff appointment API
         res = await appointmentApi.getStaffAppointments({ limit: 1000 });
-        console.log(res);
       } else {
-        // Call normal appointment API
         res = await appointmentApi.getAllAppointments({ limit: 1000 });
       }
       // res is guaranteed to be an array now
@@ -146,6 +139,10 @@ const BookingManagement = () => {
     } catch (error) {
       if (mountedRef.current) {
         console.error("Failed to load bookings", error);
+      }
+    } finally {
+      if (mountedRef.current) {
+        setLoading(false);
       }
     }
   }, [user]);
@@ -491,28 +488,34 @@ const BookingManagement = () => {
               />
 
               <div className="min-h-[600px]">
-                {viewMode === "day" && (
-                  <DayView
-                    timeSlots={generateTimeSlots()}
-                    onBookingClick={handleBookingClick}
-                    onTimeSlotClick={handleTimeSlotClick}
-                    onStatusChange={handleStatusChange}
-                  />
-                )}
+                {loading ? (
+                  <Loader label="Loading bookings..." />
+                ) : (
+                  <>
+                    {viewMode === "day" && (
+                      <DayView
+                        timeSlots={generateTimeSlots()}
+                        onBookingClick={handleBookingClick}
+                        onTimeSlotClick={handleTimeSlotClick}
+                        onStatusChange={handleStatusChange}
+                      />
+                    )}
 
-                {viewMode === "week" && (
-                  <WeekView
-                    weekDays={generateWeekDays()}
-                    bookingsByDay={getBookingsByDay()}
-                    onDayClick={handleDayClick}
-                    onBookingClick={handleBookingClick}
-                  />
-                )}
+                    {viewMode === "week" && (
+                      <WeekView
+                        weekDays={generateWeekDays()}
+                        bookingsByDay={getBookingsByDay()}
+                        onDayClick={handleDayClick}
+                        onBookingClick={handleBookingClick}
+                      />
+                    )}
 
-                {viewMode === "viewAll" && (
-                  <ViewAllAppointments
-                     onBookingClick={handleBookingClick}
-                  />
+                    {viewMode === "viewAll" && (
+                      <ViewAllAppointments
+                        onBookingClick={handleBookingClick}
+                      />
+                    )}
+                  </>
                 )}
               </div>
             </div>
@@ -536,6 +539,20 @@ const BookingManagement = () => {
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">
                     Total Bookings
+                  </span>
+                  <span className="text-sm font-semibold text-foreground">
+                    {
+                      // bookings.filter(
+                      //   (b) =>
+                      //     b.date.toDateString() === new Date().toDateString()
+                      // ).length
+                      bookings.length
+                    }
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    Today's Bookings
                   </span>
                   <span className="text-sm font-semibold text-foreground">
                     {
@@ -571,19 +588,6 @@ const BookingManagement = () => {
       {showBookingForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4">
           <div className="max-w-2xl w-full">
-            {/* <BookingForm
-              customers={mockCustomers}
-              services={mockServices}
-              staff={mockStaff}
-              selectedDate={selectedDate}
-              selectedTime={selectedTime}
-              onSubmit={handleCreateBooking}
-              onCancel={() => {
-                setShowBookingForm(false);
-                setSelectedDate(undefined);
-                setSelectedTime(undefined);
-              }}
-            /> */}
             <BookingForm
               customers={customers}
               services={services}

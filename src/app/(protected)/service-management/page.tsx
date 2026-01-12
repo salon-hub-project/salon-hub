@@ -12,6 +12,7 @@ import Button from '../../components/ui/Button';
 import Icon from '../../components/AppIcon';
 import { serviceApi, ServiceResponse } from '../../services/service.api';
 import { categoryApi, CategoryResponse } from '../../services/category.api';
+import Loader from '@/app/components/Loader';
 
 const ServiceManagement = () => {
   const [services, setServices] = useState<Service[]>([]);
@@ -598,10 +599,7 @@ const ServiceManagement = () => {
           />
 
           {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-16 bg-card border border-border rounded-lg">
-              <Icon name="Loader2" size={48} className="text-muted-foreground mb-4 animate-spin" />
-              <p className="text-sm text-muted-foreground">Loading services...</p>
-            </div>
+            <Loader label='Loading services...'/>
           ) : (
             <>
               {isMobileView ? (

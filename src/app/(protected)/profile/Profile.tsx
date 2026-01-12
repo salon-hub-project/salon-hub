@@ -8,6 +8,7 @@ import { useAppDispatch } from "../../store/hooks";
 import { getProfile, deleteProfile } from "@/app/store/slices/profileSlice";
 import ConfirmModal from "@/app/components/ui/ConfirmModal";
 import { normalizeRole } from "@/app/utils/normalizeRole";
+import Loader from "@/app/components/Loader";
 
 interface ProfileItemProps {
   icon: string;
@@ -36,7 +37,7 @@ const ProfilePage = () => {
   if (!user) {
     return (
       <div className="p-6 text-center text-muted-foreground">
-        Loading profile...
+        <Loader label="Loading profile..."/>
       </div>
     );
   }

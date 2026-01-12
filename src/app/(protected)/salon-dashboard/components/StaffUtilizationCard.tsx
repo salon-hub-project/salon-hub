@@ -46,11 +46,17 @@ const StaffUtilizationCard = ({
             >
               {/* AVATAR */}
               <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-muted">
-                <Image
-                  src={member.avatar || "/placeholder-user.png"}
-                  alt={member.avatarAlt || member.name}
-                  className="w-full h-full object-cover"
-                />
+                 {member.avatar ? (
+              <img
+                src={member.avatar}
+                alt={member.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-primary text-primary-foreground text-sm font-medium">
+                {member.name?.charAt(0).toUpperCase()}
+              </div>
+            )}
               </div>
 
               {/* INFO */}

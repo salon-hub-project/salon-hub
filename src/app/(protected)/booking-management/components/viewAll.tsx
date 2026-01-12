@@ -5,6 +5,7 @@ import { useAppSelector } from "@/app/store/hooks";
 import { appointmentApi } from "@/app/services/appointment.api";
 import Icon from "@/app/components/AppIcon";
 import Pagination from "@/app/components/Pagination";
+import Loader from "@/app/components/Loader";
 
 interface UserRef {
   _id?: string;
@@ -145,10 +146,10 @@ const ViewAllAppointments = ({ onBookingClick }: ViewAllAppointmentsProps) => {
             {loading ? (
               <tr>
                 <td
-                  colSpan={4}
-                  className="p-4 text-center text-muted-foreground"
+                  colSpan={5}
+                  className="p-10 text-center text-muted-foreground"
                 >
-                  Loading appointments...
+                  <Loader label="Loading appointments..."/>
                 </td>
               </tr>
             ) : paginatedAppointments.length === 0 ? (

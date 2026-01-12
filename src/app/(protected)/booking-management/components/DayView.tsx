@@ -1,5 +1,6 @@
-import { TimeSlot } from '../types';
-import BookingCard from './BookingCard';
+import { TimeSlot } from "../types";
+import BookingCard from "./BookingCard";
+import { formatTo12Hour } from "../utils/formatHour";
 
 interface DayViewProps {
   timeSlots: TimeSlot[];
@@ -14,6 +15,7 @@ const DayView = ({
   onTimeSlotClick,
   onStatusChange,
 }: DayViewProps) => {
+
   return (
     <div className="flex-1 overflow-y-auto">
       <div className="space-y-2 p-4">
@@ -22,7 +24,8 @@ const DayView = ({
             key={slot.time}
             className={`border border-border rounded-lg transition-smooth ${
               slot.isAvailable
-                ? 'bg-card hover:bg-muted cursor-pointer' :'bg-muted/50'
+                ? "bg-card hover:bg-muted cursor-pointer"
+                : "bg-muted/50"
             }`}
           >
             <div
@@ -30,7 +33,9 @@ const DayView = ({
               className="p-3 flex items-start gap-4"
             >
               <div className="w-20 flex-shrink-0">
-                <span className="text-sm font-medium text-foreground">{slot.time}</span>
+                <span className="text-sm font-medium text-foreground">
+                  {formatTo12Hour(slot.time)}
+                </span>
               </div>
 
               <div className="flex-1 min-w-0">

@@ -11,13 +11,12 @@ import ComboPreviewModal from './components/ComboPreviewModal';
 import Button from '../../components/ui/Button';
 import Icon from '../../components/AppIcon';
 import { useAppSelector } from '../../store/hooks';
-
 import { comboApi } from '../../services/combo.api';
 import { serviceApi } from '../../services/service.api';
 import { showToast } from '../../components/ui/toast';
+import Loader from '@/app/components/Loader';
 
 const ComboOffersManagement = () => {
-  const authUser = useAppSelector((state) => state.auth.user);
   
   const [availableServices, setAvailableServices] = useState<any[]>([]);
   const [combos, setCombos] = useState<ComboOffer[]>([]);
@@ -361,9 +360,9 @@ const ComboOffersManagement = () => {
             onReset={handleResetFilters}
           />
           
-          {isLoading ? (
-               <div className="flex justify-center p-10"><p>Loading...</p></div>
-          ) : (
+          {isLoading ? 
+            ( <Loader label="Loading combo-offers..." /> ) 
+          : (
             <>
                 {isMobileView ? (
                     <div className="space-y-4 pb-bottom-nav">
