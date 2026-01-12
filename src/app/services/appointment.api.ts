@@ -31,7 +31,7 @@ export const appointmentApi = {
   getAllAppointments: async (params?: { page?: number; limit?: number }) => {
     try {
       const res = await api.get("/appointment", { params });
-
+      console.log(res.data)
       // Ensure we ALWAYS return an array
       return Array.isArray(res.data?.data) ? res.data.data : [];
     } catch (error) {

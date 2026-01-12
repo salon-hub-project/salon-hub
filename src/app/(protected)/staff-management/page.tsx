@@ -62,13 +62,6 @@ const StaffManagement = () => {
     { value: "Receptionist", label: "Receptionist" },
   ];
 
-  // const performancePeriodOptions: PerformancePeriod[] = [
-  //   { value: "week", label: "This Week" },
-  //   { value: "month", label: "This Month" },
-  //   { value: "quarter", label: "This Quarter" },
-  //   { value: "year", label: "This Year" },
-  // ];
-
   const handleAddEmployee = () => {
     setEditingEmployee(null);
     setIsFormOpen(true);

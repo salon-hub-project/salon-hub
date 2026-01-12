@@ -282,7 +282,7 @@ const EmployeeTable = ({
                       <Icon
                         name="Eye"
                         size={16}
-                        className="text-muted-foreground"
+                        className="text-destructive"
                       />
                     </button>
 
@@ -296,7 +296,7 @@ const EmployeeTable = ({
                       <Icon
                         name="Edit"
                         size={16}
-                        className="text-muted-foreground"
+                        className="text-destructive"
                       />
                     </button>
 

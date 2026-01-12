@@ -81,6 +81,7 @@ export const serviceApi = {
     }
 
     const res = await api.get(`/service?${queryParams.toString()}`);
+    console.log(res.data);
     return res.data;
   }
   catch(error: any){
