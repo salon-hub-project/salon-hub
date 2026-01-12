@@ -111,7 +111,6 @@ const addCustomer = async (values: CustomerFormikValues) => {
       preferredStaff: values.preferredStaff || undefined,
       customerTag: values.tags.length ? values.tags : undefined,
       email: values.email || undefined,
-      address: values.address || undefined,
       notes: values.notes || undefined,
     });
 
@@ -162,7 +161,6 @@ const updateCustomer = async (values: CustomerFormikValues) => {
             notes: editingCustomer?.notes || "", 
             gender: editingCustomer?.gender || "female",
             dateOfBirth: editingCustomer?.dateOfBirth || "",
-            address: editingCustomer?.address || "",
             tags: editingCustomer?.tags || ([] as CustomerTag[]),
             preferredStaff: editingCustomer?.preferredStaff 
               ? getPreferredStaffId(editingCustomer.preferredStaff)
@@ -201,6 +199,7 @@ const updateCustomer = async (values: CustomerFormikValues) => {
                   onChange={handleChange}
                   error={touched.phone ? errors.phone : undefined}
                   maxLength={10}
+                  disabled= {isEditMode}
                 />
 
                 <Input
@@ -210,6 +209,7 @@ const updateCustomer = async (values: CustomerFormikValues) => {
                   value={values.email}
                   onChange={handleChange}
                   error={touched.email ? errors.email : undefined}
+                  disabled= {isEditMode}
                 />
 
                 {!isEditMode && (
@@ -253,14 +253,6 @@ const updateCustomer = async (values: CustomerFormikValues) => {
                   disabled={loadingStaff}
                 />
               </div>
-
-              <Input
-                label="Address"
-                name="address"
-                placeholder="Enter customer address"
-                value={values.address}
-                onChange={handleChange}
-              />
 
               <div>
                 <label className="text-sm font-medium mb-2 block">

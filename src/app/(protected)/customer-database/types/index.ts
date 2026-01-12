@@ -51,7 +51,6 @@ export interface Customer {
     email: string;
     gender: 'male' | 'female' | 'other';
     dateOfBirth: string;
-    address: string;
     notes?: string;
     tags: CustomerTag[];
     preferredStaff: string;
@@ -63,7 +62,6 @@ export interface Customer {
   email: string;
   gender: string;
   dateOfBirth: string;
-  address: string;
   tags: CustomerTag[];
   preferredStaff: string;
   password: string;

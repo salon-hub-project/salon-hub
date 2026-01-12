@@ -303,6 +303,7 @@ const CustomerDatabase = () => {
                   <CustomerTable
                     customers={customers}
                     onCustomerSelect={(customer) => handleCustomerSelect(customer.id)}
+                    onEditCustomer={handleEditCustomer}
                     selectedCustomerId={selectedCustomer?.id || null}
                     onCustomerDeleted={fetchCustomers}
                   />
