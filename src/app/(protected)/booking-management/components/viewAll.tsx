@@ -172,7 +172,7 @@ const ViewAllAppointments = ({ onBookingClick }: ViewAllAppointmentsProps) => {
                     {item.staffId?.fullName ?? "-"}
                   </td>
                   <td className="p-3">{getStatusBadge(item.status)}</td>
-                  <td className="p-3 pl-10">{item?.commisionEarned? `${item?.commisionEarned}%` : "-"}</td>
+                  <td className="p-3 pl-10">{item?.commisionEarned? `${item?.commisionEarned}INR` : "-"}</td>
                   <td className="p-3">
                     <div className="flex justify-center gap-3">
                       <Icon
