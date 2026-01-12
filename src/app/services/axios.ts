@@ -37,6 +37,8 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && typeof window !== 'undefined') {
       localStorage.removeItem('authToken');
       localStorage.removeItem('authUser');
+      localStorage.removeItem('lastProtectedRoute');
+      localStorage.removeItem('redirectAfterLogin');
       import('../components/ui/toast').then(({ showToast }) => {
         // showToast({
         //   message: 'Please login again.',

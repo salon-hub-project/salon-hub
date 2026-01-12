@@ -88,8 +88,12 @@ const Header = ({
   };
 
   const handleLogout = () => {
+    localStorage.removeItem("lastProtectedRoute");
+    localStorage.removeItem("redirectAfterLogin");
     localStorage.removeItem("authToken");
     localStorage.removeItem("authUser");
+    // localStorage.clear();
+
     dispatch(logout());
     dispatch(clearProfile());
     showToast({

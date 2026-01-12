@@ -107,3 +107,4 @@ const ForgotPasswordModal = ({ isOpen, onClose }: ForgotPasswordModalProps) => {
 
 export default ForgotPasswordModal;
 
+

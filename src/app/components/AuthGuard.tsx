@@ -50,23 +50,25 @@ export default function AuthGuard({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
   useEffect(() => {
-    localStorage.setItem("lastProtectedRoute", pathname);
+    // localStorage.setItem("lastProtectedRoute", pathname); // REMOVED: Managed by layout or specific logic
 
     const storedToken = token || localStorage.getItem("authToken");
 
     if (!storedToken) {
-      localStorage.setItem("redirectAfterLogin", pathname)
+      localStorage.setItem("redirectAfterLogin", pathname);
       router.replace("/salon-login");
       return;
     }
 
     setChecked(true);
-  }, [token, router]);
+  }, [token, router, pathname]);
 
   if (!checked) return null;
 
   return <>{children}</>;
 }
+
+
 
 
 
