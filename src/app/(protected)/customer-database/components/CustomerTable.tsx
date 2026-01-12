@@ -9,6 +9,7 @@ import ConfirmModal from "@/app/components/ui/ConfirmModal";
 interface CustomerTableProps {
   customers: Customer[];
   onCustomerSelect: (customer: Customer) => void;
+  onEditCustomer: (customer: Customer) => void;
   selectedCustomerId: string | null;
   onCustomerDeleted: () => void;
 }
@@ -16,6 +17,7 @@ interface CustomerTableProps {
 const CustomerTable = ({
   customers,
   onCustomerSelect,
+  onEditCustomer,
   selectedCustomerId,
   onCustomerDeleted
 }: CustomerTableProps) => {
@@ -79,7 +81,7 @@ const CustomerTable = ({
 
     return sortOrder === "asc" ? comparison : -comparison;
   });
-
+  
   const handleDeleteCustomer = async () => {
     if (!customerToDelete) return;
 
@@ -255,6 +257,21 @@ const CustomerTable = ({
                     >
                       <Icon
                         name="Eye"
+                        size={16}
+                        className="text-destructive"
+                      />
+                    </button>
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEditCustomer(customer);
+                      }}
+                      className="p-2 rounded-md hover:bg-muted transition-smooth"
+                      aria-label="View customer details"
+                    >
+                      <Icon
+                        name="Edit"
                         size={16}
                         className="text-destructive"
                       />

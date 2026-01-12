@@ -9,7 +9,6 @@ export interface AddCustomerPayload {
   gender: string;
   DOB: string;
   phoneNumber: string;
-  password: string;
   preferredStaff?: string;
   customerTag?: string[];
   email?: string;

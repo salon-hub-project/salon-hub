@@ -72,7 +72,7 @@ const BookingCard = ({ booking, onClick, onStatusChange }: BookingCardProps) => 
       <div className="space-y-2">
         <div className="flex items-center gap-2 text-sm">
           <Icon name="Scissors" size={16} className="text-muted-foreground flex-shrink-0" />
-          <span className="text-foreground font-medium truncate">{booking.serviceName}</span>
+          <span className="text-foreground font-medium truncate">{booking?.serviceName ? `${booking.serviceName}`: '-'}</span>
           <span className="text-muted-foreground">•</span>
           <span className="text-muted-foreground">{booking.serviceDuration} min</span>
         </div>

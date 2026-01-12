@@ -28,6 +28,7 @@ const CustomerDatabase = () => {
   const [showProfile, setShowProfile] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | undefined>(undefined);
+  const [totalCustomers, setTotalCustomers] = useState(0);
 
   //  Customer Data
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -59,7 +60,7 @@ const CustomerDatabase = () => {
         gender: filters.gender,
         customerTag: filters.tags,
       });
-      
+      setTotalCustomers(response.meta.total);
       // Only update state if component is still mounted
       if (!mountedRef.current) return;
 
@@ -104,6 +105,10 @@ const CustomerDatabase = () => {
       fetchingRef.current = false;
     };
   }, [fetchCustomers]);
+
+  useEffect(() => {
+  setPage(1);
+}, [filters.searchQuery, filters.gender, filters.tags]);
 
 
   const mockServiceHistory: ServiceHistory[] = [
@@ -157,11 +162,6 @@ const CustomerDatabase = () => {
   }, []);
 
   const filteredCustomers = customers;
-
-  // const handleCustomerSelect = (customer: Customer) => {
-  //   setSelectedCustomer(customer);
-  //   setShowProfile(true);
-  // };
 
   const customerFetchingRef = useRef(false);
 
@@ -262,7 +262,7 @@ const CustomerDatabase = () => {
               filters={filters}
               onFiltersChange={setFilters}
               onExport={handleExport}
-              totalCustomers={filteredCustomers.length}
+              totalCustomers={totalCustomers}
             />
 
             {loading ? (
@@ -303,6 +303,7 @@ const CustomerDatabase = () => {
                   <CustomerTable
                     customers={customers}
                     onCustomerSelect={(customer) => handleCustomerSelect(customer.id)}
+                    onEditCustomer={handleEditCustomer}
                     selectedCustomerId={selectedCustomer?.id || null}
                     onCustomerDeleted={fetchCustomers}
                   />

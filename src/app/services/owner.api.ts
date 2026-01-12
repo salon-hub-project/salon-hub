@@ -24,7 +24,7 @@ export const ownerApi = {
   getAllOwners: async (page = 1, limit = 10) => {
     try {
       const res = await api.get(`/owner?page=${page}&limit=${limit}`);
-
+      console.log(res.data)
       return {
         owners: res.data.data,
         total: res.data.pagination.total,
@@ -32,6 +32,20 @@ export const ownerApi = {
         limit: res.data.pagination.limit,
       };
     } catch (error: any) {
+      showToast({
+        message: "Failed to fetch owners",
+        status: "error",
+      });
+      throw error;
+    }
+  },
+
+  getOwnerDetails: async(id: string)=> {
+    try{
+      const res = await api.get(`/owner/${id}`);
+      return res.data;
+    }
+    catch(error: any){
       showToast({
         message: "Failed to fetch owners",
         status: "error",

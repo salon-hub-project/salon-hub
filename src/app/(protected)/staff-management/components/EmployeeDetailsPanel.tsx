@@ -299,14 +299,6 @@ const EmployeeDetailsPanel = ({
             >
               View Schedule
             </Button>
-            <Button
-              variant="outline"
-              iconName="MessageSquare"
-              iconPosition="left"
-              fullWidth
-            >
-              Send Message
-            </Button>
           </div>
         </div>
       </div>

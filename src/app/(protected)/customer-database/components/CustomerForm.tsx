@@ -106,12 +106,9 @@ const addCustomer = async (values: CustomerFormikValues) => {
       gender: values.gender,
       DOB: values.dateOfBirth,
       phoneNumber: values.phone,
-      password: values.password,
-
       preferredStaff: values.preferredStaff || undefined,
       customerTag: values.tags.length ? values.tags : undefined,
       email: values.email || undefined,
-      address: values.address || undefined,
       notes: values.notes || undefined,
     });
 
@@ -162,12 +159,10 @@ const updateCustomer = async (values: CustomerFormikValues) => {
             notes: editingCustomer?.notes || "", 
             gender: editingCustomer?.gender || "female",
             dateOfBirth: editingCustomer?.dateOfBirth || "",
-            address: editingCustomer?.address || "",
             tags: editingCustomer?.tags || ([] as CustomerTag[]),
             preferredStaff: editingCustomer?.preferredStaff 
               ? getPreferredStaffId(editingCustomer.preferredStaff)
               : "",
-            password: "",
           }}
           validationSchema={getValidationSchema(isEditMode)}
           enableReinitialize={true}
@@ -201,6 +196,7 @@ const updateCustomer = async (values: CustomerFormikValues) => {
                   onChange={handleChange}
                   error={touched.phone ? errors.phone : undefined}
                   maxLength={10}
+                  disabled= {isEditMode}
                 />
 
                 <Input
@@ -210,19 +206,8 @@ const updateCustomer = async (values: CustomerFormikValues) => {
                   value={values.email}
                   onChange={handleChange}
                   error={touched.email ? errors.email : undefined}
+                  disabled= {isEditMode}
                 />
-
-                {!isEditMode && (
-                  <Input
-                    label="Password (Optional)"
-                    type="password"
-                    name="password"
-                    placeholder="Enter customer password"
-                    value={values.password}
-                    onChange={handleChange}
-                    error={touched.password ? errors.password : undefined}
-                  />
-                )}
 
                 <Select
                   label="Gender"
@@ -253,14 +238,6 @@ const updateCustomer = async (values: CustomerFormikValues) => {
                   disabled={loadingStaff}
                 />
               </div>
-
-              <Input
-                label="Address"
-                name="address"
-                placeholder="Enter customer address"
-                value={values.address}
-                onChange={handleChange}
-              />
 
               <div>
                 <label className="text-sm font-medium mb-2 block">

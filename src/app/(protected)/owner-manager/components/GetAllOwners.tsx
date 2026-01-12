@@ -6,16 +6,21 @@ import {
   fetchOwners,
   approveOwner,
   deleteOwner,
+  FetchOwnersDetails,
+  clearSelectedOwner,
 } from "@/app/store/slices/ownerSlice";
-import Sidebar from "@/app/components/Sidebar";
-import Header from "@/app/components/Header";
 import Icon from "@/app/components/AppIcon";
 import ConfirmModal from "@/app/components/ui/ConfirmModal";
 import { normalizeRole } from "@/app/utils/normalizeRole";
+import OwnerDetails from "./OwnerDetails";
+import { ownerApi } from "@/app/services/owner.api";
+import Loader from "@/app/components/Loader";
 
 const GetAllOwners = () => {
   const dispatch = useAppDispatch();
-  const { owners, isLoading, error } = useAppSelector((state) => state.owner);
+  const { owners, isLoading, error, selectedOwner } = useAppSelector(
+    (state) => state.owner
+  );
   const authUser = useAppSelector((state) => state.auth.user);
   const router = useRouter();
 
@@ -64,18 +69,6 @@ const GetAllOwners = () => {
     <div className="min-h-screen bg-background">
       {/* <Sidebar userRole="super_admin" /> */}
 
-      {/* <Header
-        user={{
-          name: "Super Admin",
-          email: "admin@salonhub.com",
-          role: "super_admin",
-        }}
-        notifications={0}
-        onLogout={() => {}}
-        onProfileClick={() => {}}
-        onNotificationClick={() => {}}
-      /> */}
-
       <div className="w-full lg:pb-0">
         <div className="p-4 lg:p-6 space-y-6">
           <div>
@@ -85,7 +78,7 @@ const GetAllOwners = () => {
             </p>
           </div>
 
-          {isLoading && <p>Loading...</p>}
+          {isLoading && <Loader label="Loading owners..." />}
           {error && <p className="text-red-500">{error}</p>}
 
           {!isLoading && owners.length > 0 && (
@@ -105,7 +98,7 @@ const GetAllOwners = () => {
                     <tr key={owner._id} className="border-t">
                       <td className="px-4 py-3">{owner.userId.email}</td>
                       <td className="px-4 py-3">
-                        {owner.userId.phoneNumber || "-"}
+                        {owner?.userId?.phoneNumber || "-"}
                       </td>
                       <td className="px-4 py-3">
                         {owner.isApproved ? (
@@ -122,35 +115,32 @@ const GetAllOwners = () => {
                           </button>
                         )}
                       </td>
-                      <td className="flex items-center gap-3 ">
-                        <button
-                          // onClick={() => handleView(user)}
-                          className="text-gray-500 hover:text-indigo-600 transition"
-                          title="View"
-                        >
-                          👁️
-                        </button>
+                      <td className="flex items-center gap-3 pt-3 pl-3 ">
+                        <Icon
+                          name="Eye"
+                          size={18}
+                          className="text-destructive"
+                          onClick={() =>
+                            dispatch(FetchOwnersDetails(owner._id))
+                          }
+                        />
 
-                        <button
-                          // onClick={() => handleUpdate(user)}
-                          className="text-gray-500 hover:text-blue-600 transition"
-                          title="Edit"
-                        >
-                          ✏️
-                        </button>
-
-                        <button
+                        <Icon
                           onClick={() => handleDelete(owner._id)}
-                          className="text-gray-500 hover:text-red-600 transition"
-                          title="Delete"
-                        >
-                          🗑️
-                        </button>
+                          name="Trash"
+                          size={18}
+                          className="text-destructive"
+                        />
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              <OwnerDetails
+                owner={selectedOwner}
+                loading={isLoading}
+                onClose={() => clearSelectedOwner()}
+              />
             </div>
           )}
         </div>
@@ -162,8 +152,6 @@ const GetAllOwners = () => {
           onConfirm={confirmDeleteOwner}
         />
       </div>
-
-
     </div>
   );
 };
