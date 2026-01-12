@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import Sidebar from "../../components/Sidebar";
 import Header from "../../components/Header";
-import MobileBottomNav from "../../components/MobileBottomNav";
 import MetricCard from "./components/MetricCard";
 import AppointmentCard from "./components/AppointmentCard";
 import QuickBookingWidget from "./components/QuickBookingWidget";
@@ -289,7 +288,7 @@ const SalonDashboard = () => {
           onProfileClick={() => router.push("/profile")}
         /> */}
 
-        <main className="ml-0 pb-bottom-nav lg:pb-8">
+        <main className="ml-0 lg:pb-8">
           <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
             <div className="mb-6">
               <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
@@ -349,10 +348,7 @@ const SalonDashboard = () => {
           </div>
         </main>
 
-        <MobileBottomNav
-          userRole={currentUser.role}
-          onNavigate={handleNavigation}
-        />
+
       </div>
     </AuthGuard>
   );

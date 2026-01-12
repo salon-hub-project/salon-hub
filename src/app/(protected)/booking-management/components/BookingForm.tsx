@@ -96,7 +96,7 @@ const BookingForm = ({
 
   const customerOptions = customers.map((c) => ({
     value: c.id,
-    label: `${c.name} - ${c.phone}`,
+    label: c.name,
   }));
 
   const router = useRouter();
