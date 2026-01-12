@@ -1,5 +1,6 @@
-import { CalendarDay, Booking } from '../types';
-import Icon from '../../../components/AppIcon';
+import { CalendarDay, Booking } from "../types";
+import Icon from "../../../components/AppIcon";
+import { formatTo12Hour } from "../utils/formatHour";
 
 interface WeekViewProps {
   weekDays: CalendarDay[];
@@ -19,18 +20,21 @@ const WeekView = ({
   onBookingClick,
 }: WeekViewProps) => {
   const getBookingsForDay = (date: Date): Booking[] => {
-    const dateKey = date.toISOString().split('T')[0];
-    const allBookings = bookingsByDay[dateKey] || [];
-    // Only show bookings with status "Confirmed"
-    return allBookings.filter(booking => booking.status === "Confirmed");
+    const dateKey = date.toISOString().split("T")[0];
+    return bookingsByDay[dateKey] || [];
   };
+  // const getBookingsForDay = (date: Date): Booking[] => {
+  //   const dateKey = date.toISOString().split("T")[0];
+  //   const allBookings = bookingsByDay[dateKey] || [];
+  // Only show bookings with status "Confirmed"
+  // return allBookings.filter((booking) => booking.status === "Confirmed");
 
-  const getStatusColor = (status: Booking['status']) => {
+  const getStatusColor = (status: Booking["status"]) => {
     const colors = {
-      pending: 'bg-warning',
-      Confirmed: 'bg-card',
-      Completed: 'bg-success',
-      cancelled: 'bg-destructive',
+      pending: "bg-warning",
+      Confirmed: "bg-card",
+      Completed: "bg-success",
+      cancelled: "bg-destructive",
     };
     return colors[status];
   };
@@ -41,7 +45,9 @@ const WeekView = ({
         <div className="grid grid-cols-7 gap-2">
           {weekDays.map((day) => {
             const bookings = getBookingsForDay(day.date); // filtered bookings
-            const dayName = day.date.toLocaleDateString('en-US', { weekday: 'short' });
+            const dayName = day.date.toLocaleDateString("en-US", {
+              weekday: "short",
+            });
             const dayNumber = day.date.getDate();
 
             return (
@@ -49,12 +55,14 @@ const WeekView = ({
                 key={day.date.toISOString()}
                 onClick={() => onDayClick(day.date)}
                 className={`border border-border rounded-lg overflow-hidden cursor-pointer transition-smooth hover:shadow-md ${
-                  day.isToday ? 'ring-2 ring-primary' : ''
-                } ${day.isSelected ? 'bg-primary/5' : 'bg-card'}`}
+                  day.isToday ? "ring-2 ring-primary" : ""
+                } ${day.isSelected ? "bg-primary/5" : "bg-card"}`}
               >
                 <div
                   className={`p-3 text-center border-b border-border ${
-                    day.isToday ? 'bg-primary text-primary-foreground' : 'bg-muted'
+                    day.isToday
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted"
                   }`}
                 >
                   <div className="text-xs font-medium">{dayName}</div>
@@ -75,7 +83,7 @@ const WeekView = ({
                         )} bg-card hover:bg-muted transition-smooth`}
                       >
                         <div className="text-xs font-medium text-foreground truncate">
-                          {booking.startTime}
+                          {formatTo12Hour(booking.startTime)}
                         </div>
                         <div className="text-xs text-muted-foreground truncate mt-1">
                           {booking.customerName}
@@ -87,13 +95,23 @@ const WeekView = ({
                     ))
                   ) : (
                     <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                      <Icon name="Calendar" size={24} className="mb-2 opacity-50" />
+                      <Icon
+                        name="Calendar"
+                        size={24}
+                        className="mb-2 opacity-50"
+                      />
                       <span className="text-xs">No bookings</span>
                     </div>
                   )}
 
                   {bookings.length > 3 && (
-                    <div className="text-xs text-center text-muted-foreground py-1">
+                    <div
+                      className="text-xs text-center text-muted-foreground py-1 cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDayClick(day.date);
+                      }}
+                    >
                       +{bookings.length - 3} more
                     </div>
                   )}

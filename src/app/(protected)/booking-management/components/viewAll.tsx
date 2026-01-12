@@ -5,6 +5,7 @@ import { useAppSelector } from "@/app/store/hooks";
 import { appointmentApi } from "@/app/services/appointment.api";
 import Icon from "@/app/components/AppIcon";
 import Pagination from "@/app/components/Pagination";
+import Loader from "@/app/components/Loader";
 
 interface UserRef {
   _id?: string;
@@ -145,10 +146,10 @@ const ViewAllAppointments = ({ onBookingClick }: ViewAllAppointmentsProps) => {
             {loading ? (
               <tr>
                 <td
-                  colSpan={4}
-                  className="p-4 text-center text-muted-foreground"
+                  colSpan={5}
+                  className="p-10 text-center text-muted-foreground"
                 >
-                  Loading appointments...
+                  <Loader label="Loading appointments..."/>
                 </td>
               </tr>
             ) : paginatedAppointments.length === 0 ? (
@@ -171,7 +172,7 @@ const ViewAllAppointments = ({ onBookingClick }: ViewAllAppointmentsProps) => {
                     {item.staffId?.fullName ?? "-"}
                   </td>
                   <td className="p-3">{getStatusBadge(item.status)}</td>
-                  <td className="p-3 pl-10">{item?.commisionEarned? `${item?.commisionEarned}%` : "-"}</td>
+                  <td className="p-3 pl-10">{item?.commisionEarned? `${item?.commisionEarned}INR` : "-"}</td>
                   <td className="p-3">
                     <div className="flex justify-center gap-3">
                       <Icon

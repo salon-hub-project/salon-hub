@@ -1,75 +1,110 @@
 "use client";
-import { useState } from 'react';
-import Icon from '../../../components/AppIcon';
-import Image from '../../../components/AppImage';
-import { Customer, CustomerTag } from '../types';
+import { useState } from "react";
+import Icon from "../../../components/AppIcon";
+import Image from "../../../components/AppImage";
+import { Customer, CustomerTag } from "../types";
+import { customerApi } from "@/app/services/customer.api";
+import ConfirmModal from "@/app/components/ui/ConfirmModal";
 
 interface CustomerTableProps {
   customers: Customer[];
   onCustomerSelect: (customer: Customer) => void;
   selectedCustomerId: string | null;
+  onCustomerDeleted: () => void;
 }
 
-const CustomerTable = ({ customers, onCustomerSelect, selectedCustomerId }: CustomerTableProps) => {
-  const [sortBy, setSortBy] = useState<'name' | 'lastVisit' | 'totalVisits' | 'totalSpent'>('name');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+const CustomerTable = ({
+  customers,
+  onCustomerSelect,
+  selectedCustomerId,
+  onCustomerDeleted
+}: CustomerTableProps) => {
+  const [sortBy, setSortBy] = useState<
+    "name" | "lastVisit" | "totalVisits" | "totalSpent"
+  >("name");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(
+    null
+  );
+  const [deleting, setDeleting] = useState(false);
 
   const getTagColor = (tag: CustomerTag): string => {
     const colors: Record<CustomerTag, string> = {
-      VIP: 'bg-accent text-accent-foreground',
-      New: 'bg-primary text-primary-foreground',
-      Frequent: 'bg-success text-success-foreground',
-      Inactive: 'bg-muted text-muted-foreground',
+      VIP: "bg-accent text-accent-foreground",
+      New: "bg-primary text-primary-foreground",
+      Frequent: "bg-success text-success-foreground",
+      Inactive: "bg-muted text-muted-foreground",
     };
     return colors[tag];
   };
 
   const formatDate = (date: Date | null): string => {
-    if (!date) return 'Never';
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
+    if (!date) return "Never";
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
     }).format(date);
   };
 
   const handleSort = (column: typeof sortBy) => {
     if (sortBy === column) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     } else {
       setSortBy(column);
-      setSortOrder('asc');
+      setSortOrder("asc");
     }
   };
 
   const sortedCustomers = [...customers].sort((a, b) => {
     let comparison = 0;
-    
+
     switch (sortBy) {
-      case 'name':
+      case "name":
         comparison = a.name.localeCompare(b.name);
         break;
-      case 'lastVisit':
+      case "lastVisit":
         const dateA = a.lastVisit?.getTime() || 0;
         const dateB = b.lastVisit?.getTime() || 0;
         comparison = dateA - dateB;
         break;
-      case 'totalVisits':
+      case "totalVisits":
         comparison = a.totalVisits - b.totalVisits;
         break;
-      case 'totalSpent':
+      case "totalSpent":
         comparison = a.totalSpent - b.totalSpent;
         break;
     }
-    
-    return sortOrder === 'asc' ? comparison : -comparison;
+
+    return sortOrder === "asc" ? comparison : -comparison;
   });
+
+  const handleDeleteCustomer = async () => {
+    if (!customerToDelete) return;
+
+    try {
+      setDeleting(true);
+      await customerApi.deleteCustomer(customerToDelete.id);
+      setShowDeleteModal(false);
+      setCustomerToDelete(null);
+      onCustomerDeleted();
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const SortIcon = ({ column }: { column: typeof sortBy }) => {
     if (sortBy !== column) {
-      return <Icon name="ChevronsUpDown" size={16} className="text-muted-foreground" />;
+      return (
+        <Icon
+          name="ChevronsUpDown"
+          size={16}
+          className="text-muted-foreground"
+        />
+      );
     }
-    return sortOrder === 'asc' ? (
+    return sortOrder === "asc" ? (
       <Icon name="ChevronUp" size={16} className="text-primary" />
     ) : (
       <Icon name="ChevronDown" size={16} className="text-primary" />
@@ -84,7 +119,7 @@ const CustomerTable = ({ customers, onCustomerSelect, selectedCustomerId }: Cust
             <tr>
               <th className="px-6 py-4 text-left">
                 <button
-                  onClick={() => handleSort('name')}
+                  onClick={() => handleSort("name")}
                   className="flex items-center gap-2 text-sm font-semibold text-foreground hover:text-primary transition-smooth"
                 >
                   Customer
@@ -92,14 +127,18 @@ const CustomerTable = ({ customers, onCustomerSelect, selectedCustomerId }: Cust
                 </button>
               </th>
               <th className="px-6 py-4 text-left">
-                <span className="text-sm font-semibold text-foreground">Contact</span>
+                <span className="text-sm font-semibold text-foreground">
+                  Contact
+                </span>
               </th>
               <th className="px-6 py-4 text-left">
-                <span className="text-sm font-semibold text-foreground">Tags</span>
+                <span className="text-sm font-semibold text-foreground">
+                  Tags
+                </span>
               </th>
               <th className="px-6 py-4 text-left">
                 <button
-                  onClick={() => handleSort('lastVisit')}
+                  onClick={() => handleSort("lastVisit")}
                   className="flex items-center gap-2 text-sm font-semibold text-foreground hover:text-primary transition-smooth"
                 >
                   Last Visit
@@ -108,7 +147,7 @@ const CustomerTable = ({ customers, onCustomerSelect, selectedCustomerId }: Cust
               </th>
               <th className="px-6 py-4 text-left">
                 <button
-                  onClick={() => handleSort('totalVisits')}
+                  onClick={() => handleSort("totalVisits")}
                   className="flex items-center gap-2 text-sm font-semibold text-foreground hover:text-primary transition-smooth"
                 >
                   Visits
@@ -117,7 +156,7 @@ const CustomerTable = ({ customers, onCustomerSelect, selectedCustomerId }: Cust
               </th>
               <th className="px-6 py-4 text-left">
                 <button
-                  onClick={() => handleSort('totalSpent')}
+                  onClick={() => handleSort("totalSpent")}
                   className="flex items-center gap-2 text-sm font-semibold text-foreground hover:text-primary transition-smooth"
                 >
                   Total Spent
@@ -125,7 +164,9 @@ const CustomerTable = ({ customers, onCustomerSelect, selectedCustomerId }: Cust
                 </button>
               </th>
               <th className="px-6 py-4 text-right">
-                <span className="text-sm font-semibold text-foreground">Actions</span>
+                <span className="text-sm font-semibold text-foreground">
+                  Actions
+                </span>
               </th>
             </tr>
           </thead>
@@ -135,7 +176,7 @@ const CustomerTable = ({ customers, onCustomerSelect, selectedCustomerId }: Cust
                 key={customer.id}
                 onClick={() => onCustomerSelect(customer)}
                 className={`hover:bg-muted/30 transition-smooth cursor-pointer ${
-                  selectedCustomerId === customer.id ? 'bg-muted/50' : ''
+                  selectedCustomerId === customer.id ? "bg-muted/50" : ""
                 }`}
               >
                 <td className="px-6 py-4">
@@ -154,15 +195,23 @@ const CustomerTable = ({ customers, onCustomerSelect, selectedCustomerId }: Cust
                       )}
                     </div>
                     <div>
-                      <div className="text-sm font-medium text-foreground">{customer.name}</div>
-                      <div className="text-xs text-muted-foreground capitalize">{customer.gender}</div>
+                      <div className="text-sm font-medium text-foreground">
+                        {customer.name}
+                      </div>
+                      <div className="text-xs text-muted-foreground capitalize">
+                        {customer.gender}
+                      </div>
                     </div>
                   </div>
                 </td>
                 <td className="px-6 py-4">
-                  <div className="text-sm text-foreground">{customer.phone}</div>
+                  <div className="text-sm text-foreground">
+                    {customer.phone}
+                  </div>
                   {customer.email && (
-                    <div className="text-xs text-muted-foreground">{customer.email}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {customer.email}
+                    </div>
                   )}
                 </td>
                 <td className="px-6 py-4">
@@ -170,7 +219,9 @@ const CustomerTable = ({ customers, onCustomerSelect, selectedCustomerId }: Cust
                     {customer.tags.map((tag) => (
                       <span
                         key={tag}
-                        className={`px-2 py-1 rounded-md text-xs font-medium ${getTagColor(tag)}`}
+                        className={`px-2 py-1 rounded-md text-xs font-medium ${getTagColor(
+                          tag
+                        )}`}
                       >
                         {tag}
                       </span>
@@ -178,10 +229,14 @@ const CustomerTable = ({ customers, onCustomerSelect, selectedCustomerId }: Cust
                   </div>
                 </td>
                 <td className="px-6 py-4">
-                  <div className="text-sm text-foreground">{formatDate(customer.lastVisit)}</div>
+                  <div className="text-sm text-foreground">
+                    {formatDate(customer.lastVisit)}
+                  </div>
                 </td>
                 <td className="px-6 py-4">
-                  <div className="text-sm text-foreground">{customer.totalVisits}</div>
+                  <div className="text-sm text-foreground">
+                    {customer.totalVisits}
+                  </div>
                 </td>
                 <td className="px-6 py-4">
                   <div className="text-sm font-medium text-foreground">
@@ -198,7 +253,27 @@ const CustomerTable = ({ customers, onCustomerSelect, selectedCustomerId }: Cust
                       className="p-2 rounded-md hover:bg-muted transition-smooth"
                       aria-label="View customer details"
                     >
-                      <Icon name="Eye" size={16} className="text-muted-foreground" />
+                      <Icon
+                        name="Eye"
+                        size={16}
+                        className="text-destructive"
+                      />
+                    </button>
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCustomerToDelete(customer);
+                        setShowDeleteModal(true);
+                      }}
+                      className="p-2 rounded-md hover:bg-destructive/10 transition-smooth"
+                      aria-label="Delete customer"
+                    >
+                      <Icon
+                        name="Trash"
+                        size={16}
+                        className="text-destructive"
+                      />
                     </button>
                   </div>
                 </td>
@@ -206,6 +281,17 @@ const CustomerTable = ({ customers, onCustomerSelect, selectedCustomerId }: Cust
             ))}
           </tbody>
         </table>
+        <ConfirmModal
+          isOpen={showDeleteModal}
+          title="Delete Customer"
+          description={`Are you sure you want to delete ${customerToDelete?.name}? This action cannot be undone.`}
+          onCancel={() => {
+            setShowDeleteModal(false);
+            setCustomerToDelete(null);
+          }}
+          onConfirm={handleDeleteCustomer}
+          confirmColor="red"
+        />
       </div>
     </div>
   );

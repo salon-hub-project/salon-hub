@@ -35,51 +35,65 @@ export interface UpdateCustomerPayload {
 
 export const customerApi = {
   addCustomer: async (data: AddCustomerPayload) => {
-    try{
-    const res = await api.post("/customer", data);
-    showToast({
-      message: res?.data?.message || "Create Customer Successfully",
-      status: "success"
-    })
-    return res.data;
-    }catch(error: any){
+    try {
+      const res = await api.post("/customer", data);
+      showToast({
+        message: res?.data?.message || "Create Customer Successfully",
+        status: "success",
+      });
+      return res.data;
+    } catch (error: any) {
       showToast({
         message: error?.response?.data?.message || "Failed to create Customer",
-        status: "error"
-      })
+        status: "error",
+      });
     }
   },
 
-    getCustomers: async (params: GetCustomersParams) => {
+  getCustomers: async (params: GetCustomersParams) => {
     const query = new URLSearchParams();
     if (params.page) query.append("page", params.page.toString());
     if (params.limit) query.append("limit", params.limit.toString());
     if (params.fullName) query.append("fullName", params.fullName);
     if (params.gender) query.append("gender", params.gender);
-    if (params.customerTag?.length) query.append("customerTag", params.customerTag.join(","));
+    if (params.customerTag?.length)
+      query.append("customerTag", params.customerTag.join(","));
 
     const res = await api.get(`/customer?${query.toString()}`);
     return res.data;
   },
-   getCustomerById: async (id: string) => {
+  getCustomerById: async (id: string) => {
     const res = await api.get(`/customer/${id}`);
-    return res.data.customerDetails; 
+    return res.data.customerDetails;
   },
   updateCustomer: async (id: string, data: UpdateCustomerPayload) => {
-    try{
-    const res = await api.put(`/customer/${id}`, data);
-    showToast({
-      message: res?.data?.message || "Customer updated successfully",
-      status: "success"
-    });
-    return res.data;
-    }
-    catch(error: any){
+    try {
+      const res = await api.put(`/customer/${id}`, data);
+      showToast({
+        message: res?.data?.message || "Customer updated successfully",
+        status: "success",
+      });
+      return res.data;
+    } catch (error: any) {
       showToast({
         message: error?.response?.data?.message || "Failed to Update Customer",
-        status: "error"
-      })
+        status: "error",
+      });
     }
   },
-  
+  deleteCustomer: async (id: string) => {
+    try {
+      const res = await api.delete(`/customer/${id}`);
+      showToast({
+        message: res?.data?.message || "Customer deleted successfully",
+        status: "success",
+      });
+      return res.data;
+    } catch (error: any) {
+      showToast({
+        message: error?.response?.data?.message || "Failed to delete customer",
+        status: "error",
+      });
+    }
+  },
 };

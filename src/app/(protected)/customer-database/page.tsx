@@ -304,6 +304,7 @@ const CustomerDatabase = () => {
                     customers={customers}
                     onCustomerSelect={(customer) => handleCustomerSelect(customer.id)}
                     selectedCustomerId={selectedCustomer?.id || null}
+                    onCustomerDeleted={fetchCustomers}
                   />
                 )}
 

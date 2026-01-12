@@ -362,7 +362,7 @@ const StaffManagement = () => {
                 </div>
 
                 {loading ? (
-                  <Loader label="Fetching staff members..." />
+                  <Loader label="Loading staff..." />
                 ) : employees.length === 0 ? (
                   <NoData
                     title="No employees found"

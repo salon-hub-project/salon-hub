@@ -80,7 +80,7 @@ const BookingCard = ({ booking, onClick, onStatusChange }: BookingCardProps) => 
         <div className="flex items-center gap-2 text-sm">
           <Icon name="Clock" size={16} className="text-muted-foreground flex-shrink-0" />
           <span className="text-foreground">
-            {booking.startTime} - {booking.endTime}
+            {booking.startTime}
           </span>
         </div>
 
