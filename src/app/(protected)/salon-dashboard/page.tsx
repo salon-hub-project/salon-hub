@@ -10,9 +10,7 @@ import QuickActions from "./components/QuickActions";
 import StaffUtilizationCard from "./components/StaffUtilizationCard";
 import NotificationPanel from "./components/NotificationPanel";
 import {
-  DashboardMetric,
   TodayAppointment,
-  RecentActivity,
   QuickAction,
   StaffUtilization,
   Notification,
@@ -24,24 +22,31 @@ import { normalizeRole } from "@/app/utils/normalizeRole";
 import { appointmentApi } from "@/app/services/appointment.api";
 import { customerApi } from "@/app/services/customer.api";
 import { staffApi } from "@/app/services/staff.api";
-import { getProfile } from "@/app/store/slices/profileSlice";
+import { notificationApi } from "@/app/services/notification.api";
+import { Icon } from "lucide-react";
 
 const SalonDashboard = () => {
   const router = useRouter();
-  const dispatch = useAppDispatch();
   const authUser = useAppSelector((state) => state.auth.user);
   const { profile } = useAppSelector((state) => state.profile);
   const { user } = useAppSelector((state: any) => state.auth);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const isAuthenticated = useAppSelector((state) => !!state.auth.token);
-  
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [appointmentNotifications, setAppointmentNotifications] = useState<
+    Notification[]
+  >([]);
+  const [customerNotifications, setCustomerNotifications] = useState<
+    Notification[]
+  >([]);
+  const [showAppointmentNotifications, setShowAppointmentNotifications] =
+    useState(false);
+  const [showCustomerNotifications, setShowCustomerNotifications] =
+    useState(false);
+  const [activeNotificationType, setActiveNotificationType] = useState<
+    "appointment" | "customer" | null
+  >(null);
+
   const normalizedUserRole = normalizeRole(user?.role);
-  // useEffect(() => {
-  //   if (normalizedUserRole !== "OWNER") return;
-  //   if (!profile) {
-  //     dispatch(getProfile());
-  //   }
-  // }, [dispatch, normalizedUserRole]);
 
   const [todayAppointments, setTodayAppointments] = useState<
     TodayAppointment[]
@@ -78,7 +83,7 @@ const SalonDashboard = () => {
     const fetchTodayAppointments = async () => {
       try {
         const res = await appointmentApi.getAllAppointments({ limit: 500 });
-        console.log(res);
+
         const todaysAppointments = res.filter(
           (appt: any) => appt.appointmentDate && isToday(appt.appointmentDate)
         );
@@ -175,7 +180,60 @@ const SalonDashboard = () => {
     fetchStaffUtilization();
   }, [isAuthenticated]);
 
-  
+  //fetch notifications:-
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const fetchNotifications = async () => {
+      try {
+        const res = await notificationApi.getAllNotifications();
+        if (!res?.data) return;
+
+        const { newAppointments = [], newCustomers = [] } = res.data;
+
+        // Appointment Notifications
+        const appointmentNotifications: Notification[] = newAppointments.map(
+          (appt: any) => ({
+            id: appt._id,
+            type: "info",
+            title: "New Appointment",
+            message: `${
+              appt.customerId?.fullName || "Customer"
+            } booked an appointment at ${appt.appointmentTime}`,
+            timestamp: new Date(appt.createdAt),
+            read: false,
+          })
+        );
+
+        // Customer Notifications (ignore deleted)
+        const customerNotifications: Notification[] = newCustomers
+          .filter((cust: any) => !cust.isDeleted)
+          .map((cust: any) => ({
+            id: cust._id,
+            type: "success",
+            title: "New Customer",
+            message: `${cust.fullName} joined your salon`,
+            timestamp: new Date(cust.createdAt),
+            read: false,
+          }));
+
+        setAppointmentNotifications(appointmentNotifications);
+        setCustomerNotifications(customerNotifications);
+
+        // Merge & sort (latest first)
+        const allNotifications = [
+          ...appointmentNotifications,
+          ...customerNotifications,
+        ].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+
+        setNotifications(allNotifications);
+      } catch (error) {
+        console.error("Notification fetch failed", error);
+      }
+    };
+
+    fetchNotifications();
+  }, [isAuthenticated]);
 
   const quickActions: QuickAction[] = [
     {
@@ -212,40 +270,24 @@ const SalonDashboard = () => {
     },
   ];
 
-  const [notifications, setNotifications] = useState<Notification[]>([
-    {
-      id: "1",
-      type: "warning",
-      title: "Upcoming Appointment",
-      message: "Emma Wilson's appointment starts in 15 minutes",
-      timestamp: new Date(Date.now() - 60000),
-      read: false,
-    },
-    {
-      id: "2",
-      type: "info",
-      title: "New Customer",
-      message: "Robert Garcia registered as a new customer",
-      timestamp: new Date(Date.now() - 300000),
-      read: false,
-    },
-    {
-      id: "3",
-      type: "success",
-      title: "Payment Received",
-      message: "Payment of INR 95 received from David Martinez",
-      timestamp: new Date(Date.now() - 600000),
-      read: true,
-    },
-    {
-      id: "4",
-      type: "error",
-      title: "Appointment Cancelled",
-      message: "Jessica Taylor cancelled her 11:00 AM appointment",
-      timestamp: new Date(Date.now() - 900000),
-      read: true,
-    },
-  ]);
+  // const [notifications, setNotifications] = useState<Notification[]>([
+  //   {
+  //     id: "1",
+  //     type: "warning",
+  //     title: "Upcoming Appointment",
+  //     message: "Emma Wilson's appointment starts in 15 minutes",
+  //     timestamp: new Date(Date.now() - 60000),
+  //     read: false,
+  //   },
+  //   {
+  //     id: "2",
+  //     type: "info",
+  //     title: "New Customer",
+  //     message: "Robert Garcia registered as a new customer",
+  //     timestamp: new Date(Date.now() - 300000),
+  //     read: false,
+  //   }
+  // ]);
 
   const handleNotificationClick = () => {
     console.log("Notifications clicked");
@@ -278,19 +320,6 @@ const SalonDashboard = () => {
   return (
     <AuthGuard>
       <div className="min-h-screen bg-background">
-        {/* <Sidebar
-          isCollapsed={sidebarCollapsed}
-          userRole={currentUser.role}
-          onNavigate={handleNavigation}
-        /> */}
-
-        {/* <Header
-          user={user}
-          notifications={3}
-          onLogout={() => router.push("/salon-login")}
-          onProfileClick={() => router.push("/profile")}
-        /> */}
-
         <main className="ml-0 lg:pb-8">
           <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
             <div className="mb-6">
@@ -341,17 +370,69 @@ const SalonDashboard = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-6">
-              <NotificationPanel
-                notifications={notifications}
-                onMarkAsRead={handleMarkAsRead}
-                onDismiss={handleDismissNotification}
-              />
+            <div className="grid grid-cols-1 gap-6 mt-4">
+              {/* Appointment Notifications */}
+              <div
+                onClick={() =>
+                  setActiveNotificationType((prev) =>
+                    prev === "appointment" ? null : "appointment"
+                  )
+                }
+                className="cursor-pointer bg-card border border-border rounded-lg p-4 hover:bg-muted transition"
+              >
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold text-foreground">
+                    Appointments
+                  </h3>
+                  {appointmentNotifications.length > 0 && (
+                    <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
+                      {appointmentNotifications.length}
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Click to view today's appointment alerts
+                </p>
+
+                {activeNotificationType === "appointment" && (
+                  <div className="mt-4">
+                    <NotificationPanel
+                      notifications={appointmentNotifications}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Customer Notifications */}
+              <div
+                onClick={() =>
+                  setActiveNotificationType((prev) =>
+                    prev === "customer" ? null : "customer"
+                  )
+                }
+                className="cursor-pointer bg-card border border-border rounded-lg p-4 hover:bg-muted transition"
+              >
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold text-foreground">Customers</h3>
+                  {customerNotifications.length > 0 && (
+                    <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
+                      {customerNotifications.length}
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Click to view customer notifications
+                </p>
+
+                {activeNotificationType === "customer" && (
+                  <div className="mt-4">
+                    <NotificationPanel notifications={customerNotifications} />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </main>
-
-
       </div>
     </AuthGuard>
   );

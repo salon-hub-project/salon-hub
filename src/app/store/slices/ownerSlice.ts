@@ -93,10 +93,11 @@ const ownerSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchOwners.fulfilled, (state, action) => {
-        console.log("FETCH OWNERS RESPONSE 👉", action.payload);
         state.isLoading = false;
         state.owners = action.payload.owners;
         state.total = action.payload.total;
+        state.page = action.payload.page;
+        state.limit = action.payload.limit;
       })
       .addCase(fetchOwners.rejected, (state, action) => {
         state.isLoading = false;
@@ -156,6 +157,7 @@ const ownerSlice = createSlice({
         state.owners = state.owners.filter(
           (owner) => owner._id !== deletedOwnerId
         );
+        state.total = Math.max(0, state.total - 1);
       });
   },
 });

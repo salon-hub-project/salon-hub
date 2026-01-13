@@ -1,44 +1,41 @@
-import { Service, ServiceStats as IServiceStats } from '../types';
+import { Service } from '../types';
 import Icon from '../../../components/AppIcon';
 
 interface ServiceStatsProps {
   services: Service[];
   categories: string[];
+  totalServices: number; 
 }
 
-const ServiceStats = ({ services, categories }: ServiceStatsProps) => {
-  const stats: IServiceStats = {
-    totalServices: services.length,
-    activeServices: services.filter(s => s.isActive).length,
-    popularServices: services.filter(s => s.isPopular).length,
-    categories: categories.length,
-  };
+const ServiceStats = ({ services, categories, totalServices }: ServiceStatsProps) => {
+  const activeServices = services.filter(s => s.isActive).length;
+  const popularServices = services.filter(s => s.isPopular).length;
 
   const statCards = [
     {
       label: 'Total Services',
-      value: stats.totalServices,
+      value: totalServices,
       icon: 'Scissors',
       color: 'bg-primary',
       textColor: 'text-primary',
     },
     {
       label: 'Active Services',
-      value: stats.activeServices,
+      value: activeServices,
       icon: 'CheckCircle',
       color: 'bg-success',
       textColor: 'text-success',
     },
     {
       label: 'Popular Services',
-      value: stats.popularServices,
+      value: popularServices,
       icon: 'Star',
       color: 'bg-warning',
       textColor: 'text-warning',
     },
     {
       label: 'Categories',
-      value: stats.categories,
+      value: categories.length,
       icon: 'Grid3x3',
       color: 'bg-accent',
       textColor: 'text-accent',
