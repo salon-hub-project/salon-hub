@@ -106,6 +106,9 @@ const SalonDashboard = () => {
   //fetch active customers:-
   useEffect(() => {
     if (!isAuthenticated) return;
+    // Skip customer API call for staff - they don't have access to customer data
+    if (normalizedUserRole === "STAFF") return;
+    
     const fetchCustomers = async () => {
       try {
         const res = await customerApi.getCustomers({
@@ -120,7 +123,7 @@ const SalonDashboard = () => {
     };
 
     fetchCustomers();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, normalizedUserRole]);
 
   //staff utilization
   useEffect(() => {

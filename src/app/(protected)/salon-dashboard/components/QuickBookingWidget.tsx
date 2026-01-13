@@ -12,6 +12,8 @@ import { serviceApi } from "@/app/services/service.api";
 import { staffApi } from "@/app/services/staff.api";
 import { customerApi } from "@/app/services/customer.api";
 import { showToast } from "@/app/components/ui/toast";
+import { useAppSelector } from "@/app/store/hooks";
+import { isStaff } from "@/app/utils/routePermissions";
 
 interface QuickBookingWidgetProps {
   onCreateBooking: (data: any) => void;
@@ -26,6 +28,8 @@ interface BookingFormValues {
 }
 
 const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
+  const user = useAppSelector((state) => state.auth.user);
+  const userRole = user?.role;
   const [customerOptions, setCustomerOptions] = useState<
     { value: string; label: string }[]
   >([]);
@@ -39,6 +43,9 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
   // ================= FETCH DATA =================
 
   const fetchCustomers = async () => {
+    // Skip customer API call for staff - they don't have access to customer data
+    if (isStaff(userRole)) return;
+    
     try {
       const res = await customerApi.getCustomers({ limit: 1000 });
       setCustomerOptions(

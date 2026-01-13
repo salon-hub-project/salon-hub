@@ -18,6 +18,7 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
   useEffect(() => {
     localStorage.setItem("lastProtectedRoute", pathname);
   }, [pathname]);
+  
   const user = {
     name: authUser
       ? `${authUser.firstName ?? ""} ${authUser.lastName ?? ""}`.trim()

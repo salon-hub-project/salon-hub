@@ -16,11 +16,12 @@ import {
 
 import { Formik } from "formik";
 import { registrationSchema } from "@/app/components/validation/validation";
+import { getSafeRedirectPath } from "@/app/utils/routePermissions";
 
 const SalonRegistrationClient = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { isLoading, error, registrationSuccess, isAuthenticated } =
+  const { isLoading, error, registrationSuccess, isAuthenticated, user } =
     useAppSelector((state) => state.auth);
 
   const [currentStep, setCurrentStep] = useState<"form" | "otp" | "success">(
@@ -36,12 +37,16 @@ const SalonRegistrationClient = () => {
   useEffect(() => {
     if (!isAuthenticated) return;
   
-    const redirectPath =
-      localStorage.getItem("lastProtectedRoute") || "/salon-dashboard";
+    const userRole = user?.role;
+    const requestedPath = localStorage.getItem("lastProtectedRoute");
+  
+    // Validate and get safe redirect path based on user role
+    const safeRedirectPath = getSafeRedirectPath(requestedPath, userRole);
   
     localStorage.removeItem("redirectAfterLogin");
-    router.replace(redirectPath);
-  }, [isAuthenticated, router]);
+    localStorage.removeItem("lastProtectedRoute");
+    router.replace(safeRedirectPath);
+  }, [isAuthenticated, user, router]);
   
 
   // Registration success redirects

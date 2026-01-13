@@ -9,11 +9,12 @@ import { loginUser, clearError } from "../../store/slices/authSlice";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { loginValidationSchema } from "@/app/components/validation/validation";
+import { getSafeRedirectPath } from "@/app/utils/routePermissions";
 
 const LoginPage = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { isLoading, error, isAuthenticated } = useAppSelector(
+  const { isLoading, error, isAuthenticated, user } = useAppSelector(
     (state) => state.auth
   );
 
@@ -24,14 +25,19 @@ const LoginPage = () => {
   useEffect(() => {
     if (!isAuthenticated) return;
   
-    const redirectPath =
+    const userRole = user?.role;
+    
+    const requestedPath =
       localStorage.getItem("redirectAfterLogin") ||
-      localStorage.getItem("lastProtectedRoute") ||
-      "/salon-dashboard";
+      localStorage.getItem("lastProtectedRoute");
+  
+    // Validate and get safe redirect path based on user role
+    const safeRedirectPath = getSafeRedirectPath(requestedPath, userRole);
   
     localStorage.removeItem("redirectAfterLogin");
-    router.replace(redirectPath);
-  }, [isAuthenticated, router]);
+    localStorage.removeItem("lastProtectedRoute");
+    router.replace(safeRedirectPath);
+  }, [isAuthenticated, user, router]);
   
   
 

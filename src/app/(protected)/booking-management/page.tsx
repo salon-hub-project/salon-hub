@@ -26,6 +26,7 @@ import { serviceApi } from "@/app/services/service.api";
 import { staffApi } from "@/app/services/staff.api";
 import { useSelector } from "react-redux";
 import Loader from "@/app/components/Loader";
+import { isStaff } from "@/app/utils/routePermissions";
 
 const BookingManagement = () => {
   const fetchingRef = useRef(false);
@@ -56,6 +57,7 @@ const BookingManagement = () => {
   };
 
   const user = useSelector((state: any) => state.auth.user);
+  const isStaffUser = isStaff(user?.role);
   const loadBookings = useCallback(async () => {
     try {
       if (!user) return;
@@ -153,60 +155,67 @@ const BookingManagement = () => {
 
     fetchingRef.current = true;
     try {
-      const customerRes = await customerApi.getCustomers({
-        page: 1,
-        limit: 100,
-      });
-      const rawCustomers = Array.isArray(customerRes)
-        ? customerRes
-        : customerRes?.data || [];
+      // Skip protected resources when staff only has appointments access
+      if (!isStaffUser) {
+        try {
+          const customerRes = await customerApi.getCustomers({
+            page: 1,
+            limit: 100,
+          });
+          const rawCustomers = Array.isArray(customerRes)
+            ? customerRes
+            : customerRes?.data || [];
 
-      if (!mountedRef.current) return;
+          if (!mountedRef.current) return;
 
-      setCustomers(
-        rawCustomers.map((c: any) => ({
-          ...c,
-          id: c._id || c.id,
-          name: c.fullName || c.name,
-          phone: c.phoneNumber || c.phone,
-          tags: c.customerTag || c.tags || [],
-        }))
-      );
+          setCustomers(
+            rawCustomers.map((c: any) => ({
+              ...c,
+              id: c._id || c.id,
+              name: c.fullName || c.name,
+              phone: c.phoneNumber || c.phone,
+              tags: c.customerTag || c.tags || [],
+            }))
+          );
+        } catch (error) {
+          // Silently fail customer fetch for non-staff users too
+          console.error("Failed to load customers", error);
+        }
+        const serviceRes = await serviceApi.getAllServices({
+          page: 1,
+          limit: 100,
+        });
+        const rawServices = Array.isArray(serviceRes)
+          ? serviceRes
+          : serviceRes?.data || [];
 
-      const serviceRes = await serviceApi.getAllServices({
-        page: 1,
-        limit: 100,
-      });
-      const rawServices = Array.isArray(serviceRes)
-        ? serviceRes
-        : serviceRes?.data || [];
+        if (!mountedRef.current) return;
 
-      if (!mountedRef.current) return;
+        setServices(
+          rawServices.map((s: any) => ({
+            ...s,
+            id: s._id || s.id,
+            name: s.serviceName || s.name,
+          }))
+        );
 
-      setServices(
-        rawServices.map((s: any) => ({
-          ...s,
-          id: s._id || s.id,
-          name: s.serviceName || s.name,
-        }))
-      );
+        const staffRes = await staffApi.getAllStaff({ page: 1, limit: 100 });
+        const rawStaff = Array.isArray(staffRes)
+          ? staffRes
+          : staffRes?.data || [];
 
-      const staffRes = await staffApi.getAllStaff({ page: 1, limit: 100 });
-      const rawStaff = Array.isArray(staffRes)
-        ? staffRes
-        : staffRes?.data || [];
+        if (!mountedRef.current) return;
 
-      if (!mountedRef.current) return;
-
-      setStaff(
-        rawStaff.map((s: any) => ({
-          ...s,
-          id: s._id || s.id,
-          name: s.fullName || s.name,
-          phone: s.phoneNumber || s.phone,
-          isAvailable: s.isActive,
-        }))
-      );
+        setStaff(
+          rawStaff.map((s: any) => ({
+            ...s,
+            id: s._id || s.id,
+            name: s.fullName || s.name,
+            phone: s.phoneNumber || s.phone,
+            isAvailable: s.isActive,
+          }))
+        );
+      }
     } catch (error) {
       if (mountedRef.current) {
         console.error("Failed to load booking dependencies", error);
@@ -310,6 +319,7 @@ const BookingManagement = () => {
   };
 
   const handleTimeSlotClick = (time: string) => {
+    if (isStaffUser) return;
     setSelectedDate(currentDate);
     setSelectedTime(time);
     setShowBookingForm(true);
@@ -465,14 +475,16 @@ const BookingManagement = () => {
             </p>
           </div>
 
-          <Button
-            variant="default"
-            iconName="Plus"
-            iconPosition="left"
-            onClick={() => setShowBookingForm(true)}
-          >
-            New Booking
-          </Button>
+          {!isStaffUser && (
+            <Button
+              variant="default"
+              iconName="Plus"
+              iconPosition="left"
+              onClick={() => setShowBookingForm(true)}
+            >
+              New Booking
+            </Button>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -585,7 +597,7 @@ const BookingManagement = () => {
         </div>
       </div>
 
-      {showBookingForm && (
+      {!isStaffUser && showBookingForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4">
           <div className="max-w-2xl w-full">
             <BookingForm
