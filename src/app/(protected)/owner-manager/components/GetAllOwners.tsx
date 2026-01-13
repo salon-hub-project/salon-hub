@@ -15,10 +15,11 @@ import { normalizeRole } from "@/app/utils/normalizeRole";
 import OwnerDetails from "./OwnerDetails";
 import { ownerApi } from "@/app/services/owner.api";
 import Loader from "@/app/components/Loader";
+import Pagination from "@/app/components/Pagination";
 
 const GetAllOwners = () => {
   const dispatch = useAppDispatch();
-  const { owners, isLoading, error, selectedOwner } = useAppSelector(
+  const { owners, isLoading, error, selectedOwner, page, limit, total } = useAppSelector(
     (state) => state.owner
   );
   const authUser = useAppSelector((state) => state.auth.user);
@@ -26,10 +27,11 @@ const GetAllOwners = () => {
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [selectedOwnerId, setSelectedOwnerId] = useState<string | null>(null);
+  const totalPages= Math.ceil(total/limit);
 
   useEffect(() => {
-    dispatch(fetchOwners({ page: 1, limit: 10 }));
-  }, [dispatch]);
+    dispatch(fetchOwners({ page: page, limit: limit }));
+  }, [dispatch, page]);
 
   const handleDelete = (ownerId: string) => {
     setSelectedOwnerId(ownerId);
@@ -45,7 +47,7 @@ const GetAllOwners = () => {
   };
 
   const effectiveRole = Array.isArray(authUser?.role)
-    ? authUser.role[0]
+    ? authUser?.role[0]
     : authUser?.role ?? "salon_owner";
   const normalizedRole = normalizeRole(effectiveRole);
 
@@ -58,8 +60,8 @@ const GetAllOwners = () => {
 
   const headerUser = {
     name:
-      authUser && (authUser.firstName || authUser.lastName)
-        ? `${authUser.firstName ?? ""} ${authUser.lastName ?? ""}`.trim()
+      authUser && (authUser?.firstName || authUser?.lastName)
+        ? `${authUser?.firstName ?? ""} ${authUser?.lastName ?? ""}`.trim()
         : authUser?.email ?? "User",
     email: authUser?.email ?? "",
     role: effectiveRole,
@@ -81,7 +83,7 @@ const GetAllOwners = () => {
           {isLoading && <Loader label="Loading owners..." />}
           {error && <p className="text-red-500">{error}</p>}
 
-          {!isLoading && owners.length > 0 && (
+          {!isLoading && owners?.length > 0 && (
             <div className="bg-card border rounded-lg overflow-hidden">
               <table className="w-full">
                 <thead className="bg-muted">
@@ -94,14 +96,14 @@ const GetAllOwners = () => {
                 </thead>
 
                 <tbody>
-                  {owners.map((owner) => (
+                  {owners?.map((owner) => (
                     <tr key={owner._id} className="border-t">
-                      <td className="px-4 py-3">{owner.userId.email}</td>
+                      <td className="px-4 py-3">{owner?.userId?.email}</td>
                       <td className="px-4 py-3">
                         {owner?.userId?.phoneNumber || "-"}
                       </td>
                       <td className="px-4 py-3">
-                        {owner.isApproved ? (
+                        {owner?.isApproved ? (
                           <span className="text-green-600 flex items-center gap-1">
                             <Icon name="CheckCircle" size={16} />
                             Verified
@@ -150,6 +152,12 @@ const GetAllOwners = () => {
           description="This action cannot be undone. Are you sure you want to delete this owner?"
           onCancel={() => setConfirmOpen(false)}
           onConfirm={confirmDeleteOwner}
+        />
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          onPageChange={(p) => dispatch(fetchOwners({ page: p, limit }))}
+          className="pb-4"
         />
       </div>
     </div>

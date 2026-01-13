@@ -91,7 +91,7 @@ const BookingForm = ({
 }: BookingFormProps) => {
   // State for available staff, initialized with the passed staff list
   const [availableStaff, setAvailableStaff] = useState<Staff[]>(staff);
-  console.log(customers)
+  
   const customerOptions = customers.map((c) => ({
     value: c.id ,
     label: `${c.name}`,

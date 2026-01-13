@@ -21,7 +21,6 @@ interface ProfileFormValues {
   salonImage: File | null;
 }
 
-console.log(config.API_BASE_URL);
 
 const ProfileSchema = Yup.object().shape({
   salonName: Yup.string().required("Salon name is required"),
@@ -33,7 +32,6 @@ const CreateProfile = () => {
   const dispatch = useAppDispatch();
 
   const { profile } = useAppSelector((state) => state.profile);
-  console.log(profile);
 
   const isEditMode = Boolean(profile);
 

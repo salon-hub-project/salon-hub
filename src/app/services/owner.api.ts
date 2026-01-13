@@ -24,7 +24,6 @@ export const ownerApi = {
   getAllOwners: async (page = 1, limit = 10) => {
     try {
       const res = await api.get(`/owner?page=${page}&limit=${limit}`);
-      console.log(res.data)
       return {
         owners: res.data.data,
         total: res.data.pagination.total,
