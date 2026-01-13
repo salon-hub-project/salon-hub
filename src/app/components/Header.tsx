@@ -52,10 +52,10 @@ const Header = ({
 
   useEffect(() => {
     if (normalizedUserRole !== "OWNER") return;
-    if (!profile && !isLoading ) {
+    if (!profile && !isLoading && isAuthenticated) {
       dispatch(getProfile());
     }
-  }, [dispatch, normalizedUserRole]);
+  }, [dispatch, normalizedUserRole, isAuthenticated, profile, isLoading]);
 
   useEffect(() => {
     if (!isAuthenticated) return;
