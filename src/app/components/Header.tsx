@@ -55,7 +55,7 @@ const Header = ({
     if (!profile && !isLoading && isAuthenticated) {
       dispatch(getProfile());
     }
-  }, [dispatch, normalizedUserRole, isAuthenticated, profile, isLoading]);
+  }, [normalizedUserRole, isAuthenticated, profile]);
 
   useEffect(() => {
     if (!isAuthenticated) return;
