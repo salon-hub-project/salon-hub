@@ -116,6 +116,29 @@ const ProfilePage = () => {
               label="Salon Name"
               value={profile?.salonName ?? "—"}
             />
+            <ProfileItem
+              icon="Clock"
+              label="Opening Time"
+              value={profile?.openingTime ?? "—"}
+            />
+            <ProfileItem
+              icon="Clock"
+              label="Closing Time"
+              value={profile?.closingTime ?? "—"}
+            />
+            <ProfileItem
+              icon="Calendar"
+              label="Working Days"
+              value={
+                profile?.workingDays && profile.workingDays.length > 0
+                  ? profile.workingDays
+                      .map((d: number) =>
+                        ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d]
+                      )
+                      .join(", ")
+                  : "—"
+              }
+            />
           </div>
         </div>
 
