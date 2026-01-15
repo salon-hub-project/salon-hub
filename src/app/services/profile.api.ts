@@ -71,4 +71,13 @@ export const profileApi = {
       throw error;
     }
   },
+  getProfileTimings: async () => {
+    try {
+      const res = await api.get("/profile/timings");
+      console.log(res.data);
+      return res.data;
+    } catch (error: any) {
+      throw error;
+    }
+  },
 };

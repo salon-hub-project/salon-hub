@@ -9,6 +9,7 @@ import { getProfile, deleteProfile } from "@/app/store/slices/profileSlice";
 import ConfirmModal from "@/app/components/ui/ConfirmModal";
 import { normalizeRole } from "@/app/utils/normalizeRole";
 import Loader from "@/app/components/Loader";
+import { formatTo12Hour } from "@/app/utils/formatHour";
 
 interface ProfileItemProps {
   icon: string;
@@ -115,6 +116,29 @@ const ProfilePage = () => {
               icon="Scissors"
               label="Salon Name"
               value={profile?.salonName ?? "—"}
+            />
+            <ProfileItem
+              icon="Clock"
+              label="Opening Time"
+              value={formatTo12Hour(profile?.openingTime) ?? "—"}
+            />
+            <ProfileItem
+              icon="Clock"
+              label="Closing Time"
+              value={formatTo12Hour(profile?.closingTime) ?? "—"}
+            />
+            <ProfileItem
+              icon="Calendar"
+              label="Working Days"
+              value={
+                profile?.workingDays && profile.workingDays.length > 0
+                  ? profile.workingDays
+                      .map((d: number) =>
+                        ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d]
+                      )
+                      .join(", ")
+                  : "—"
+              }
             />
           </div>
         </div>

@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import Icon from "../../components/AppIcon";
 import Button from "../../components/ui/Button";
 import {
@@ -24,11 +25,15 @@ import { appointmentApi } from "@/app/services/appointment.api";
 import { customerApi } from "@/app/services/customer.api";
 import { serviceApi } from "@/app/services/service.api";
 import { staffApi } from "@/app/services/staff.api";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch } from "@/app/store";
+import { fetchProfileTimings } from "@/app/store/slices/profileSlice";
 import Loader from "@/app/components/Loader";
 import { isStaff } from "@/app/utils/routePermissions";
 
 const BookingManagement = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const searchParams = useSearchParams();
   const fetchingRef = useRef(false);
   const mountedRef = useRef(true);
   const [viewMode, setViewMode] = useState<ViewMode>("day");
@@ -57,6 +62,7 @@ const BookingManagement = () => {
   };
 
   const user = useSelector((state: any) => state.auth.user);
+  const timings = useSelector((state: any) => state.profile.timings);
   const isStaffUser = isStaff(user?.role);
   const loadBookings = useCallback(async () => {
     try {
@@ -65,7 +71,13 @@ const BookingManagement = () => {
       let res;
 
       if (user?.role?.[0] === "STAFF") {
-        res = await appointmentApi.getStaffAppointments({ limit: 1000 });
+        const staffId = user?._id || (user as any)?.id;
+        if (!staffId) {
+          console.error("Staff ID not found in user object");
+          setLoading(false);
+          return;
+        }
+        res = await appointmentApi.getStaffAppointments({ limit: 1000, staffId, role: "STAFF" });
       } else {
         res = await appointmentApi.getAllAppointments({ limit: 1000 });
       }
@@ -226,6 +238,10 @@ const BookingManagement = () => {
   }, []);
 
   useEffect(() => {
+    dispatch(fetchProfileTimings());
+  }, [dispatch]);
+
+  useEffect(() => {
     mountedRef.current = true;
     loadInitialData();
 
@@ -235,13 +251,64 @@ const BookingManagement = () => {
     };
   }, [loadInitialData]);
 
+  useEffect(() => {
+    const staffIdFromUrl = searchParams.get("staffId");
+    if (staffIdFromUrl) {
+      setFilters((prev) => ({
+        ...prev,
+        staffId: staffIdFromUrl,
+      }));
+    }
+  }, [searchParams]);
+
   const generateTimeSlots = (): TimeSlot[] => {
+    // Default values if timings are not available
+    let startHour = 9;
+    let startMinute = 0;
+    let endHour = 20; // Last booking slot starts at 20:00 (so closes after that)
+    let endMinute = 0;
+
+    let workingDays = [0, 1, 2, 3, 4, 5, 6]; // Default: all days
+
+    if (timings) {
+      if (timings.openingTime) {
+        const [h, m] = timings.openingTime.split(":").map(Number);
+        startHour = h;
+        startMinute = m;
+      }
+      if (timings.closingTime) {
+        const [h, m] = timings.closingTime.split(":").map(Number);
+        endHour = h;
+        endMinute = m;
+      }
+      if (timings.workingDays && Array.isArray(timings.workingDays)) {
+        workingDays = timings.workingDays;
+      }
+    }
+
+    const currentDayOfWeek = currentDate.getDay();
+    // If today is not a working day, return empty slots or closed indication
+    // For now, let's return empty slots effectively disabling the day
+    if (!workingDays.includes(currentDayOfWeek)) {
+       return [];
+    }
+
+
     const slots: TimeSlot[] = [];
-    for (let hour = 9; hour < 20; hour++) {
-      for (let minute = 0; minute < 60; minute += 30) {
+    
+    // Convert everything to minutes for easier comparison
+    const startTotalMinutes = startHour * 60 + startMinute;
+    const endTotalMinutes = endHour * 60 + endMinute;
+
+    // Generate slots
+    for (let timeInMinutes = startTotalMinutes; timeInMinutes < endTotalMinutes; timeInMinutes += 30) {
+        const hour = Math.floor(timeInMinutes / 60);
+        const minute = timeInMinutes % 60;
+        
         const time = `${hour.toString().padStart(2, "0")}:${minute
           .toString()
           .padStart(2, "0")}`;
+          
         const slotBookings = bookings.filter(
           (b) =>
             b.date.toDateString() === currentDate.toDateString() &&
@@ -250,13 +317,14 @@ const BookingManagement = () => {
             (!filters.staffId || b.staffId === filters.staffId) &&
             (!filters.serviceId || b.serviceId === filters.serviceId)
         );
+        
         slots.push({
           time,
           isAvailable: slotBookings.length === 0,
           bookings: slotBookings,
         });
-      }
     }
+    
     return slots;
   };
 

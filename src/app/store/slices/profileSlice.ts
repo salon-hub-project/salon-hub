@@ -1,24 +1,36 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { profileApi } from "../../services/profile.api";
 
+interface ProfileTimings {
+  openingTime: string;
+  closingTime: string;
+  workingDays: number[];
+}
 interface ProfileState {
   isLoading: boolean;
   error: string | null;
   profile: any | null;
+  timings: ProfileTimings | null;
 }
+
 
 const initialState: ProfileState = {
   isLoading: false,
   error: null,
   profile: null,
+  timings: null, 
+  
 };
+
+
 
 export const createProfile = createAsyncThunk(
   "profile/create",
   async (formData: FormData, { rejectWithValue }) => {
     try {
       const response = await profileApi.createProfile(formData);
-      return response.data; // ✅ IMPORTANT
+      // profileApi returns res.data => { success, data, message }
+      return response.data;
     } catch (error: any) {
       return rejectWithValue(
         error?.response?.data?.message || "Profile creation failed"
@@ -32,6 +44,7 @@ export const updateProfile = createAsyncThunk(
   async (formData: FormData, { rejectWithValue }) => {
     try {
       const response = await profileApi.updateProfile(formData);
+      
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -64,6 +77,20 @@ export const deleteProfile = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(
         error?.response?.data?.message || "Failed to delete profile"
+      );
+    }
+  }
+);
+
+export const fetchProfileTimings = createAsyncThunk(
+  "profile/fetchProfileTimings",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await profileApi.getProfileTimings();
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error?.response?.data?.message || "Failed to fetch profile timings"
       );
     }
   }
@@ -127,6 +154,16 @@ const profileSlice = createSlice({
       .addCase(deleteProfile.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
+      })
+
+      .addCase(fetchProfileTimings.pending, (state) => {
+        // state.isLoading = true; // Optional: separate loading state for timings if needed
+      })
+      .addCase(fetchProfileTimings.fulfilled, (state, action) => {
+        state.timings = action.payload;
+      })
+      .addCase(fetchProfileTimings.rejected, (state, action) => {
+        console.error("Failed to fetch timings:", action.payload);
       });
   },
 });

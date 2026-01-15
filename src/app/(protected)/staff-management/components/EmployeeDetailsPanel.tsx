@@ -4,6 +4,8 @@ import Image from "../../../components/AppImage";
 import Button from "../../../components/ui/Button";
 import { Employee } from "../types";
 import EmployeeAvatar from "../types/EmployeeAvatar";
+import { appointmentApi } from "@/app/services/appointment.api";
+import { useState } from "react";
 
 interface EmployeeDetailsPanelProps {
   employee: Employee | null;
@@ -18,6 +20,11 @@ const EmployeeDetailsPanel = ({
   onEdit,
   loading,
 }: EmployeeDetailsPanelProps) => {
+  const [showSchedule, setShowSchedule] = useState(false);
+  const [appointments, setAppointments] = useState<any[]>([]);
+  const [appointmentsLoading, setAppointmentsLoading] = useState(false);
+  const [appointmentsError, setAppointmentsError] = useState<string | null>(null);
+
   if (!employee && !loading) return null;
 
   // From here on, employee is guaranteed to exist when not loading
@@ -296,10 +303,118 @@ const EmployeeDetailsPanel = ({
               iconName="Calendar"
               iconPosition="left"
               fullWidth
+              onClick={async () => {
+                if (!employee) return;
+                setShowSchedule(true);
+                if (appointments.length > 0) return;
+                try {
+                  setAppointmentsLoading(true);
+                  setAppointmentsError(null);
+                  const data = await appointmentApi.getStaffAppointments({
+                    staffId: employee.id,
+                    limit: 1000,
+                  });
+                  setAppointments(Array.isArray(data) ? data : []);
+                } catch (err) {
+                  console.error("Failed to load staff appointments", err);
+                  setAppointmentsError("Failed to load appointments");
+                } finally {
+                  setAppointmentsLoading(false);
+                }
+              }}
             >
               View Schedule
             </Button>
           </div>
+
+          {showSchedule && (
+            <div className="mt-4 border border-border rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-sm font-semibold text-foreground">
+                  Appointment Schedule
+                </h4>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowSchedule(false)}
+                >
+                  Close
+                </Button>
+              </div>
+
+              {appointmentsLoading ? (
+                <Loader label="Loading appointments..." />
+              ) : appointmentsError ? (
+                <p className="text-sm text-destructive">{appointmentsError}</p>
+              ) : appointments.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No appointments found for this staff member.
+                </p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-muted">
+                      <tr className="text-left">
+                        <th className="p-2 font-medium text-foreground">
+                          Date
+                        </th>
+                        <th className="p-2 font-medium text-foreground">
+                          Time
+                        </th>
+                        <th className="p-2 font-medium text-foreground">
+                          Customer
+                        </th>
+                        <th className="p-2 font-medium text-foreground">
+                          Services
+                        </th>
+                        <th className="p-2 font-medium text-foreground">
+                          Status
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {appointments.map((appt) => (
+                        <tr
+                          key={appt._id}
+                          className="border-b border-border last:border-0"
+                        >
+                          <td className="p-2">
+                            {appt.appointmentDate
+                              ? new Date(
+                                  appt.appointmentDate
+                                ).toLocaleDateString("en-US")
+                              : "-"}
+                          </td>
+                          <td className="p-2">
+                            {appt.appointmentTime || "-"}
+                          </td>
+                          <td className="p-2">
+                            {appt.customerId?.fullName || "Unknown"}
+                          </td>
+                          <td className="p-2">
+                            {Array.isArray(appt.services) &&
+                            appt.services.length > 0
+                              ? appt.services
+                                  .map(
+                                    (s: any) =>
+                                      s?.serviceName || s?.name || "Service"
+                                  )
+                                  .join(", ")
+                              : appt.serviceId?.serviceName || "-"}
+                          </td>
+                          <td className="p-2">
+                            <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-muted text-foreground">
+                              {appt.status || "Pending"}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

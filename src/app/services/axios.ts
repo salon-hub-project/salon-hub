@@ -35,6 +35,11 @@ api.interceptors.response.use(
 
     // Auto logout on 401
     if (error.response?.status === 401 && typeof window !== 'undefined') {
+      // Prevent infinite loop: Don't redirect if already on login page
+      if (window.location.pathname === '/salon-login') {
+        return Promise.reject(error);
+      }
+
       localStorage.removeItem('authToken');
       localStorage.removeItem('authUser');
       localStorage.removeItem('lastProtectedRoute');

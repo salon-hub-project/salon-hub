@@ -38,18 +38,55 @@ export const appointmentApi = {
       throw error;
     }
   },
-  getStaffAppointments: async (params?: { page?: number; limit?: number }) => {
+  // getStaffAppointments: async (params?: {
+  //   page?: number;
+  //   limit?: number;
+  //   staffId?: string;
+  // }) => {
+  //   try {
+  //     const { staffId, ...rest } = params || {};
+  //     const url = staffId
+  //       ? `/staff/appointments/${staffId}`
+  //       : "/staff/appointments";
+
+  //     const res = await api.get(url, { params: rest });
+  //     // Ensure we ALWAYS return an array
+  //     return Array.isArray(res.data?.appointmentDetails)
+  //       ? res.data.appointmentDetails
+  //       : [];
+  //   } catch (error) {
+  //     console.error("Failed to fetch appointments", error);
+  //     throw error;
+  //   }
+  // },
+  getStaffAppointments: async (params?: {
+    page?: number;
+    limit?: number;
+    staffId?: string;
+    role?: "OWNER" | "STAFF";
+  }) => {
     try {
-      const res = await api.get("/staff/appointments", { params });
-      // Ensure we ALWAYS return an array
+      const { staffId, role, ...rest } = params || {};
+  
+      // 🔑 ROLE BASED API SELECTION
+      const url =
+        role === "STAFF"
+          ? "/staff/appointments" // staff logged in (JWT based)
+          : staffId
+          ? `/staff/appointments/${staffId}` // owner viewing staff appointments
+          : "/staff/appointments";
+  
+      const res = await api.get(url, { params: rest });
+  
       return Array.isArray(res.data?.appointmentDetails)
         ? res.data.appointmentDetails
         : [];
     } catch (error) {
-      console.error("Failed to fetch appointments", error);
+      console.error("Failed to fetch staff appointments", error);
       throw error;
     }
   },
+  
   getAppointmentDetails: async (appointmentId: string) => {
     try {
       const res = await api.get(`/appointment/${appointmentId}`);
