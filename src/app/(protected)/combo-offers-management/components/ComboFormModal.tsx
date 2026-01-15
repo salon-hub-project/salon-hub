@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Formik, Form } from "formik";
 import Icon from "../../../components/AppIcon";
 import Input from "../../../components/ui/Input";
@@ -7,6 +7,8 @@ import Select from "../../../components/ui/Select";
 import Button from "../../../components/ui/Button";
 import { ComboOffer, ComboFormData } from "../types";
 import { comboValidationSchema } from "@/app/components/validation/validation";
+import { CustomerTag } from "../../customer-database/types";
+import { customerTagApi } from "@/app/services/tags.api";
 
 interface ComboFormModalProps {
   isOpen: boolean;
@@ -43,11 +45,32 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
     staffCommissionRate: combo?.staffCommissionRate || null,
   };
 
-  const eligibilityOptions = [
+  const [customerTags, setCustomerTags] = useState<CustomerTag[]>([]);
+  const [loadingTags, setLoadingTags] = useState(false);
+
+  useEffect(() => {
+    const fetchCustomerTags = async () => {
+      try {
+        setLoadingTags(true);
+        const res = await customerTagApi.getAllCustomerTags();
+        const list = res?.data || [];
+        setCustomerTags(list.map((tag: any) => tag.name));
+      } catch (error) {
+        console.error("Failed to fetch customer tags", error);
+        setCustomerTags([]);
+      } finally {
+        setLoadingTags(false);
+      }
+    };
+    fetchCustomerTags();
+  }, []);
+
+  const customerEligibilityOptions = [
     { value: "all", label: "All Customers" },
-    { value: "new", label: "New Customers Only" },
-    { value: "existing", label: "Existing Customers" },
-    { value: "vip", label: "VIP Members" },
+    ...customerTags.map((tag) => ({
+      value: tag,
+      label: tag,
+    })),
   ];
 
   const calculateOriginalPrice = (services: any[]) =>
@@ -225,10 +248,7 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                           <span>Customer Saves:</span>
                           <div className="flex items-center gap-2">
                             <span className="font-semibold text-green-600">
-                              INR{" "}
-                              {(originalPrice - discounted).toFixed(
-                                2
-                              )}
+                              INR {(originalPrice - discounted).toFixed(2)}
                             </span>
                             <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
                               {savings.toFixed(0)}% OFF
@@ -260,10 +280,11 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                     <Select
                       label="Customer Eligibility"
                       value={values.customerEligibility}
-                      onChange={(e) =>
-                        setFieldValue("customerEligibility", e.target.value)
+                      options={customerEligibilityOptions}
+                      onChange={(value) =>
+                        setFieldValue("customerEligibility", value)
                       }
-                      options={eligibilityOptions}
+                      disabled={loadingTags}
                     />
 
                     <Input
