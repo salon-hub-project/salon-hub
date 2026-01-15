@@ -44,7 +44,7 @@ const CustomerForm = ({
   const isEditMode = !!editingCustomer;
   //const tagOptions: CustomerTag[] = ["VIP", "New", "Frequent", "Inactive"];
 
-  const [customerTags, setCustomerTags] = useState<CustomerTag[]>([]);
+  const [customerTags, setCustomerTags] = useState<any[]>([]);
   const [loadingTags, setLoadingTags] = useState(false);
   const [staff, setStaff] = useState<any[]>([]);
   const [loadingStaff, setLoadingStaff] = useState(false);
@@ -112,7 +112,12 @@ const CustomerForm = ({
         setLoadingTags(true);
         const res = await customerTagApi.getAllCustomerTags();
         const list = res?.data || [];
-        setCustomerTags(list.map((tag: any) => tag.name));
+        setCustomerTags(
+          list.map((tag: any) => ({
+            value: tag._id,
+            label: tag.name,
+          }))
+        );
       } catch (error) {
         console.error("Failed to fetch customer tags", error);
         setCustomerTags([]);
@@ -281,24 +286,22 @@ const CustomerForm = ({
                     No tags available
                   </div>
                 ) : (
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-4">
                     {customerTags.map((tag) => (
-                      <label
-                        key={tag}
-                        className="flex items-center gap-2 px-3 py-2 border rounded-md cursor-pointer"
-                      >
+                      <label key={tag.value} className="flex gap-2">
                         <Checkbox
-                          checked={values.tags.includes(tag)}
+                          className="pt-1"
+                          checked={values.tags.includes(tag.value)}
                           onChange={() =>
                             setFieldValue(
                               "tags",
-                              values.tags.includes(tag)
-                                ? values.tags.filter((t) => t !== tag)
-                                : [...values.tags, tag]
+                              values.tags.includes(tag.value)
+                                ? values.tags.filter((t) => t !== tag.value)
+                                : [...values.tags, tag.value]
                             )
                           }
                         />
-                        {tag}
+                        {tag.label}
                       </label>
                     ))}
                   </div>

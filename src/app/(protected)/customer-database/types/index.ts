@@ -7,7 +7,7 @@ export interface Customer {
     dateOfBirth?: string;
     address?: string;
     notes: string;
-    tags: CustomerTag[];
+    tags: string[];
     lastVisit: Date | null;
     totalVisits: number;
     totalSpent: number;
@@ -16,7 +16,7 @@ export interface Customer {
     avatar?: string;
   }
   
-  export type CustomerTag = 'VIP' | 'New' | 'Frequent' | 'Inactive';
+  export type CustomerTag = string;
   
   export interface ServiceHistory {
     id: string;
