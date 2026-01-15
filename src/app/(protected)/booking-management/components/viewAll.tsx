@@ -6,7 +6,8 @@ import { appointmentApi } from "@/app/services/appointment.api";
 import Icon from "@/app/components/AppIcon";
 import Pagination from "@/app/components/Pagination";
 import Loader from "@/app/components/Loader";
-import { formatTo12Hour } from "../utils/formatHour";
+// import { formatTo12Hour } from "../utils/formatHour";
+import { formatTo12Hour } from "@/app/utils/formatHour";
 
 interface UserRef {
   _id?: string;
