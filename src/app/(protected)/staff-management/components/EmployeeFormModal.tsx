@@ -104,12 +104,10 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
     fetchRoles();
   }, []);
 
-  const roleFilterOptions: RoleFilter[] = [
-    ...roles.map((role) => ({
-      value: role.name,
-      label: role.name,
-    })),
-  ];
+  const roleFilterOptions: RoleFilter[] = roles.map((role) => ({
+    value: role._id,
+    label: role.name,
+  }));
 
   useEffect(() => {
     if (!employee?.id) {
@@ -129,7 +127,7 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
 
         setInitialFormValues({
           name: emp.fullName || "",
-          role: emp.role || "",
+          role: typeof emp.role === "object" ? emp.role._id : emp.role || "",
           commissionRate: emp.commissionRate || null,
           target: emp.target || 0,
           salary: emp.salary || 0,
@@ -263,7 +261,7 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
         setRoles((prev) => [...prev, newRole]);
 
         // Auto-select new role in form
-        formikRef.current?.setFieldValue("role", newRole.name);
+        formikRef.current?.setFieldValue("role", newRole._id);
       }
     } catch (error) {
       console.error("Failed to create role", error);

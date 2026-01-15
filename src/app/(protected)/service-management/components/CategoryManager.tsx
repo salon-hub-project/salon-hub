@@ -162,7 +162,7 @@ const CategoryManager = ({
                 className="flex items-center justify-between p-3 bg-muted rounded-md"
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex flex-col gap-1">
+                  {/* <div className="flex flex-col gap-1">
                     <button onClick={() => handleMoveUp(index)} disabled={index === 0}>
                       <Icon name="ChevronUp" size={16} />
                     </button>
@@ -172,7 +172,7 @@ const CategoryManager = ({
                     >
                       <Icon name="ChevronDown" size={16} />
                     </button>
-                  </div>
+                  </div> */}
 
                   {/* Name / Edit */}
                   {editingCategoryId === category.id ? (
