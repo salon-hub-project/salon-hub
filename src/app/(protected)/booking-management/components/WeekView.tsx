@@ -1,6 +1,6 @@
 import { CalendarDay, Booking } from "../types";
 import Icon from "../../../components/AppIcon";
-import { formatTo12Hour } from "../utils/formatHour";
+import { formatTo12Hour } from "@/app/utils/formatHour";
 
 interface WeekViewProps {
   weekDays: CalendarDay[];

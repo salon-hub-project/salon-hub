@@ -9,6 +9,7 @@ import { getProfile, deleteProfile } from "@/app/store/slices/profileSlice";
 import ConfirmModal from "@/app/components/ui/ConfirmModal";
 import { normalizeRole } from "@/app/utils/normalizeRole";
 import Loader from "@/app/components/Loader";
+import { formatTo12Hour } from "@/app/utils/formatHour";
 
 interface ProfileItemProps {
   icon: string;
@@ -119,12 +120,12 @@ const ProfilePage = () => {
             <ProfileItem
               icon="Clock"
               label="Opening Time"
-              value={profile?.openingTime ?? "—"}
+              value={formatTo12Hour(profile?.openingTime) ?? "—"}
             />
             <ProfileItem
               icon="Clock"
               label="Closing Time"
-              value={profile?.closingTime ?? "—"}
+              value={formatTo12Hour(profile?.closingTime) ?? "—"}
             />
             <ProfileItem
               icon="Calendar"

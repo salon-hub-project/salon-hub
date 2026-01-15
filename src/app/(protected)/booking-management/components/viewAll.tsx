@@ -37,16 +37,42 @@ const ViewAllAppointments = ({ onBookingClick }: ViewAllAppointmentsProps) => {
   const user = useAppSelector((state) => state.auth.user);
   const role = (user?.role ?? []) as ("OWNER" | "STAFF")[];
 
+  // useEffect(() => {
+  //   const fetchAppointments = async () => {
+  //     setLoading(true);
+  //     try {
+  //       let data: Appointment[] = [];
+  //       if (role[0] === "OWNER") {
+  //         data = await appointmentApi.getAllAppointments({ limit: 1000, });
+  //       } else if (role[0] === "STAFF") {
+  //         data = await appointmentApi.getStaffAppointments({ limit: 1000, });
+  //       }
+  //       setAppointments(data);
+  //       setPage(1);
+  //     } catch (error) {
+  //       console.error("Failed to fetch appointments", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  //   if (role) fetchAppointments();
+  // }, [role]);
   useEffect(() => {
     const fetchAppointments = async () => {
       setLoading(true);
       try {
         let data: Appointment[] = [];
+  
         if (role[0] === "OWNER") {
           data = await appointmentApi.getAllAppointments({ limit: 1000 });
-        } else if (role[0] === "STAFF") {
-          data = await appointmentApi.getStaffAppointments({ limit: 1000 });
+        } 
+        else if (role[0] === "STAFF") {
+          data = await appointmentApi.getStaffAppointments({
+            limit: 1000,
+            role: "STAFF", // 🔑 this is the fix
+          });
         }
+  
         setAppointments(data);
         setPage(1);
       } catch (error) {
@@ -55,9 +81,10 @@ const ViewAllAppointments = ({ onBookingClick }: ViewAllAppointmentsProps) => {
         setLoading(false);
       }
     };
-    if (role) fetchAppointments();
+  
+    if (role?.length) fetchAppointments();
   }, [role]);
-
+  
   const handleDeleteClick = (bookingId: string) => {
   setSelectedBookingId(bookingId);
   setShowConfirmDelete(true);

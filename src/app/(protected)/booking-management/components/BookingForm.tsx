@@ -12,7 +12,7 @@ import { BookingFormProps } from "../types";
 import { Staff, BookingFormData } from "../types";
 import { appointmentValidationSchema } from "@/app/components/validation/validation";
 import { staffApi } from "@/app/services/staff.api";
-import { formatTo12Hour } from "../utils/formatHour";
+// import { formatTo12Hour } from "@/app/utils/formatHour";
 
 // Helper component to handle side effects and data fetching inside Formik context
 const StaffFetcher = ({
@@ -120,11 +120,11 @@ const BookingForm = ({
     return [
       {
         value: `${hour}:00`, // 24-hour (API safe)
-        label: formatTo12Hour(`${hour}:00`), // 12-hour UI
+        label: `${hour}:00`, // 12-hour UI
       },
       {
         value: `${hour}:30`,
-        label: formatTo12Hour(`${hour}:30`),
+        label: `${hour}:30`,
       },
     ];
   }).flat();

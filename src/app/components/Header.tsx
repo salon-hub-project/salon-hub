@@ -5,10 +5,11 @@ import Icon from "./AppIcon";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { logout } from "../store/slices/authSlice";
-import { getProfile, clearProfile } from "../store/slices/profileSlice";
+import { getProfile, clearProfile, fetchProfileTimings } from "../store/slices/profileSlice";
 import { showToast } from "./ui/toast";
 import ConfirmModal from "./ui/ConfirmModal";
 import { normalizeRole } from "../utils/normalizeRole";
+import { formatTo12Hour } from "../utils/formatHour";
 
 interface User {
   name: string;
@@ -42,7 +43,7 @@ const Header = ({
   const dispatch = useAppDispatch();
   const router = useRouter();
 
-  const { profile, isLoading } = useAppSelector((state) => state.profile);
+  const { profile, timings, isLoading } = useAppSelector((state) => state.profile);
   const profileRef = useRef<HTMLDivElement>(null);
   const salonSwitcherRef = useRef<HTMLDivElement>(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -55,7 +56,10 @@ const Header = ({
     if (!profile && !isLoading && isAuthenticated) {
       dispatch(getProfile());
     }
-  }, [normalizedUserRole, isAuthenticated, profile]);
+    if (!timings && !isLoading && isAuthenticated) {
+      dispatch(fetchProfileTimings());
+    }
+  }, [normalizedUserRole, isAuthenticated, profile, timings]);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -194,6 +198,7 @@ const Header = ({
                 <div className="text-xs text-muted-foreground">
                   {getRoleLabel(user.role)}
                 </div>
+                
               </div>
 
               <Icon name="ChevronDown" size={16} />
@@ -211,6 +216,13 @@ const Header = ({
                     {user.email}
                   </div>
                   <div className="text-xs mt-1">{getRoleLabel(user.role)}</div>
+                  {user.role === "OWNER" &&
+                  profile?.openingTime &&
+                  profile?.closingTime && (
+                    <div className="text-xs text-muted-foreground">
+                      ({formatTo12Hour(profile.openingTime)} - {formatTo12Hour(profile.closingTime)})
+                    </div>
+                  )}
                 </div>
 
                 {user.role == "OWNER" && (
