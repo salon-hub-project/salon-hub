@@ -6,6 +6,7 @@ import { appointmentApi } from "@/app/services/appointment.api";
 import Icon from "@/app/components/AppIcon";
 import Pagination from "@/app/components/Pagination";
 import Loader from "@/app/components/Loader";
+import { formatTo12Hour } from "../utils/formatHour";
 
 interface UserRef {
   _id?: string;
@@ -18,6 +19,8 @@ interface Appointment {
   staffId: UserRef;
   status: string;
   commisionEarned: number;
+  appointmentDate: string;
+  appointmentTime: string;
 }
 
 interface ViewAllAppointmentsProps {
@@ -31,7 +34,9 @@ const ViewAllAppointments = ({ onBookingClick }: ViewAllAppointmentsProps) => {
   const ITEMS_PER_PAGE = 10;
 
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
-  const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
+  const [selectedBookingId, setSelectedBookingId] = useState<string | null>(
+    null
+  );
   const [isDeleting, setIsDeleting] = useState(false);
 
   const user = useAppSelector((state) => state.auth.user);
@@ -86,31 +91,30 @@ const ViewAllAppointments = ({ onBookingClick }: ViewAllAppointmentsProps) => {
   }, [role]);
   
   const handleDeleteClick = (bookingId: string) => {
-  setSelectedBookingId(bookingId);
-  setShowConfirmDelete(true);
-};
+    setSelectedBookingId(bookingId);
+    setShowConfirmDelete(true);
+  };
 
-// const confirmDelete = async () => {
-//   if (!selectedBookingId) return;
+  // const confirmDelete = async () => {
+  //   if (!selectedBookingId) return;
 
-//   setIsDeleting(true);
-//   try {
-//     await appointmentApi.deleteAppointment(selectedBookingId);
+  //   setIsDeleting(true);
+  //   try {
+  //     await appointmentApi.deleteAppointment(selectedBookingId);
 
-//     // Remove from state
-//     setAppointments((prev) =>
-//       prev.filter((b) => b._id !== selectedBookingId)
-//     );
+  //     // Remove from state
+  //     setAppointments((prev) =>
+  //       prev.filter((b) => b._id !== selectedBookingId)
+  //     );
 
-//     setShowConfirmDelete(false);
-//     setSelectedBookingId(null);
-//   } catch (error) {
-//     console.error("Failed to delete appointment", error);
-//   } finally {
-//     setIsDeleting(false);
-//   }
-// };
-
+  //     setShowConfirmDelete(false);
+  //     setSelectedBookingId(null);
+  //   } catch (error) {
+  //     console.error("Failed to delete appointment", error);
+  //   } finally {
+  //     setIsDeleting(false);
+  //   }
+  // };
 
   const getStatusBadge = (status: string) => {
     if (status === "Completed") {
@@ -160,7 +164,12 @@ const ViewAllAppointments = ({ onBookingClick }: ViewAllAppointmentsProps) => {
           <thead className="bg-muted">
             <tr className="text-left">
               <th className="p-3 font-bold text-foreground">Customer</th>
-              <th className="p-3 font-bold text-foreground">Staff</th>
+              <th className="p-3 font-bold text-foreground">
+                {" "}
+                {role[0] === "OWNER" && "Staff"}
+              </th>
+              <th className="p-3 font-bold text-foreground">Date of Appt.</th>
+              <th className="p-3 font-bold text-foreground">Time of Appt.</th>
               <th className="p-3 font-bold text-foreground">Status</th>
               <th className="p-3 font-bold text-foreground">Commission</th>
               <th className="p-3 font-bold text-foreground text-center">
@@ -176,7 +185,7 @@ const ViewAllAppointments = ({ onBookingClick }: ViewAllAppointmentsProps) => {
                   colSpan={5}
                   className="p-10 text-center text-muted-foreground"
                 >
-                  <Loader label="Loading appointments..."/>
+                  <Loader label="Loading appointments..." />
                 </td>
               </tr>
             ) : paginatedAppointments.length === 0 ? (
@@ -196,20 +205,32 @@ const ViewAllAppointments = ({ onBookingClick }: ViewAllAppointmentsProps) => {
                 >
                   <td className="p-3">{item.customerId?.fullName ?? "-"}</td>
                   <td className="p-3 font-medium">
-                    {item.staffId?.fullName ?? "-"}
+                    {role[0] === "OWNER" && `${item.staffId?.fullName ?? "-"}`}
                   </td>
+                  <td className="p-3">
+                    {item?.appointmentDate
+                      ? new Date(item.appointmentDate).toLocaleDateString(
+                          "en-IN"
+                        )
+                      : "-"}
+                  </td>
+
+                  <td className="p-3">
+                    {item?.appointmentTime
+                      ? formatTo12Hour(item.appointmentTime)
+                      : "-"}
+                  </td>
+
                   <td className="p-3">{getStatusBadge(item.status)}</td>
-                  <td className="p-3 pl-10">{item?.commisionEarned? `${item?.commisionEarned}INR` : "-"}</td>
+                  <td className="p-3 pl-10">
+                    {item?.commisionEarned
+                      ? `${item?.commisionEarned}INR`
+                      : "-"}
+                  </td>
                   <td className="p-3">
                     <div className="flex justify-center gap-3">
                       <Icon
                         name="Eye"
-                        size={16}
-                        onClick={() => onBookingClick(item._id)}
-                      />
-                      {/* <Icon name="Edit" size={16} /> */}
-                      <Icon
-                        name="Trash"
                         size={16}
                         onClick={() => onBookingClick(item._id)}
                       />

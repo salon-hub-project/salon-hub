@@ -21,13 +21,13 @@ const WeekView = ({
 }: WeekViewProps) => {
   const getBookingsForDay = (date: Date): Booking[] => {
     const dateKey = date.toISOString().split("T")[0];
-    return bookingsByDay[dateKey] || [];
+    const allBookings = bookingsByDay[dateKey] || [];
+
+    return allBookings.filter(
+      (booking) =>
+        booking.status !== "Completed" && booking.status !== "cancelled"
+    );
   };
-  // const getBookingsForDay = (date: Date): Booking[] => {
-  //   const dateKey = date.toISOString().split("T")[0];
-  //   const allBookings = bookingsByDay[dateKey] || [];
-  // Only show bookings with status "Confirmed"
-  // return allBookings.filter((booking) => booking.status === "Confirmed");
 
   const getStatusColor = (status: Booking["status"]) => {
     const colors = {

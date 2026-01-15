@@ -233,19 +233,20 @@ const BookingDetailsModal = ({
             </div>
 
             <div className="flex items-center gap-3 pt-4">
-              <Button variant="outline" fullWidth onClick={onClose}>
+              <Button variant="outline" onClick={onClose} fullWidth>
                 Close
               </Button>
-              <Button
+              {
+                user?.role[0] === "STAFF" && <Button
                 variant="destructive"
                 fullWidth
                 loading={isDeleting}
-                onClick={
-                  user?.role[0] === "STAFF" ? handleStatusUpdate : handleDelete
-                }
+                onClick={handleStatusUpdate}
               >
-                {user?.role[0] === "STAFF" ? "Update Status" : "Delete Booking"}
+                Update Status
               </Button>
+              }
+              
             </div>
           </div>
         </div>

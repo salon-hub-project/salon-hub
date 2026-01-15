@@ -87,7 +87,7 @@ const BulkOperationsBar = ({
               type="number"
               placeholder="New price"
               value={priceValue}
-              onChange={(e) => setPriceValue(parseFloat(e.target.value) || 0)}
+              onChange={(e) => setPriceValue(parseFloat(e.target.value))}
             />
           )}
 
