@@ -38,6 +38,10 @@ export interface RoleFilter {
   label: string;
 }
 
+export interface StaffRoles {
+  _id: string,
+  name: string
+}
 export interface EmployeeFormData {
   name: string;
   role: string;

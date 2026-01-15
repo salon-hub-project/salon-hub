@@ -1,7 +1,7 @@
 export type NormalizedRole = "SUPERADMIN" | "OWNER" | "STAFF";
 
 export const normalizeRole = (role: unknown): NormalizedRole => {
-  if (!role) return "STAFF"; // 🔒 safest default
+  if (!role) return "STAFF"; 
 
   // Handle array: ["OWNER"]
   if (Array.isArray(role)) {

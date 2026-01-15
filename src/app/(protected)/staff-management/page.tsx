@@ -14,6 +14,9 @@ import Loader from "@/app/components/Loader";
 import NoData from "@/app/components/NoData";
 import ConfirmModal from "@/app/components/ui/ConfirmModal";
 import { showToast } from "@/app/components/ui/toast";
+import RolesManager from "./components/RolesManager";
+import { rolesApi } from "@/app/services/roles.api";
+import { StaffRoles } from "./types";
 
 const StaffManagement = () => {
   const [isMobile, setIsMobile] = useState<boolean>(() => {
@@ -29,7 +32,7 @@ const StaffManagement = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const [roleFilter, setRoleFilter] = useState<string>("all");
-  // const [performancePeriod, setPerformancePeriod] = useState<string>("month");
+  const [roles, setRoles] = useState<StaffRoles[]>([]);
 
   // Pagination
   const [page, setPage] = useState(1);
@@ -53,15 +56,6 @@ const StaffManagement = () => {
 
   const [employees, setEmployees] = useState<Employee[]>([]);
 
-  const roleFilterOptions: RoleFilter[] = [
-    { value: "all", label: "All Roles" },
-    { value: "Manager", label: "Manager" },
-    { value: "Stylist", label: "Stylist" },
-    { value: "Colorist", label: "Colorist" },
-    { value: "Nail Technician", label: "Nail Technician" },
-    { value: "Receptionist", label: "Receptionist" },
-  ];
-
   const handleAddEmployee = () => {
     setEditingEmployee(null);
     setIsFormOpen(true);
@@ -81,6 +75,17 @@ const StaffManagement = () => {
           : emp
       )
     );
+  };
+
+  const fetchRoles = async () => {
+    try {
+      const res = await rolesApi.getAllRoles();
+      if (res?.data) {
+        setRoles(res.data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch roles", err);
+    }
   };
 
   const fetchEmployees = async () => {
@@ -154,6 +159,18 @@ const StaffManagement = () => {
   useEffect(() => {
     setPage(1);
   }, [roleFilter]);
+
+  useEffect(() => {
+    fetchRoles();
+  }, []);
+
+  const roleFilterOptions: RoleFilter[] = [
+    { value: "all", label: "All Roles" },
+    ...roles.map((role) => ({
+      value: role.name,
+      label: role.name,
+    })),
+  ];
 
   const handleViewDetails = async (employee: Employee) => {
     try {
@@ -303,6 +320,20 @@ const StaffManagement = () => {
             </div>
           </div>
         </div>
+        <RolesManager
+          roles={roles}
+          onAddRole={(name) => {
+            setRoles((prev) => [...prev, { _id: crypto.randomUUID(), name }]);
+          }}
+          onUpdateRole={(id, name) => {
+            setRoles((prev) =>
+              prev.map((role) => (role._id === id ? { ...role, name } : role))
+            );
+          }}
+          onDeleteRole={(id) => {
+            setRoles((prev) => prev.filter((role) => role._id !== id));
+          }}
+        />
 
         <div className="bg-card rounded-lg border border-border p-4 lg:p-6">
           <div className="flex flex-col lg:flex-row lg:items-center gap-4 mb-6">
