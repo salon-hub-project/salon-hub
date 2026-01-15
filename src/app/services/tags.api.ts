@@ -9,7 +9,6 @@ export const customerTagApi = {
   getAllCustomerTags: async () => {
     try {
       const res = await api.get("/customerRole");
-      console.log(res.data);
       return res.data;
     } catch (error: any) {
       showToast({

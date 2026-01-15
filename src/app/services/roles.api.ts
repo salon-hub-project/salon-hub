@@ -9,7 +9,6 @@ export const rolesApi = {
   getAllRoles: async () => {
     try {
       const res = await api.get(`/staffRole`);
-      console.log(res.data);
       return res.data;
     } catch (error: any) {
       showToast({
@@ -22,7 +21,6 @@ export const rolesApi = {
   createRoles: async (payload: createRolePayload) => {
     try {
       const res = await api.post(`/staffRole`, payload);
-      console.log(res.data);
       showToast({
         message: res?.data?.message || "Role created successfully",
         status: "success",
@@ -39,7 +37,6 @@ export const rolesApi = {
   updateRole: async (roleId: string, payload: createRolePayload) => {
     try {
       const res = await api.put(`/staffRole/${roleId}`, payload);
-      console.log(res.data);
       showToast({
         message: res?.data?.message || "Role updated successfully",
         status: "success",
@@ -56,7 +53,6 @@ export const rolesApi = {
   deleteRole: async (roleId: string) => {
     try {
       const res = await api.delete(`/staffRole/${roleId}`);
-      console.log(res.data);
       showToast({
         message: res?.data?.message || "Role deleted successfully",
         status: "success",
