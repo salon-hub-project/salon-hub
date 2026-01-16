@@ -237,9 +237,15 @@ const BookingManagement = () => {
     }
   }, []);
 
+  // useEffect(() => {
+  //   dispatch(fetchProfileTimings());
+  // }, [dispatch]);
   useEffect(() => {
-    dispatch(fetchProfileTimings());
-  }, [dispatch]);
+    if (!isStaffUser) {
+      dispatch(fetchProfileTimings());
+    }
+  }, [dispatch, isStaffUser]);
+  
 
   useEffect(() => {
     mountedRef.current = true;

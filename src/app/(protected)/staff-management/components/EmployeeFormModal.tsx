@@ -166,7 +166,7 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
         "assignedServices",
         JSON.stringify(values.assignedServices)
       );
-
+      
       if (values.staffImage instanceof File) {
         formData.append("staffImage", values.staffImage);
       }
