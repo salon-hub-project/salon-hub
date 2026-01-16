@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Formik } from "formik";
 import * as Yup from "yup";
 
@@ -11,8 +11,10 @@ import { Checkbox } from "../../../components/ui/Checkbox";
 import {
   Employee,
   EmployeeFormData,
+  RoleFilter,
   ServiceApiResponse,
   ServicesApiResponse,
+  StaffRoles,
 } from "../types";
 import { staffApi } from "@/app/services/staff.api";
 import Loader from "@/app/components/Loader";
@@ -21,6 +23,8 @@ import {
   addValidationSchema,
   updateValidationSchema,
 } from "@/app/components/validation/validation";
+import { rolesApi } from "@/app/services/roles.api";
+import ConfirmModal from "@/app/components/ui/ConfirmModal";
 
 interface EmployeeFormModalProps {
   employee: Employee | null;
@@ -50,18 +54,15 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
       sunday: false,
     },
   };
-  const roleOptions = [
-    { value: "Manager", label: "Manager" },
-    { value: "Stylist", label: "Stylist" },
-    { value: "Colorist", label: "Colorist" },
-    { value: "Nail Technician", label: "Nail Technician" },
-    { value: "Receptionist", label: "Receptionist" },
-  ];
+
   const [services, setServices] = useState<ServiceApiResponse[]>([]);
   const [loadingServices, setLoadingServices] = useState(false);
   const [initialFormValues, setInitialFormValues] =
     useState<EmployeeFormData>(initialValues);
   const [loadingEmployee, setLoadingEmployee] = useState(false);
+  const [isAddRoleOpen, setIsAddRoleOpen] = useState(false);
+  const [roles, setRoles] = useState<StaffRoles[]>([]);
+  const formikRef = useRef<any>(null);
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -90,6 +91,25 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
   }));
 
   useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const res = await rolesApi.getAllRoles();
+        if (res?.data) {
+          setRoles(res.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch roles", err);
+      }
+    };
+    fetchRoles();
+  }, []);
+
+  const roleFilterOptions: RoleFilter[] = roles.map((role) => ({
+    value: role._id,
+    label: role.name,
+  }));
+
+  useEffect(() => {
     if (!employee?.id) {
       setInitialFormValues(initialValues);
       setLoadingEmployee(false);
@@ -107,7 +127,7 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
 
         setInitialFormValues({
           name: emp.fullName || "",
-          role: emp.role || "",
+          role: typeof emp.role === "object" ? emp.role._id : emp.role || "",
           commissionRate: emp.commissionRate || null,
           target: emp.target || 0,
           salary: emp.salary || 0,
@@ -179,34 +199,76 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
   };
 
   const updateEmployee = async (values: EmployeeFormData) => {
-  if (!employee?.id) return;
+    if (!employee?.id) return;
 
-  try {
-    const workingDays = Object.entries(values.availability)
-      .filter(([_, isWorking]) => isWorking)
-      .map(([day]) => day.charAt(0).toUpperCase() + day.slice(1));
+    try {
+      const workingDays = Object.entries(values.availability)
+        .filter(([_, isWorking]) => isWorking)
+        .map(([day]) => day.charAt(0).toUpperCase() + day.slice(1));
 
-    const formData = new FormData();
-    formData.append("fullName", values.name);
-    formData.append("commissionRate", String(values.commissionRate));
-    formData.append("target", String(values.target));
-    formData.append("salary", String(values.salary));
-    formData.append("role", values.role);
-    formData.append("assignedServices", JSON.stringify(values.assignedServices));
-    formData.append("workingDays", JSON.stringify(workingDays));
+      const formData = new FormData();
+      formData.append("fullName", values.name);
+      formData.append("commissionRate", String(values.commissionRate));
+      formData.append("target", String(values.target));
+      formData.append("salary", String(values.salary));
+      formData.append("role", values.role);
+      formData.append(
+        "assignedServices",
+        JSON.stringify(values.assignedServices)
+      );
+      formData.append("workingDays", JSON.stringify(workingDays));
 
-    // Append only if the user selected a new image (typeof File)
-    if (values.staffImage instanceof File) {
-      formData.append("staffImage", values.staffImage);
+      // Append only if the user selected a new image (typeof File)
+      if (values.staffImage instanceof File) {
+        formData.append("staffImage", values.staffImage);
+      }
+
+      await staffApi.updateStaff(employee.id, formData);
+      onClose();
+    } catch (error) {
+      console.error("Failed to update staff", error);
+    }
+  };
+
+  const handleAddRole = async (newRoleName?: string) => {
+    if (!newRoleName || !newRoleName.trim()) return;
+
+    const trimmedName = newRoleName.trim();
+
+    // Prevent duplicate roles
+    if (
+      roles.some(
+        (role) => role.name.toLowerCase() === trimmedName.toLowerCase()
+      )
+    ) {
+      alert("Role already exists");
+      return;
     }
 
-    await staffApi.updateStaff(employee.id, formData);
-    onClose();
-  } catch (error) {
-    console.error("Failed to update staff", error);
-  }
-};
+    try {
+      const res = await rolesApi.createRoles({ name: trimmedName });
 
+      // API may return role in different shapes
+      const createdRole = res?.role || res?.data?.role || res?.data || null;
+
+      if (createdRole) {
+        const newRole = {
+          _id: createdRole._id,
+          name: createdRole.name,
+        };
+
+        // Update roles list
+        setRoles((prev) => [...prev, newRole]);
+
+        // Auto-select new role in form
+        formikRef.current?.setFieldValue("role", newRole._id);
+      }
+    } catch (error) {
+      console.error("Failed to create role", error);
+    } finally {
+      setIsAddRoleOpen(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
@@ -225,6 +287,7 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
         </div>
 
         <Formik
+          innerRef={formikRef}
           key={employee?.id || "new"}
           initialValues={employee ? initialFormValues : initialValues}
           validationSchema={
@@ -262,10 +325,11 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
                     <Select
                       label="Role"
                       placeholder="Select role"
-                      options={roleOptions}
+                      options={roleFilterOptions}
                       value={values.role}
                       onChange={(value) => setFieldValue("role", value)}
                       error={touched.role ? errors.role : undefined}
+                      onAddNew={() => setIsAddRoleOpen(true)}
                     />
 
                     {!employee && (
@@ -483,6 +547,16 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
             </form>
           )}
         </Formik>
+        <ConfirmModal
+          isOpen={isAddRoleOpen}
+          showInput
+          inputPlaceholder="Enter new role name"
+          title="Add New Role"
+          description="Enter the name for the new role"
+          onCancel={() => setIsAddRoleOpen(false)}
+          onConfirm={handleAddRole}
+          confirmColor="green"
+        />
       </div>
     </div>
   );

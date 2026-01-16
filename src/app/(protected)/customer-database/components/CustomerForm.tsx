@@ -14,21 +14,21 @@ import Loader from "@/app/components/Loader";
 import { CustomerFormikValues, CustomerTag, Customer } from "../types";
 import { customerApi } from "@/app/services/customer.api";
 import { staffApi } from "@/app/services/staff.api";
+import { customerTagApi } from "@/app/services/tags.api";
 
-const getValidationSchema = (isEditMode: boolean) => Yup.object({
-  name: Yup.string().trim().required("Name is required"),
-  phone: Yup.string()
-    .matches(/^\d{10}$/, "Invalid phone number")
-    .required("Phone number is required"),
-  email: Yup.string().email("Invalid email"),
-  gender: Yup.string().required(),
-  dateOfBirth: Yup.string().required("Date of birth is required"),
-  password: isEditMode 
-    ? Yup.string()
-    : Yup.string()
-        .min(8, "Minimum 8 characters"),
-});
-
+const getValidationSchema = (isEditMode: boolean) =>
+  Yup.object({
+    name: Yup.string().trim().required("Name is required"),
+    phone: Yup.string()
+      .matches(/^\d{10}$/, "Invalid phone number")
+      .required("Phone number is required"),
+    email: Yup.string().email("Invalid email"),
+    gender: Yup.string().required(),
+    dateOfBirth: Yup.string().required("Date of birth is required"),
+    password: isEditMode
+      ? Yup.string()
+      : Yup.string().min(8, "Minimum 8 characters"),
+  });
 
 interface CustomerFormProps {
   onClose: () => void;
@@ -36,28 +36,34 @@ interface CustomerFormProps {
   onSuccess?: () => void;
 }
 
-
-const CustomerForm = ({ onClose, editingCustomer, onSuccess }: CustomerFormProps) => {
+const CustomerForm = ({
+  onClose,
+  editingCustomer,
+  onSuccess,
+}: CustomerFormProps) => {
   const isEditMode = !!editingCustomer;
-  const tagOptions: CustomerTag[] = ["VIP", "New", "Frequent", "Inactive"];
+  //const tagOptions: CustomerTag[] = ["VIP", "New", "Frequent", "Inactive"];
 
+  const [customerTags, setCustomerTags] = useState<any[]>([]);
+  const [loadingTags, setLoadingTags] = useState(false);
   const [staff, setStaff] = useState<any[]>([]);
   const [loadingStaff, setLoadingStaff] = useState(false);
   const fetchingStaffRef = useRef(false);
   const mountedRef = useRef(true);
 
+  //Fetch Staff API:-
   useEffect(() => {
     const fetchStaff = async () => {
       // Prevent duplicate calls
       if (fetchingStaffRef.current) return;
-      
+
       fetchingStaffRef.current = true;
       mountedRef.current = true;
       try {
         setLoadingStaff(true);
         const res = await staffApi.getAllStaff({ limit: 100 });
         const list = res.data || res.staff || res;
-        
+
         if (mountedRef.current) {
           setStaff(Array.isArray(list) ? list : []);
         }
@@ -75,7 +81,7 @@ const CustomerForm = ({ onClose, editingCustomer, onSuccess }: CustomerFormProps
     };
 
     fetchStaff();
-    
+
     return () => {
       mountedRef.current = false;
       fetchingStaffRef.current = false;
@@ -99,45 +105,67 @@ const CustomerForm = ({ onClose, editingCustomer, onSuccess }: CustomerFormProps
     return foundStaff?._id || "";
   };
 
-const addCustomer = async (values: CustomerFormikValues) => {
-  try {
-    await customerApi.addCustomer({
-      fullName: values.name,
-      gender: values.gender,
-      DOB: values.dateOfBirth,
-      phoneNumber: values.phone,
-      preferredStaff: values.preferredStaff || undefined,
-      customerTag: values.tags.length ? values.tags : undefined,
-      email: values.email || undefined,
-      notes: values.notes || undefined,
-    });
+  //Fetch CustomerTags API:-
+  useEffect(() => {
+    const fetchCustomerTags = async () => {
+      try {
+        setLoadingTags(true);
+        const res = await customerTagApi.getAllCustomerTags();
+        const list = res?.data || [];
+        setCustomerTags(
+          list.map((tag: any) => ({
+            value: tag._id,
+            label: tag.name,
+          }))
+        );
+      } catch (error) {
+        console.error("Failed to fetch customer tags", error);
+        setCustomerTags([]);
+      } finally {
+        setLoadingTags(false);
+      }
+    };
+    fetchCustomerTags();
+  }, []);
 
-    onClose();
-    onSuccess?.();
-  } catch (error) {
-    console.error("Failed to add customer", error);
-  }
-};
+  const addCustomer = async (values: CustomerFormikValues) => {
+    try {
+      await customerApi.addCustomer({
+        fullName: values.name,
+        gender: values.gender,
+        DOB: values.dateOfBirth,
+        phoneNumber: values.phone,
+        preferredStaff: values.preferredStaff || undefined,
+        customerTag: values.tags.length ? values.tags : undefined,
+        email: values.email || undefined,
+        notes: values.notes || undefined,
+      });
 
-const updateCustomer = async (values: CustomerFormikValues) => {
-  if (!editingCustomer) return;
-  
-  try {
-    await customerApi.updateCustomer(editingCustomer.id, {
-      fullName: values.name,
-      gender: values.gender,
-      DOB: values.dateOfBirth,
-      preferredStaff: values.preferredStaff || undefined,
-      customerTag: values.tags.length ? values.tags : undefined,
-    });
+      onClose();
+      onSuccess?.();
+    } catch (error) {
+      console.error("Failed to add customer", error);
+    }
+  };
 
-    onClose();
-    onSuccess?.();
-  } catch (error) {
-    console.error("Failed to update customer", error);
-  }
-};
+  const updateCustomer = async (values: CustomerFormikValues) => {
+    if (!editingCustomer) return;
 
+    try {
+      await customerApi.updateCustomer(editingCustomer.id, {
+        fullName: values.name,
+        gender: values.gender,
+        DOB: values.dateOfBirth,
+        preferredStaff: values.preferredStaff || undefined,
+        customerTag: values.tags.length ? values.tags : undefined,
+      });
+
+      onClose();
+      onSuccess?.();
+    } catch (error) {
+      console.error("Failed to update customer", error);
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
@@ -156,11 +184,11 @@ const updateCustomer = async (values: CustomerFormikValues) => {
             name: editingCustomer?.name || "",
             phone: editingCustomer?.phone || "",
             email: editingCustomer?.email || "",
-            notes: editingCustomer?.notes || "", 
+            notes: editingCustomer?.notes || "",
             gender: editingCustomer?.gender || "female",
             dateOfBirth: editingCustomer?.dateOfBirth || "",
             tags: editingCustomer?.tags || ([] as CustomerTag[]),
-            preferredStaff: editingCustomer?.preferredStaff 
+            preferredStaff: editingCustomer?.preferredStaff
               ? getPreferredStaffId(editingCustomer.preferredStaff)
               : "",
           }}
@@ -177,7 +205,10 @@ const updateCustomer = async (values: CustomerFormikValues) => {
             setFieldValue,
             isSubmitting,
           }) => (
-            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
+            <form
+              onSubmit={handleSubmit}
+              className="flex-1 overflow-y-auto p-6 space-y-6"
+            >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
                   label="Full Name"
@@ -191,12 +222,12 @@ const updateCustomer = async (values: CustomerFormikValues) => {
                 <Input
                   label="Phone Number"
                   name="phone"
-                   placeholder="Enter phone number"
+                  placeholder="Enter phone number"
                   value={values.phone}
                   onChange={handleChange}
                   error={touched.phone ? errors.phone : undefined}
                   maxLength={10}
-                  disabled= {isEditMode}
+                  disabled={isEditMode}
                 />
 
                 <Input
@@ -206,7 +237,7 @@ const updateCustomer = async (values: CustomerFormikValues) => {
                   value={values.email}
                   onChange={handleChange}
                   error={touched.email ? errors.email : undefined}
-                  disabled= {isEditMode}
+                  disabled={isEditMode}
                 />
 
                 <Select
@@ -231,7 +262,9 @@ const updateCustomer = async (values: CustomerFormikValues) => {
 
                 <Select
                   label="Preferred Staff"
-                  placeholder={loadingStaff ? "Loading staff..." : "Select staff"}
+                  placeholder={
+                    loadingStaff ? "Loading staff..." : "Select staff"
+                  }
                   options={staffOptions}
                   value={values.preferredStaff}
                   onChange={(v) => setFieldValue("preferredStaff", v)}
@@ -243,29 +276,39 @@ const updateCustomer = async (values: CustomerFormikValues) => {
                 <label className="text-sm font-medium mb-2 block">
                   Customer Tags
                 </label>
-                <div className="flex flex-wrap gap-2">
-                  {tagOptions.map((tag) => (
-                    <label
-                      key={tag}
-                      className="flex items-center gap-2 px-3 py-2 border rounded-md cursor-pointer"
-                    >
-                      <Checkbox
-                        checked={values.tags.includes(tag)}
-                        onChange={() =>
-                          setFieldValue(
-                            "tags",
-                            values.tags.includes(tag)
-                              ? values.tags.filter((t) => t !== tag)
-                              : [...values.tags, tag]
-                          )
-                        }
-                      />
-                      {tag}
-                    </label>
-                  ))}
-                </div>
+
+                {loadingTags ? (
+                  <div className="text-sm text-muted-foreground">
+                    Loading tags...
+                  </div>
+                ) : customerTags.length === 0 ? (
+                  <div className="text-sm text-muted-foreground">
+                    No tags available
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-4">
+                    {customerTags.map((tag) => (
+                      <label key={tag.value} className="flex gap-2">
+                        <Checkbox
+                          className="pt-1"
+                          checked={values.tags.includes(tag.value)}
+                          onChange={() =>
+                            setFieldValue(
+                              "tags",
+                              values.tags.includes(tag.value)
+                                ? values.tags.filter((t) => t !== tag.value)
+                                : [...values.tags, tag.value]
+                            )
+                          }
+                        />
+                        {tag.label}
+                      </label>
+                    ))}
+                  </div>
+                )}
               </div>
-               <div>
+
+              <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
                   Notes
                 </label>
@@ -280,14 +323,21 @@ const updateCustomer = async (values: CustomerFormikValues) => {
               </div>
 
               <div className="flex gap-3 pt-4 border-t">
-                <Button type="button" variant="outline" onClick={onClose} fullWidth>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onClose}
+                  fullWidth
+                >
                   Cancel
                 </Button>
                 <Button type="submit" disabled={isSubmitting} fullWidth>
                   {isSubmitting ? (
                     <Loader inline size="sm" label="Saving..." />
+                  ) : isEditMode ? (
+                    "Update Customer"
                   ) : (
-                    isEditMode ? "Update Customer" : "Add Customer"
+                    "Add Customer"
                   )}
                 </Button>
               </div>

@@ -1,13 +1,18 @@
 "use client";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Icon from "../../../components/AppIcon";
-import Image from "../../../components/AppImage";
 import Button from "../../../components/ui/Button";
 import { Employee, SortField, SortOrder } from "../types";
 import EmployeeAvatar from "../types/EmployeeAvatar";
 
+interface Role {
+  _id: string;
+  name: string;
+}
+
 interface EmployeeTableProps {
   employees: Employee[];
+  roles: Role[]; // ✅ ONLY ADDITION
   onEdit: (employee: Employee) => void;
   onToggleStatus: (employeeId: string) => void;
   onViewDetails: (employee: Employee) => void;
@@ -16,6 +21,7 @@ interface EmployeeTableProps {
 
 const EmployeeTable = ({
   employees,
+  roles,
   onEdit,
   onToggleStatus,
   onViewDetails,
@@ -23,6 +29,11 @@ const EmployeeTable = ({
 }: EmployeeTableProps) => {
   const [sortField, setSortField] = useState<SortField>("name");
   const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
+
+  // ✅ ROLE ID → ROLE NAME MAP
+  const roleMap = useMemo(() => {
+    return new Map(roles.map((r) => [r._id, r.name]));
+  }, [roles]);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -42,14 +53,23 @@ const EmployeeTable = ({
         aValue = a.name.toLowerCase();
         bValue = b.name.toLowerCase();
         break;
+
       case "role":
-        aValue = a.role.toLowerCase();
-        bValue = b.role.toLowerCase();
+        aValue =
+          typeof a.role === "string"
+            ? roleMap.get(a.role)?.toLowerCase() || ""
+            : a.role?.name?.toLowerCase() || "";
+        bValue =
+          typeof b.role === "string"
+            ? roleMap.get(b.role)?.toLowerCase() || ""
+            : b.role?.name?.toLowerCase() || "";
         break;
+
       case "rating":
         aValue = a.performanceMetrics.customerRating;
         bValue = b.performanceMetrics.customerRating;
         break;
+
       case "revenue":
         aValue = a.performanceMetrics.revenueGenerated;
         bValue = b.performanceMetrics.revenueGenerated;
@@ -68,6 +88,8 @@ const EmployeeTable = ({
       Colorist: "bg-pink-100 text-pink-800",
       "Nail Technician": "bg-green-100 text-green-800",
       Receptionist: "bg-yellow-100 text-yellow-800",
+      "Hair Stylist": "bg-blue-100 text-blue-800",
+      "Nails technician": "bg-green-100 text-green-800",
     };
     return colors[role] || "bg-gray-100 text-gray-800";
   };
@@ -97,229 +119,129 @@ const EmployeeTable = ({
   };
 
   return (
-     <div className="bg-card rounded-lg border border-border overflow-hidden overflow-x-auto">
-      {/* <div className=""> */}
-        <table className="w-full">
-          <thead className="bg-muted">
-            <tr>
-              <th className="px-6 py-4 text-left">
-                <button
-                  onClick={() => handleSort("name")}
-                  className="flex items-center gap-2 text-sm font-semibold text-foreground hover:text-primary transition-smooth"
-                >
-                  Employee
-                  <SortIcon field="name" />
-                </button>
-              </th>
-              <th className="px-6 py-4 text-left">
-                <button
-                  onClick={() => handleSort("role")}
-                  className="flex items-center gap-2 text-sm font-semibold text-foreground hover:text-primary transition-smooth"
-                >
-                  Role
-                  <SortIcon field="role" />
-                </button>
-              </th>
-              <th className="px-6 py-4 text-left">
-                <span className="text-sm font-semibold text-foreground">
-                  Contact
-                </span>
-              </th>
-              <th className="px-6 py-4 text-left">
-                <button
-                  onClick={() => handleSort("rating")}
-                  className="flex items-center gap-2 text-sm font-semibold text-foreground hover:text-primary transition-smooth"
-                >
-                  Rating
-                  <SortIcon field="rating" />
-                </button>
-              </th>
-              <th className="px-6 py-4 text-left">
-                <span className="text-sm font-semibold text-foreground">
-                  Working Days
-                </span>
-              </th>
+    <div className="bg-card rounded-lg border border-border overflow-hidden overflow-x-auto">
+      <table className="w-full">
+        <thead className="bg-muted">
+          <tr>
+            <th className="px-6 py-4 text-left">
+              <button
+                onClick={() => handleSort("name")}
+                className="flex items-center gap-2 text-sm font-semibold"
+              >
+                Employee <SortIcon field="name" />
+              </button>
+            </th>
 
-              <th className="px-6 py-4 text-left">
-                <button
-                  onClick={() => handleSort("revenue")}
-                  className="flex items-center gap-2 text-sm font-semibold text-foreground hover:text-primary transition-smooth"
-                >
-                  Revenue
-                  <SortIcon field="revenue" />
-                </button>
-              </th>
-              <th className="px-6 py-4 text-left">
-                <span className="text-sm font-semibold text-foreground">
-                  Status
-                </span>
-              </th>
-              <th className="px-6 py-4 text-right">
-                <span className="text-sm font-semibold text-foreground">
-                  Actions
-                </span>
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {sortedEmployees.map((employee) => (
+            <th className="px-6 py-4 text-left">
+              <button
+                onClick={() => handleSort("role")}
+                className="flex items-center gap-2 text-sm font-semibold"
+              >
+                Role <SortIcon field="role" />
+              </button>
+            </th>
+
+            <th className="px-6 py-4 text-left">Contact</th>
+            <th className="px-6 py-4 text-left">
+              <button
+                onClick={() => handleSort("rating")}
+                className="flex items-center gap-2 text-sm font-semibold"
+              >
+                Rating <SortIcon field="rating" />
+              </button>
+            </th>
+            <th className="px-6 py-4 text-left">Working Days</th>
+            <th className="px-6 py-4 text-left">
+              <button
+                onClick={() => handleSort("revenue")}
+                className="flex items-center gap-2 text-sm font-semibold"
+              >
+                Revenue <SortIcon field="revenue" />
+              </button>
+            </th>
+            <th className="px-6 py-4 text-left">Status</th>
+            <th className="px-6 py-4 text-right">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody className="divide-y divide-border">
+          {sortedEmployees.map((employee) => {
+            const roleName =
+              typeof employee.role === "string"
+                ? roleMap.get(employee.role)
+                : employee.role?.name;
+
+            return (
               <tr
                 key={employee.id}
                 onClick={() => onViewDetails(employee)}
-                className="hover:bg-muted/30 transition-smooth cursor-pointer"
+                className="hover:bg-muted/30 cursor-pointer"
               >
-                {/* Employee */}
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full overflow-hidden bg-muted flex-shrink-0">
-                      <EmployeeAvatar
-                        employee={employee}
-                        onViewDetails={onViewDetails}
-                      />
-                    </div>
+                    <EmployeeAvatar employee={employee} onViewDetails={onViewDetails} />
                     <div>
-                      <div className="text-sm font-medium text-foreground">
-                        {employee.name}
-                      </div>
+                      <div className="text-sm font-medium">{employee.name}</div>
                       <div className="text-xs text-muted-foreground">
                         Joined{" "}
-                        {new Date(employee.joinDate).toLocaleDateString(
-                          "en-US",
-                          {
-                            month: "short",
-                            year: "numeric",
-                          }
-                        )}
+                        {new Date(employee.joinDate).toLocaleDateString("en-US", {
+                          month: "short",
+                          year: "numeric",
+                        })}
                       </div>
                     </div>
                   </div>
                 </td>
 
-                {/* Role */}
                 <td className="px-6 py-4">
                   <span
                     className={`px-2 py-1 rounded-md text-xs font-medium ${getRoleColor(
-                      employee.role
+                      roleName || ""
                     )}`}
                   >
-                    {employee.role}
+                    {roleName || "N/A"}
                   </span>
                 </td>
 
-                {/* Contact */}
                 <td className="px-6 py-4">
-                  <div className="text-sm text-foreground">
-                    {employee.phone}
-                  </div>
+                  <div>{employee.phone}</div>
                   <div className="text-xs text-muted-foreground">
                     {employee.email}
                   </div>
                 </td>
 
-                {/* Rating */}
                 <td className="px-6 py-4">
-                  <div className="flex items-center gap-1.5">
-                    <Icon
-                      name="Star"
-                      size={14}
-                      className="text-yellow-500 fill-yellow-500"
-                    />
-                    <span className="text-sm font-medium text-foreground">
-                      {employee.performanceMetrics.customerRating.toFixed(1)}
-                    </span>
-                  </div>
+                  ⭐ {employee.performanceMetrics.customerRating.toFixed(1)}
                 </td>
 
-                {/* Working Days */}
                 <td className="px-6 py-4">
-                  <span className="text-sm text-muted-foreground">
-                    {getWorkingDays(employee.availability)}
-                  </span>
+                  {getWorkingDays(employee.availability)}
                 </td>
 
-                {/* Revenue */}
                 <td className="px-6 py-4">
-                  <span className="text-sm font-medium text-foreground">
-                    INR{" "}
-                    {employee.performanceMetrics.revenueGenerated.toLocaleString()}
-                  </span>
+                  INR{" "}
+                  {employee.performanceMetrics.revenueGenerated.toLocaleString()}
                 </td>
 
-                {/* Status */}
                 <td className="px-6 py-4">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onToggleStatus(employee.id);
-                    }}
-                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-smooth ${
-                      employee.status === "active"
-                        ? "bg-success/10 text-success hover:bg-success/20"
-                        : "bg-muted text-muted-foreground hover:bg-muted/80"
-                    }`}
-                  >
-                    <span
-                      className={`w-1.5 h-1.5 rounded-full ${
-                        employee.status === "active"
-                          ? "bg-success"
-                          : "bg-muted-foreground"
-                      }`}
-                    />
-                    {employee.status === "active" ? "Active" : "Inactive"}
-                  </button>
+                  {employee.status === "active" ? "Active" : "Inactive"}
                 </td>
 
-                {/* Actions */}
-                <td className="px-6 py-4">
-                  <div className="flex items-center justify-end gap-2">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onViewDetails(employee);
-                      }}
-                      className="p-2 rounded-md hover:bg-muted transition-smooth"
-                    >
-                      <Icon
-                        name="Eye"
-                        size={16}
-                        className="text-destructive"
-                      />
+                <td className="px-6 py-4 text-right">
+                  <div className="flex justify-end gap-2">
+                    <button onClick={(e) => { e.stopPropagation(); onEdit(employee); }}>
+                      <Icon name="Edit" size={16} />
                     </button>
-
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onEdit(employee);
-                      }}
-                      className="p-2 rounded-md hover:bg-muted transition-smooth"
-                    >
-                      <Icon
-                        name="Edit"
-                        size={16}
-                        className="text-destructive"
-                      />
-                    </button>
-
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDelete(employee.id);
-                      }}
-                      className="p-2 rounded-md hover:bg-destructive/10 transition-smooth"
-                    >
-                      <Icon
-                        name="Trash"
-                        size={16}
-                        className="text-destructive"
-                      />
+                    <button onClick={(e) => { e.stopPropagation(); onDelete(employee.id); }}>
+                      <Icon name="Trash" size={16} />
                     </button>
                   </div>
                 </td>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      {/* </div> */}
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 };

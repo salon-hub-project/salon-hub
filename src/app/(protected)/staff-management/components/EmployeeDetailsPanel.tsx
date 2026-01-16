@@ -87,7 +87,7 @@ const EmployeeDetailsPanel = ({
               <h3 className="text-2xl font-semibold text-foreground">
                 {employee.name}
               </h3>
-              <p className="text-muted-foreground mt-1">{employee.role}</p>
+              <p className="text-muted-foreground mt-1">{employee.role?.name}</p>
               <div className="flex items-center gap-4 mt-3">
                 <span
                   className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium ${

@@ -1,12 +1,14 @@
-
 export interface Employee {
   id: string;
   name: string;
-  role: 'Manager' | 'Stylist' | 'Colorist' | 'Nail Technician' | 'Receptionist';
+  role: {
+    _id: string;
+    name: string;
+  };
   phone: string;
   email: string;
   avatar?: string;
-  status: 'active' | 'inactive';
+  status: "active" | "inactive";
   joinDate: string;
   assignedServices: string[];
   staffImage: File | string | null;
@@ -38,6 +40,10 @@ export interface RoleFilter {
   label: string;
 }
 
+export interface StaffRoles {
+  _id: string;
+  name: string;
+}
 export interface EmployeeFormData {
   name: string;
   role: string;
@@ -76,12 +82,12 @@ export interface EmployeeApiResponse {
   workingDays: string[];
   isActive: boolean;
   createdAt: string;
-  rating:number | null;
+  rating: number | null;
   userId?: {
     email?: string;
     phoneNumber?: string;
   };
-  staffImage?: File | string | null ; 
+  staffImage?: File | string | null;
 }
 
 export interface ServiceApiResponse {
@@ -116,5 +122,5 @@ export interface ServicesApiResponse {
   message?: string;
 }
 
-export type SortField = 'name' | 'role' | 'rating' | 'revenue';
-export type SortOrder = 'asc' | 'desc';
+export type SortField = "name" | "role" | "rating" | "revenue";
+export type SortOrder = "asc" | "desc";
