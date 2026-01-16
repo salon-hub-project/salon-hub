@@ -54,6 +54,8 @@ export interface EmployeeFormData {
   commissionRate: number | null;
   target: number | null;
   salary: number | null;
+  breakStartTime: string;   // ✅ ADD
+  breakEndTime: string;  
   assignedServices: string[];
   staffImage: File | string | null;
   availability: {

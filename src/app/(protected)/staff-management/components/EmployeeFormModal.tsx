@@ -42,6 +42,8 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
     commissionRate: null,
     target: null,
     salary: null,
+    breakStartTime: "",   // ✅ added
+  breakEndTime: "",   
     staffImage: "",
     assignedServices: [],
     availability: {
@@ -131,6 +133,8 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
           commissionRate: emp.commissionRate || null,
           target: emp.target || 0,
           salary: emp.salary || 0,
+          breakStartTime: emp.breakStartTime || "",   // ✅
+  breakEndTime: emp.breakEndTime || "", 
           assignedServices: Array.isArray(emp.assignedServices)
             ? emp.assignedServices.map((s: any) => {
                 return typeof s === "object" ? s._id || s.serviceId || s.id : s;
@@ -175,6 +179,9 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
       formData.append("commissionRate", String(values.commissionRate));
       formData.append("target", String(values.target));
       formData.append("salary", String(values.salary));
+      formData.append("breakStartTime", values.breakStartTime);
+formData.append("breakEndTime", values.breakEndTime);
+
       formData.append("role", values.role);
       formData.append("rating", String(values.rating));
       formData.append(
@@ -211,6 +218,9 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
       formData.append("commissionRate", String(values.commissionRate));
       formData.append("target", String(values.target));
       formData.append("salary", String(values.salary));
+      formData.append("breakStartTime", values.breakStartTime);
+formData.append("breakEndTime", values.breakEndTime);
+
       formData.append("role", values.role);
       formData.append(
         "assignedServices",
@@ -415,6 +425,28 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
                       }}
                       error={touched.salary ? errors.salary : undefined}
                     />
+                    <Input
+  label="Break Start Time"
+  name="breakStartTime"
+  type="time"
+  value={values.breakStartTime}
+  onChange={handleChange}
+  error={
+    touched.breakStartTime ? errors.breakStartTime : undefined
+  }
+/>
+
+<Input
+  label="Break End Time"
+  name="breakEndTime"
+  type="time"
+  value={values.breakEndTime}
+  onChange={handleChange}
+  error={
+    touched.breakEndTime ? errors.breakEndTime : undefined
+  }
+/>
+
                   </div>
 
                   {!employee && (

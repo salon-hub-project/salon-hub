@@ -39,42 +39,100 @@ const StaffFetcher = ({
   }, [selectedTime, setFieldValue]);
 
   // Fetch staff
-  useEffect(() => {
-    const fetchStaff = async () => {
-      if (values.date && values.startTime) {
-        try {
-          const formattedDate = values.date.toISOString().split("T")[0];
-          const res = await staffApi.getAllStaff({
-            page: 1,
-            limit: 100,
-            dateOfAppointment: formattedDate,
-            timeOfAppointment: values.startTime,
-          });
+  // useEffect(() => {
+  //   const fetchStaff = async () => {
+  //     if (values.date && values.startTime) {
+  //       try {
+  //         const formattedDate = values.date.toISOString().split("T")[0];
+  //         const res = await staffApi.getAllStaff({
+  //           page: 1,
+  //           limit: 100,
+  //           dateOfAppointment: formattedDate,
+  //           timeOfAppointment: values.startTime,
+  //         });
 
-          const rawStaff = Array.isArray(res) ? res : res?.data || [];
-          const mappedStaff = rawStaff
-            .map((s: any) => ({
-              id: s._id || s.id,
-              name: s.fullName || s.name,
-              role: s.role || "Staff",
-              phone: s.phoneNumber || s.phone,
-              avatar: s.avatar,
-              specializations: s.specializations || [],
-              isAvailable: s.isActive !== undefined ? s.isActive : true, // Default to true if missing
-            }))
-            .filter((s: any) => s.isAvailable);
+  //         const rawStaff = Array.isArray(res) ? res : res?.data || [];
+  //         const mappedStaff = rawStaff
+  //           .map((s: any) => ({
+  //             id: s._id || s.id,
+  //             name: s.fullName || s.name,
+  //             role: s.role || "Staff",
+  //             phone: s.phoneNumber || s.phone,
+  //             avatar: s.avatar,
+  //             specializations: s.specializations || [],
+  //             isAvailable: s.isActive !== undefined ? s.isActive : true, // Default to true if missing
+  //           }))
+  //           .filter((s: any) => s.isAvailable);
 
-          setAvailableStaff(mappedStaff);
-        } catch (error) {
-          console.error("Failed to fetch available staff", error);
-        }
-      } else {
-        setAvailableStaff(initialStaff);
+  //         setAvailableStaff(mappedStaff);
+  //       } catch (error) {
+  //         console.error("Failed to fetch available staff", error);
+  //       }
+  //     } else {
+  //       setAvailableStaff(initialStaff);
+  //     }
+  //   };
+
+  //   fetchStaff();
+  // }, [values.date, values.startTime, initialStaff, setAvailableStaff]);
+useEffect(() => {
+  const fetchStaff = async () => {
+    if (values.date && values.startTime) {
+      try {
+        const formattedDate = values.date.toISOString().split("T")[0];
+
+        // 1️⃣ Get base available staff
+        const allStaffRes = await staffApi.getAllStaff({
+          page: 1,
+          limit: 100,
+          dateOfAppointment: formattedDate,
+          timeOfAppointment: values.startTime,
+        });
+
+        // 2️⃣ Get staff NOT on break
+        const breakFreeStaffRes = await staffApi.getAllStaffBreakTime({
+          dateOfAppointment: formattedDate,
+          timeOfAppointment: values.startTime,
+        });
+
+        const allStaff = Array.isArray(allStaffRes)
+          ? allStaffRes
+          : allStaffRes?.data || [];
+
+        const breakFreeStaff = Array.isArray(breakFreeStaffRes)
+          ? breakFreeStaffRes
+          : breakFreeStaffRes?.data || [];
+
+        // 3️⃣ Build a Set of staff IDs who are NOT on break
+        const breakFreeIds = new Set(
+          breakFreeStaff.map((s: any) => s._id || s.id)
+        );
+
+        // 4️⃣ Keep only staff who exist in BOTH lists
+        const filteredStaff = allStaff
+          .filter((s: any) => breakFreeIds.has(s._id || s.id))
+          .map((s: any) => ({
+            id: s._id || s.id,
+            name: s.fullName || s.name,
+            role: s.role || "Staff",
+            phone: s.phoneNumber || s.phone,
+            avatar: s.avatar,
+            specializations: s.specializations || [],
+            isAvailable: s.isActive !== undefined ? s.isActive : true,
+          }))
+          .filter((s: any) => s.isAvailable);
+
+        setAvailableStaff(filteredStaff);
+      } catch (error) {
+        console.error("Failed to fetch available staff", error);
       }
-    };
+    } else {
+      setAvailableStaff(initialStaff);
+    }
+  };
 
-    fetchStaff();
-  }, [values.date, values.startTime, initialStaff, setAvailableStaff]);
+  fetchStaff();
+}, [values.date, values.startTime, initialStaff, setAvailableStaff]);
 
   return null;
 };

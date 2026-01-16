@@ -13,6 +13,8 @@ export interface AddStaffPayload {
     phoneNumber: string;
     target: number;
     salary: number;
+    breakStartTime: string;   // ✅ added
+  breakEndTime: string; 
     staffImage?: string | File ;
 }
 
@@ -24,6 +26,8 @@ export interface UpdateStaffPayload {
     workingDays: string[];
     target?: number;
     salary?: number;
+     breakStartTime?: string;  // ✅ added
+  breakEndTime?: string;    
     staffImage?: string | File ;
 }
 
@@ -55,6 +59,18 @@ export const staffApi = {
         timeOfAppointment?: string;
     }) => {
         const res = await api.get("/staff", {
+            params,
+        });
+        return res.data;
+    },
+    getAllStaffBreakTime: async (params?: {
+        // page?: number;
+        // limit?: number;
+        // role?: string;
+        dateOfAppointment?: string;
+        timeOfAppointment?: string;
+    }) => {
+        const res = await api.get("/staff/availablestaff", {
             params,
         });
         return res.data;
