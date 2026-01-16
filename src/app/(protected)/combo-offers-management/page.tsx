@@ -109,8 +109,11 @@ const ComboOffersManagement = () => {
           isActive: true, // API doesn't seem to return isActive for combo, defaulting to true
           validFrom: new Date(c.validFrom),
           validUntil: new Date(c.validTill), // note naming difference
-          customerEligibility: "all", // defaulting
-          staffCommissionRate: null, // defaulting
+          customerEligibility: 
+            typeof c.customerEligibility === "object" && c.customerEligibility !== null
+              ? c.customerEligibility._id
+              : c.customerEligibility || "all",
+          staffCommissionRate: c.staffCommissionRate || null,
           popularity: 0,
           totalBookings: 0,
           revenueGenerated: c.savedAmount || 0, // Just putting something here
@@ -209,6 +212,8 @@ const ComboOffersManagement = () => {
         discountedPrice: discountedPrice,
         savedAmount: savedAmount,
         savedPercent: savingsPercentage,
+        customerEligibility: data.customerEligibility,
+        staffCommissionRate: data.staffCommissionRate,
       };
 
       await comboApi.createComboOffer(payload);
@@ -240,6 +245,8 @@ const ComboOffersManagement = () => {
       discountedPrice: discountedPrice,
       savedAmount: savedAmount,
       savedPercent: savingsPercentage,
+      customerEligibility: data.customerEligibility,
+      staffCommissionRate: data.staffCommissionRate,
     };
 
     try {

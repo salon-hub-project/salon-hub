@@ -82,7 +82,7 @@ export const comboValidationSchema = Yup.object().shape({
     .min(Yup.ref("validFrom"), "End date must be after start date")
     .required(),
   minBookingRequirement: Yup.number().nullable(),
-  customerEligibility: Yup.string().oneOf(["all", "new", "existing", "vip"]),
+  customerEligibility: Yup.string().required("Customer eligibility is required"),
   staffCommissionRate: Yup.number()
     .min(0)
     .max(100)

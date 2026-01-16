@@ -45,7 +45,7 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
     staffCommissionRate: combo?.staffCommissionRate || null,
   };
 
-  const [customerTags, setCustomerTags] = useState<CustomerTag[]>([]);
+  const [customerTags, setCustomerTags] = useState<any[]>([]); // Use any[] or specific type if available
   const [loadingTags, setLoadingTags] = useState(false);
 
   useEffect(() => {
@@ -54,7 +54,7 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
         setLoadingTags(true);
         const res = await customerTagApi.getAllCustomerTags();
         const list = res?.data || [];
-        setCustomerTags(list.map((tag: any) => tag.name));
+        setCustomerTags(list);
       } catch (error) {
         console.error("Failed to fetch customer tags", error);
         setCustomerTags([]);
@@ -68,8 +68,8 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
   const customerEligibilityOptions = [
     { value: "all", label: "All Customers" },
     ...customerTags.map((tag) => ({
-      value: tag,
-      label: tag,
+      value: tag._id,
+      label: tag.name,
     })),
   ];
 
