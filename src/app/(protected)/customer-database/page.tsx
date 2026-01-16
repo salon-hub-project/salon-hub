@@ -73,7 +73,11 @@ const CustomerDatabase = () => {
         dateOfBirth: c.DOB,
         address: c.address || "",
         notes: c.notes || "",
-        tags: c.customerTag || [],
+        // tags: c.customerTag || [],
+        tags: (c.customerTag || []).map((tag: any) =>
+          typeof tag === "string" ? tag : tag.name
+        ),
+        
         lastVisit: c.lastVisit ? new Date(c.lastVisit) : undefined,
         totalVisits: c.totalVisits,
         totalSpent: c.totalSpent,
