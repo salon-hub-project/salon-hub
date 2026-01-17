@@ -171,7 +171,7 @@ const StaffManagement = () => {
       label: role.name,
     })),
   ];
-  console.log(selectedEmployee)
+  
 
   const handleViewDetails = async (employee: Employee) => {
     try {

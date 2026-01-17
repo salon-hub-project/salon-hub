@@ -37,9 +37,9 @@ const ComboTable: React.FC<ComboTableProps> = ({
               <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 Combo Name
               </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              {/* <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 Services
-              </th>
+              </th> */}
               <th className="px-4 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 Original Price
               </th>
@@ -80,7 +80,7 @@ const ComboTable: React.FC<ComboTableProps> = ({
                       </span>
                     </div>
                   </td>
-                  <td className="px-4 py-4">
+                  {/* <td className="px-4 py-4">
                     <div className="flex flex-col">
                       {combo.services.slice(0, 2).map((service, idx) => (
                         <span
@@ -96,7 +96,7 @@ const ComboTable: React.FC<ComboTableProps> = ({
                         </span>
                       )}
                     </div>
-                  </td>
+                  </td> */}
                   <td className="px-4 py-4 text-right">
                     <span className="text-muted-foreground line-through">
                       INR {combo.originalPrice.toFixed(2)}
