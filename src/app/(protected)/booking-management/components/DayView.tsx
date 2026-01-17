@@ -20,7 +20,7 @@ const DayView = ({
     timeSlots.length === 0 || timeSlots.every((slot) => !slot.isAvailable);
   const user = useAppSelector((state: any)=> state.auth);
 
-  const role= user?.role ;
+  const role = user?.user?.role || user?.role;
 
   if (isShopClosed) {
     return (

@@ -232,8 +232,8 @@ const BookingDetailsModal = ({
               </div> */}
             </div>
 
-            <div className="flex items-center gap-3 pt-4">
-              <Button variant="outline" onClick={onClose} fullWidth>
+            <div className="flex flex-col sm:flex-row items-center gap-3 pt-4">
+              <Button variant="outline" onClick={onClose} className="w-full">
                 Close
               </Button>
               {
@@ -243,7 +243,7 @@ const BookingDetailsModal = ({
                 loading={isDeleting}
                 onClick={handleStatusUpdate}
               >
-                Update Status
+                {booking?.status === "Confirmed" && "Update Status"}
               </Button>
               }
               
