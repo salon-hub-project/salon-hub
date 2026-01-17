@@ -30,6 +30,7 @@ export interface UpdateCustomerPayload {
   DOB: string;
   preferredStaff?: string;
   customerTag?: string[];
+  customerEligibility?: any;
 }
 
 export const customerApi = {
@@ -67,7 +68,21 @@ export const customerApi = {
   },
   updateCustomer: async (id: string, data: UpdateCustomerPayload) => {
     try {
-      const res = await api.put(`/customer/${id}`, data);
+      const payload: any = { ...data };
+
+      if (
+        payload.customerEligibility &&
+        typeof payload.customerEligibility === "object" &&
+        payload.customerEligibility._id
+      ) {
+        payload.customerEligibility = payload.customerEligibility._id;
+      }
+
+      if (!payload.customerEligibility) {
+        delete payload.customerEligibility;
+      }
+
+      const res = await api.put(`/customer/${id}`, payload);
       showToast({
         message: res?.data?.message || "Customer updated successfully",
         status: "success",

@@ -82,7 +82,10 @@ const CustomerDatabase = () => {
         notes: c.notes || "",
         // tags: c.customerTag || [],
         tags: (c.customerTag || []).map((tag: any) =>
-          (typeof tag === "string" ? tag : tag.name).toUpperCase(),
+          typeof tag === "string" ? tag : tag.name
+        ),
+        tagIds: (c.customerTag || []).map((tag: any) =>
+            typeof tag === "string" ? tag : tag._id
         ),
 
         lastVisit: c.lastVisit ? new Date(c.lastVisit) : undefined,
@@ -245,7 +248,10 @@ const CustomerDatabase = () => {
         tags: (c.customerTag || []).map((tag: any) =>
           typeof tag === "string" ? tag : tag.name,
         ),
-        lastVisit: c.lastVisit ? new Date(c.lastVisit) : null,
+        tagIds: (c.customerTag || []).map((tag: any) =>
+            typeof tag === "string" ? tag : tag._id
+        ),
+        lastVisit: c.lastVisit ? new Date(c.lastVisit) : null, 
         totalVisits: c.totalVisits,
         totalSpent: c.totalSpent,
         createdAt: new Date(c.createdAt),

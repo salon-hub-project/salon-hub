@@ -14,6 +14,7 @@ export interface Customer {
     createdAt: Date;
     preferredStaff?: string;
     avatar?: string;
+    tagIds?: string[];
   }
   
   export type CustomerTag = string;
