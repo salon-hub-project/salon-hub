@@ -9,6 +9,7 @@ import { ComboOffer, ComboFormData } from "../types";
 import { comboValidationSchema } from "@/app/components/validation/validation";
 import { CustomerTag } from "../../customer-database/types";
 import { customerTagApi } from "@/app/services/tags.api";
+import ConfirmModal from "@/app/components/ui/ConfirmModal";
 
 interface ComboFormModalProps {
   isOpen: boolean;
@@ -45,6 +46,7 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
     staffCommissionRate: combo?.staffCommissionRate || null,
   };
 
+  const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
   const [customerTags, setCustomerTags] = useState<any[]>([]); // Use any[] or specific type if available
   const [loadingTags, setLoadingTags] = useState(false);
 
@@ -64,6 +66,31 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
     };
     fetchCustomerTags();
   }, []);
+
+  const handleAddTag = async (tagName?: string) => {
+    if (!tagName?.trim()) return;
+
+    try {
+      const res = await customerTagApi.createCustomerTag({
+        name: tagName.trim(),
+      });
+
+      const createdTag = res?.data;
+      if (!createdTag) return;
+
+      setCustomerTags((prev) => [
+        ...prev,
+        {
+          _id: createdTag._id,
+          name: createdTag.name,
+        },
+      ]);
+
+      setIsAddCategoryOpen(false);
+    } catch (error) {
+      console.error("Failed to create customer tag", error);
+    }
+  };
 
   const customerEligibilityOptions = [
     // { value: "all", label: "All Customers" },
@@ -100,16 +127,14 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
           //   onClose();
           // }}
           onSubmit={(values) => {
-    const payload = {
-      ...values,
-      customerEligibility:
-        values.customerEligibility || undefined,
-    };
+            const payload = {
+              ...values,
+              customerEligibility: values.customerEligibility || undefined,
+            };
 
-    onSubmit(payload);
-    onClose();
-  }}
-          
+            onSubmit(payload);
+            onClose();
+          }}
         >
           {({ values, setFieldValue, errors, touched }) => {
             const originalPrice = calculateOriginalPrice(values.services);
@@ -155,7 +180,7 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                       <div className="space-y-2 max-h-48 overflow-y-auto border border-border rounded-lg p-3">
                         {availableServices.map((service) => {
                           const checked = values.services.some(
-                            (s) => s.id === service.id
+                            (s) => s.id === service.id,
                           );
 
                           return (
@@ -172,8 +197,8 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                                       setFieldValue(
                                         "services",
                                         values.services.filter(
-                                          (s) => s.id !== service.id
-                                        )
+                                          (s) => s.id !== service.id,
+                                        ),
                                       );
                                     } else {
                                       setFieldValue("services", [
@@ -278,7 +303,7 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                         const value = e.target.value;
                         setFieldValue(
                           "discountedPrice",
-                          value === "" ? null : Number(value)
+                          value === "" ? null : Number(value),
                         );
                       }}
                       error={
@@ -296,6 +321,7 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                         setFieldValue("customerEligibility", value)
                       }
                       disabled={loadingTags}
+                      onAddNew={() => setIsAddCategoryOpen(true)}
                     />
 
                     <Input
@@ -306,7 +332,7 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                       onChange={(e) =>
                         setFieldValue(
                           "minBookingRequirement",
-                          e.target.value ? Number(e.target.value) : undefined
+                          e.target.value ? Number(e.target.value) : undefined,
                         )
                       }
                     />
@@ -320,7 +346,7 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                         const val = e.target.value;
                         setFieldValue(
                           "staffCommissionRate",
-                          val === "" ? null : parseFloat(val)
+                          val === "" ? null : parseFloat(val),
                         );
                       }}
                       min="0"
@@ -347,6 +373,16 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
           }}
         </Formik>
       </div>
+      <ConfirmModal
+        isOpen={isAddCategoryOpen}
+        showInput
+        inputPlaceholder="Enter new customer eligibility name"
+        title="Add New Customer Eligibility"
+        description="Enter the name for the new eligibility"
+        onCancel={() => setIsAddCategoryOpen(false)}
+        onConfirm={handleAddTag}
+        confirmColor="green"
+      />
     </div>
   );
 };

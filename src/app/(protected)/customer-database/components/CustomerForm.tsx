@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Formik } from "formik";
 import * as Yup from "yup";
+import { useRouter } from "next/navigation";
 
 import Icon from "../../../components/AppIcon";
 import Button from "../../../components/ui/Button";
@@ -15,6 +16,7 @@ import { CustomerFormikValues, CustomerTag, Customer } from "../types";
 import { customerApi } from "@/app/services/customer.api";
 import { staffApi } from "@/app/services/staff.api";
 import { customerTagApi } from "@/app/services/tags.api";
+import ConfirmModal from "@/app/components/ui/ConfirmModal";
 
 const getValidationSchema = (isEditMode: boolean) =>
   Yup.object({
@@ -51,8 +53,10 @@ const CustomerForm = ({
   const [loadingTags, setLoadingTags] = useState(false);
   const [staff, setStaff] = useState<any[]>([]);
   const [loadingStaff, setLoadingStaff] = useState(false);
+  const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
   const fetchingStaffRef = useRef(false);
   const mountedRef = useRef(true);
+  const router = useRouter();
 
   //Fetch Staff API:-
   useEffect(() => {
@@ -119,7 +123,7 @@ const CustomerForm = ({
           list.map((tag: any) => ({
             value: tag._id,
             label: tag.name,
-          }))
+          })),
         );
       } catch (error) {
         console.error("Failed to fetch customer tags", error);
@@ -130,6 +134,32 @@ const CustomerForm = ({
     };
     fetchCustomerTags();
   }, []);
+
+  const handleAddTag = async (tagName?: string) => {
+    if (!tagName?.trim()) return;
+
+    try {
+      const res = await customerTagApi.createCustomerTag({
+        name: tagName.trim(),
+      });
+
+      const createdTag = res?.data;
+      if (!createdTag) return;
+
+      // ✅ Update UI immediately (no refresh)
+      setCustomerTags((prev) => [
+        ...prev,
+        {
+          value: createdTag._id,
+          label: createdTag.name,
+        },
+      ]);
+
+      setIsAddCategoryOpen(false);
+    } catch (error) {
+      console.error("Failed to create customer tag", error);
+    }
+  };
 
   const addCustomer = async (values: CustomerFormikValues) => {
     try {
@@ -272,6 +302,7 @@ const CustomerForm = ({
                   value={values.preferredStaff}
                   onChange={(v) => setFieldValue("preferredStaff", v)}
                   disabled={loadingStaff}
+                  onAddNew={()=> router.push('/staff-management')}
                 />
               </div>
 
@@ -285,8 +316,30 @@ const CustomerForm = ({
                     Loading tags...
                   </div>
                 ) : customerTags.length === 0 ? (
-                  <div className="text-sm text-muted-foreground">
-                    No tags available
+                  <div className="border border-dashed border-border rounded-lg p-4 text-center">
+                    <Icon
+                      name="Tag"
+                      size={24}
+                      className="mx-auto mb-2 text-muted-foreground"
+                    />
+
+                    <p className="text-sm font-medium text-foreground">
+                      No customer tags
+                    </p>
+
+                    <p className="text-xs text-muted-foreground mb-3">
+                      Create tags to categorize your customers
+                    </p>
+
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      iconName="Plus"
+                      iconPosition="left"
+                      onClick={() => setIsAddCategoryOpen(true)}
+                    >
+                      Create Tag
+                    </Button>
                   </div>
                 ) : (
                   <div className="flex flex-wrap gap-4">
@@ -300,7 +353,7 @@ const CustomerForm = ({
                               "tags",
                               values.tags.includes(tag.value)
                                 ? values.tags.filter((t) => t !== tag.value)
-                                : [...values.tags, tag.value]
+                                : [...values.tags, tag.value],
                             )
                           }
                         />
@@ -348,6 +401,16 @@ const CustomerForm = ({
           )}
         </Formik>
       </div>
+      <ConfirmModal
+        isOpen={isAddCategoryOpen}
+        showInput
+        inputPlaceholder="Enter new tag name"
+        title="Add New Customer Tag"
+        description="Enter the name for the new tag"
+        onCancel={() => setIsAddCategoryOpen(false)}
+        onConfirm={handleAddTag}
+        confirmColor="green"
+      />
     </div>
   );
 };

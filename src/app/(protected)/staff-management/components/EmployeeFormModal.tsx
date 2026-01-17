@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Formik } from "formik";
 import * as Yup from "yup";
+import { useRouter } from "next/navigation";
 
 import Button from "../../../components/ui/Button";
 import Input from "../../../components/ui/Input";
@@ -65,6 +66,7 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
   const [isAddRoleOpen, setIsAddRoleOpen] = useState(false);
   const [roles, setRoles] = useState<StaffRoles[]>([]);
   const formikRef = useRef<any>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -490,6 +492,7 @@ formData.append("breakEndTime", values.breakEndTime);
                     searchable
                     closeOnSelect
                     disabled={loadingServices}
+                    onAddNew={()=> router.push('/service-management')}
                   />
 
                   <div>

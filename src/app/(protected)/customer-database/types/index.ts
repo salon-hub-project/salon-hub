@@ -18,6 +18,11 @@ export interface Customer {
   }
   
   export type CustomerTag = string;
+
+  export interface CustomerTagItem {
+  id: string;
+  name: string;
+}
   
   export interface ServiceHistory {
     id: string;

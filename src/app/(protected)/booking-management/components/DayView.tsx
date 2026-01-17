@@ -1,3 +1,4 @@
+import { useAppSelector } from "@/app/store/hooks";
 import { TimeSlot } from "../types";
 import BookingCard from "./BookingCard";
 import { formatTo12Hour } from "@/app/utils/formatHour";
@@ -17,6 +18,9 @@ const DayView = ({
 }: DayViewProps) => {
   const isShopClosed =
     timeSlots.length === 0 || timeSlots.every((slot) => !slot.isAvailable);
+  const user = useAppSelector((state: any)=> state.auth);
+
+  const role= user?.role ;
 
   if (isShopClosed) {
     return (
@@ -64,7 +68,7 @@ const DayView = ({
                   </div>
                 ) : (
                   <div className="flex items-center justify-center py-4 text-sm text-muted-foreground">
-                    Available slot - Click to book
+                    {role == "OWNER" ? "Available slot - Click to book" : "Available Slot"}
                   </div>
                 )}
               </div>
