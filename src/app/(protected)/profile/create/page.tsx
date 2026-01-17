@@ -15,6 +15,7 @@ import Input from "../../../components/ui/Input";
 import Select from "../../../components/ui/Select";
 import AuthGuard from "../../../components/AuthGuard";
 import config from "../../../config";
+import { showToast } from "@/app/components/ui/toast";
 
 interface ProfileFormValues {
   salonName: string;
@@ -223,7 +224,7 @@ const CreateProfile = () => {
                   <label className="text-sm font-medium">
                     {isEditMode ? "Change Image (optional)" : "Salon Image"}
                   </label>
-                  <input
+                  {/* <input
                     type="file"
                     accept="image/*"
                     onChange={(e) =>
@@ -233,7 +234,34 @@ const CreateProfile = () => {
                       )
                     }
                     className="mt-1 block w-full text-sm"
-                  />
+                  /> */}
+                  <input
+  type="file"
+  accept="image/*"
+  onChange={(e) => {
+    const file = e.currentTarget.files?.[0];
+
+    if (!file) {
+      setFieldValue("salonImage", null);
+      return;
+    }
+
+    // ✅ Strict image validation
+    if (!file.type.startsWith("image/")) {
+      showToast({
+        message: "Only image files are allowed (jpg, png, jpeg, webp)",
+        status: "error",
+      });
+      e.currentTarget.value = ""; // reset input
+      setFieldValue("salonImage", null);
+      return;
+    }
+
+    setFieldValue("salonImage", file);
+  }}
+  className="mt-1 block w-full text-sm"
+/>
+
                 </div>
               </div>
 

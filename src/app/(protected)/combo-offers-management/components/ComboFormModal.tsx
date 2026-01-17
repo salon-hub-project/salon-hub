@@ -66,7 +66,7 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
   }, []);
 
   const customerEligibilityOptions = [
-    { value: "all", label: "All Customers" },
+    // { value: "all", label: "All Customers" },
     ...customerTags.map((tag) => ({
       value: tag._id,
       label: tag.name,

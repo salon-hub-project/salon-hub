@@ -52,7 +52,7 @@ const ComboFiltersComponent: React.FC<ComboFiltersProps> = ({
           />
         </div>
 
-        <Select
+        {/* <Select
           label="Status"
           value={filters.status}
           onChange={(e) => handleInputChange('status', e.target.value)}
@@ -71,11 +71,11 @@ const ComboFiltersComponent: React.FC<ComboFiltersProps> = ({
           value={filters.sortOrder}
           onChange={(e) => handleInputChange('sortOrder', e.target.value)}
           options={sortOrderOptions}
-        />
+        /> */}
       </div>
 
       <div className="flex justify-end mt-4">
-        <Button
+        {/* <Button
           variant="secondary"
           onClick={onReset}
           iconName="RotateCcw"
@@ -83,7 +83,7 @@ const ComboFiltersComponent: React.FC<ComboFiltersProps> = ({
           iconSize={16}
         >
           Reset Filters
-        </Button>
+        </Button> */}
       </div>
     </div>
   );
