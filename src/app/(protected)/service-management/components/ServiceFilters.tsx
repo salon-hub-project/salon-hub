@@ -71,7 +71,7 @@ const ServiceFiltersComponent = ({
           placeholder="Filter by status"
         />
 
-        <div className="flex gap-2">
+        {/* <div className="flex gap-2">
           <Select
             options={sortByOptions}
             value={filters.sortBy}
@@ -88,7 +88,7 @@ const ServiceFiltersComponent = ({
             }
             placeholder="Order"
           />
-        </div>
+        </div> */}
       </div>
 
       <div className="flex justify-end mt-4">

@@ -34,7 +34,7 @@ export interface ComboOffer {
     validFrom: Date;
     validUntil: Date;
     minBookingRequirement?: number;
-    customerEligibility: string;
+    customerEligibility?: string;
     staffCommissionRate: number | null;
   }
   

@@ -41,7 +41,7 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
     validUntil:
       combo?.validUntil || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     minBookingRequirement: combo?.minBookingRequirement || undefined,
-    customerEligibility: combo?.customerEligibility || "all",
+    customerEligibility: combo?.customerEligibility || "",
     staffCommissionRate: combo?.staffCommissionRate || null,
   };
 
@@ -95,10 +95,21 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
           initialValues={initialValues}
           validationSchema={comboValidationSchema}
           enableReinitialize
+          // onSubmit={(values) => {
+          //   onSubmit(values);
+          //   onClose();
+          // }}
           onSubmit={(values) => {
-            onSubmit(values);
-            onClose();
-          }}
+    const payload = {
+      ...values,
+      customerEligibility:
+        values.customerEligibility || undefined,
+    };
+
+    onSubmit(payload);
+    onClose();
+  }}
+          
         >
           {({ values, setFieldValue, errors, touched }) => {
             const originalPrice = calculateOriginalPrice(values.services);

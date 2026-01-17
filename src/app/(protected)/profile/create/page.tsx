@@ -119,6 +119,20 @@ const CreateProfile = () => {
     openingTime: Yup.string(),
     closingTime: Yup.string(),
     workingDays: Yup.array().of(Yup.number()),
+    salonImage: Yup.mixed()
+    .nullable()
+    .test(
+      "image-required",
+      "Salon image is required",
+      function (value) {
+        // create mode → image required
+        if (!isEditMode) {
+          return value instanceof File;
+        }
+        // edit mode → optional
+        return true;
+      }
+    ),
   });
 
   const handleSubmit = async (values: ProfileFormValues) => {
@@ -215,6 +229,7 @@ const CreateProfile = () => {
                       src={profile.salonImage}
                       alt="Salon"
                       className="h-32 w-32 object-cover rounded"
+                      
                     />
                   </div>
                 )}
@@ -261,6 +276,9 @@ const CreateProfile = () => {
   }}
   className="mt-1 block w-full text-sm"
 />
+{touched.salonImage && errors.salonImage && (
+  <p className="text-red-500 text-sm mt-1">{errors.salonImage}</p>
+)}
 
                 </div>
               </div>
