@@ -24,7 +24,10 @@ const getValidationSchema = (isEditMode: boolean) =>
       .required("Phone number is required"),
     email: Yup.string().email("Invalid email"),
     gender: Yup.string().required(),
-    dateOfBirth: Yup.string().required("Date of birth is required"),
+    dateOfBirth: Yup.date()
+      .typeError("Invalid date of birth")
+      .max(new Date(), "Date of birth cannot be in the future")
+      .required("Date of birth is required"),
     password: isEditMode
       ? Yup.string()
       : Yup.string().min(8, "Minimum 8 characters"),

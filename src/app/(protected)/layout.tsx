@@ -1,18 +1,35 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { useEffect } from "react";
 import { useRouter ,usePathname} from "next/navigation";
 import { useAppSelector } from "../store/hooks";
 import AuthGuard from "../components/AuthGuard";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
+import { notificationApi } from "../services/notification.api";
 
 export default function ProtectedLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const authUser = useAppSelector((state) => state.auth.user);
+  const [notificationCount, setNotificationCount] = useState(0);
 
   const pathname = usePathname();
+
+  //Show notification count
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
+
+  const fetchNotifications = async () => {
+    const res = await notificationApi.getAllNotifications();
+
+    const total =
+      res.data.newAppointments.length +
+      (res.data.newCustomers?.length || 0);
+
+    setNotificationCount(total);
+  };
 
   // 🔹 UPDATE LAST VISITED PROTECTED ROUTE
   useEffect(() => {
@@ -37,7 +54,7 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
 
         <Header
           user={user}
-          notifications={3}
+          notifications={notificationCount}
           onLogout={() => router.push("/salon-login")}
           onProfileClick={() => router.push("/profile")}
         />

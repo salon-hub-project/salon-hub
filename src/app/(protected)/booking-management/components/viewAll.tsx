@@ -7,6 +7,7 @@ import Icon from "@/app/components/AppIcon";
 import Pagination from "@/app/components/Pagination";
 import Loader from "@/app/components/Loader";
 import { formatTo12Hour } from "@/app/utils/formatHour";
+import { Booking, BookingFilters } from "../types";
 
 interface UserRef {
   _id?: string;
@@ -24,10 +25,12 @@ interface Appointment {
 }
 
 interface ViewAllAppointmentsProps {
+  bookings: Booking[];
+  filters: BookingFilters;
   onBookingClick: (bookingId: string) => void;
 }
 
-const ViewAllAppointments = ({ onBookingClick }: ViewAllAppointmentsProps) => {
+const ViewAllAppointments = ({ onBookingClick, bookings, filters }: ViewAllAppointmentsProps) => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -62,38 +65,38 @@ const ViewAllAppointments = ({ onBookingClick }: ViewAllAppointmentsProps) => {
   //   };
   //   if (role) fetchAppointments();
   // }, [role]);
-  useEffect(() => {
-    const fetchAppointments = async () => {
-      setLoading(true);
-      try {
-        let data: Appointment[] = [];
+  // useEffect(() => {
+  //   const fetchAppointments = async () => {
+  //     setLoading(true);
+  //     try {
+  //       let data: Appointment[] = [];
   
-        if (role[0] === "OWNER") {
-          data = await appointmentApi.getAllAppointments({ limit: 1000 });
-        } 
-        else if (role[0] === "STAFF") {
-          data = await appointmentApi.getStaffAppointments({
-            limit: 1000,
-            role: "STAFF", // 🔑 this is the fix
-          });
-        }
+  //       if (role[0] === "OWNER") {
+  //         data = await appointmentApi.getAllAppointments({ limit: 1000 });
+  //       } 
+  //       else if (role[0] === "STAFF") {
+  //         data = await appointmentApi.getStaffAppointments({
+  //           limit: 1000,
+  //           role: "STAFF", // 🔑 this is the fix
+  //         });
+  //       }
   
-        setAppointments(data);
-        setPage(1);
-      } catch (error) {
-        console.error("Failed to fetch appointments", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  //       setAppointments(data);
+  //       setPage(1);
+  //     } catch (error) {
+  //       console.error("Failed to fetch appointments", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
   
-    if (role?.length) fetchAppointments();
-  }, [role]);
+  //   if (role?.length) fetchAppointments();
+  // }, [role]);
   
-  const handleDeleteClick = (bookingId: string) => {
-    setSelectedBookingId(bookingId);
-    setShowConfirmDelete(true);
-  };
+  // const handleDeleteClick = (bookingId: string) => {
+  //   setSelectedBookingId(bookingId);
+  //   setShowConfirmDelete(true);
+  // };
 
   // const confirmDelete = async () => {
   //   if (!selectedBookingId) return;
@@ -115,6 +118,19 @@ const ViewAllAppointments = ({ onBookingClick }: ViewAllAppointmentsProps) => {
   //     setIsDeleting(false);
   //   }
   // };
+
+  const filteredAppointments = bookings.filter((b) => {
+    if (filters.status && b.status !== filters.status) return false;
+    if (filters.staffId && b.staffId !== filters.staffId) return false;
+    if (filters.serviceId && b.serviceId !== filters.serviceId) return false;
+    if (
+      filters.searchQuery &&
+      !b.customerName?.toLowerCase().includes(filters.searchQuery.toLowerCase())
+    )
+      return false;
+
+    return true;
+  });
 
   const getStatusBadge = (status: string) => {
     if (status === "Completed") {
@@ -141,9 +157,9 @@ const ViewAllAppointments = ({ onBookingClick }: ViewAllAppointmentsProps) => {
     );
   };
 
-  const totalPages = Math.ceil(appointments.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(filteredAppointments.length / ITEMS_PER_PAGE);
 
-  const paginatedAppointments = appointments.slice(
+  const paginatedAppointments = filteredAppointments.slice(
     (page - 1) * ITEMS_PER_PAGE,
     page * ITEMS_PER_PAGE
   );
@@ -200,25 +216,21 @@ const ViewAllAppointments = ({ onBookingClick }: ViewAllAppointmentsProps) => {
             ) : (
               paginatedAppointments.map((item) => (
                 <tr
-                  key={item._id}
+                  key={item.id}
                   className="border-b border-border hover:bg-muted/50 transition"
                 >
-                  <td className="p-3">{item.customerId?.fullName ?? "-"}</td>
+                 <td className="p-3">{item.customerName ?? "-"}</td>
                   <td className="p-3 font-medium">
-                    {role[0] === "OWNER" && `${item.staffId?.fullName ?? "-"}`}
+                    {role[0] === "OWNER" && (item.staffName ?? "-")}
                   </td>
                   <td className="p-3">
-                    {item?.appointmentDate
-                      ? new Date(item.appointmentDate).toLocaleDateString(
-                          "en-IN"
-                        )
+                    {item?.date
+                      ? new Date(item.date).toLocaleDateString("en-IN")
                       : "-"}
                   </td>
 
                   <td className="p-3">
-                    {item?.appointmentTime
-                      ? formatTo12Hour(item.appointmentTime)
-                      : "-"}
+                    {item?.startTime ? formatTo12Hour(item.startTime) : "-"}
                   </td>
 
                   <td className="p-3">{getStatusBadge(item.status)}</td>
@@ -232,7 +244,7 @@ const ViewAllAppointments = ({ onBookingClick }: ViewAllAppointmentsProps) => {
                       <Icon
                         name="Eye"
                         size={16}
-                        onClick={() => onBookingClick(item._id)}
+                        onClick={() => onBookingClick(item.id)}
                       />
                     </div>
                   </td>

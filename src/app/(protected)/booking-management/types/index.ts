@@ -51,6 +51,7 @@ export interface Booking {
   notes?: string;
   paymentStatus: "pending" | "paid";
   createdAt: Date;
+  commisionEarned?: number;
 }
 
 export interface TimeSlot {

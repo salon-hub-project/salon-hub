@@ -1,6 +1,7 @@
 import { TodayAppointment } from "../types";
 import Icon from "../../../components/AppIcon";
 import Image from "../../../components/AppImage";
+import { formatTo12Hour } from "@/app/utils/formatHour";
 
 interface AppointmentCardProps {
   appointment: TodayAppointment;
@@ -71,7 +72,7 @@ const AppointmentCard = ({
       <div className="flex items-center gap-4 mb-3">
         <div className="flex items-center gap-1 text-muted-foreground">
           <Icon name="Clock" size={14} />
-          <span className="text-xs">{appointment.time}</span>
+          <span className="text-xs">{formatTo12Hour(appointment.time)}</span>
         </div>
         <div className="flex items-center gap-1 text-muted-foreground">
           <Icon name="Timer" size={14} />

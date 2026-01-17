@@ -144,6 +144,12 @@ const BookingManagement = () => {
           notes: b.notes,
           paymentStatus: b.paymentStatus || "pending",
           createdAt: new Date(b.createdAt),
+          commisionEarned:
+            typeof b.commisionEarned === "number"
+              ? b.commisionEarned
+              : Array.isArray(b.commisionEarned)
+              ? b.commisionEarned.reduce((a: number, c: number) => a + c, 0)
+              : 0,
         };
       });
 
@@ -598,6 +604,8 @@ const BookingManagement = () => {
 
                     {viewMode === "viewAll" && (
                       <ViewAllAppointments
+                        bookings={bookings}
+                        filters={filters}
                         onBookingClick={handleBookingClick}
                       />
                     )}
