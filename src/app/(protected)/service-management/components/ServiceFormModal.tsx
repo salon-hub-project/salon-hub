@@ -31,7 +31,7 @@ const ServiceFormModal = ({
   categories: initialCategories,
   categoriesWithIds,
 }: ServiceFormModalProps) => {
-  const [fetchedCategories, setFetchedCategories] = useState<any[]>([]);
+  const [fetchedCategories, setFetchedCategories] = useState< { value: string; label: string }[]>([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(false);
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
 
@@ -50,7 +50,7 @@ const ServiceFormModal = ({
   useEffect(() => {
     const loadCategories = async () => {
       try {
-        setIsLoadingCategories(true);
+        // setIsLoadingCategories(true);
         const response = await categoryApi.getAllCategories({
           page: 1,
           limit: 100,
@@ -77,7 +77,7 @@ const ServiceFormModal = ({
     };
 
     if (isOpen) loadCategories();
-  }, [isOpen, initialCategories]);
+  }, [initialCategories]);
 
   // Initial form values
   const initialValues: ServiceFormData = {
@@ -137,12 +137,12 @@ const ServiceFormModal = ({
   // };
 
   const handleAddCategories = async (newName?: string) => {
-    if (!newName || !newName.trim()) return;
+    if (!newName?.trim()) return;
 
     // Check duplicate
     if (
       fetchedCategories.some(
-        (cat) => cat.label.toLowerCase() === newName.trim().toLowerCase()
+        (cat) => cat.label.toLowerCase() === newName.toLowerCase()
       )
     ) {
       alert("Category already exists");
@@ -151,11 +151,12 @@ const ServiceFormModal = ({
 
     try {
       const res = await categoryApi.createCategory({ name: newName.trim() });
+      const createdCategory = res?.category || res?.data?.category || res?.data;
 
-      if (res?.category) {
+      if (createdCategory) {
         const newCategory = {
-          value: res.category._id,
-          label: res.category.name,
+          value: createdCategory._id,
+          label: createdCategory.name,
         };
 
         setFetchedCategories((prev) => [...prev, newCategory]);
