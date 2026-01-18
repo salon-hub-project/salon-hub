@@ -342,26 +342,26 @@ const StaffManagement = () => {
               <h2 className="text-lg font-semibold text-foreground">
                 Employee Directory
               </h2>
-              <p className="text-sm text-muted-foreground mt-1">
+              {/* <p className="text-sm text-muted-foreground mt-1">
                 {employees.length}{" "}
                 {employees.length === 1 ? "employee" : "employees"} found
-              </p>
+              </p> */}
             </div>
             <div className="flex flex-col sm:flex-row gap-3">
-              <Select
+              {/* <Select
                 placeholder="Filter by role"
                 options={roleFilterOptions}
                 value={roleFilter}
                 onChange={(value) => setRoleFilter(value as string)}
                 className="w-full sm:w-48"
-              />
+              /> */}
               {/* <Select
                       placeholder="Performance period"
                       options={performancePeriodOptions}
                       value={performancePeriod}
                       onChange={(value) => setPerformancePeriod(value as string)}
-                      className="w-full sm:w-48"
-                    /> */}
+                      className="w-full sm:w-48"÷
+                    // />  */}
             </div>
           </div>
 
