@@ -3,6 +3,7 @@ import { ChevronDown, Check, Search, X, Plus } from "lucide-react";
 import { cn } from "../../utils/cn";
 import Button from "./Button";
 import Input from "./Input";
+import { Checkbox } from "./Checkbox";
 
 export interface SelectOption {
   value: string | number;
@@ -126,8 +127,10 @@ const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
 
         onChange?.(updatedValue);
 
-        setIsOpen(false);
-        onOpenChange?.(false);
+        if (closeOnSelect) {
+          setIsOpen(false);
+          onOpenChange?.(false);
+        }
       } else {
         onChange?.(option.value);
         setIsOpen(false);
@@ -306,7 +309,8 @@ const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
                       key={option.value}
                       className={cn(
                         "relative flex cursor-pointer select-none items-center rounded-sm px-3 py-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground",
-                        isSelected(option.value) &&
+                        !multiple &&
+                          isSelected(option.value) &&
                           "bg-primary text-primary-foreground",
                         option.disabled && "pointer-events-none opacity-50"
                       )}
@@ -314,10 +318,26 @@ const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
                         !option.disabled && handleOptionSelect(option)
                       }
                     >
-                      <span className="flex-1">{option.label}</span>
-                      {multiple && isSelected(option.value) && (
-                        <Check className="h-4 w-4" />
+                      {multiple ? (
+                        <>
+                          {/* <Checkbox checked={isSelected(option.value)} readOnly /> */}
+                          <Checkbox
+  checked={isSelected(option.value)}
+  readOnly
+  className="pointer-events-none"
+/>
+
+                          <span className="flex-1 ml-2">{option.label}</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="flex-1">{option.label}</span>
+                          {isSelected(option.value) && (
+                            <Check className="h-4 w-4" />
+                          )}
+                        </>
                       )}
+
                       {option.description && (
                         <span className="text-xs text-muted-foreground ml-2">
                           {option.description}

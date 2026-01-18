@@ -202,6 +202,7 @@ const CreateProfile = () => {
               <Select
                 label="Working Days"
                 multiple
+                closeOnSelect={false}
                 value={values.workingDays}
                 onChange={(selected: number[] | number) => {
                   const arr = Array.isArray(selected) ? selected : [selected];
