@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { Formik, Form, useFormikContext } from "formik";
 import { useRouter } from "next/navigation";
-
 import Icon from "../../../components/AppIcon";
 import Button from "../../../components/ui/Button";
 import Input from "../../../components/ui/Input";
@@ -12,6 +11,7 @@ import { BookingFormProps } from "../types";
 import { Staff, BookingFormData } from "../types";
 import { appointmentValidationSchema } from "@/app/components/validation/validation";
 import { staffApi } from "@/app/services/staff.api";
+
 // import { formatTo12Hour } from "@/app/utils/formatHour";
 
 // Helper component to handle side effects and data fetching inside Formik context
@@ -238,6 +238,7 @@ const BookingForm = ({
                   searchable
                   onChange={(v) => setFieldValue("customerId", v)}
                   error={touched.customerId ? errors.customerId : undefined}
+                  onAddNew={()=> router.push('/customer-database')}
                 />
 
                 {/* Services */}
@@ -256,6 +257,7 @@ const BookingForm = ({
                       ? errors.services
                       : undefined
                   }
+                  onAddNew={()=> router.push('/service-management')}
                 />
 
                 {/* Date */}

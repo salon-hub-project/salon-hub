@@ -6,6 +6,7 @@ import Icon from "../../../components/AppIcon";
 import Button from "../../../components/ui/Button";
 import Input from "../../../components/ui/Input";
 import Select from "../../../components/ui/Select";
+import { useRouter } from "next/navigation";
 
 import { appointmentApi } from "@/app/services/appointment.api";
 import { serviceApi } from "@/app/services/service.api";
@@ -39,8 +40,9 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
   const [staffOptions, setStaffOptions] = useState<
     { value: string; label: string }[]
   >([]);
+  const router= useRouter();
 
-  // ================= FETCH DATA =================
+  // =========`======== FETCH DATA =================
 
   const fetchCustomers = async () => {
     // Skip customer API call for staff - they don't have access to customer data
@@ -153,6 +155,7 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
               value={values.customer}
               onChange={(val) => setFieldValue("customer", val)}
               required
+              onAddNew={()=>router.push('/customer-database')}
             />
 
             {/* SERVICE */}
@@ -165,6 +168,7 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
               required
               multiple
               closeOnSelect
+              onAddNew={()=>router.push('/service-management')}
             />
 
             <div className="grid grid-cols-2 gap-4">
@@ -199,6 +203,7 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
               value={values.staff}
               onChange={(val) => setFieldValue("staff", val)}
               required
+              onAddNew={()=>router.push('/staff-management')}
             />
 
             <Button

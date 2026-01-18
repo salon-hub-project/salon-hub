@@ -12,11 +12,15 @@ import {
   CustomerFilters as FilterType,
   CustomerFormData,
   ServiceHistory,
+  CustomerTagItem,
 } from "./types";
 import { useRouter } from "next/navigation";
 import { customerApi } from "@/app/services/customer.api";
 import Pagination from "@/app/components/Pagination";
 import Loader from "@/app/components/Loader";
+import CustomerTagManager from "./components/CustomerTagsManager";
+import { customerTagApi } from "@/app/services/tags.api";
+import ConfirmModal from "@/app/components/ui/ConfirmModal";
 
 const CustomerDatabase = () => {
   const router = useRouter();
@@ -47,9 +51,43 @@ const CustomerDatabase = () => {
     sortOrder: "asc",
   });
   const [customerLoading, setCustomerLoading] = useState(false);
+  const [customerTags, setCustomerTags] = useState<CustomerTagItem[]>([]);
   const fetchingRef = useRef(false);
   const mountedRef = useRef(true);
 
+  //Fetch Customer Tags:-
+  useEffect(() => {
+    const fetchTags = async () => {
+      const res = await customerTagApi.getAllCustomerTags();
+      const list = res?.data || [];
+
+      setCustomerTags(
+        list.map((tag: any) => ({
+          id: tag._id,
+          name: tag.name,
+        })),
+      );
+    };
+
+    fetchTags();
+  }, []);
+
+  //Handle methods of customerTags:-
+  const handleAddTag = (name: string, id: string) => {
+    setCustomerTags((prev) => [...prev, { id, name }]);
+  };
+
+  const handleUpdateTag = (id: string, name: string) => {
+    setCustomerTags((prev) =>
+      prev.map((tag) => (tag.id === id ? { ...tag, name } : tag)),
+    );
+  };
+
+  const handleDeleteTag = (id: string) => {
+    setCustomerTags((prev) => prev.filter((tag) => tag.id !== id));
+  };
+
+  //Fetch Customers:-
   const fetchCustomers = useCallback(async () => {
     // Prevent duplicate calls
     if (fetchingRef.current) return;
@@ -332,6 +370,12 @@ const CustomerDatabase = () => {
           onExport={handleExport}
           totalCustomers={totalCustomers}
         /> */}
+        <CustomerTagManager
+          tags={customerTags}
+          onAddTag={handleAddTag}
+          onUpdateTag={handleUpdateTag}
+          onDeleteTag={handleDeleteTag}
+        />
 
         {loading ? (
           <Loader label="Loading customers..." />
