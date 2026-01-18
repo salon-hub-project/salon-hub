@@ -87,7 +87,7 @@ const ServiceTable = ({
         <table className="w-full">
           <thead className="bg-muted border-b border-border">
             <tr>
-              <th className="px-4 py-3 text-left" aria-label="Select service">
+              {/* <th className="px-4 py-3 text-left" aria-label="Select service"> */}
                 {/* <input
                   type="checkbox"
                   checked={
@@ -101,7 +101,7 @@ const ServiceTable = ({
                   }}
                   className="w-4 h-4 rounded border-border"
                 /> */}
-              </th>
+              {/* </th> */}
               <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">
                 Service Name
               </th>
@@ -128,7 +128,7 @@ const ServiceTable = ({
           <tbody className="divide-y divide-border">
             {services.map((service) => (
               <tr key={service.id} className="hover:bg-muted transition-smooth">
-                <td className="px-4 py-3">
+                {/* <td className="px-4 py-3">
                   <input
                     type="checkbox"
                     checked={selectedServices.includes(service.id)}
@@ -137,7 +137,7 @@ const ServiceTable = ({
                     }
                     className="w-4 h-4 rounded border-border"
                   />
-                </td>
+                </td> */}
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-foreground">

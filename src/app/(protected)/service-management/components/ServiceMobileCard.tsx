@@ -63,12 +63,12 @@ const ServiceMobileCard = ({
   return (
     <div className="bg-card border border-border rounded-lg p-4 transition-smooth hover:shadow-md">
       <div className="flex items-start gap-3">
-        <input
+        {/* <input
           type="checkbox"
           checked={isSelected}
           onChange={(e) => onSelect(e.target.checked)}
           className="w-4 h-4 mt-1 rounded border-border"
-        />
+        /> */}
 
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 mb-2">
