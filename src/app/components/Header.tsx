@@ -19,9 +19,27 @@ interface User {
   salonName?: string;
 }
 
+
+
+  /* Existing code ... */
+
+  /* Define Notification interface within Header or assume passed as any if complex. 
+     Better to define it to ensure type safety. */
+
+export interface Notification {
+  id: string;
+  type: 'info' | 'warning' | 'success' | 'error';
+  title: string;
+  message: string;
+  timestamp: Date;
+  read: boolean;
+  path?: string;
+}
+
 interface HeaderProps {
   user: User;
   notifications?: number;
+  notificationList?: Notification[];
   onLogout?: () => void;
   onProfileClick?: () => void;
   onNotificationClick?: () => void;
@@ -32,6 +50,7 @@ interface HeaderProps {
 const Header = ({
   user,
   notifications = 0,
+  notificationList = [],
   onLogout,
   onProfileClick,
   onNotificationClick,
@@ -40,12 +59,15 @@ const Header = ({
 }: HeaderProps) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSalonSwitcherOpen, setIsSalonSwitcherOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const dispatch = useAppDispatch();
   const router = useRouter();
 
   const { profile, timings, isLoading } = useAppSelector((state) => state.profile);
   const profileRef = useRef<HTMLDivElement>(null);
   const salonSwitcherRef = useRef<HTMLDivElement>(null);
+  const notificationRef = useRef<HTMLDivElement>(null);
+  
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const isAuthenticated = useAppSelector((state) => !!state.auth.token);
 
@@ -76,6 +98,12 @@ const Header = ({
       ) {
         setIsSalonSwitcherOpen(false);
       }
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target as Node)
+      ) {
+        setIsNotificationsOpen(false);
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -89,6 +117,18 @@ const Header = ({
       STAFF: "Staff",
     };
     return roleMap[normalizeRole(role)] ?? "Owner";
+  };
+
+  const getTimeAgo = (timestamp: Date) => {
+    const now = new Date();
+    const diffInMinutes = Math.floor(
+      (now.getTime() - new Date(timestamp).getTime()) / (1000 * 60)
+    );
+
+    if (diffInMinutes < 1) return "Just now";
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
+    return `${Math.floor(diffInMinutes / 1440)}d ago`;
   };
 
   const handleLogout = () => {
@@ -116,6 +156,13 @@ const Header = ({
   const handleSalonSwitch = (salonId: string) => {
     setIsSalonSwitcherOpen(false);
     onSalonSwitch?.(salonId);
+  };
+
+  const handleNotificationItemClick = (notification: Notification) => {
+    setIsNotificationsOpen(false);
+    if (notification.path) {
+      router.push(notification.path);
+    }
   };
   
   return (
@@ -161,17 +208,73 @@ const Header = ({
             )}
 
           {/* Notifications */}
-          <button
-            onClick={onNotificationClick}
-            className="relative w-10 h-10 rounded-md hover:bg-muted"
-          >
-            <Icon name="Bell" size={20} />
-            {notifications > 0 && (
-              <span className="absolute top-1 right-1 text-xs bg-accent rounded-full px-1">
-                {notifications > 99 ? "99+" : notifications}
-              </span>
+          <div className="relative" ref={notificationRef}>
+            <button
+              onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+              className="relative w-10 h-10 rounded-md hover:bg-muted flex items-center justify-center"
+            >
+              <Icon name="Bell" size={20} />
+              {(notifications > 0 || notificationList.length > 0) && (
+                // <span className="absolute top-1 right-1 text-xs bg-accent rounded-full px-1 min-w-[16px] h-[16px] flex items-center justify-center text-[10px] text-white">
+                <span
+  className="
+    absolute
+    -top-0
+    -right-1
+    flex
+    items-center
+    justify-center
+    min-w-[18px]
+    h-[18px]
+    px-1
+    text-[10px]
+    font-medium
+    leading-none
+    rounded-full
+    bg-accent
+    text-white
+  "
+>
+                  {notifications > 0 ? (notifications > 99 ? "99+" : notifications) : (notificationList.length > 99 ? "99+" : notificationList.length)}
+                </span>
+              )}
+            </button>
+
+            {isNotificationsOpen && (
+              <div className="absolute right-0 mt-2 w-80 max-h-[400px] overflow-y-auto bg-card border rounded-lg shadow-lg">
+                 <div className="p-4 border-b sticky top-0 bg-card z-10">
+                  <h3 className="font-semibold text-sm">Notifications</h3>
+                </div>
+                <div className="p-2 space-y-2">
+                  {notificationList && notificationList.length > 0 ? (
+                    notificationList.map((notification) => (
+                      <div
+                        key={notification.id}
+                        onClick={() => handleNotificationItemClick(notification)}
+                        className={`p-3 rounded-md text-sm cursor-pointer ${
+                          notification.read ? "bg-background" : "bg-muted/30"
+                        } hover:bg-muted/50 transition-colors`}
+                      >
+                        <div className="font-medium text-foreground mb-1">
+                          {notification.title}
+                        </div>
+                        <div className="text-muted-foreground text-xs mb-1 line-clamp-2">
+                          {notification.message}
+                        </div>
+                         <div className="text-[10px] text-muted-foreground/70">
+                          {getTimeAgo(notification.timestamp)}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-4 text-center text-sm text-muted-foreground">
+                      No new notifications
+                    </div>
+                  )}
+                </div>
+              </div>
             )}
-          </button>
+          </div>
 
           {/* Profile */}
           <div className="relative" ref={profileRef}>

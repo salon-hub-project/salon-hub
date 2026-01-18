@@ -7,6 +7,7 @@ import CustomerFilters from "./components/CustomerFilters";
 import CustomerProfile from "./components/CustomerProfile";
 import CustomerForm from "./components/CustomerForm";
 import MobileCustomerCard from "./components/MobileCustomerCard";
+
 import {
   Customer,
   CustomerFilters as FilterType,
@@ -14,7 +15,7 @@ import {
   ServiceHistory,
   CustomerTagItem,
 } from "./types";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { customerApi } from "@/app/services/customer.api";
 import Pagination from "@/app/components/Pagination";
 import Loader from "@/app/components/Loader";
@@ -24,6 +25,7 @@ import ConfirmModal from "@/app/components/ui/ConfirmModal";
 
 const CustomerDatabase = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isMobile, setIsMobile] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
     return window.innerWidth < 1024;
@@ -54,6 +56,14 @@ const CustomerDatabase = () => {
   const [customerTags, setCustomerTags] = useState<CustomerTagItem[]>([]);
   const fetchingRef = useRef(false);
   const mountedRef = useRef(true);
+
+  // Detect customerId from URL and open profile
+  useEffect(() => {
+    const customerIdFromUrl = searchParams.get("customerId");
+    if (customerIdFromUrl) {
+      handleCustomerSelect(customerIdFromUrl);
+    }
+  }, [searchParams]);
 
   //Fetch Customer Tags:-
   useEffect(() => {

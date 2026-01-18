@@ -6,13 +6,14 @@ import { useRouter ,usePathname} from "next/navigation";
 import { useAppSelector } from "../store/hooks";
 import AuthGuard from "../components/AuthGuard";
 import Sidebar from "../components/Sidebar";
-import Header from "../components/Header";
+import Header, { Notification } from "../components/Header";
 import { notificationApi } from "../services/notification.api";
 
 export default function ProtectedLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const authUser = useAppSelector((state) => state.auth.user);
   const [notificationCount, setNotificationCount] = useState(0);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
   const pathname = usePathname();
 
@@ -22,13 +23,48 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
   }, []);
 
   const fetchNotifications = async () => {
-    const res = await notificationApi.getAllNotifications();
+    try {
+      const res = await notificationApi.getAllNotifications();
+      if (!res?.data) return;
 
-    const total =
-      res.data.newAppointments.length +
-      (res.data.newCustomers?.length || 0);
+      const { newAppointments = [], newCustomers = [] } = res.data;
 
-    setNotificationCount(total);
+      const appointmentNotifications: Notification[] = newAppointments.map(
+        (appt: any) => ({
+          id: appt._id,
+          type: "info",
+          title: "New Appointment",
+          message: `${
+            appt.customerId?.fullName || "Customer"
+          } booked an appointment at ${appt.appointmentTime}`,
+          timestamp: new Date(appt.createdAt),
+          read: false,
+          path: `/booking-management?appointmentId=${appt._id}`,
+        })
+      );
+
+      const customerNotifications: Notification[] = newCustomers
+        .filter((cust: any) => !cust.isDeleted)
+        .map((cust: any) => ({
+          id: cust._id,
+          type: "success",
+          title: "New Customer",
+          message: `${cust.fullName} joined your salon`,
+          timestamp: new Date(cust.createdAt),
+          read: false,
+          path: `/customer-database?customerId=${cust._id}`,
+        }));
+
+      const allNotifications = [
+        ...appointmentNotifications,
+        ...customerNotifications,
+      ].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+
+      setNotifications(allNotifications);
+      setNotificationCount(allNotifications.length);
+    } catch (error) {
+      console.error("Failed to fetch notifications", error);
+    }
   };
 
   // 🔹 UPDATE LAST VISITED PROTECTED ROUTE
@@ -55,6 +91,7 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
         <Header
           user={user}
           notifications={notificationCount}
+          notificationList={notifications}
           onLogout={() => router.push("/salon-login")}
           onProfileClick={() => router.push("/profile")}
         />

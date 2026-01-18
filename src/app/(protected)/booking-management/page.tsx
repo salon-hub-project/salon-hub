@@ -271,6 +271,11 @@ const BookingManagement = () => {
         staffId: staffIdFromUrl,
       }));
     }
+
+    const appointmentIdFromUrl = searchParams.get("appointmentId");
+    if (appointmentIdFromUrl) {
+      handleBookingClick(appointmentIdFromUrl);
+    }
   }, [searchParams]);
 
   const generateTimeSlots = (): TimeSlot[] => {

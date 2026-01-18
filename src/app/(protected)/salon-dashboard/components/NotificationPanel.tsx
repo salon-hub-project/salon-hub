@@ -1,5 +1,6 @@
 import { Notification } from "../types";
 import Icon from "../../../components/AppIcon";
+import { useRouter } from "next/navigation";
 
 interface NotificationPanelProps {
   notifications: Notification[];
@@ -8,6 +9,8 @@ interface NotificationPanelProps {
 const NotificationPanel = ({
   notifications
 }: NotificationPanelProps) => {
+  const router = useRouter();
+
   const getNotificationIcon = (type: Notification["type"]) => {
     const icons = {
       info: "Info",
@@ -42,18 +45,24 @@ const NotificationPanel = ({
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
+  const handleNotificationClick = (path?: string) => {
+    if (path) {
+      router.push(path);
+    }
+  };
+
   return (
     <div className="bg-card border border-border rounded-lg p-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <h3 className="text-lg font-semibold text-foreground">
+          {/* <h3 className="text-lg font-semibold text-foreground">
             Notifications
           </h3>
           {unreadCount > 0 && (
             <span className="flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-medium rounded-full bg-accent text-accent-foreground">
               {unreadCount}
             </span>
-          )}
+          )} */}
         </div>
       </div>
 
@@ -61,7 +70,8 @@ const NotificationPanel = ({
         {notifications.slice(0, 5).map((notification) => (
           <div
             key={notification.id}
-            className={`p-4 rounded-lg border transition-smooth ${
+            onClick={() => handleNotificationClick(notification.path)}
+            className={`p-4 rounded-lg border transition-smooth cursor-pointer hover:bg-muted/60 ${
               notification.read
                 ? "bg-muted/50"
                 : "bg-success/5 border-success/20"

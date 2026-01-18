@@ -202,6 +202,7 @@ const SalonDashboard = () => {
             } booked an appointment at ${appt.appointmentTime}`,
             timestamp: new Date(appt.createdAt),
             read: false,
+            path: `/booking-management?appointmentId=${appt._id}`,
           })
         );
 
@@ -215,6 +216,7 @@ const SalonDashboard = () => {
             message: `${cust.fullName} joined your salon`,
             timestamp: new Date(cust.createdAt),
             read: false,
+            path: `/customer-database?customerId=${cust._id}`,
           }));
 
         setAppointmentNotifications(appointmentNotifications);
@@ -369,7 +371,9 @@ const SalonDashboard = () => {
                 <StaffUtilizationCard staff={staffUtilization} />
               </div>
             </div>
-
+             <h2 className="text-lg font-semibold text-foreground mb-2">
+  Notifications
+</h2>
             <div className="grid grid-cols-1 gap-6 mt-4">
               {/* Appointment Notifications */}
               <div
