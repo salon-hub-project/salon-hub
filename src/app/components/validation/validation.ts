@@ -22,8 +22,8 @@ export const registrationSchema = Yup.object({
     .required("Email is required"),
 
   address: Yup.string()
-    .required("Address is required")
-    .min(10, "Please enter a complete address"),
+    .required("Address is required"),
+    // .min(10, "Please enter a complete address"),
 
   password: Yup.string()
     .required("Password is required")
