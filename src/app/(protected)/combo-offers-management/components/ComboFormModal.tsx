@@ -217,6 +217,7 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                               </p>
 
                               <Button
+                                type="button"
                                 variant="outline"
                                 size="sm"
                                 iconName="Plus"
