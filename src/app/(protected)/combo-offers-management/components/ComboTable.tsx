@@ -137,7 +137,7 @@ const ComboTable: React.FC<ComboTableProps> = ({
                         {combo.popularity} bookings
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        INR {combo.revenueGenerated.toFixed(0)} revenue
+                        INR {combo.revenueGenerated.toFixed(0)} 
                       </span>
                     </div>
                   </td>
