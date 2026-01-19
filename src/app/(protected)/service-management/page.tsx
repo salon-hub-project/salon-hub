@@ -365,7 +365,7 @@ const ServiceManagement = () => {
       };
 
       await serviceApi.createService(payload);
-
+      await fetchCategories();
       // Refresh services from API
       await fetchServices();
     } catch (error) {
