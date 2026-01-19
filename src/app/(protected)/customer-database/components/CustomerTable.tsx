@@ -19,7 +19,7 @@ const CustomerTable = ({
   onCustomerSelect,
   onEditCustomer,
   selectedCustomerId,
-  onCustomerDeleted
+  onCustomerDeleted,
 }: CustomerTableProps) => {
   const [sortBy, setSortBy] = useState<
     "name" | "lastVisit" | "totalVisits" | "totalSpent"
@@ -27,7 +27,7 @@ const CustomerTable = ({
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(
-    null
+    null,
   );
   const [deleting, setDeleting] = useState(false);
 
@@ -81,7 +81,7 @@ const CustomerTable = ({
 
     return sortOrder === "asc" ? comparison : -comparison;
   });
-  
+
   const handleDeleteCustomer = async () => {
     if (!customerToDelete) return;
 
@@ -218,18 +218,23 @@ const CustomerTable = ({
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex flex-wrap gap-1">
-                    {customer.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className={`px-2 py-1 rounded-md text-xs font-medium ${getTagColor(
-                          tag
-                        )}`}
-                      >
-                        {tag}
-                      </span>
-                    ))}
+                    {customer.tags && customer.tags.length > 0 ? (
+                      customer.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className={`px-2 py-1 rounded-md text-xs font-medium ${getTagColor(
+                            tag,
+                          )}`}
+                        >
+                          {tag}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-xs text-muted-foreground pl-4">N/A</span>
+                    )}
                   </div>
                 </td>
+
                 <td className="px-6 py-4">
                   <div className="text-sm text-foreground">
                     {formatDate(customer.lastVisit)}
@@ -255,11 +260,7 @@ const CustomerTable = ({
                       className="p-2 rounded-md hover:bg-muted transition-smooth"
                       aria-label="View customer details"
                     >
-                      <Icon
-                        name="Eye"
-                        size={16}
-                        className="text-destructive"
-                      />
+                      <Icon name="Eye" size={16} className="text-destructive" />
                     </button>
 
                     <button
