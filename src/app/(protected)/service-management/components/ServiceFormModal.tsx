@@ -255,6 +255,7 @@ const ServiceFormModal = ({
                 placeholder="Enter description here"
                 value={values.description}
                 onChange={handleChange}
+                error= {touched.description ? errors.description : undefined}
               />
 
               {/* Popular Service */}

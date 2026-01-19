@@ -7,7 +7,7 @@ import Button from "../../../components/ui/Button";
 import Input from "../../../components/ui/Input";
 import Select from "../../../components/ui/Select";
 import { useRouter } from "next/navigation";
-
+import * as Yup from "yup";
 import { appointmentApi } from "@/app/services/appointment.api";
 import { serviceApi } from "@/app/services/service.api";
 import { staffApi } from "@/app/services/staff.api";
@@ -28,6 +28,26 @@ interface BookingFormValues {
   staff: string;
 }
 
+const BookingValidationSchema = Yup.object({
+  customer: Yup.string()
+    .required("Please select a customer"),
+
+  service: Yup.array()
+    .of(Yup.string())
+    .min(1, "Please select at least one service")
+    .required("Please select at least one service"),
+
+  staff: Yup.string()
+    .required("Please select a staff member"),
+
+  date: Yup.string()
+    .required("Please select a date"),
+
+  time: Yup.string()
+    .required("Please select a time"),
+});
+
+
 const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
   const user = useAppSelector((state) => state.auth.user);
   const userRole = user?.role;
@@ -40,21 +60,21 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
   const [staffOptions, setStaffOptions] = useState<
     { value: string; label: string }[]
   >([]);
-  const router= useRouter();
+  const router = useRouter();
 
   // =========`======== FETCH DATA =================
 
   const fetchCustomers = async () => {
     // Skip customer API call for staff - they don't have access to customer data
     if (isStaff(userRole)) return;
-    
+
     try {
       const res = await customerApi.getCustomers({ limit: 1000 });
       setCustomerOptions(
         res.data.map((c: any) => ({
           value: c._id,
           label: c.fullName,
-        }))
+        })),
       );
     } catch (error) {
       console.error("Customer fetch error", error);
@@ -68,7 +88,7 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
         res.data.map((s: any) => ({
           value: s._id,
           label: s.serviceName,
-        }))
+        })),
       );
     } catch (error) {
       console.error("Service fetch error", error);
@@ -82,7 +102,7 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
         res.data.map((s: any) => ({
           value: s._id,
           label: s.fullName,
-        }))
+        })),
       );
     } catch (error) {
       console.error("Staff fetch error", error);
@@ -99,13 +119,13 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
 
   const handleSubmit = async (
     values: BookingFormValues,
-    { resetForm }: any
+    { resetForm }: any,
   ) => {
     try {
       const payload = {
-        customerId: values.customer,      // ✅ ObjectId
-        services: values.service,       // ✅ ObjectId[]
-        staffId: values.staff,            // ✅ ObjectId
+        customerId: values.customer, // ✅ ObjectId
+        services: values.service, // ✅ ObjectId[]
+        staffId: values.staff, // ✅ ObjectId
         appointmentDate: values.date,
         appointmentTime: values.time,
       };
@@ -129,9 +149,7 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
     <div className="bg-card border border-border rounded-lg p-6">
       <div className="flex items-center gap-2 mb-4">
         <Icon name="CalendarPlus" size={20} className="text-primary" />
-        <h3 className="text-lg font-semibold text-foreground">
-          Quick Booking
-        </h3>
+        <h3 className="text-lg font-semibold text-foreground">Quick Booking</h3>
       </div>
 
       <Formik
@@ -142,11 +160,11 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
           time: "",
           staff: "",
         }}
+        validationSchema={BookingValidationSchema}
         onSubmit={handleSubmit}
       >
-        {({ values, setFieldValue }) => (
+        {({ values, setFieldValue, errors, touched }) => (
           <Form className="space-y-4">
-
             {/* CUSTOMER */}
             <Select
               label="Customer"
@@ -154,9 +172,12 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
               options={customerOptions}
               value={values.customer}
               onChange={(val) => setFieldValue("customer", val)}
-              required
-              onAddNew={()=>router.push('/customer-database')}
+              onAddNew={() => router.push("/customer-database")}
             />
+             {touched.customer && errors.customer && (
+              <p className="text-xs text-destructive mt-1 text-red-500">{errors.customer}</p>
+            )}
+
 
             {/* SERVICE */}
             <Select
@@ -165,11 +186,13 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
               options={serviceOptions}
               value={values.service}
               onChange={(val) => setFieldValue("service", val)}
-              required
               multiple
               closeOnSelect
-              onAddNew={()=>router.push('/service-management')}
+              onAddNew={() => router.push("/service-management")}
             />
+            {touched.service && errors.service && (
+              <p className="text-xs text-destructive mt-1 text-red-500">{errors.service}</p>
+            )}
 
             <div className="grid grid-cols-2 gap-4">
               {/* DATE */}
@@ -177,22 +200,22 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
                 label="Date"
                 type="date"
                 value={values.date}
-                onChange={(e) =>
-                  setFieldValue("date", e.target.value)
-                }
-                required
+                onChange={(e) => setFieldValue("date", e.target.value)}
               />
+              {touched.date && errors.date && (
+                <p className="text-xs text-destructive mt-1 text-red-500">{errors.date}</p>
+              )}
 
               {/* TIME */}
               <Input
                 label="Time"
                 type="time"
                 value={values.time}
-                onChange={(e) =>
-                  setFieldValue("time", e.target.value)
-                }
-                required
+                onChange={(e) => setFieldValue("time", e.target.value)}
               />
+              {touched.time && errors.time && (
+                <p className="text-xs text-destructive mt-1 text-red-500">{errors.time}</p>
+              )}
             </div>
 
             {/* STAFF */}
@@ -202,16 +225,13 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
               options={staffOptions}
               value={values.staff}
               onChange={(val) => setFieldValue("staff", val)}
-              required
-              onAddNew={()=>router.push('/staff-management')}
+              onAddNew={() => router.push("/staff-management")}
             />
+            {touched.staff && errors.staff && (
+              <p className="text-xs text-destructive text-red-500">{errors.staff}</p>
+            )}
 
-            <Button
-              type="submit"
-              variant="default"
-              fullWidth
-              iconName="Plus"
-            >
+            <Button type="submit" variant="default" fullWidth iconName="Plus">
               Create Booking
             </Button>
           </Form>
