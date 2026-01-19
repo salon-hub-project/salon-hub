@@ -327,7 +327,7 @@ const EmployeeDetailsPanel = ({
             </Button>
           </div>
 
-          {showSchedule && (
+          {/* {showSchedule && (
             <div className="mt-4 border border-border rounded-lg p-4">
               <div className="flex items-center justify-between mb-3">
                 <h4 className="text-sm font-semibold text-foreground">
@@ -414,7 +414,88 @@ const EmployeeDetailsPanel = ({
                 </div>
               )}
             </div>
-          )}
+          )} */}
+          {showSchedule && (
+  <div className="fixed inset-0 bg-black/50 z-[110] flex items-center justify-center p-4">
+    <div className="bg-card rounded-lg shadow-xl max-w-3xl w-full max-h-[85vh] overflow-y-auto">
+      {/* Header */}
+      <div className="sticky top-0 bg-card border-b border-border px-6 py-4 flex items-center justify-between">
+        <h4 className="text-lg font-semibold text-foreground">
+          Appointment Schedule
+        </h4>
+        <Button
+          variant="ghost"
+          size="icon"
+          iconName="X"
+          iconSize={18}
+          onClick={() => setShowSchedule(false)}
+          className="text-muted-foreground hover:text-foreground"
+        />
+      </div>
+
+      {/* Content */}
+      <div className="p-6">
+        {appointmentsLoading ? (
+          <Loader label="Loading appointments..." />
+        ) : appointmentsError ? (
+          <p className="text-sm text-destructive">{appointmentsError}</p>
+        ) : appointments.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No appointments found for this staff member.
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-muted">
+                <tr className="text-left">
+                  <th className="p-2 font-medium text-foreground">Date</th>
+                  <th className="p-2 font-medium text-foreground">Time</th>
+                  <th className="p-2 font-medium text-foreground">Customer</th>
+                  <th className="p-2 font-medium text-foreground">Services</th>
+                  <th className="p-2 font-medium text-foreground">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {appointments.map((appt) => (
+                  <tr
+                    key={appt._id}
+                    className="border-b border-border last:border-0"
+                  >
+                    <td className="p-2">
+                      {appt.appointmentDate
+                        ? new Date(appt.appointmentDate).toLocaleDateString("en-US")
+                        : "-"}
+                    </td>
+                    <td className="p-2">{appt.appointmentTime || "-"}</td>
+                    <td className="p-2">
+                      {appt.customerId?.fullName || "Unknown"}
+                    </td>
+                    <td className="p-2">
+                      {Array.isArray(appt.services) && appt.services.length > 0
+                        ? appt.services
+                            .map(
+                              (s: any) =>
+                                s?.serviceName || s?.name || "Service"
+                            )
+                            .join(", ")
+                        : appt.serviceId?.serviceName || "-"}
+                    </td>
+                    <td className="p-2">
+                      <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-muted text-foreground">
+                        {appt.status || "Pending"}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+)}
+
         </div>
       </div>
     </div>
