@@ -84,9 +84,10 @@ export const comboValidationSchema = Yup.object().shape({
   minBookingRequirement: Yup.number().nullable(),
   // customerEligibility: Yup.string().required("Customer eligibility is required"),
   staffCommissionRate: Yup.number()
+  .nullable()
     .min(0)
     .max(100)
-    .required(),
+    // .required(),
 });
 
 //Service Component Validation SChema:-

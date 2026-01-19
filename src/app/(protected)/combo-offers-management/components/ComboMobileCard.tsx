@@ -118,28 +118,7 @@ const ComboMobileCard: React.FC<ComboMobileCardProps> = ({
         >
           Edit
         </Button>
-        <button
-          onClick={() => onDuplicate(combo)}
-          className="p-2 hover:bg-muted rounded transition-colors"
-          title="Duplicate"
-        >
-          <Icon name="Copy" size={18} className="text-muted-foreground" />
-        </button>
-        {!isExpired && (
-          <button
-            onClick={() => onToggleStatus(combo.id)}
-            className="p-2 hover:bg-muted rounded transition-colors"
-            title={combo.isActive ? "Deactivate" : "Activate"}
-          >
-            <Icon
-              name={combo.isActive ? "ToggleRight" : "ToggleLeft"}
-              size={18}
-              className={
-                combo.isActive ? "text-green-600" : "text-muted-foreground"
-              }
-            />
-          </button>
-        )}
+       
         <button
           onClick={() => {
             setSelectedComboId(combo.id);

@@ -31,21 +31,39 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
   combo,
   availableServices,
 }) => {
-  if (!isOpen) return null;
 
+
+  // const initialValues: ComboFormData = {
+  //   name: combo?.name || "",
+  //   description: combo?.description || "",
+  //   services: combo?.services || [],
+  //   discountedPrice: combo?.discountedPrice || null,
+  //   validFrom: combo?.validFrom || new Date(),
+  //   validUntil:
+  //     combo?.validUntil || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+  //   minBookingRequirement: combo?.minBookingRequirement || undefined,
+  //   customerEligibility: combo?.customerEligibility || "",
+  //   staffCommissionRate: combo?.staffCommissionRate || null,
+  // };
   const initialValues: ComboFormData = {
     name: combo?.name || "",
     description: combo?.description || "",
     services: combo?.services || [],
-    discountedPrice: combo?.discountedPrice || null,
+    discountedPrice: combo?.discountedPrice ?? null,
     validFrom: combo?.validFrom || new Date(),
     validUntil:
       combo?.validUntil || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-    minBookingRequirement: combo?.minBookingRequirement || undefined,
-    customerEligibility: combo?.customerEligibility || "",
-    staffCommissionRate: combo?.staffCommissionRate || null,
+  
+    minBookingRequirement: combo?.minBookingRequirement ?? undefined,
+  
+    customerEligibility:
+      combo?.customerEligibility && combo.customerEligibility !== "all"
+        ? combo.customerEligibility
+        : "",
+  
+    staffCommissionRate: combo?.staffCommissionRate ?? null,
   };
-
+  
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
   const [customerTags, setCustomerTags] = useState<any[]>([]); // Use any[] or specific type if available
   const [loadingTags, setLoadingTags] = useState(false);

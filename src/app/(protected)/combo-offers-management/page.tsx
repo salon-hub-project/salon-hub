@@ -85,7 +85,9 @@ const ComboOffersManagement = () => {
       // Transform API data to UI model
       const mappedCombos: ComboOffer[] = combosData.map((c: any) => {
         const comboServices: ComboService[] = c.services
-          .map((serviceId: string) => {
+          .map((serviceItem: any) => {
+             // Handle both string ID and populated object
+            const serviceId = typeof serviceItem === 'string' ? serviceItem : (serviceItem._id || serviceItem.id);
             const found = mappedServices.find((s: any) => s.id === serviceId);
             return found
               ? {
@@ -114,6 +116,7 @@ const ComboOffersManagement = () => {
               ? c.customerEligibility._id
               : c.customerEligibility || "all",
           staffCommissionRate: c.staffCommissionRate || null,
+          minBookingRequirement: c.minBookingRequirement || undefined,
           popularity: 0,
           totalBookings: 0,
           revenueGenerated: c.savedAmount || 0, // Just putting something here
@@ -352,10 +355,25 @@ const ComboOffersManagement = () => {
     setIsFormModalOpen(true);
   };
 
+  // const handleOpenEditModal = (combo: ComboOffer) => {
+  //   setEditingCombo(combo);
+  //   setIsFormModalOpen(true);
+  // };
   const handleOpenEditModal = (combo: ComboOffer) => {
-    setEditingCombo(combo);
+    const normalizedCombo: ComboOffer = {
+      ...combo,
+      services: combo.services.map((s) => ({
+        id: s.id,
+        name: s.name,
+        duration: s.duration,
+        originalPrice: s.originalPrice,
+      })),
+    };
+  
+    setEditingCombo(normalizedCombo);
     setIsFormModalOpen(true);
   };
+  
 
   const handleCloseModal = () => {
     setIsFormModalOpen(false);
@@ -462,13 +480,15 @@ const ComboOffersManagement = () => {
           </>
         )}
       </div>
-      <ComboFormModal
-        isOpen={isFormModalOpen}
-        onClose={handleCloseModal}
-        onSubmit={handleFormSubmit}
-        combo={editingCombo}
-        availableServices={availableServices}
-      />
+      {isFormModalOpen && (
+        <ComboFormModal
+          isOpen={isFormModalOpen}
+          onClose={handleCloseModal}
+          onSubmit={handleFormSubmit}
+          combo={editingCombo}
+          availableServices={availableServices}
+        />
+      )}
 
       <ComboPreviewModal
         isOpen={isPreviewModalOpen}
