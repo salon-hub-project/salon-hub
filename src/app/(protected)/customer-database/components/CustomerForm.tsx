@@ -137,7 +137,6 @@ const CustomerForm = ({
 
   const handleAddTag = async (tagName?: string) => {
     if (!tagName?.trim()) return;
-
     try {
       const res = await customerTagApi.createCustomerTag({
         name: tagName.trim(),
@@ -146,7 +145,6 @@ const CustomerForm = ({
       const createdTag = res?.data;
       if (!createdTag) return;
 
-      // ✅ Update UI immediately (no refresh)
       setCustomerTags((prev) => [
         ...prev,
         {
@@ -332,6 +330,7 @@ const CustomerForm = ({
                     </p>
 
                     <Button
+                      type="button"
                       size="sm"
                       variant="outline"
                       iconName="Plus"

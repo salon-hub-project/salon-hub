@@ -70,7 +70,7 @@ export const appointmentValidationSchema = Yup.object({
 
 export const comboValidationSchema = Yup.object().shape({
   name: Yup.string().trim().required("Combo name is required"),
-  description: Yup.string().nullable(),
+  description: Yup.string().required("Please provide description about combo"),
   services: Yup.array()
     .min(2, "Please select at least 2 services")
     .required(),
@@ -81,13 +81,11 @@ export const comboValidationSchema = Yup.object().shape({
   validUntil: Yup.date()
     .min(Yup.ref("validFrom"), "End date must be after start date")
     .required(),
-  minBookingRequirement: Yup.number().nullable(),
+  minBookingRequirement: Yup.number().min(0, "Bookings cannot be negative"),
   // customerEligibility: Yup.string().required("Customer eligibility is required"),
-  staffCommissionRate: Yup.number()
-  .nullable()
-    .min(0)
-    .max(100)
-    // .required(),
+  // staffCommissionRate: Yup.number()
+  //   .min(0)
+  //   .max(100)
 });
 
 //Service Component Validation SChema:-

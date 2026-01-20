@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { Formik, Form } from "formik";
+import { useRouter } from "next/navigation";
 import Icon from "../../../components/AppIcon";
 import Input from "../../../components/ui/Input";
 import Select from "../../../components/ui/Select";
@@ -67,6 +68,7 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
   const [customerTags, setCustomerTags] = useState<any[]>([]); // Use any[] or specific type if available
   const [loadingTags, setLoadingTags] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchCustomerTags = async () => {
@@ -140,10 +142,6 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
           initialValues={initialValues}
           validationSchema={comboValidationSchema}
           enableReinitialize
-          // onSubmit={(values) => {
-          //   onSubmit(values);
-          //   onClose();
-          // }}
           onSubmit={(values) => {
             const payload = {
               ...values,
@@ -188,6 +186,11 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                         rows={3}
                         placeholder="Describe your combo offer..."
                       />
+                      {touched.description && errors.description && (
+                        <p className="text-xs text-destructive text-red-500">
+                          {errors.description}
+                        </p>
+                      )}
                     </div>
 
                     {/* SERVICES */}
@@ -196,48 +199,82 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                         Select Services * (min. 2)
                       </label>
                       <div className="space-y-2 max-h-48 overflow-y-auto border border-border rounded-lg p-3">
-                        {availableServices.map((service) => {
-                          const checked = values.services.some(
-                            (s) => s.id === service.id,
-                          );
+                        {availableServices.length === 0 ? (
+                          <div className="border border-dashed border-border rounded-lg p-6 text-center">
+                            <div className="flex flex-col items-center gap-3">
+                              <Icon
+                                name="Scissors"
+                                size={28}
+                                className="text-muted-foreground"
+                              />
 
-                          return (
-                            <label
-                              key={service.id}
-                              className="flex items-center justify-between p-2 hover:bg-muted rounded cursor-pointer"
-                            >
-                              <div className="flex items-center gap-2">
-                                <input
-                                  type="checkbox"
-                                  checked={checked}
-                                  onChange={() => {
-                                    if (checked) {
-                                      setFieldValue(
-                                        "services",
-                                        values.services.filter(
-                                          (s) => s.id !== service.id,
-                                        ),
-                                      );
-                                    } else {
-                                      setFieldValue("services", [
-                                        ...values.services,
-                                        {
-                                          id: service.id,
-                                          name: service.name,
-                                          duration: service.duration,
-                                          originalPrice: service.price,
-                                        },
-                                      ]);
-                                    }
-                                  }}
-                                  className="w-4 h-4"
-                                />
-                                <span>{service.name}</span>
-                              </div>
-                              <span>INR {service.price.toFixed(2)}</span>
-                            </label>
-                          );
-                        })}
+                              <h4 className="text-sm font-medium text-foreground">
+                                No services available
+                              </h4>
+
+                              <p className="text-xs text-muted-foreground">
+                                Create services to add them to a combo
+                              </p>
+
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                iconName="Plus"
+                                onClick={() =>
+                                  router.push("/service-management")
+                                }
+                              >
+                                Create Service
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="space-y-2 max-h-48 overflow-y-auto border border-border rounded-lg p-3">
+                            {availableServices.map((service) => {
+                              const checked = values.services.some(
+                                (s) => s.id === service.id,
+                              );
+
+                              return (
+                                <label
+                                  key={service.id}
+                                  className="flex items-center justify-between p-2 hover:bg-muted rounded cursor-pointer"
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="checkbox"
+                                      checked={checked}
+                                      onChange={() => {
+                                        if (checked) {
+                                          setFieldValue(
+                                            "services",
+                                            values.services.filter(
+                                              (s) => s.id !== service.id,
+                                            ),
+                                          );
+                                        } else {
+                                          setFieldValue("services", [
+                                            ...values.services,
+                                            {
+                                              id: service.id,
+                                              name: service.name,
+                                              duration: service.duration,
+                                              originalPrice: service.price,
+                                            },
+                                          ]);
+                                        }
+                                      }}
+                                      className="w-4 h-4"
+                                    />
+                                    <span>{service.name}</span>
+                                  </div>
+                                  <span>INR {service.price.toFixed(2)}</span>
+                                </label>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
                       {touched.services && errors.services && (
                         <p className="text-xs text-red-600 mt-1">
@@ -323,6 +360,11 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                           "minBookingRequirement",
                           e.target.value ? Number(e.target.value) : undefined,
                         )
+                      }
+                      error={
+                        touched.minBookingRequirement
+                          ? errors.minBookingRequirement
+                          : undefined
                       }
                     />
 
