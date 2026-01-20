@@ -284,36 +284,7 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                     </div>
 
                     {/* DATES */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <Input
-                        label="Valid From *"
-                        type="date"
-                        value={
-                          new Date(values.validFrom).toISOString().split("T")[0]
-                        }
-                        onChange={(e) =>
-                          setFieldValue("validFrom", new Date(e.target.value))
-                        }
-                      />
-
-                      <Input
-                        label="Valid Until *"
-                        type="date"
-                        value={
-                          new Date(values.validUntil)
-                            .toISOString()
-                            .split("T")[0]
-                        }
-                        onChange={(e) =>
-                          setFieldValue("validUntil", new Date(e.target.value))
-                        }
-                        error={
-                          touched.validUntil
-                            ? (errors.validUntil as string)
-                            : undefined
-                        }
-                      />
-                    </div>
+                  
                   </div>
 
                   {/* RIGHT COLUMN */}
@@ -379,7 +350,7 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                       onAddNew={() => setIsAddCategoryOpen(true)}
                     />
 
-                    <Input
+                    {/* <Input
                       label="Minimum Bookings (Optional)"
                       placeholder="Enter bookings"
                       type="number"
@@ -411,12 +382,37 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                       }}
                       min="0"
                       max="100"
-                      error={
-                        touched.staffCommissionRate
-                          ? errors.staffCommissionRate
-                          : undefined
-                      }
-                    />
+                    /> */}
+                      <div className="grid grid-cols-2 gap-4">
+                      <Input
+                        label="Valid From *"
+                        type="date"
+                        value={
+                          new Date(values.validFrom).toISOString().split("T")[0]
+                        }
+                        onChange={(e) =>
+                          setFieldValue("validFrom", new Date(e.target.value))
+                        }
+                      />
+
+                      <Input
+                        label="Valid Until *"
+                        type="date"
+                        value={
+                          new Date(values.validUntil)
+                            .toISOString()
+                            .split("T")[0]
+                        }
+                        onChange={(e) =>
+                          setFieldValue("validUntil", new Date(e.target.value))
+                        }
+                        error={
+                          touched.validUntil
+                            ? (errors.validUntil as string)
+                            : undefined
+                        }
+                      />
+                    </div>
                   </div>
                 </div>
 

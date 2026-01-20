@@ -236,17 +236,39 @@ const BookingDetailsModal = ({
               <Button variant="outline" onClick={onClose} className="w-full">
                 Close
               </Button>
-              {
+              {/* {
                 user?.role[0] === "STAFF" && <Button
                 variant="destructive"
                 fullWidth
                 loading={isDeleting}
                 onClick={handleStatusUpdate}
               >
-                {booking?.status === "Confirmed" && "Update Status"}
+                {booking?.status === "Confirmed" && "Mark as Completed"}
               </Button>
-              }
-              
+              } */}
+              {
+  user?.role[0] === "STAFF" && (
+    booking?.status === "Confirmed" ? (
+      <Button
+        variant="destructive"
+        fullWidth
+        loading={isDeleting}
+        onClick={handleStatusUpdate}
+      >
+        Mark as Completed
+      </Button>
+    ) : booking?.status === "Completed" ? (
+      <Button
+        variant="outline"
+        fullWidth
+        disabled
+      >
+        ✓ Completed
+      </Button>
+    ) : null
+  )
+}
+
             </div>
           </div>
         </div>

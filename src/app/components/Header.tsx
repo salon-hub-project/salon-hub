@@ -364,3 +364,248 @@ const Header = ({
 };
 
 export default Header;
+
+
+
+// "use client";
+
+// import { useState, useRef, useEffect, useMemo } from "react";
+// import Icon from "./AppIcon";
+// import { useRouter } from "next/navigation";
+// import { useAppDispatch, useAppSelector } from "../store/hooks";
+// import { logout } from "../store/slices/authSlice";
+// import {
+//   getProfile,
+//   clearProfile,
+//   fetchProfileTimings,
+// } from "../store/slices/profileSlice";
+// import { showToast } from "./ui/toast";
+// import ConfirmModal from "./ui/ConfirmModal";
+// import { normalizeRole } from "../utils/normalizeRole";
+// import { formatTo12Hour } from "../utils/formatHour";
+
+// import {
+//   welcomeNotification,
+//   WELCOME_SEEN_KEY,
+// } from "../utils/welcomeNotification";
+
+// /* ---------------- TYPES ---------------- */
+
+// export interface Notification {
+//   id: string;
+//   type: "info" | "warning" | "success" | "error";
+//   title: string;
+//   message: string;
+//   timestamp: Date;
+//   read: boolean;
+//   path?: string;
+// }
+
+// interface User {
+//   name: string;
+//   email: string;
+//   role: unknown;
+//   avatar?: string;
+//   salonName?: string;
+// }
+
+// interface HeaderProps {
+//   user: User;
+//   notifications?: number;
+//   notificationList?: Notification[];
+//   availableSalons?: Array<{ id: string; name: string }>;
+// }
+
+// /* ---------------- COMPONENT ---------------- */
+
+// const Header = ({
+//   user,
+//   notifications = 0,
+//   notificationList = [],
+//   availableSalons = [],
+// }: HeaderProps) => {
+//   const [isProfileOpen, setIsProfileOpen] = useState(false);
+//   const [isSalonSwitcherOpen, setIsSalonSwitcherOpen] = useState(false);
+//   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+//   const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+//   const dispatch = useAppDispatch();
+//   const router = useRouter();
+
+//   const profileRef = useRef<HTMLDivElement>(null);
+//   const salonSwitcherRef = useRef<HTMLDivElement>(null);
+//   const notificationRef = useRef<HTMLDivElement>(null);
+
+//   const isAuthenticated = useAppSelector((state) => !!state.auth.token);
+//   const { profile, timings, isLoading } = useAppSelector(
+//     (state) => state.profile
+//   );
+
+//   const normalizedUserRole = normalizeRole(user?.role);
+
+//   /* ---------------- WELCOME LOGIC ---------------- */
+
+//   const mergedNotifications = useMemo(() => {
+//     if (typeof window === "undefined") return notificationList;
+
+//     const hasSeenWelcome = localStorage.getItem(WELCOME_SEEN_KEY);
+
+//     if (!hasSeenWelcome) {
+//       return [welcomeNotification, ...notificationList];
+//     }
+
+//     return notificationList;
+//   }, [notificationList]);
+
+//   // Auto remove welcome when real notifications increase
+//   useEffect(() => {
+//     if (notificationList.length >= 3) {
+//       localStorage.setItem(WELCOME_SEEN_KEY, "true");
+//     }
+//   }, [notificationList.length]);
+
+//   /* ---------------- EFFECTS ---------------- */
+
+//   useEffect(() => {
+//     if (normalizedUserRole !== "OWNER") return;
+//     if (!profile && !isLoading && isAuthenticated) {
+//       dispatch(getProfile());
+//     }
+//     if (!timings && !isLoading && isAuthenticated) {
+//       dispatch(fetchProfileTimings());
+//     }
+//   }, [normalizedUserRole, isAuthenticated, profile, timings]);
+
+//   useEffect(() => {
+//     const handleClickOutside = (event: MouseEvent) => {
+//       if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+//         setIsProfileOpen(false);
+//       }
+//       if (
+//         salonSwitcherRef.current &&
+//         !salonSwitcherRef.current.contains(event.target as Node)
+//       ) {
+//         setIsSalonSwitcherOpen(false);
+//       }
+//       if (
+//         notificationRef.current &&
+//         !notificationRef.current.contains(event.target as Node)
+//       ) {
+//         setIsNotificationsOpen(false);
+//       }
+//     };
+
+//     document.addEventListener("mousedown", handleClickOutside);
+//     return () => document.removeEventListener("mousedown", handleClickOutside);
+//   }, []);
+
+//   /* ---------------- HELPERS ---------------- */
+
+//   const getTimeAgo = (timestamp: Date) => {
+//     const diff =
+//       (new Date().getTime() - new Date(timestamp).getTime()) / 60000;
+//     if (diff < 1) return "Just now";
+//     if (diff < 60) return `${Math.floor(diff)}m ago`;
+//     if (diff < 1440) return `${Math.floor(diff / 60)}h ago`;
+//     return `${Math.floor(diff / 1440)}d ago`;
+//   };
+
+//   const handleNotificationItemClick = (notification: Notification) => {
+//     setIsNotificationsOpen(false);
+
+//     // Mark welcome as seen
+//     if (notification.id === "welcome") {
+//       localStorage.setItem(WELCOME_SEEN_KEY, "true");
+//       return;
+//     }
+
+//     if (notification.path) {
+//       router.push(notification.path);
+//     }
+//   };
+
+//   const handleLogout = () => {
+//     localStorage.clear();
+//     dispatch(logout());
+//     dispatch(clearProfile());
+//     showToast({ message: "Logged out successfully", status: "success" });
+//     router.push("/salon-login");
+//   };
+
+//   /* ---------------- UI ---------------- */
+
+//   return (
+//     <header className="fixed top-0 right-0 left-16 h-header bg-card border-b z-50">
+//       <div className="flex justify-end pr-6 h-full items-center">
+//         {/* Notifications */}
+//         <div className="relative" ref={notificationRef}>
+//           <button
+//             onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+//             className="relative w-10 h-10 rounded-md hover:bg-muted flex items-center justify-center"
+//           >
+//             <Icon name="Bell" size={20} />
+//             {mergedNotifications.length > 0 && (
+//               <span className="absolute -top-1 -right-1 bg-accent text-white text-[10px] rounded-full px-1">
+//                 {mergedNotifications.length}
+//               </span>
+//             )}
+//           </button>
+
+//           {isNotificationsOpen && (
+//             <div className="absolute right-0 mt-2 w-80 max-h-[400px] overflow-y-auto bg-card border rounded-lg shadow-lg">
+//               <div className="p-4 border-b font-semibold text-sm">
+//                 Notifications
+//               </div>
+
+//               <div className="p-2 space-y-2">
+//                 {mergedNotifications.length > 0 ? (
+//                   mergedNotifications.map((n) => (
+//                     <div
+//                       key={n.id}
+//                       onClick={() => handleNotificationItemClick(n)}
+//                       className={`p-3 rounded-md cursor-pointer ${
+//                         n.id === "welcome"
+//                           ? "bg-primary/10"
+//                           : "bg-muted/30"
+//                       } hover:bg-muted`}
+//                     >
+//                       <div className="font-medium">{n.title}</div>
+//                       <div className="text-xs text-muted-foreground">
+//                         {n.message}
+//                       </div>
+//                       <div className="text-[10px] text-muted-foreground mt-1">
+//                         {getTimeAgo(n.timestamp)}
+//                       </div>
+//                     </div>
+//                   ))
+//                 ) : (
+//                   <div className="p-4 text-center text-sm text-muted-foreground">
+//                     No notifications
+//                   </div>
+//                 )}
+//               </div>
+//             </div>
+//           )}
+//         </div>
+
+//         {/* Logout */}
+//         <button
+//           onClick={() => setShowLogoutModal(true)}
+//           className="ml-4 text-sm"
+//         >
+//           Logout
+//         </button>
+//       </div>
+
+//       <ConfirmModal
+//         isOpen={showLogoutModal}
+//         title="Logout"
+//         description="Are you sure?"
+//         onCancel={() => setShowLogoutModal(false)}
+//         onConfirm={handleLogout}
+//       />
+//     </header>
+//   );
+// };
+
+// export default Header;
