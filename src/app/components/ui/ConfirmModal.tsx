@@ -37,7 +37,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   // Choose tailwind color based on confirmColor
   const confirmButtonClass =
     confirmColor === "green"
-      ? "bg-green-500 hover:bg-green-600"
+      ? "bg-primary text-white"
       : confirmColor === "blue"
       ? "bg-blue-500 hover:bg-blue-600"
       : "bg-red-500 hover:bg-red-600";
