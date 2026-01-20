@@ -24,7 +24,7 @@ const StaffManagement = () => {
     return window.innerWidth < 1024;
   });
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
-    null
+    null,
   );
   const fetchingRef = useRef(false);
   const mountedRef = useRef(true);
@@ -72,8 +72,8 @@ const StaffManagement = () => {
       prev.map((emp) =>
         emp.id === employeeId
           ? { ...emp, status: emp.status === "active" ? "inactive" : "active" }
-          : emp
-      )
+          : emp,
+      ),
     );
   };
 
@@ -171,7 +171,6 @@ const StaffManagement = () => {
       label: role.name,
     })),
   ];
-  
 
   const handleViewDetails = async (employee: Employee) => {
     try {
@@ -243,16 +242,16 @@ const StaffManagement = () => {
   };
 
   const activeEmployees = employees.filter(
-    (emp) => emp.status === "active"
+    (emp) => emp.status === "active",
   ).length;
   const totalRevenue = employees.reduce(
     (sum, emp) => sum + emp.performanceMetrics.revenueGenerated,
-    0
+    0,
   );
   const averageRating =
     employees.reduce(
       (sum, emp) => sum + emp.performanceMetrics.customerRating,
-      0
+      0,
     ) / employees.length;
 
   return (
@@ -328,7 +327,7 @@ const StaffManagement = () => {
           }}
           onUpdateRole={(id, name) => {
             setRoles((prev) =>
-              prev.map((role) => (role._id === id ? { ...role, name } : role))
+              prev.map((role) => (role._id === id ? { ...role, name } : role)),
             );
           }}
           onDeleteRole={(id) => {
@@ -389,7 +388,7 @@ const StaffManagement = () => {
           ) : (
             <EmployeeTable
               employees={employees}
-              roles= {roles}
+              roles={roles}
               onDelete={handleDeleteClick}
               onEdit={handleEditEmployee}
               onToggleStatus={handleToggleStatus}
@@ -425,7 +424,7 @@ const StaffManagement = () => {
                   employees.reduce(
                     (sum, emp) =>
                       sum + emp.performanceMetrics.bookingCompletionRate,
-                    0
+                    0,
                   ) / employees.length
                 ).toFixed(1)}
                 %
@@ -454,7 +453,7 @@ const StaffManagement = () => {
               <p className="text-2xl font-bold text-foreground">
                 {employees.reduce(
                   (sum, emp) => sum + emp.performanceMetrics.completedServices,
-                  0
+                  0,
                 )}
               </p>
             </div>
@@ -492,6 +491,10 @@ const StaffManagement = () => {
       {isFormOpen && (
         <EmployeeFormModal
           employee={editingEmployee}
+          roles={roles}
+          onRoleAdded={(newRole) => {
+            setRoles((prev) => [...prev, newRole]);
+          }}
           onClose={() => {
             setIsFormOpen(false);
             setEditingEmployee(null);

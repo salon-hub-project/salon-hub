@@ -30,9 +30,16 @@ import ConfirmModal from "@/app/components/ui/ConfirmModal";
 interface EmployeeFormModalProps {
   employee: Employee | null;
   onClose: () => void;
+  roles: StaffRoles[];
+  onRoleAdded: (role: StaffRoles) => void;
 }
 
-const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
+const EmployeeFormModal = ({
+  employee,
+  onClose,
+  roles,
+  onRoleAdded,
+}: EmployeeFormModalProps) => {
   const initialValues: EmployeeFormData = {
     name: "",
     role: "",
@@ -43,8 +50,8 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
     commissionRate: null,
     target: null,
     salary: null,
-    breakStartTime: "",   // ✅ added
-  breakEndTime: "",   
+    breakStartTime: "", // ✅ added
+    breakEndTime: "",
     staffImage: "",
     assignedServices: [],
     availability: {
@@ -64,7 +71,7 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
     useState<EmployeeFormData>(initialValues);
   const [loadingEmployee, setLoadingEmployee] = useState(false);
   const [isAddRoleOpen, setIsAddRoleOpen] = useState(false);
-  const [roles, setRoles] = useState<StaffRoles[]>([]);
+  // const [roles, setRoles] = useState<StaffRoles[]>([]);
   const formikRef = useRef<any>(null);
   const router = useRouter();
 
@@ -94,21 +101,22 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
     description: service.category?.name || "",
   }));
 
-  useEffect(() => {
-    const fetchRoles = async () => {
-      try {
-        const res = await rolesApi.getAllRoles();
-        if (res?.data) {
-          setRoles(res.data);
-        }
-      } catch (err) {
-        console.error("Failed to fetch roles", err);
-      }
-    };
-    fetchRoles();
-  }, []);
+  // const fetchRoles = async () => {
+  //   try {
+  //     const res = await rolesApi.getAllRoles();
+  //     if (res?.data) {
+  //       setRoles(res.data);
+  //     }
+  //   } catch (err) {
+  //     console.error("Failed to fetch roles", err);
+  //   }
+  // };
 
-  const roleFilterOptions: RoleFilter[] = roles.map((role) => ({
+  // useEffect(() => {
+  //   fetchRoles();
+  // }, []);
+
+  const roleFilterOptions: RoleFilter[] = roles?.map((role) => ({
     value: role._id,
     label: role.name,
   }));
@@ -135,8 +143,8 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
           commissionRate: emp.commissionRate || null,
           target: emp.target || 0,
           salary: emp.salary || 0,
-          breakStartTime: emp.breakStartTime || "",   // ✅
-  breakEndTime: emp.breakEndTime || "", 
+          breakStartTime: emp.breakStartTime || "", // ✅
+          breakEndTime: emp.breakEndTime || "",
           assignedServices: Array.isArray(emp.assignedServices)
             ? emp.assignedServices.map((s: any) => {
                 return typeof s === "object" ? s._id || s.serviceId || s.id : s;
@@ -182,20 +190,20 @@ const EmployeeFormModal = ({ employee, onClose }: EmployeeFormModalProps) => {
       formData.append("target", String(values.target));
       formData.append("salary", String(values.salary));
       formData.append("breakStartTime", values.breakStartTime);
-formData.append("breakEndTime", values.breakEndTime);
+      formData.append("breakEndTime", values.breakEndTime);
 
       formData.append("role", values.role);
       formData.append("rating", String(values.rating));
       formData.append(
         "phoneNumber",
-        values.phone.replace(/^\+91/, "").replace(/\s+/g, "")
+        values.phone.replace(/^\+91/, "").replace(/\s+/g, ""),
       );
       formData.append("workingDays", JSON.stringify(workingDays));
       formData.append(
         "assignedServices",
-        JSON.stringify(values.assignedServices)
+        JSON.stringify(values.assignedServices),
       );
-      
+
       if (values.staffImage instanceof File) {
         formData.append("staffImage", values.staffImage);
       }
@@ -221,12 +229,12 @@ formData.append("breakEndTime", values.breakEndTime);
       formData.append("target", String(values.target));
       formData.append("salary", String(values.salary));
       formData.append("breakStartTime", values.breakStartTime);
-formData.append("breakEndTime", values.breakEndTime);
+      formData.append("breakEndTime", values.breakEndTime);
 
       formData.append("role", values.role);
       formData.append(
         "assignedServices",
-        JSON.stringify(values.assignedServices)
+        JSON.stringify(values.assignedServices),
       );
       formData.append("workingDays", JSON.stringify(workingDays));
 
@@ -243,44 +251,62 @@ formData.append("breakEndTime", values.breakEndTime);
   };
 
   const handleAddRole = async (newRoleName?: string) => {
-    if (!newRoleName || !newRoleName.trim()) return;
-
-    const trimmedName = newRoleName.trim();
-
-    // Prevent duplicate roles
-    if (
-      roles.some(
-        (role) => role.name.toLowerCase() === trimmedName.toLowerCase()
-      )
-    ) {
-      alert("Role already exists");
-      return;
-    }
+    if (!newRoleName?.trim()) return;
 
     try {
-      const res = await rolesApi.createRoles({ name: trimmedName });
-
-      // API may return role in different shapes
-      const createdRole = res?.role || res?.data?.role || res?.data || null;
+      const res = await rolesApi.createRoles({ name: newRoleName.trim() });
+      const createdRole = res?.data || res?.role;
 
       if (createdRole) {
-        const newRole = {
-          _id: createdRole._id,
-          name: createdRole.name,
-        };
-
-        // Update roles list
-        setRoles((prev) => [...prev, newRole]);
-
-        // Auto-select new role in form
-        formikRef.current?.setFieldValue("role", newRole._id);
+        onRoleAdded(createdRole);
+        formikRef.current?.setFieldValue("role", createdRole._id);
       }
-    } catch (error) {
-      console.error("Failed to create role", error);
+    } catch (err) {
+      console.error(err);
     } finally {
       setIsAddRoleOpen(false);
     }
   };
+
+  // const handleAddRole = async (newRoleName?: string) => {
+  //   if (!newRoleName || !newRoleName.trim()) return;
+
+  //   const trimmedName = newRoleName.trim();
+
+  //   // Prevent duplicate roles
+  //   if (
+  //     roles.some(
+  //       (role) => role.name.toLowerCase() === trimmedName.toLowerCase(),
+  //     )
+  //   ) {
+  //     alert("Role already exists");
+  //     return;
+  //   }
+
+  //   try {
+  //     const res = await rolesApi.createRoles({ name: trimmedName });
+
+  //     // API may return role in different shapes
+  //     const createdRole = res?.role || res?.data?.role || res?.data || null;
+
+  //     if (createdRole) {
+  //       const newRole = {
+  //         _id: createdRole._id,
+  //         name: createdRole.name,
+  //       };
+
+  //       // Update roles list
+  //       setRoles((prev) => [...prev, newRole]);
+
+  //       // Auto-select new role in form
+  //       formikRef.current?.setFieldValue("role", newRole._id);
+  //     }
+  //   } catch (error) {
+  //     console.error("Failed to create role", error);
+  //   } finally {
+  //     setIsAddRoleOpen(false);
+  //   }
+  // };
 
   return (
     <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
@@ -386,7 +412,7 @@ formData.append("breakEndTime", values.breakEndTime);
                         const val = e.target.value;
                         setFieldValue(
                           "commissionRate",
-                          val === "" ? null : parseFloat(val)
+                          val === "" ? null : parseFloat(val),
                         );
                       }}
                       error={
@@ -406,7 +432,7 @@ formData.append("breakEndTime", values.breakEndTime);
                         const val = e.target.value;
                         setFieldValue(
                           "target",
-                          val === "" ? null : parseFloat(val)
+                          val === "" ? null : parseFloat(val),
                         );
                       }}
                       error={touched.target ? errors.target : undefined}
@@ -422,33 +448,34 @@ formData.append("breakEndTime", values.breakEndTime);
                         const val = e.target.value;
                         setFieldValue(
                           "salary",
-                          val === "" ? null : parseFloat(val)
+                          val === "" ? null : parseFloat(val),
                         );
                       }}
                       error={touched.salary ? errors.salary : undefined}
                     />
                     <Input
-  label="Break Start Time"
-  name="breakStartTime"
-  type="time"
-  value={values.breakStartTime}
-  onChange={handleChange}
-  error={
-    touched.breakStartTime ? errors.breakStartTime : undefined
-  }
-/>
+                      label="Break Start Time"
+                      name="breakStartTime"
+                      type="time"
+                      value={values.breakStartTime}
+                      onChange={handleChange}
+                      error={
+                        touched.breakStartTime
+                          ? errors.breakStartTime
+                          : undefined
+                      }
+                    />
 
-<Input
-  label="Break End Time"
-  name="breakEndTime"
-  type="time"
-  value={values.breakEndTime}
-  onChange={handleChange}
-  error={
-    touched.breakEndTime ? errors.breakEndTime : undefined
-  }
-/>
-
+                    <Input
+                      label="Break End Time"
+                      name="breakEndTime"
+                      type="time"
+                      value={values.breakEndTime}
+                      onChange={handleChange}
+                      error={
+                        touched.breakEndTime ? errors.breakEndTime : undefined
+                      }
+                    />
                   </div>
 
                   {!employee && (
@@ -463,7 +490,7 @@ formData.append("breakEndTime", values.breakEndTime);
                         const val = e.target.value;
                         setFieldValue(
                           "rating",
-                          val === "" ? null : parseFloat(val)
+                          val === "" ? null : parseFloat(val),
                         );
                       }}
                       error={touched.rating ? errors.rating : undefined}
@@ -492,7 +519,7 @@ formData.append("breakEndTime", values.breakEndTime);
                     searchable
                     closeOnSelect
                     disabled={loadingServices}
-                    onAddNew={()=> router.push('/service-management')}
+                    onAddNew={() => router.push("/service-management")}
                   />
 
                   <div>
@@ -544,11 +571,11 @@ formData.append("breakEndTime", values.breakEndTime);
                             onChange={(e) =>
                               setFieldValue(
                                 `availability.${day}`,
-                                e.target.checked
+                                e.target.checked,
                               )
                             }
                           />
-                        )
+                        ),
                       )}
                     </div>
                   </div>
