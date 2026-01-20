@@ -572,7 +572,8 @@ const BookingManagement = () => {
           )}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* <div className="grid grid-cols-1 lg:grid-cols-4 gap-6"> */}
+          <div className="lg:col-span-1">
           <div className="lg:col-span-3 space-y-4">
             <div className="bg-card rounded-lg border border-border overflow-hidden">
               <CalendarHeader
@@ -619,7 +620,7 @@ const BookingManagement = () => {
               </div>
             </div>
           </div>
-
+            
           <div className="space-y-4">
             <QuickFilters
               filters={filters}

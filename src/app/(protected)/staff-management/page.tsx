@@ -408,7 +408,7 @@ const StaffManagement = () => {
           )}
         </div>
 
-        <div className="bg-card rounded-lg border border-border p-6">
+        {/* <div className="bg-card rounded-lg border border-border p-6">
           <h2 className="text-lg font-semibold text-foreground mb-4">
             Performance Overview
           </h2>
@@ -474,7 +474,7 @@ const StaffManagement = () => {
               </p>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
 
       {isDetailsOpen && (
