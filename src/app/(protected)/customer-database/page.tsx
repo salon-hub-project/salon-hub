@@ -130,10 +130,10 @@ const CustomerDatabase = () => {
         notes: c.notes || "",
         // tags: c.customerTag || [],
         tags: (c.customerTag || []).map((tag: any) =>
-          typeof tag === "string" ? tag : tag.name
+          typeof tag === "string" ? tag : tag.name,
         ),
         tagIds: (c.customerTag || []).map((tag: any) =>
-            typeof tag === "string" ? tag : tag._id
+          typeof tag === "string" ? tag : tag._id,
         ),
 
         lastVisit: c.lastVisit ? new Date(c.lastVisit) : undefined,
@@ -297,9 +297,9 @@ const CustomerDatabase = () => {
           typeof tag === "string" ? tag : tag.name,
         ),
         tagIds: (c.customerTag || []).map((tag: any) =>
-            typeof tag === "string" ? tag : tag._id
+          typeof tag === "string" ? tag : tag._id,
         ),
-        lastVisit: c.lastVisit ? new Date(c.lastVisit) : null, 
+        lastVisit: c.lastVisit ? new Date(c.lastVisit) : null,
         totalVisits: c.totalVisits,
         totalSpent: c.totalSpent,
         createdAt: new Date(c.createdAt),
@@ -474,6 +474,10 @@ const CustomerDatabase = () => {
       {showForm && (
         <CustomerForm
           editingCustomer={editingCustomer}
+          customerTags={customerTags}
+          onTagAdded={(tag) => {
+            setCustomerTags((prev) => [...prev, tag]);
+          }}
           onClose={() => {
             setShowForm(false);
             setEditingCustomer(undefined);

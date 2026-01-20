@@ -31,16 +31,16 @@ interface ViewAllAppointmentsProps {
 }
 
 const ViewAllAppointments = ({ onBookingClick, bookings, filters }: ViewAllAppointmentsProps) => {
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  // const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
 
-  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
-  const [selectedBookingId, setSelectedBookingId] = useState<string | null>(
-    null
-  );
-  const [isDeleting, setIsDeleting] = useState(false);
+  // const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  // const [selectedBookingId, setSelectedBookingId] = useState<string | null>(
+  //   null
+  // );
+  // const [isDeleting, setIsDeleting] = useState(false);
 
   const user = useAppSelector((state) => state.auth.user);
   const role = (user?.role ?? []) as ("OWNER" | "STAFF")[];
@@ -207,7 +207,7 @@ const ViewAllAppointments = ({ onBookingClick, bookings, filters }: ViewAllAppoi
             ) : paginatedAppointments.length === 0 ? (
               <tr>
                 <td
-                  colSpan={4}
+                  colSpan={6}
                   className="p-4 text-center text-muted-foreground"
                 >
                   No appointments found

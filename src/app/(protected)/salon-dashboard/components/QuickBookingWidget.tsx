@@ -15,6 +15,7 @@ import { customerApi } from "@/app/services/customer.api";
 import { showToast } from "@/app/components/ui/toast";
 import { useAppSelector } from "@/app/store/hooks";
 import { isStaff } from "@/app/utils/routePermissions";
+import { comboApi } from "@/app/services/combo.api";
 
 interface QuickBookingWidgetProps {
   onCreateBooking: (data: any) => void;
@@ -60,6 +61,7 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
   const [staffOptions, setStaffOptions] = useState<
     { value: string; label: string }[]
   >([]);
+  //const [comboOptions, setComboOptions] = useState<{value: string, label: string, percent: number}[]>([]);
   const router = useRouter();
 
   // =========`======== FETCH DATA =================
@@ -109,10 +111,27 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
     }
   };
 
+  // const fetchCombo = async() => {
+  //   try{
+  //     const res = await comboApi.getAllComboOffers({limit: 100});
+  //     setComboOptions(
+  //       res.data.map((c: any)=>({
+  //         value: c._id,
+  //         label: c.name,
+  //         percent: c.savedPercent
+  //       }))
+  //     )
+  //   }catch(error){
+  //     console.error("Combo fetch error", error)
+  //   }
+  // }
+  // console.log(comboOptions, "combo");
+
   useEffect(() => {
     fetchCustomers();
     fetchServices();
     fetchStaff();
+    // fetchCombo();
   }, []);
 
   // ================= SUBMIT =================

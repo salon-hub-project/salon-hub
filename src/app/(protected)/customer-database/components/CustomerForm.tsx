@@ -39,17 +39,24 @@ interface CustomerFormProps {
   onClose: () => void;
   editingCustomer?: Customer;
   onSuccess?: () => void;
+  customerTags: {
+    id: string;
+    name: string;
+  }[];
+  onTagAdded: (tag: { id: string; name: string }) => void;
 }
 
 const CustomerForm = ({
   onClose,
   editingCustomer,
   onSuccess,
+  customerTags,
+  onTagAdded,
 }: CustomerFormProps) => {
   const isEditMode = !!editingCustomer;
   //const tagOptions: CustomerTag[] = ["VIP", "New", "Frequent", "Inactive"];
 
-  const [customerTags, setCustomerTags] = useState<any[]>([]);
+  // const [customerTags, setCustomerTags] = useState<any[]>([]);
   const [loadingTags, setLoadingTags] = useState(false);
   const [staff, setStaff] = useState<any[]>([]);
   const [loadingStaff, setLoadingStaff] = useState(false);
@@ -113,30 +120,61 @@ const CustomerForm = ({
   };
 
   //Fetch CustomerTags API:-
-  useEffect(() => {
-    const fetchCustomerTags = async () => {
-      try {
-        setLoadingTags(true);
-        const res = await customerTagApi.getAllCustomerTags();
-        const list = res?.data || [];
-        setCustomerTags(
-          list.map((tag: any) => ({
-            value: tag._id,
-            label: tag.name,
-          })),
-        );
-      } catch (error) {
-        console.error("Failed to fetch customer tags", error);
-        setCustomerTags([]);
-      } finally {
-        setLoadingTags(false);
-      }
-    };
-    fetchCustomerTags();
-  }, []);
+  // const fetchCustomerTags = async () => {
+  //   try {
+  //     setLoadingTags(true);
+  //     const res = await customerTagApi.getAllCustomerTags();
+  //     const list = res?.data || [];
+  //     setCustomerTags(
+  //       list.map((tag: any) => ({
+  //         value: tag._id,
+  //         label: tag.name,
+  //       })),
+  //     );
+  //   } catch (error) {
+  //     console.error("Failed to fetch customer tags", error);
+  //     setCustomerTags([]);
+  //   } finally {
+  //     setLoadingTags(false);
+  //   }
+  // };
+
+  // useEffect(()=> {
+  //    fetchCustomerTags();
+  // },[])
+
+  const tagOptions = customerTags.map((tag) => ({
+    value: tag.id,
+    label: tag.name,
+  }));
+
+  // const handleAddTag = async (tagName?: string) => {
+  //   if (!tagName?.trim()) return;
+  //   try {
+  //     const res = await customerTagApi.createCustomerTag({
+  //       name: tagName.trim(),
+  //     });
+
+  //     const createdTag = res?.data;
+  //     if (!createdTag) return;
+
+  //     setCustomerTags((prev) => [
+  //       ...prev,
+  //       {
+  //         value: createdTag._id,
+  //         label: createdTag.name,
+  //       },
+  //     ]);
+
+  //     setIsAddCategoryOpen(false);
+  //   } catch (error) {
+  //     console.error("Failed to create customer tag", error);
+  //   }
+  // };
 
   const handleAddTag = async (tagName?: string) => {
     if (!tagName?.trim()) return;
+
     try {
       const res = await customerTagApi.createCustomerTag({
         name: tagName.trim(),
@@ -145,13 +183,10 @@ const CustomerForm = ({
       const createdTag = res?.data;
       if (!createdTag) return;
 
-      setCustomerTags((prev) => [
-        ...prev,
-        {
-          value: createdTag._id,
-          label: createdTag.name,
-        },
-      ]);
+      onTagAdded({
+        id: createdTag._id,
+        name: createdTag.name,
+      });
 
       setIsAddCategoryOpen(false);
     } catch (error) {
@@ -171,9 +206,9 @@ const CustomerForm = ({
         email: values.email || undefined,
         notes: values.notes || undefined,
       });
-
       onClose();
       onSuccess?.();
+      // await fetchCustomerTags();
     } catch (error) {
       console.error("Failed to add customer", error);
     }
@@ -218,7 +253,10 @@ const CustomerForm = ({
             notes: editingCustomer?.notes || "",
             gender: editingCustomer?.gender || "female",
             dateOfBirth: editingCustomer?.dateOfBirth || "",
-            tags: editingCustomer?.tagIds || editingCustomer?.tags || ([] as CustomerTag[]),
+            tags:
+              editingCustomer?.tagIds ||
+              editingCustomer?.tags ||
+              ([] as CustomerTag[]),
             preferredStaff: editingCustomer?.preferredStaff
               ? getPreferredStaffId(editingCustomer.preferredStaff)
               : "",
@@ -300,7 +338,7 @@ const CustomerForm = ({
                   value={values.preferredStaff}
                   onChange={(v) => setFieldValue("preferredStaff", v)}
                   disabled={loadingStaff}
-                  onAddNew={()=> router.push('/staff-management')}
+                  onAddNew={() => router.push("/staff-management")}
                 />
               </div>
 
@@ -342,10 +380,9 @@ const CustomerForm = ({
                   </div>
                 ) : (
                   <div className="flex flex-wrap gap-4">
-                    {customerTags.map((tag) => (
+                    {tagOptions.map((tag) => (
                       <label key={tag.value} className="flex gap-2">
                         <Checkbox
-                          className="pt-1"
                           checked={values.tags.includes(tag.value)}
                           onChange={() =>
                             setFieldValue(

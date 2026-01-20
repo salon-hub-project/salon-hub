@@ -77,7 +77,11 @@ const BookingManagement = () => {
           setLoading(false);
           return;
         }
-        res = await appointmentApi.getStaffAppointments({ limit: 1000, staffId, role: "STAFF" });
+        res = await appointmentApi.getStaffAppointments({
+          limit: 1000,
+          staffId,
+          role: "STAFF",
+        });
       } else {
         res = await appointmentApi.getAllAppointments({ limit: 1000 });
       }
@@ -105,12 +109,12 @@ const BookingManagement = () => {
 
           serviceDuration = services.reduce(
             (acc: any, s: any) => acc + (s?.duration || 0),
-            0
+            0,
           );
 
           servicePrice = services.reduce(
             (acc: any, s: any) => acc + (s?.price || 0),
-            0
+            0,
           );
         } else if (singleService) {
           // Single service fallback
@@ -148,8 +152,8 @@ const BookingManagement = () => {
             typeof b.commisionEarned === "number"
               ? b.commisionEarned
               : Array.isArray(b.commisionEarned)
-              ? b.commisionEarned.reduce((a: number, c: number) => a + c, 0)
-              : 0,
+                ? b.commisionEarned.reduce((a: number, c: number) => a + c, 0)
+                : 0,
         };
       });
 
@@ -193,7 +197,7 @@ const BookingManagement = () => {
               name: c.fullName || c.name,
               phone: c.phoneNumber || c.phone,
               tags: c.customerTag || c.tags || [],
-            }))
+            })),
           );
         } catch (error) {
           // Silently fail customer fetch for non-staff users too
@@ -214,7 +218,7 @@ const BookingManagement = () => {
             ...s,
             id: s._id || s.id,
             name: s.serviceName || s.name,
-          }))
+          })),
         );
 
         const staffRes = await staffApi.getAllStaff({ page: 1, limit: 100 });
@@ -231,7 +235,7 @@ const BookingManagement = () => {
             name: s.fullName || s.name,
             phone: s.phoneNumber || s.phone,
             isAvailable: s.isActive,
-          }))
+          })),
         );
       }
     } catch (error) {
@@ -251,7 +255,6 @@ const BookingManagement = () => {
       dispatch(fetchProfileTimings());
     }
   }, [dispatch, isStaffUser]);
-  
 
   useEffect(() => {
     mountedRef.current = true;
@@ -307,41 +310,44 @@ const BookingManagement = () => {
     // If today is not a working day, return empty slots or closed indication
     // For now, let's return empty slots effectively disabling the day
     if (!workingDays.includes(currentDayOfWeek)) {
-       return [];
+      return [];
     }
 
-
     const slots: TimeSlot[] = [];
-    
+
     // Convert everything to minutes for easier comparison
     const startTotalMinutes = startHour * 60 + startMinute;
     const endTotalMinutes = endHour * 60 + endMinute;
 
     // Generate slots
-    for (let timeInMinutes = startTotalMinutes; timeInMinutes < endTotalMinutes; timeInMinutes += 30) {
-        const hour = Math.floor(timeInMinutes / 60);
-        const minute = timeInMinutes % 60;
-        
-        const time = `${hour.toString().padStart(2, "0")}:${minute
-          .toString()
-          .padStart(2, "0")}`;
-          
-        const slotBookings = bookings.filter(
-          (b) =>
-            b.date.toDateString() === currentDate.toDateString() &&
-            b.startTime === time &&
-            (!filters.status || b.status === filters.status) &&
-            (!filters.staffId || b.staffId === filters.staffId) &&
-            (!filters.serviceId || b.serviceId === filters.serviceId)
-        );
-        
-        slots.push({
-          time,
-          isAvailable: slotBookings.length === 0,
-          bookings: slotBookings,
-        });
+    for (
+      let timeInMinutes = startTotalMinutes;
+      timeInMinutes < endTotalMinutes;
+      timeInMinutes += 30
+    ) {
+      const hour = Math.floor(timeInMinutes / 60);
+      const minute = timeInMinutes % 60;
+
+      const time = `${hour.toString().padStart(2, "0")}:${minute
+        .toString()
+        .padStart(2, "0")}`;
+
+      const slotBookings = bookings.filter(
+        (b) =>
+          b.date.toDateString() === currentDate.toDateString() &&
+          b.startTime === time &&
+          (!filters.status || b.status === filters.status) &&
+          (!filters.staffId || b.staffId === filters.staffId) &&
+          (!filters.serviceId || b.serviceId === filters.serviceId),
+      );
+
+      slots.push({
+        time,
+        isAvailable: slotBookings.length === 0,
+        bookings: slotBookings,
+      });
     }
-    
+
     return slots;
   };
 
@@ -354,7 +360,7 @@ const BookingManagement = () => {
       const date = new Date(startOfWeek);
       date.setDate(startOfWeek.getDate() + i);
       const bookingCount = bookings.filter(
-        (b) => b.date.toDateString() === date.toDateString()
+        (b) => b.date.toDateString() === date.toDateString(),
       ).length;
 
       days.push({
@@ -442,7 +448,7 @@ const BookingManagement = () => {
         serviceDuration: convertDuration(data.services?.[0]?.duration),
         servicePrice: data.services?.reduce(
           (sum: number, s: any) => sum + (s.price || 0),
-          0
+          0,
         ),
 
         staffId: data.staffId?._id,
@@ -452,7 +458,7 @@ const BookingManagement = () => {
         startTime: data.appointmentTime,
         endTime: calculateEndTime(
           data.appointmentTime,
-          convertDuration(data.services?.[0]?.duration)
+          convertDuration(data.services?.[0]?.duration),
         ),
 
         status: data.status || "pending",
@@ -496,7 +502,6 @@ const BookingManagement = () => {
       });
 
       // Refetch bookings to update calendar
-      // Refetch bookings to update calendar
       await loadBookings();
 
       setShowBookingForm(false);
@@ -506,22 +511,21 @@ const BookingManagement = () => {
       // OPTIONAL: You might want to show a success toast here if the API doesn't handle it
     } catch (error) {
       console.error("Failed to create appointment:", error);
-      // Toast is already handled in appointmentApi
     }
   };
 
   const handleStatusChange = (bookingId: string, status: Booking["status"]) => {
     setBookings(
-      bookings.map((b) => (b.id === bookingId ? { ...b, status } : b))
+      bookings.map((b) => (b.id === bookingId ? { ...b, status } : b)),
     );
   };
 
   const handlePaymentStatusChange = (
     bookingId: string,
-    paymentStatus: "pending" | "paid"
+    paymentStatus: "pending" | "paid",
   ) => {
     setBookings(
-      bookings.map((b) => (b.id === bookingId ? { ...b, paymentStatus } : b))
+      bookings.map((b) => (b.id === bookingId ? { ...b, paymentStatus } : b)),
     );
   };
 
@@ -572,8 +576,17 @@ const BookingManagement = () => {
           )}
         </div>
 
-        {/* <div className="grid grid-cols-1 lg:grid-cols-4 gap-6"> */}
-          <div className="lg:col-span-1">
+        <div className="block lg:hidden">
+          <QuickFilters
+            filters={filters}
+            staff={staff}
+            services={services}
+            onFiltersChange={setFilters}
+            onClearFilters={handleClearFilters}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <div className="lg:col-span-3 space-y-4">
             <div className="bg-card rounded-lg border border-border overflow-hidden">
               <CalendarHeader
@@ -620,8 +633,9 @@ const BookingManagement = () => {
               </div>
             </div>
           </div>
-            
-          <div className="space-y-4">
+
+          <div className="space-y-4 ">
+            <div className="hidden lg:block">
             <QuickFilters
               filters={filters}
               staff={staff}
@@ -629,6 +643,7 @@ const BookingManagement = () => {
               onFiltersChange={setFilters}
               onClearFilters={handleClearFilters}
             />
+            </div>
 
             <div className="bg-card border border-border rounded-lg p-4">
               <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
@@ -658,7 +673,7 @@ const BookingManagement = () => {
                     {
                       bookings.filter(
                         (b) =>
-                          b.date.toDateString() === new Date().toDateString()
+                          b.date.toDateString() === new Date().toDateString(),
                       ).length
                     }
                   </span>
