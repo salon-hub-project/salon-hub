@@ -155,6 +155,7 @@ const CreateProfile = () => {
 
     router.push("/profile");
   };
+  
 
   return (
     <AuthGuard>

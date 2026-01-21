@@ -12,6 +12,7 @@ export interface AddStaffPayload {
     workingDays: string[];
     phoneNumber: string;
     target: number;
+    targetType: "Weekly" | "Monthly";
     salary: number;
     breakStartTime: string;   // ✅ added
   breakEndTime: string; 
@@ -25,6 +26,7 @@ export interface UpdateStaffPayload {
     assignedServices: string[];
     workingDays: string[];
     target?: number;
+    targetType?: "Weekly" | "Monthly";
     salary?: number;
      breakStartTime?: string;  // ✅ added
   breakEndTime?: string;    
@@ -109,6 +111,21 @@ export const staffApi = {
                 message: error?.response?.data?.message || "Failed to delete Staff",
                 status: "error"
             })
+        }
+    },
+    resetAchievedAmount: async (targetType: "Weekly" | "Monthly") => {
+        try {
+            const res = await api.post("/staff/resetachievedamount", { targetType });
+            showToast({
+                message: res?.data?.message || `Target reset to 0 for ${targetType} successfully`,
+                status: "success"
+            });
+            return res.data;
+        } catch (error: any) {
+            showToast({
+                message: error?.response?.data?.message || "Failed to reset target",
+                status: "error"
+            });
         }
     },
 

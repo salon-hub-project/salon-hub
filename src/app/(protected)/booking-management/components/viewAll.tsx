@@ -244,6 +244,7 @@ const ViewAllAppointments = ({ onBookingClick, bookings, filters }: ViewAllAppoi
                       <Icon
                         name="Eye"
                         size={16}
+                        className="cursor-pointer"
                         onClick={() => onBookingClick(item.id)}
                       />
                     </div>

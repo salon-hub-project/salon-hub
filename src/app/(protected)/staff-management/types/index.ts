@@ -53,6 +53,7 @@ export interface EmployeeFormData {
   rating: number | null;
   commissionRate: number | null;
   target: number | null;
+  targetType: string;
   salary: number | null;
   breakStartTime: string;   // ✅ ADD
   breakEndTime: string;  

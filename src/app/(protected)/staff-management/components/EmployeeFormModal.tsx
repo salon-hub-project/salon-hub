@@ -26,6 +26,7 @@ import {
 } from "@/app/components/validation/validation";
 import { rolesApi } from "@/app/services/roles.api";
 import ConfirmModal from "@/app/components/ui/ConfirmModal";
+import { profileApi } from "@/app/services/profile.api";
 
 interface EmployeeFormModalProps {
   employee: Employee | null;
@@ -49,6 +50,7 @@ const EmployeeFormModal = ({
     rating: null,
     commissionRate: null,
     target: null,
+    targetType: "Monthly",
     salary: null,
     breakStartTime: "", // ✅ added
     breakEndTime: "",
@@ -71,7 +73,9 @@ const EmployeeFormModal = ({
     useState<EmployeeFormData>(initialValues);
   const [loadingEmployee, setLoadingEmployee] = useState(false);
   const [isAddRoleOpen, setIsAddRoleOpen] = useState(false);
-  // const [roles, setRoles] = useState<StaffRoles[]>([]);
+  /* const [roles, setRoles] = useState<StaffRoles[]>([]); */
+  const [profileWorkingDays, setProfileWorkingDays] = useState<string[]>([]);
+
   const formikRef = useRef<any>(null);
   const router = useRouter();
 
@@ -101,6 +105,46 @@ const EmployeeFormModal = ({
     description: service.category?.name || "",
   }));
 
+  // Fetch shop profile to get working days
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await profileApi.getProfile();
+        // The API returns the response object where the actual data is in the 'data' property
+        const resData = response?.data;
+        
+        let days: string[] = [];
+        if (resData && resData.workingDays) {
+           const DAY_LABELS = [
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+          ];
+          
+          if (Array.isArray(resData.workingDays)) {
+             days = resData.workingDays.map((d: any) => {
+                const num = Number(d);
+                if (!isNaN(num) && num >= 0 && num <= 6) {
+                   return DAY_LABELS[num];
+                }
+                // If it's a string, ensure it's capitalized correctly
+                const s = String(d);
+                return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+             });
+          }
+        }
+        setProfileWorkingDays(days);
+      } catch (error) {
+        console.error("Failed to fetch profile for working days", error);
+      }
+    };
+    fetchProfile();
+  }, []);
+
   // const fetchRoles = async () => {
   //   try {
   //     const res = await rolesApi.getAllRoles();
@@ -121,9 +165,24 @@ const EmployeeFormModal = ({
     label: role.name,
   }));
 
+
   useEffect(() => {
     if (!employee?.id) {
-      setInitialFormValues(initialValues);
+      setInitialFormValues({
+        ...initialValues,
+        availability:
+          profileWorkingDays.length > 0
+            ? {
+                monday: profileWorkingDays.includes("Monday"),
+                tuesday: profileWorkingDays.includes("Tuesday"),
+                wednesday: profileWorkingDays.includes("Wednesday"),
+                thursday: profileWorkingDays.includes("Thursday"),
+                friday: profileWorkingDays.includes("Friday"),
+                saturday: profileWorkingDays.includes("Saturday"),
+                sunday: profileWorkingDays.includes("Sunday"),
+              }
+            : initialValues.availability,
+      });
       setLoadingEmployee(false);
       return;
     }
@@ -142,6 +201,8 @@ const EmployeeFormModal = ({
           role: typeof emp.role === "object" ? emp.role._id : emp.role || "",
           commissionRate: emp.commissionRate || null,
           target: emp.target || 0,
+          targetType: emp.targetType || "Monthly",
+
           salary: emp.salary || 0,
           breakStartTime: emp.breakStartTime || "", // ✅
           breakEndTime: emp.breakEndTime || "",
@@ -150,15 +211,15 @@ const EmployeeFormModal = ({
                 return typeof s === "object" ? s._id || s.serviceId || s.id : s;
               })
             : [],
-          availability: {
-            monday: emp.workingDays?.includes("Monday") || false,
-            tuesday: emp.workingDays?.includes("Tuesday") || false,
-            wednesday: emp.workingDays?.includes("Wednesday") || false,
-            thursday: emp.workingDays?.includes("Thursday") || false,
-            friday: emp.workingDays?.includes("Friday") || false,
-            saturday: emp.workingDays?.includes("Saturday") || false,
-            sunday: emp.workingDays?.includes("Sunday") || false,
-          },
+            availability: {
+              monday: emp.workingDays?.some((d: any) => String(d) === "1" || String(d) === "Monday") || false,
+              tuesday: emp.workingDays?.some((d: any) => String(d) === "2" || String(d) === "Tuesday") || false,
+              wednesday: emp.workingDays?.some((d: any) => String(d) === "3" || String(d) === "Wednesday") || false,
+              thursday: emp.workingDays?.some((d: any) => String(d) === "4" || String(d) === "Thursday") || false,
+              friday: emp.workingDays?.some((d: any) => String(d) === "5" || String(d) === "Friday") || false,
+              saturday: emp.workingDays?.some((d: any) => String(d) === "6" || String(d) === "Saturday") || false,
+              sunday: emp.workingDays?.some((d: any) => String(d) === "0" || String(d) === "Sunday") || false,
+            },
           phone: "",
           email: "",
           password: "",
@@ -174,13 +235,23 @@ const EmployeeFormModal = ({
     };
 
     fetchEmployee();
-  }, [employee]);
+  }, [employee, profileWorkingDays]);
 
   const addEmployee = async (values: EmployeeFormData) => {
+    const DAY_MAP: Record<string, number> = {
+      sunday: 0,
+      monday: 1,
+      tuesday: 2,
+      wednesday: 3,
+      thursday: 4,
+      friday: 5,
+      saturday: 6,
+    };
+
     try {
       const workingDays = Object.entries(values.availability)
         .filter(([_, isWorking]) => isWorking)
-        .map(([day]) => day.charAt(0).toUpperCase() + day.slice(1));
+        .map(([day]) => DAY_MAP[day.toLowerCase()]);
 
       const formData = new FormData();
       formData.append("email", values.email);
@@ -188,6 +259,8 @@ const EmployeeFormModal = ({
       formData.append("fullName", values.name);
       formData.append("commissionRate", String(values.commissionRate));
       formData.append("target", String(values.target));
+      formData.append("targetType", values.targetType);
+
       formData.append("salary", String(values.salary));
       formData.append("breakStartTime", values.breakStartTime);
       formData.append("breakEndTime", values.breakEndTime);
@@ -218,15 +291,27 @@ const EmployeeFormModal = ({
   const updateEmployee = async (values: EmployeeFormData) => {
     if (!employee?.id) return;
 
+    const DAY_MAP: Record<string, number> = {
+      sunday: 0,
+      monday: 1,
+      tuesday: 2,
+      wednesday: 3,
+      thursday: 4,
+      friday: 5,
+      saturday: 6,
+    };
+
     try {
       const workingDays = Object.entries(values.availability)
         .filter(([_, isWorking]) => isWorking)
-        .map(([day]) => day.charAt(0).toUpperCase() + day.slice(1));
+        .map(([day]) => DAY_MAP[day.toLowerCase()]);
 
       const formData = new FormData();
       formData.append("fullName", values.name);
       formData.append("commissionRate", String(values.commissionRate));
       formData.append("target", String(values.target));
+      formData.append("targetType", values.targetType);
+
       formData.append("salary", String(values.salary));
       formData.append("breakStartTime", values.breakStartTime);
       formData.append("breakEndTime", values.breakEndTime);
@@ -327,7 +412,7 @@ const EmployeeFormModal = ({
         <Formik
           innerRef={formikRef}
           key={employee?.id || "new"}
-          initialValues={employee ? initialFormValues : initialValues}
+          initialValues={initialFormValues}
           validationSchema={
             employee ? updateValidationSchema : addValidationSchema
           }
@@ -402,7 +487,50 @@ const EmployeeFormModal = ({
                       </>
                     )}
 
+                    
+                       <Input
+                      label="Salary"
+                      name="salary"
+                      placeholder="10000"
+                      type="number"
+                      value={values.salary ?? ""}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setFieldValue(
+                          "salary",
+                          val === "" ? null : parseFloat(val),
+                        );
+                      }}
+                      error={touched.salary ? errors.salary : undefined}
+                    />
                     <Input
+                      label="Target"
+                      name="target"
+                      placeholder="20000000"
+                      type="number"
+                      value={values.target ?? ""}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setFieldValue(
+                          "target",
+                          val === "" ? null : parseFloat(val),
+                        );
+                      }}
+                      error={touched.target ? errors.target : undefined}
+                    />
+                    <Select
+  label="Target Type"
+  options={[
+    { value: "Weekly", label: "Weekly" },
+    { value: "Monthly", label: "Monthly" },
+  ]}
+  value={values.targetType}
+  onChange={(value) => setFieldValue("targetType", value)}
+  error={touched.targetType ? errors.targetType : undefined}
+/>
+
+
+<Input
                       label="Commission Rate (%)"
                       name="commissionRate"
                       placeholder="0"
@@ -420,38 +548,6 @@ const EmployeeFormModal = ({
                           ? errors.commissionRate
                           : undefined
                       }
-                    />
-
-                    <Input
-                      label="Target"
-                      name="target"
-                      placeholder="20000000"
-                      type="number"
-                      value={values.target ?? ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setFieldValue(
-                          "target",
-                          val === "" ? null : parseFloat(val),
-                        );
-                      }}
-                      error={touched.target ? errors.target : undefined}
-                    />
-
-                    <Input
-                      label="Salary"
-                      name="salary"
-                      placeholder="10000"
-                      type="number"
-                      value={values.salary ?? ""}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setFieldValue(
-                          "salary",
-                          val === "" ? null : parseFloat(val),
-                        );
-                      }}
-                      error={touched.salary ? errors.salary : undefined}
                     />
                     <Input
                       label="Break Start Time"

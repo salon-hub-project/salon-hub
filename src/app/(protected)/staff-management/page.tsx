@@ -17,6 +17,7 @@ import { showToast } from "@/app/components/ui/toast";
 import RolesManager from "./components/RolesManager";
 import { rolesApi } from "@/app/services/roles.api";
 import { StaffRoles } from "./types";
+import ResetTargetModal from "./components/ResetTargetModal";
 
 const StaffManagement = () => {
   const [isMobile, setIsMobile] = useState<boolean>(() => {
@@ -42,6 +43,8 @@ const StaffManagement = () => {
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [employeeToDelete, setEmployeeToDelete] = useState<string | null>(null);
+  const [resetTargetModalOpen, setResetTargetModalOpen] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -241,6 +244,19 @@ const StaffManagement = () => {
     }
   };
 
+  const handleResetTarget = async (targetType: "Weekly" | "Monthly") => {
+    try {
+      setIsResetting(true);
+      await staffApi.resetAchievedAmount(targetType);
+      setResetTargetModalOpen(false);
+      fetchEmployees();
+    } catch (err) {
+      console.error("Failed to reset target", err);
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
   const activeEmployees = employees.filter(
     (emp) => emp.status === "active",
   ).length;
@@ -266,15 +282,18 @@ const StaffManagement = () => {
               Manage employees and track performance
             </p>
           </div>
-          <Button
-            variant="default"
-            iconName="UserPlus"
-            iconPosition="left"
-            onClick={handleAddEmployee}
-            className="w-full lg:w-auto"
-          >
-            Add New Employee
-          </Button>
+         
+           
+            <Button
+              variant="default"
+              iconName="UserPlus"
+              iconPosition="left"
+              onClick={handleAddEmployee}
+              className="w-full sm:w-auto order-1 sm:order-2"
+            >
+              Add New Employee
+            </Button>
+         
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -320,6 +339,7 @@ const StaffManagement = () => {
             </div>
           </div>
         </div>
+         <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
         <RolesManager
           roles={roles}
           onAddRole={(name) => {
@@ -334,6 +354,16 @@ const StaffManagement = () => {
             setRoles((prev) => prev.filter((role) => role._id !== id));
           }}
         />
+         <Button
+              variant="outline"
+              iconName="RotateCcw"
+              iconPosition="left"
+              onClick={() => setResetTargetModalOpen(true)}
+              className="w-full sm:w-auto order-2 sm:order-1"
+            >
+              Reset Target
+            </Button>
+         </div>
 
         <div className="bg-card rounded-lg border border-border p-4 lg:p-6">
           <div className="flex flex-col lg:flex-row lg:items-center gap-4 mb-6">
@@ -509,6 +539,13 @@ const StaffManagement = () => {
         description="Are you sure you want to delete this employee?"
         onCancel={() => setConfirmModalOpen(false)}
         onConfirm={handleConfirmDelete}
+      />
+
+      <ResetTargetModal
+        isOpen={resetTargetModalOpen}
+        onClose={() => setResetTargetModalOpen(false)}
+        onConfirm={handleResetTarget}
+        isLoading={isResetting}
       />
     </>
   );
