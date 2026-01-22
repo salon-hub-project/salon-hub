@@ -30,6 +30,8 @@ import { AppDispatch } from "@/app/store";
 import { fetchProfileTimings } from "@/app/store/slices/profileSlice";
 import Loader from "@/app/components/Loader";
 import { isStaff } from "@/app/utils/routePermissions";
+import { comboApi } from "@/app/services/combo.api";
+import { ComboOffer } from "../combo-offers-management/types";
 
 const BookingManagement = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -48,7 +50,7 @@ const BookingManagement = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [staff, setStaff] = useState<Staff[]>([]);
   const [loading, setLoading] = useState(false);
-
+  const [combo, setCombo] = useState<ComboOffer[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
 
   const calculateEndTime = (startTime: string, duration: number): string => {
@@ -92,7 +94,7 @@ const BookingManagement = () => {
         const services = Array.isArray(b.services) ? b.services : [];
         const singleService = b.serviceId;
 
-        let serviceName = "Unknown Service";
+        let serviceName = "N/A";
         let serviceId = "";
         let serviceCategory = "General";
         let serviceDuration = 30;
@@ -118,7 +120,7 @@ const BookingManagement = () => {
           );
         } else if (singleService) {
           // Single service fallback
-          serviceName = singleService?.serviceName || "Unknown Service";
+          serviceName = singleService?.serviceName || "N/A";
           serviceId = singleService?._id || "";
           serviceCategory = singleService?.category || "General";
           serviceDuration = singleService?.duration || 30;
@@ -154,6 +156,12 @@ const BookingManagement = () => {
               : Array.isArray(b.commisionEarned)
                 ? b.commisionEarned.reduce((a: number, c: number) => a + c, 0)
                 : 0,
+          comboOffers: Array.isArray(b.comboOffers)
+            ? b.comboOffers.map((c: any) => ({
+                id: c._id,
+                name: c.name || c.comboName,
+              }))
+            : [],
         };
       });
 
@@ -218,6 +226,20 @@ const BookingManagement = () => {
             ...s,
             id: s._id || s.id,
             name: s.serviceName || s.name,
+          })),
+        );
+
+        const comboRes = await comboApi.getAllComboOffers({ limit: 100 });
+        const rawCombo = Array.isArray(comboRes)
+          ? comboRes
+          : comboRes?.data || [];
+        if (!mountedRef.current) return;
+
+        setCombo(
+          rawCombo.map((c: any) => ({
+            ...c,
+            id: c._id || c.id,
+            name: c.name || c.comboName,
           })),
         );
 
@@ -465,6 +487,12 @@ const BookingManagement = () => {
         notes: data.notes,
         paymentStatus: "pending",
         createdAt: new Date(data.createdAt),
+        comboOffers: Array.isArray(data.comboOffers)
+          ? data.comboOffers.map((c: any) => ({
+              id: c._id,
+              name: c.name || c.comboName,
+            }))
+          : [],
       };
 
       setSelectedBooking(mappedBooking);
@@ -479,40 +507,51 @@ const BookingManagement = () => {
     }
   }, [user, loadBookings]);
 
-  const handleCreateBooking = async (data: BookingFormData) => {
-    try {
-      if (
-        !data.customerId ||
-        data.services.length === 0 ||
-        !data.staffId ||
-        !data.date ||
-        !data.startTime
-      ) {
-        console.error("Missing required booking data");
-        return;
-      }
+  // const handleCreateBooking = async (data: BookingFormData) => {
+  //   try {
+  //     if (
+  //       !data.customerId ||
+  //       data.services.length === 0 ||
+  //       !data.staffId ||
+  //       !data.date ||
+  //       !data.startTime
+  //     ) {
+  //       console.error("Missing required booking data");
+  //       return;
+  //     }
 
-      await appointmentApi.createAppointment({
-        customerId: data.customerId,
-        services: data.services,
-        staffId: data.staffId,
-        appointmentDate: data.date.toISOString().split("T")[0],
-        appointmentTime: data.startTime,
-        notes: data.notes,
-      });
+  //     // await appointmentApi.createAppointment({
+  //     //   customerId: data.customerId,
+  //     //   services: data.services,
+  //     //   comboOffers: data.comboOffers,
+  //     //   staffId: data.staffId,
+  //     //   appointmentDate: data.date.toISOString().split("T")[0],
+  //     //   appointmentTime: data.startTime,
+  //     //   notes: data.notes,
+  //     // });
 
-      // Refetch bookings to update calendar
-      await loadBookings();
+  //     await appointmentApi.createAppointment({
+  //       customerId: data.customerId,
+  //       services: data.services,
+  //       comboOffers: data.comboOffers,
+  //       staffId: data.staffId,
+  //       appointmentDate: data.date.toISOString().split("T")[0],
+  //       appointmentTime: data.startTime,
+  //       notes: data.notes,
+  //     });
 
-      setShowBookingForm(false);
-      setSelectedDate(undefined);
-      setSelectedTime(undefined);
+  //     // Refetch bookings to update calendar
+  //     await loadBookings();
 
-      // OPTIONAL: You might want to show a success toast here if the API doesn't handle it
-    } catch (error) {
-      console.error("Failed to create appointment:", error);
-    }
-  };
+  //     setShowBookingForm(false);
+  //     setSelectedDate(undefined);
+  //     setSelectedTime(undefined);
+
+  //     // OPTIONAL: You might want to show a success toast here if the API doesn't handle it
+  //   } catch (error) {
+  //     console.error("Failed to create appointment:", error);
+  //   }
+  // };
 
   const handleStatusChange = (bookingId: string, status: Booking["status"]) => {
     setBookings(
@@ -636,13 +675,13 @@ const BookingManagement = () => {
 
           <div className="space-y-4 ">
             <div className="hidden lg:block">
-            <QuickFilters
-              filters={filters}
-              staff={staff}
-              services={services}
-              onFiltersChange={setFilters}
-              onClearFilters={handleClearFilters}
-            />
+              <QuickFilters
+                filters={filters}
+                staff={staff}
+                services={services}
+                onFiltersChange={setFilters}
+                onClearFilters={handleClearFilters}
+              />
             </div>
 
             <div className="bg-card border border-border rounded-lg p-4">
@@ -656,13 +695,7 @@ const BookingManagement = () => {
                     Total Bookings
                   </span>
                   <span className="text-sm font-semibold text-foreground">
-                    {
-                      // bookings.filter(
-                      //   (b) =>
-                      //     b.date.toDateString() === new Date().toDateString()
-                      // ).length
-                      bookings.length
-                    }
+                    {bookings.length}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
@@ -707,11 +740,17 @@ const BookingManagement = () => {
               customers={customers}
               services={services}
               staff={staff}
+              comboOffers={combo}
               selectedDate={selectedDate}
               selectedTime={selectedTime}
-              onSubmit={handleCreateBooking}
               onCancel={() => {
                 setShowBookingForm(false);
+                setSelectedDate(undefined);
+                setSelectedTime(undefined);
+              }}
+              onSuccess={async () => {
+                await loadBookings(); // 🔥 refresh UI
+                setShowBookingForm(false); // close modal
                 setSelectedDate(undefined);
                 setSelectedTime(undefined);
               }}

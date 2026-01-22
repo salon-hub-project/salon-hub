@@ -4,7 +4,7 @@ import Icon from "../../../components/AppIcon";
 import Image from "../../../components/AppImage";
 import Button from "../../../components/ui/Button";
 import Select from "../../../components/ui/Select";
-import ConfirmModal from "../../../components/ui/ConfirmModal"; // ✅ Added
+import ConfirmModal from "../../../components/ui/ConfirmModal";
 import { Booking } from "../types";
 import { useAppSelector } from "@/app/store/hooks";
 
@@ -14,7 +14,7 @@ interface BookingDetailsModalProps {
   onStatusChange?: (bookingId: string, status: Booking["status"]) => void;
   onPaymentStatusChange?: (
     bookingId: string,
-    status: "pending" | "paid"
+    status: "pending" | "paid",
   ) => void;
   onDelete?: (bookingId: string) => void;
   handleStatusUpdate?: () => void;
@@ -122,6 +122,24 @@ const BookingDetailsModal = ({
                   </div>
                 </div>
               </div>
+
+              {booking.comboOffers && booking.comboOffers.length > 0 && (
+                <div className="flex items-center justify-between py-3 border-b border-border">
+                  <span className="text-sm text-muted-foreground">
+                    Combo Offer
+                  </span>
+                  <div className="text-right space-y-1">
+                    {booking.comboOffers.map((combo) => (
+                      <div
+                        key={combo.id}
+                        className="text-sm font-medium text-foreground"
+                      >
+                        {combo.name}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="flex items-center justify-between py-3 border-b border-border">
                 <span className="text-sm text-muted-foreground">
@@ -246,29 +264,21 @@ const BookingDetailsModal = ({
                 {booking?.status === "Confirmed" && "Mark as Completed"}
               </Button>
               } */}
-              {
-  user?.role[0] === "STAFF" && (
-    booking?.status === "Confirmed" ? (
-      <Button
-        variant="destructive"
-        fullWidth
-        loading={isDeleting}
-        onClick={handleStatusUpdate}
-      >
-        Mark as Completed
-      </Button>
-    ) : booking?.status === "Completed" ? (
-      <Button
-        variant="outline"
-        fullWidth
-        disabled
-      >
-        ✓ Completed
-      </Button>
-    ) : null
-  )
-}
-
+              {user?.role[0] === "STAFF" &&
+                (booking?.status === "Confirmed" ? (
+                  <Button
+                    variant="destructive"
+                    fullWidth
+                    loading={isDeleting}
+                    onClick={handleStatusUpdate}
+                  >
+                    Mark as Completed
+                  </Button>
+                ) : booking?.status === "Completed" ? (
+                  <Button variant="outline" fullWidth disabled>
+                    ✓ Completed
+                  </Button>
+                ) : null)}
             </div>
           </div>
         </div>

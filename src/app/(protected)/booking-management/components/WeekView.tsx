@@ -89,7 +89,11 @@ const WeekView = ({
                           {booking.customerName}
                         </div>
                         <div className="text-xs text-muted-foreground truncate">
-                          {booking.serviceName}
+                          {booking.serviceName || booking.comboOffers?.map((c: any)=> (
+                            <div>
+                              {c.name}
+                            </div>
+                          ))}
                         </div>
                       </div>
                     ))

@@ -1,6 +1,17 @@
 import { Notification } from "../components/Header";
 
-export const WELCOME_SEEN_KEY = "welcome_seen";
+export const WELCOME_TIMESTAMP_KEY = "welcome_timestamp";
+
+const getWelcomeTimestamp = () => {
+  if (typeof window === "undefined") return new Date();
+
+  const saved = localStorage.getItem(WELCOME_TIMESTAMP_KEY);
+  if (saved) return new Date(saved);
+
+  const now = new Date();
+  localStorage.setItem(WELCOME_TIMESTAMP_KEY, now.toISOString());
+  return now;
+};
 
 export const welcomeNotification: Notification = {
   id: "welcome",
@@ -8,6 +19,6 @@ export const welcomeNotification: Notification = {
   title: "Welcome 🎉",
   message:
     "Welcome to your dashboard! You can manage appointments, customers, and notifications here.",
-  timestamp: new Date(),
+  timestamp: getWelcomeTimestamp(),
   read: false,
 };

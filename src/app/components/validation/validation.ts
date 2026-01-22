@@ -10,27 +10,26 @@ export const loginValidationSchema = Yup.object({
 
 export const registrationSchema = Yup.object({
   mobileNumber: Yup.string()
-    .max(10,"Phone number must be 10 digits")
+    .max(10, "Phone number must be 10 digits")
     .required("Mobile number is required")
     .matches(
       /^\+?1?\s?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/,
-      "Please enter a valid mobile number"
+      "Please enter a valid mobile number",
     ),
 
   emailId: Yup.string()
     .email("Please enter a valid email address")
     .required("Email is required"),
 
-  address: Yup.string()
-    .required("Address is required"),
-    // .min(10, "Please enter a complete address"),
+  address: Yup.string().required("Address is required"),
+  // .min(10, "Please enter a complete address"),
 
   password: Yup.string()
     .required("Password is required")
     .min(8, "Password must be at least 8 characters")
     .matches(
       /(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>])/,
-      "Password must contain uppercase, lowercase, number, and special character"
+      "Password must contain uppercase, lowercase, number, and special character",
     ),
 
   confirmPassword: Yup.string()
@@ -39,7 +38,7 @@ export const registrationSchema = Yup.object({
 
   termsAccepted: Yup.boolean().oneOf(
     [true],
-    "You must accept the terms and conditions"
+    "You must accept the terms and conditions",
   ),
 });
 
@@ -58,22 +57,25 @@ export const customerValidationSchema = Yup.object({
 
 export const appointmentValidationSchema = Yup.object({
   customerId: Yup.string().required("Please select a customer"),
-  services: Yup.array()
-    .of(Yup.string())
-    .min(1, "Please select at least one service"),
+  selectedItems: Yup.array()
+    .of(
+      Yup.object({
+        value: Yup.string().required(),
+        type: Yup.mixed<"service" | "combo">().required(),
+      }),
+    )
+    .min(1, "Please select at least one service or combo")
+    .required(),
   staffId: Yup.string().required("Please select a staff member"),
   startTime: Yup.string().required("Please select a time"),
   date: Yup.date().required("Date is required"),
   notes: Yup.string(),
 });
 
-
 export const comboValidationSchema = Yup.object().shape({
   name: Yup.string().trim().required("Combo name is required"),
   description: Yup.string().required("Please provide description about combo"),
-  services: Yup.array()
-    .min(2, "Please select at least 2 services")
-    .required(),
+  services: Yup.array().min(2, "Please select at least 2 services").required(),
   discountedPrice: Yup.number()
     .moreThan(0, "Price must be greater than 0")
     .required(),

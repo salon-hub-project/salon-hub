@@ -16,38 +16,46 @@ import { showToast } from "@/app/components/ui/toast";
 import { useAppSelector } from "@/app/store/hooks";
 import { isStaff } from "@/app/utils/routePermissions";
 import { comboApi } from "@/app/services/combo.api";
+import GroupedSelect from "@/app/components/ui/GroupedSelect";
 
 interface QuickBookingWidgetProps {
   onCreateBooking: (data: any) => void;
 }
 
+interface SelectedItem {
+  value: string;
+  label: string;
+  type: "service" | "combo";
+}
+
 interface BookingFormValues {
   customer: string;
-  service: string[];
+  selectedItems: SelectedItem[];
   date: string;
   time: string;
   staff: string;
 }
 
 const BookingValidationSchema = Yup.object({
-  customer: Yup.string()
-    .required("Please select a customer"),
+  customer: Yup.string().required("Please select a customer"),
 
-  service: Yup.array()
-    .of(Yup.string())
-    .min(1, "Please select at least one service")
-    .required("Please select at least one service"),
+  selectedItems: Yup.array()
+  .of(
+    Yup.object({
+      value: Yup.string().required(),
+      type: Yup.mixed<"service" | "combo">().required(),
+    })
+  )
+  .min(1, "Please select at least one service or combo")
+  .required(),
 
-  staff: Yup.string()
-    .required("Please select a staff member"),
 
-  date: Yup.string()
-    .required("Please select a date"),
+  staff: Yup.string().required("Please select a staff member"),
 
-  time: Yup.string()
-    .required("Please select a time"),
+  date: Yup.string().required("Please select a date"),
+
+  time: Yup.string().required("Please select a time"),
 });
-
 
 const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
   const user = useAppSelector((state) => state.auth.user);
@@ -61,7 +69,9 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
   const [staffOptions, setStaffOptions] = useState<
     { value: string; label: string }[]
   >([]);
-  //const [comboOptions, setComboOptions] = useState<{value: string, label: string, percent: number}[]>([]);
+  const [comboOptions, setComboOptions] = useState<
+    { value: string; label: string; percent: number }[]
+  >([]);
   const router = useRouter();
 
   // =========`======== FETCH DATA =================
@@ -111,56 +121,77 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
     }
   };
 
-  // const fetchCombo = async() => {
-  //   try{
-  //     const res = await comboApi.getAllComboOffers({limit: 100});
-  //     setComboOptions(
-  //       res.data.map((c: any)=>({
-  //         value: c._id,
-  //         label: c.name,
-  //         percent: c.savedPercent
-  //       }))
-  //     )
-  //   }catch(error){
-  //     console.error("Combo fetch error", error)
-  //   }
-  // }
-  // console.log(comboOptions, "combo");
-
+  const fetchCombo = async () => {
+    try {
+      const res = await comboApi.getAllComboOffers({ limit: 100 });
+      setComboOptions(
+        res.data.map((c: any) => ({
+          value: c._id,
+          label: c.name,
+          percent: c.savedPercent,
+        })),
+      );
+    } catch (error) {
+      console.error("Combo fetch error", error);
+    }
+  };
   useEffect(() => {
     fetchCustomers();
     fetchServices();
     fetchStaff();
-    // fetchCombo();
+    fetchCombo();
   }, []);
 
   // ================= SUBMIT =================
 
-  const handleSubmit = async (
-    values: BookingFormValues,
-    { resetForm }: any,
-  ) => {
+  const handleSubmit = async (values: any, { resetForm }: any) => {
+    console.log(values);
     try {
+      const services = values.selectedItems
+        .filter((item: any) => item.type === "service")
+        .map((item: any) => item.value);
+
+      const comboOffers = values.selectedItems
+        .filter((item: any) => item.type === "combo")
+        .map((item: any) => item.value);
+
       const payload = {
-        customerId: values.customer, // ✅ ObjectId
-        services: values.service, // ✅ ObjectId[]
-        staffId: values.staff, // ✅ ObjectId
+        customerId: values.customer,
+        services, 
+        comboOffers, 
+        staffId: values.staff,
         appointmentDate: values.date,
         appointmentTime: values.time,
       };
 
       await appointmentApi.createAppointment(payload);
-
-      onCreateBooking(values);
       resetForm();
-    } catch (error: any) {
+    } catch (error) {
       showToast({
-        message:
-          error?.response?.data?.message || "Failed to create appointment",
+        message: "Failed to create appointment",
         status: "error",
       });
     }
   };
+
+  // const serviceComboDropDown = [
+  //   {
+  //     label: "Services",
+  //     options: serviceOptions.map((s) => ({
+  //       value: s.value,
+  //       label: s.label,
+  //       type: "service",
+  //     })),
+  //   },
+  //   {
+  //     label: "Trending Combos",
+  //     options: comboOptions.map((c) => ({
+  //       value: c.value,
+  //       label: `${c.label} (${c.percent}% OFF)`,
+  //       type: "combo",
+  //     })),
+  //   },
+  // ];
 
   // ================= UI =================
 
@@ -174,7 +205,7 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
       <Formik
         initialValues={{
           customer: "",
-          service: [],
+          selectedItems: [],
           date: "",
           time: "",
           staff: "",
@@ -193,24 +224,42 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
               onChange={(val) => setFieldValue("customer", val)}
               onAddNew={() => router.push("/customer-database")}
             />
-             {touched.customer && errors.customer && (
-              <p className="text-xs text-destructive mt-1 text-red-500">{errors.customer}</p>
+            {touched.customer && errors.customer && (
+              <p className="text-xs text-destructive mt-1 text-red-500">
+                {errors.customer}
+              </p>
             )}
 
-
             {/* SERVICE */}
-            <Select
-              label="Service"
-              placeholder="Select service"
-              options={serviceOptions}
-              value={values.service}
-              onChange={(val) => setFieldValue("service", val)}
+            <GroupedSelect
+              label="Service / Combo"
+              placeholder="Select service or combo"
               multiple
-              closeOnSelect
-              onAddNew={() => router.push("/service-management")}
+              value={values.selectedItems}
+              onChange={(val) => setFieldValue("selectedItems", val)}
+              groups={[
+                {
+                  label: "Services",
+                  options: serviceOptions.map((s) => ({
+                    value: s.value,
+                    label: s.label,
+                    type: "service",
+                  })),
+                },
+                {
+                  label: "Trending Combos",
+                  options: comboOptions.map((c) => ({
+                    value: c.value,
+                    label: `${c.label} (${c.percent.toFixed(0)}% OFF)`,
+                    type: "combo",
+                  })),
+                },
+              ]}
             />
-            {touched.service && errors.service && (
-              <p className="text-xs text-destructive mt-1 text-red-500">{errors.service}</p>
+            {touched.selectedItems && errors.selectedItems && (
+              <p className="text-xs text-destructive mt-1 text-red-500">
+                {errors.selectedItems}
+              </p>
             )}
 
             <div className="grid grid-cols-2 gap-4">
@@ -222,7 +271,9 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
                 onChange={(e) => setFieldValue("date", e.target.value)}
               />
               {touched.date && errors.date && (
-                <p className="text-xs text-destructive mt-1 text-red-500">{errors.date}</p>
+                <p className="text-xs text-destructive mt-1 text-red-500">
+                  {errors.date}
+                </p>
               )}
 
               {/* TIME */}
@@ -233,7 +284,9 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
                 onChange={(e) => setFieldValue("time", e.target.value)}
               />
               {touched.time && errors.time && (
-                <p className="text-xs text-destructive mt-1 text-red-500">{errors.time}</p>
+                <p className="text-xs text-destructive mt-1 text-red-500">
+                  {errors.time}
+                </p>
               )}
             </div>
 
@@ -247,7 +300,9 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
               onAddNew={() => router.push("/staff-management")}
             />
             {touched.staff && errors.staff && (
-              <p className="text-xs text-destructive text-red-500">{errors.staff}</p>
+              <p className="text-xs text-destructive text-red-500">
+                {errors.staff}
+              </p>
             )}
 
             <Button type="submit" variant="default" fullWidth iconName="Plus">
