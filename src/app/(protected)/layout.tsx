@@ -17,10 +17,29 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
 
   const pathname = usePathname();
 
+  const role = authUser?.role as any;
+  
   //Show notification count
   useEffect(() => {
+    if(role[0]=== "OWNER"){
     fetchNotifications();
+    }
+    if(role[0] === "STAFF"){
+    fetchStaffNotifications();
+    }
   }, []);
+
+  const fetchStaffNotifications = async () => {
+    try{
+      const res= await notificationApi.getAllStaffNotifications();
+      if(!res?.data) return;
+      // setNotifications(res.data);
+      // setNotificationCount(res.data.length);
+    }
+    catch(error: any) {
+      console.log(error);
+    }
+  }
 
   const fetchNotifications = async () => {
     try {

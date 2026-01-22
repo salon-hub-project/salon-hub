@@ -90,7 +90,7 @@ const Header = ({
 
   const mergedNotifications = useMemo(() => {
     // Remove welcome if backend accidentally sends it
-    const realNotifications = notificationList.filter(
+    const realNotifications = notificationList?.filter(
       (n) => n.id !== "welcome",
     );
 
