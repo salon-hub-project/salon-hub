@@ -12,7 +12,8 @@ export const formatTo12Hour = (
     Number.isNaN(minutes) ||
     hours < 0 ||
     hours > 23 ||
-    ![0, 30].includes(minutes)
+    minutes < 0 ||
+    minutes > 59
   ) {
     return undefined;
   }
