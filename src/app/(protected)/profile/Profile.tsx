@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Icon from "../../components/AppIcon";
 import { useAppSelector } from "../../store/hooks";
 import { useAppDispatch } from "../../store/hooks";
-import { getProfile, deleteProfile } from "@/app/store/slices/profileSlice";
+import { getProfile, deleteProfile, getStaffProfile } from "@/app/store/slices/profileSlice";
 import ConfirmModal from "@/app/components/ui/ConfirmModal";
 import { normalizeRole } from "@/app/utils/normalizeRole";
 import Loader from "@/app/components/Loader";
@@ -25,15 +25,19 @@ const ProfilePage = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const fetchInitiatedRef = useRef(false);
 
-  // const normalizedUserRole = normalizeRole(user.role);
+  const normalizedUserRole = normalizeRole(user?.role);
 
-  // useEffect(() => {
-  //   if (normalizedUserRole !== "OWNER") return;
-  //   if (!profile && !isLoading && !fetchInitiatedRef.current) {
-  //     fetchInitiatedRef.current = true;
-  //     dispatch(getProfile());
-  //   }
-  // }, [dispatch, normalizedUserRole]);
+  useEffect(() => {
+    if (!profile && !isLoading && !fetchInitiatedRef.current) {
+      if (normalizedUserRole === "OWNER") {
+        fetchInitiatedRef.current = true;
+        dispatch(getProfile());
+      } else if (normalizedUserRole === "STAFF") {
+        fetchInitiatedRef.current = true;
+        dispatch(getStaffProfile());
+      }
+    }
+  }, [dispatch, normalizedUserRole, profile, isLoading]);
 
   if (!user) {
     return (
@@ -45,6 +49,8 @@ const ProfilePage = () => {
   const fullName =
     user.firstName || user.lastName
       ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim()
+      : normalizedUserRole === "STAFF"
+      ? "Staff Member"
       : "Salon Owner";
 
   const currentUser = {
@@ -97,84 +103,119 @@ const ProfilePage = () => {
               label="Phone Number"
               value={user.phoneNumber ?? "—"}
             />
-            <ProfileItem
-              icon="MapPin"
-              label="Address"
-              value={user.address ?? "—"}
-            />
-            <ProfileItem
-              icon="Shield"
-              label="Role"
-              value={user.role ?? "Salon Owner"}
-            />
-            <ProfileItem
-              icon="User"
-              label="Owner Name"
-              value={profile?.ownerName ?? "—"}
-            />
+            {normalizedUserRole === "OWNER" && (
+              <>
+                <ProfileItem
+                  icon="MapPin"
+                  label="Address"
+                  value={user.address ?? "—"}
+                />
+                <ProfileItem
+                  icon="User"
+                  label="Owner Name"
+                  value={profile?.ownerName ?? profile?.salonDetails?.ownerName ?? "—"}
+                />
+              </>
+            )}
             <ProfileItem
               icon="Scissors"
               label="Salon Name"
-              value={profile?.salonName ?? "—"}
+              value={profile?.salonName ?? profile?.salonDetails?.salonName ?? "—"}
             />
             <ProfileItem
               icon="Clock"
               label="Opening Time"
-              value={formatTo12Hour(profile?.openingTime) ?? "—"}
+              value={formatTo12Hour(profile?.openingTime ?? profile?.salonDetails?.openingTime) ?? "—"}
             />
             <ProfileItem
               icon="Clock"
               label="Closing Time"
-              value={formatTo12Hour(profile?.closingTime) ?? "—"}
+              value={formatTo12Hour(profile?.closingTime ?? profile?.salonDetails?.closingTime) ?? "—"}
             />
             <ProfileItem
               icon="Calendar"
               label="Working Days"
               value={
-                profile?.workingDays && profile.workingDays.length > 0
-                  ? profile.workingDays
-                      .map((d: number) =>
-                        ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d]
+                (profile?.workingDays ?? profile?.salonDetails?.workingDays) && (profile?.workingDays ?? profile?.salonDetails?.workingDays).length > 0
+                  ? (profile?.workingDays ?? profile?.salonDetails?.workingDays)
+                      .map((d: any) =>
+                        typeof d === "number" 
+                          ? ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d]
+                          : d
                       )
                       .join(", ")
                   : "—"
               }
             />
+            {normalizedUserRole === "STAFF" && profile?.staffDetails && (
+              <>
+               <ProfileItem
+                  icon="Clock"
+                  label="Break Start Time"
+                  value={formatTo12Hour(profile.staffDetails.breakStartTime) ?? "—"}
+                />
+                <ProfileItem
+                  icon="Clock"
+                  label="Break End Time"
+                  value={formatTo12Hour(profile.staffDetails.breakEndTime) ?? "—"}
+                />
+                <ProfileItem
+                  icon="Target"
+                  label="Target"
+                  value={`${profile.staffDetails.target ?? 0} (${profile.staffDetails.targetType ?? "Monthly"})`}
+                />
+                <ProfileItem
+                  icon="TrendingUp"
+                  label="Achieved Amount"
+                  value={profile.staffDetails.achievedAmount?.toString() ?? "0"}
+                />
+                <ProfileItem
+                  icon="Percent"
+                  label="Commission Rate"
+                  value={`${profile.staffDetails.commissionRate ?? 0}%`}
+                />
+                <ProfileItem
+                  icon="Star"
+                  label="Rating"
+                  value={profile.staffDetails.rating?.toString() ?? "0"}
+                />
+               
+              </>
+            )}
           </div>
         </div>
 
         {/* Profile Actions */}
-        {/* Profile Actions */}
-        <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-end">
-          {/* IF profile does NOT exist */}
-          {!profile && (
-            <button
-              className="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90 transition"
-              onClick={() => router.push("/profile/create")}
-            >
-              Create Profile
-            </button>
-          )}
-
-          {/* IF profile EXISTS */}
-          {profile && (
-            <>
+        {normalizedUserRole === "OWNER" && (
+          <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-end">
+            {!profile && (
               <button
-                className="px-4 py-2 rounded-md border border-border text-sm hover:bg-secondary transition"
+                className="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90 transition"
                 onClick={() => router.push("/profile/create")}
               >
-                Update Profile
+                Create Profile
               </button>
+            )}
 
-              <button
-                className="px-4 py-2 rounded-md bg-destructive text-destructive-foreground text-sm hover:opacity-90 transition"
-                onClick={handleDeleteProfile}
-              >
-                Delete Profile
-              </button>
-            </>
-          )}
-        </div>
+            {profile && (
+              <>
+                <button
+                  className="px-4 py-2 rounded-md border border-border text-sm hover:bg-secondary transition"
+                  onClick={() => router.push("/profile/create")}
+                >
+                  Update Profile
+                </button>
+
+                <button
+                  className="px-4 py-2 rounded-md bg-destructive text-destructive-foreground text-sm hover:opacity-90 transition"
+                  onClick={handleDeleteProfile}
+                >
+                  Delete Profile
+                </button>
+              </>
+            )}
+          </div>
+        )}
 
         <ConfirmModal
           isOpen={showDeleteModal}

@@ -7,6 +7,7 @@ import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { logout } from "../store/slices/authSlice";
 import {
   getProfile,
+  getStaffProfile,
   clearProfile,
   fetchProfileTimings,
 } from "../store/slices/profileSlice";
@@ -109,11 +110,18 @@ const Header = ({
 
   //------Effects----------
   useEffect(() => {
-    if (normalizedUserRole !== "OWNER") return;
-    if (!profile && !isLoading && isAuthenticated) {
-      dispatch(getProfile());
+    if (!isAuthenticated) return;
+    if (normalizedUserRole === "OWNER") {
+      if (!profile && !isLoading) {
+        dispatch(getProfile());
+      }
+    } else if (normalizedUserRole === "STAFF") {
+      if (!profile && !isLoading) {
+        dispatch(getStaffProfile());
+      }
     }
-    if (!timings && !isLoading && isAuthenticated) {
+    
+    if (normalizedUserRole === "OWNER" && !timings && !isLoading) {
       dispatch(fetchProfileTimings());
     }
   }, [normalizedUserRole, isAuthenticated, profile, timings]);
@@ -231,7 +239,7 @@ const Header = ({
       <div className="flex items-center justify-between h-full pr-6">
         <div className="flex-1 flex justify-center">
           <h1 className="text-lg font-semibold capitalize">
-            {profile?.salonName ?? "Salon"}
+            {profile?.salonName ?? profile?.salonDetails?.salonName ?? "Salon"}
           </h1>
         </div>
 
@@ -370,7 +378,8 @@ const Header = ({
 
               <div className="hidden md:block text-left">
                 <div className="text-sm font-medium capitalize">
-                  {user.role == "OWNER" && `${profile?.ownerName ?? user.name}`}
+                  {(user.role == "OWNER" || normalizedUserRole === "OWNER") && `${profile?.ownerName ?? user.name}`}
+                  {normalizedUserRole === "STAFF" && `${profile?.staffDetails?.fullName ?? user.name}`}
                 </div>
                 <div className="text-xs text-muted-foreground">
                   {getRoleLabel(user.role)}
@@ -384,8 +393,10 @@ const Header = ({
               <div className="absolute right-0 mt-2 w-64 bg-card border rounded-lg shadow-lg">
                 <div className="p-4 border-b">
                   <div className="font-medium capitalize">
-                    {user.role == "OWNER" &&
+                    {(user.role == "OWNER" || normalizedUserRole === "OWNER") &&
                       `${profile?.ownerName ?? user.name}`}
+                    {normalizedUserRole === "STAFF" &&
+                      `${profile?.staffDetails?.fullName ?? user.name}`}
                   </div>
 
                   <div className="text-xs text-muted-foreground">
@@ -400,9 +411,17 @@ const Header = ({
                         {formatTo12Hour(profile.closingTime)})
                       </div>
                     )}
+                  {normalizedUserRole === "STAFF" &&
+                    profile?.salonDetails?.openingTime &&
+                    profile?.salonDetails?.closingTime && (
+                      <div className="text-xs text-muted-foreground">
+                        ({formatTo12Hour(profile.salonDetails.openingTime)} -{" "}
+                        {formatTo12Hour(profile.salonDetails.closingTime)})
+                      </div>
+                    )}
                 </div>
 
-                {user.role == "OWNER" && (
+                {(user.role == "OWNER" || normalizedUserRole === "OWNER" || normalizedUserRole === "STAFF") && (
                   <button
                     onClick={handleProfileClick}
                     className="w-full px-4 py-2 hover:bg-muted flex items-center gap-2"

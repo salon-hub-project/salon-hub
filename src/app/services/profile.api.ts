@@ -80,4 +80,14 @@ export const profileApi = {
       throw error;
     }
   },
+  getStaffProfile: async () => {
+    try {
+      const res = await api.get("/staff/staffprofile");
+       console.log(res.data);
+      return res.data;
+     
+    } catch (error: any) {
+      throw error;
+    }
+  },
 };

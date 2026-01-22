@@ -96,6 +96,20 @@ export const fetchProfileTimings = createAsyncThunk(
   }
 );
 
+export const getStaffProfile = createAsyncThunk(
+  "profile/getStaffProfile",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await profileApi.getStaffProfile();
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error?.response?.data?.message || "Failed to fetch staff profile"
+      );
+    }
+  }
+);
+
 const profileSlice = createSlice({
   name: "profile",
   initialState,
@@ -164,6 +178,18 @@ const profileSlice = createSlice({
       })
       .addCase(fetchProfileTimings.rejected, (state, action) => {
         console.error("Failed to fetch timings:", action.payload);
+      })
+      .addCase(getStaffProfile.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(getStaffProfile.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.profile = action.payload;
+      })
+      .addCase(getStaffProfile.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
       });
   },
 });
