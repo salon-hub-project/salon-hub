@@ -17,29 +17,48 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
 
   const pathname = usePathname();
 
-  const role = authUser?.role as any;
-  
   //Show notification count
   useEffect(() => {
-    if(role[0]=== "OWNER"){
-    fetchNotifications();
+    if (!authUser?.role) return;
+
+    const userRole = Array.isArray(authUser.role)
+      ? authUser.role[0]
+      : authUser.role;
+
+    if (userRole === "OWNER") {
+      fetchNotifications();
     }
-    if(role[0] === "STAFF"){
-    fetchStaffNotifications();
+
+    if (userRole === "STAFF") {
+      fetchStaffNotifications();
     }
-  }, []);
+  }, [authUser]);
 
   const fetchStaffNotifications = async () => {
-    try{
-      const res= await notificationApi.getAllStaffNotifications();
-      if(!res?.data) return;
-      // setNotifications(res.data);
-      // setNotificationCount(res.data.length);
-    }
-    catch(error: any) {
+    try {
+      const res = await notificationApi.getAllStaffNotifications();
+      if (!res?.data?.appointments) return;
+
+      const staffNotifications: Notification[] = res.data.appointments.map(
+        (appt: any) => ({
+          id: appt._id,
+          type: "info",
+          title: "New Appointment",
+          message: `${
+            appt.customerId?.fullName || "Customer"
+          } booked an appointment at ${appt.appointmentTime}`,
+          timestamp: new Date(appt.createdAt),
+          read: false,
+          path: `/appointment?appointmentId=${appt._id}`,
+        }),
+      );
+
+      setNotifications(staffNotifications);
+      setNotificationCount(staffNotifications.length);
+    } catch (error) {
       console.log(error);
     }
-  }
+  };
 
   const fetchNotifications = async () => {
     try {
