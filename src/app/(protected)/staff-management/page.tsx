@@ -325,19 +325,19 @@ const StaffManagement = () => {
             </div>
           </div>
 
-          <div className="bg-card rounded-lg border border-border p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Revenue</p>
+          {/* <div className="bg-card rounded-lg border border-border p-6"> */}
+            {/* <div className="flex items-center justify-between"> */}
+              {/* <div> */}
+                {/* <p className="text-sm text-muted-foreground">Total Revenue</p>
                 <p className="text-3xl font-bold text-foreground mt-2">
                   INR {totalRevenue.toLocaleString()}
-                </p>
-              </div>
-              <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
+                </p> */}
+              {/* </div> */}
+              {/* <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
                 <Icon name="IndianRupee" size={24} className="text-accent" />
-              </div>
-            </div>
-          </div>
+              </div> */}
+            {/* </div> */}
+          {/* </div> */}
         </div>
          <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
         <RolesManager
