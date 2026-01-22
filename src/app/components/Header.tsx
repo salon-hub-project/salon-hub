@@ -207,6 +207,15 @@ const Header = ({
               </div>
             )}
 
+          {/* Refresh Button (Mobile only) */}
+          <button
+            onClick={() => window.location.reload()}
+            className="lg:hidden w-10 h-10 rounded-md hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+            title="Refresh Page"
+          >
+            <Icon name="RefreshCw" size={20} />
+          </button>
+
           {/* Notifications */}
           <div className="relative" ref={notificationRef}>
             <button
