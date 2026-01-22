@@ -2,7 +2,7 @@
 
 import { ReactNode, useState } from "react";
 import { useEffect } from "react";
-import { useRouter ,usePathname} from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useAppSelector } from "../store/hooks";
 import AuthGuard from "../components/AuthGuard";
 import Sidebar from "../components/Sidebar";
@@ -40,7 +40,7 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
           timestamp: new Date(appt.createdAt),
           read: false,
           path: `/booking-management?appointmentId=${appt._id}`,
-        })
+        }),
       );
 
       const customerNotifications: Notification[] = newCustomers
@@ -71,7 +71,7 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
   useEffect(() => {
     localStorage.setItem("lastProtectedRoute", pathname);
   }, [pathname]);
-  
+
   const user = {
     name: authUser
       ? `${authUser.firstName ?? ""} ${authUser.lastName ?? ""}`.trim()
@@ -79,7 +79,7 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
     email: authUser?.email ?? "",
     role: Array.isArray(authUser?.role)
       ? authUser.role[0]
-      : authUser?.role ?? "salon_owner",
+      : (authUser?.role ?? "salon_owner"),
     salonName: "Salon",
   };
 

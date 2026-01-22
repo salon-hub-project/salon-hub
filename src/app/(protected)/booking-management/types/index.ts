@@ -1,3 +1,5 @@
+import { ComboOffer } from "../../combo-offers-management/types";
+
 export interface Customer {
   id: string;
   name: string;
@@ -52,6 +54,10 @@ export interface Booking {
   paymentStatus: "pending" | "paid";
   createdAt: Date;
   commisionEarned?: number;
+  comboOffers?: {
+    id: string, 
+    name: string
+  }[];
 }
 
 export interface TimeSlot {
@@ -71,14 +77,30 @@ export type ViewMode = "day" | "week" | "viewAll";
 export type BookingStatus = "Confirmed" | "Completed" | "cancelled";
 export type PaymentStatus = "pending" | "paid";
 
+export interface SelectedItem {
+  value: string;
+  label: string;
+  type: "service" | "combo";
+}
+
 export interface BookingFormData {
   customerId: string;
-  services: string[];
+  selectedItems: SelectedItem[];
   staffId: string;
   date: Date;
   startTime: string;
   notes: string;
 }
+
+// export interface BookingFormData {
+//   customerId: string;
+//   services: string[];
+//   comboOffers: string[];
+//   staffId: string;
+//   date: Date;
+//   startTime: string;
+//   notes: string;
+// }
 
 export interface BookingFilters {
   status?: BookingStatus;
@@ -91,9 +113,11 @@ export interface BookingFormProps {
   customers: Customer[];
   services: Service[];
   staff: Staff[];
+  comboOffers: ComboOffer[];
   selectedDate?: Date;
   selectedTime?: string;
-  onSubmit: (data: BookingFormData) => void;
+  onSubmit? : (data: BookingFormData) => void;
   onCancel: () => void;
+  onSuccess: ()=> void;
   isLoading?: boolean;
 }

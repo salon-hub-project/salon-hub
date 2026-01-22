@@ -7,12 +7,12 @@ import Icon from "../../../components/AppIcon";
 import Button from "../../../components/ui/Button";
 import Input from "../../../components/ui/Input";
 import Select from "../../../components/ui/Select";
-import { BookingFormProps } from "../types";
+import { BookingFormProps, SelectedItem } from "../types";
 import { Staff, BookingFormData } from "../types";
 import { appointmentValidationSchema } from "@/app/components/validation/validation";
 import { staffApi } from "@/app/services/staff.api";
-
-// import { formatTo12Hour } from "@/app/utils/formatHour";
+import GroupedSelect from "@/app/components/ui/GroupedSelect";
+import { appointmentApi } from "@/app/services/appointment.api";
 
 // Helper component to handle side effects and data fetching inside Formik context
 const StaffFetcher = ({
@@ -75,64 +75,64 @@ const StaffFetcher = ({
 
   //   fetchStaff();
   // }, [values.date, values.startTime, initialStaff, setAvailableStaff]);
-useEffect(() => {
-  const fetchStaff = async () => {
-    if (values.date && values.startTime) {
-      try {
-        const formattedDate = values.date.toISOString().split("T")[0];
+  useEffect(() => {
+    const fetchStaff = async () => {
+      if (values.date && values.startTime) {
+        try {
+          const formattedDate = values.date.toISOString().split("T")[0];
 
-        // 1️⃣ Get base available staff
-        const allStaffRes = await staffApi.getAllStaff({
-          page: 1,
-          limit: 100,
-          dateOfAppointment: formattedDate,
-          timeOfAppointment: values.startTime,
-        });
+          // 1️⃣ Get base available staff
+          const allStaffRes = await staffApi.getAllStaff({
+            page: 1,
+            limit: 100,
+            dateOfAppointment: formattedDate,
+            timeOfAppointment: values.startTime,
+          });
 
-        // 2️⃣ Get staff NOT on break
-        const breakFreeStaffRes = await staffApi.getAllStaffBreakTime({
-          dateOfAppointment: formattedDate,
-          timeOfAppointment: values.startTime,
-        });
+          // 2️⃣ Get staff NOT on break
+          const breakFreeStaffRes = await staffApi.getAllStaffBreakTime({
+            dateOfAppointment: formattedDate,
+            timeOfAppointment: values.startTime,
+          });
 
-        const allStaff = Array.isArray(allStaffRes)
-          ? allStaffRes
-          : allStaffRes?.data || [];
+          const allStaff = Array.isArray(allStaffRes)
+            ? allStaffRes
+            : allStaffRes?.data || [];
 
-        const breakFreeStaff = Array.isArray(breakFreeStaffRes)
-          ? breakFreeStaffRes
-          : breakFreeStaffRes?.data || [];
+          const breakFreeStaff = Array.isArray(breakFreeStaffRes)
+            ? breakFreeStaffRes
+            : breakFreeStaffRes?.data || [];
 
-        // 3️⃣ Build a Set of staff IDs who are NOT on break
-        const breakFreeIds = new Set(
-          breakFreeStaff.map((s: any) => s._id || s.id)
-        );
+          // 3️⃣ Build a Set of staff IDs who are NOT on break
+          const breakFreeIds = new Set(
+            breakFreeStaff.map((s: any) => s._id || s.id),
+          );
 
-        // 4️⃣ Keep only staff who exist in BOTH lists
-        const filteredStaff = allStaff
-          .filter((s: any) => breakFreeIds.has(s._id || s.id))
-          .map((s: any) => ({
-            id: s._id || s.id,
-            name: s.fullName || s.name,
-            role: s.role || "Staff",
-            phone: s.phoneNumber || s.phone,
-            avatar: s.avatar,
-            specializations: s.specializations || [],
-            isAvailable: s.isActive !== undefined ? s.isActive : true,
-          }))
-          .filter((s: any) => s.isAvailable);
+          // 4️⃣ Keep only staff who exist in BOTH lists
+          const filteredStaff = allStaff
+            .filter((s: any) => breakFreeIds.has(s._id || s.id))
+            .map((s: any) => ({
+              id: s._id || s.id,
+              name: s.fullName || s.name,
+              role: s.role || "Staff",
+              phone: s.phoneNumber || s.phone,
+              avatar: s.avatar,
+              specializations: s.specializations || [],
+              isAvailable: s.isActive !== undefined ? s.isActive : true,
+            }))
+            .filter((s: any) => s.isAvailable);
 
-        setAvailableStaff(filteredStaff);
-      } catch (error) {
-        console.error("Failed to fetch available staff", error);
+          setAvailableStaff(filteredStaff);
+        } catch (error) {
+          console.error("Failed to fetch available staff", error);
+        }
+      } else {
+        setAvailableStaff(initialStaff);
       }
-    } else {
-      setAvailableStaff(initialStaff);
-    }
-  };
+    };
 
-  fetchStaff();
-}, [values.date, values.startTime, initialStaff, setAvailableStaff]);
+    fetchStaff();
+  }, [values.date, values.startTime, initialStaff, setAvailableStaff]);
 
   return null;
 };
@@ -140,18 +140,19 @@ useEffect(() => {
 const BookingForm = ({
   customers,
   services,
+  comboOffers,
   staff,
   selectedDate,
   selectedTime,
-  onSubmit,
   onCancel,
+  onSuccess,
   isLoading = false,
 }: BookingFormProps) => {
   // State for available staff, initialized with the passed staff list
   const [availableStaff, setAvailableStaff] = useState<Staff[]>(staff);
-  
+
   const customerOptions = customers.map((c) => ({
-    value: c.id ,
+    value: c.id,
     label: `${c.name}`,
   }));
 
@@ -163,6 +164,14 @@ const BookingForm = ({
       label: `${s.name} - INR${s.price} (${s.duration} min)`,
     }));
 
+  console.log("COMBO OFFERS 👉", comboOffers);
+  const comboOptions = comboOffers
+    // .filter((c) => c.status === "Active" && !c.isDeleted)
+    .map((c: any) => ({
+      value: c.id || c._id,
+      label: `${c.name} - ${c.savedPercent.toFixed(0)}%OFF`,
+    }));
+
   // Use availableStaff for options instead of props.staff
   const staffOptions = availableStaff
     .filter((m) => m.isAvailable)
@@ -172,7 +181,7 @@ const BookingForm = ({
     }));
 
   const timeSlots = Array.from({ length: 13 }, (_, i) => {
-    const hour24 = i + 9; 
+    const hour24 = i + 9;
     const hour = hour24.toString().padStart(2, "0");
 
     return [
@@ -187,6 +196,34 @@ const BookingForm = ({
     ];
   }).flat();
 
+  const handleSubmit = async (values: any, { resetForm }: any) => {
+    try {
+      const services = values.selectedItems
+        .filter((item: any) => item.type === "service")
+        .map((item: any) => item.value);
+
+      const comboOffers = values.selectedItems
+        .filter((item: any) => item.type === "combo")
+        .map((item: any) => item.value);
+
+      const payload = {
+        customerId: values.customerId,
+        services,
+        comboOffers,
+        staffId: values.staffId,
+        appointmentDate: values.date.toISOString().split("T")[0],
+        appointmentTime: values.startTime,
+        notes: values.notes || "",
+      };
+      await appointmentApi.createAppointment(payload);
+      resetForm();
+      onSuccess?.();                  
+      router.push("/booking-management"); 
+    } catch (error) {
+      console.error("Create appointment failed", error);
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
       <div className="bg-card rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
@@ -199,25 +236,24 @@ const BookingForm = ({
         </div>
 
         <Formik
+          // initialValues={{
+          //   customerId: "",
+          //   selectedItems: [] as SelectedItem[],
+          //   staffId: "",
+          //   date: selectedDate || new Date(),
+          //   startTime: selectedTime || "",
+          //   notes: "",
+          // }}
           initialValues={{
             customerId: "",
-            services: [] as string[],
+            selectedItems: [],
             staffId: "",
             date: selectedDate || new Date(),
             startTime: selectedTime || "",
             notes: "",
           }}
           validationSchema={appointmentValidationSchema}
-          onSubmit={(values) =>
-            onSubmit({
-              customerId: values.customerId,
-              services: values.services, 
-              staffId: values.staffId,
-              date: values.date,
-              startTime: values.startTime,
-              notes: values.notes,
-            })
-          }
+          onSubmit={handleSubmit}
         >
           {({ values, errors, touched, setFieldValue }) => {
             return (
@@ -238,11 +274,11 @@ const BookingForm = ({
                   searchable
                   onChange={(v) => setFieldValue("customerId", v)}
                   error={touched.customerId ? errors.customerId : undefined}
-                  onAddNew={()=> router.push('/customer-database')}
+                  onAddNew={() => router.push("/customer-database")}
                 />
 
                 {/* Services */}
-                <Select
+                {/* <Select
                   label="Services"
                   placeholder="Select services..."
                   options={serviceOptions}
@@ -258,7 +294,33 @@ const BookingForm = ({
                       ? errors.services
                       : undefined
                   }
-                  onAddNew={()=> router.push('/service-management')}
+                  onAddNew={() => router.push("/service-management")}
+                /> */}
+                {/* SERVICE */}
+                <GroupedSelect
+                  label="Service / Combo"
+                  placeholder="Select service or combo"
+                  multiple
+                  value={values.selectedItems}
+                  onChange={(val) => setFieldValue("selectedItems", val)}
+                  groups={[
+                    {
+                      label: "Services",
+                      options: serviceOptions.map((s) => ({
+                        value: s.value,
+                        label: s.label,
+                        type: "service",
+                      })),
+                    },
+                    {
+                      label: "Trending Combos",
+                      options: comboOptions.map((c) => ({
+                        value: c.value,
+                        label: c.label,
+                        type: "combo",
+                      })),
+                    },
+                  ]}
                 />
 
                 {/* Date */}

@@ -5,6 +5,7 @@ export interface CreateAppointmentPayload {
   customerId: string;
   services: string[];
   staffId: string;
+  comboOffers?: string[];
   appointmentDate: string; // YYYY-MM-DD
   appointmentTime: string; // HH:mm
   notes?: string;

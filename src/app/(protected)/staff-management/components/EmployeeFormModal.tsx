@@ -465,6 +465,10 @@ const EmployeeFormModal = ({
                           onChange={handleChange}
                           error={touched.phone ? errors.phone : undefined}
                           maxLength={10}
+                          onInput={(e) => {
+                            e.currentTarget.value =
+                              e.currentTarget.value.replace(/\D/g, "");
+                          }}
                         />
 
                         <Input

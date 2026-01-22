@@ -1,15 +1,20 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import Icon from "./AppIcon";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { logout } from "../store/slices/authSlice";
-import { getProfile, clearProfile, fetchProfileTimings } from "../store/slices/profileSlice";
+import {
+  getProfile,
+  clearProfile,
+  fetchProfileTimings,
+} from "../store/slices/profileSlice";
 import { showToast } from "./ui/toast";
 import ConfirmModal from "./ui/ConfirmModal";
 import { normalizeRole } from "../utils/normalizeRole";
 import { formatTo12Hour } from "../utils/formatHour";
+import { welcomeNotification } from "../utils/welcomeNotification";
 
 interface User {
   name: string;
@@ -19,16 +24,9 @@ interface User {
   salonName?: string;
 }
 
-
-
-  /* Existing code ... */
-
-  /* Define Notification interface within Header or assume passed as any if complex. 
-     Better to define it to ensure type safety. */
-
 export interface Notification {
   id: string;
-  type: 'info' | 'warning' | 'success' | 'error';
+  type: "info" | "warning" | "success" | "error";
   title: string;
   message: string;
   timestamp: Date;
@@ -49,11 +47,7 @@ interface HeaderProps {
 
 const Header = ({
   user,
-  notifications = 0,
   notificationList = [],
-  onLogout,
-  onProfileClick,
-  onNotificationClick,
   onSalonSwitch,
   availableSalons = [],
 }: HeaderProps) => {
@@ -63,16 +57,53 @@ const Header = ({
   const dispatch = useAppDispatch();
   const router = useRouter();
 
-  const { profile, timings, isLoading } = useAppSelector((state) => state.profile);
+  const { profile, timings, isLoading } = useAppSelector(
+    (state) => state.profile,
+  );
   const profileRef = useRef<HTMLDivElement>(null);
   const salonSwitcherRef = useRef<HTMLDivElement>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
-  
+
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const isAuthenticated = useAppSelector((state) => !!state.auth.token);
 
   const normalizedUserRole = normalizeRole(user?.role);
 
+  //-------Welcome logic-----------
+  // const mergedNotifications = useMemo(() => {
+  //   if (typeof window === "undefined") return notificationList;
+
+  //   const hasSeenWelcome = localStorage.getItem(WELCOME_SEEN_KEY) === "true";
+
+  //   if (hasSeenWelcome) {
+  //     return notificationList;
+  //   }
+
+  //   if (notificationList.length >= 6) {
+  //     localStorage.setItem(WELCOME_SEEN_KEY, "true");
+  //     localStorage.removeItem("welcome_timestamp");
+  //     return notificationList;
+  //   }
+
+  //   return [...notificationList, welcomeNotification];
+  // }, [notificationList]);
+
+  const mergedNotifications = useMemo(() => {
+    // Remove welcome if backend accidentally sends it
+    const realNotifications = notificationList.filter(
+      (n) => n.id !== "welcome",
+    );
+
+    // If real notifications are 6 or more → hide welcome
+    if (realNotifications.length >= 6) {
+      return realNotifications;
+    }
+
+    // Otherwise → show welcome
+    return [...realNotifications, welcomeNotification];
+  }, [notificationList]);
+
+  //------Effects----------
   useEffect(() => {
     if (normalizedUserRole !== "OWNER") return;
     if (!profile && !isLoading && isAuthenticated) {
@@ -110,6 +141,16 @@ const Header = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  //   const getTimeAgo = (timestamp: Date) => {
+  //     const diff =
+  //       (new Date().getTime() - new Date(timestamp).getTime()) / 60000;
+  //     if (diff < 1) return "Just now";
+  //     if (diff < 60) return `${Math.floor(diff)}m ago`;
+  //     if (diff < 1440) return `${Math.floor(diff / 60)}h ago`;
+  //     return `${Math.floor(diff / 1440)}d ago`;
+  //   };
+
+  //-------Helpers----------
   const getRoleLabel = (role: unknown) => {
     const roleMap: Record<string, string> = {
       SUPERADMIN: "Super Admin",
@@ -122,7 +163,7 @@ const Header = ({
   const getTimeAgo = (timestamp: Date) => {
     const now = new Date();
     const diffInMinutes = Math.floor(
-      (now.getTime() - new Date(timestamp).getTime()) / (1000 * 60)
+      (now.getTime() - new Date(timestamp).getTime()) / (1000 * 60),
     );
 
     if (diffInMinutes < 1) return "Just now";
@@ -131,12 +172,26 @@ const Header = ({
     return `${Math.floor(diffInMinutes / 1440)}d ago`;
   };
 
+  const handleNotificationItemClick = (notification: Notification) => {
+    setIsNotificationsOpen(false);
+
+    // Mark welcome as seen
+    // if (notification.id === "welcome") {
+    //   localStorage.setItem(WELCOME_SEEN_KEY, "true");
+    //   localStorage.removeItem("welcome_timestamp");
+    //   return;
+    // }
+
+    if (notification.path) {
+      router.push(notification.path);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("lastProtectedRoute");
     localStorage.removeItem("redirectAfterLogin");
     localStorage.removeItem("authToken");
     localStorage.removeItem("authUser");
-    // localStorage.clear();
 
     dispatch(logout());
     dispatch(clearProfile());
@@ -148,8 +203,6 @@ const Header = ({
   };
 
   const handleProfileClick = () => {
-    // setIsProfileOpen(false);
-    // onProfileClick?.();
     router.push("/profile");
   };
 
@@ -158,13 +211,17 @@ const Header = ({
     onSalonSwitch?.(salonId);
   };
 
-  const handleNotificationItemClick = (notification: Notification) => {
-    setIsNotificationsOpen(false);
-    if (notification.path) {
-      router.push(notification.path);
-    }
-  };
-  
+  const realNotificationCount = notificationList.filter(
+  (n) => n.id !== "welcome"
+).length;
+
+  // const handleNotificationItemClick = (notification: Notification) => {
+  //   setIsNotificationsOpen(false);
+  //   if (notification.path) {
+  //     router.push(notification.path);
+  //   }
+  // };
+
   return (
     <header className="fixed top-0 right-0 left-16 lg:left-sidebar h-header bg-card border-b border-border z-[90]">
       <div className="flex items-center justify-between h-full pr-6">
@@ -223,10 +280,10 @@ const Header = ({
               className="relative w-10 h-10 rounded-md hover:bg-muted flex items-center justify-center"
             >
               <Icon name="Bell" size={20} />
-              {(notifications > 0 || notificationList.length > 0) && (
+              {mergedNotifications.length > 0 && (
                 // <span className="absolute top-1 right-1 text-xs bg-accent rounded-full px-1 min-w-[16px] h-[16px] flex items-center justify-center text-[10px] text-white">
                 <span
-  className="
+                  className="
     absolute
     -top-0
     -right-1
@@ -241,27 +298,31 @@ const Header = ({
     leading-none
     rounded-full
     bg-accent
-    text-white
+    text-black
   "
->
-                  {notifications > 0 ? (notifications > 99 ? "99+" : notifications) : (notificationList.length > 99 ? "99+" : notificationList.length)}
+                >
+                  {realNotificationCount}
                 </span>
               )}
             </button>
 
             {isNotificationsOpen && (
               <div className="absolute right-0 mt-2 w-80 max-h-[400px] overflow-y-auto bg-card border rounded-lg shadow-lg">
-                 <div className="p-4 border-b sticky top-0 bg-card z-10">
+                <div className="p-4 border-b sticky top-0 bg-card z-10">
                   <h3 className="font-semibold text-sm">Notifications</h3>
                 </div>
                 <div className="p-2 space-y-2">
-                  {notificationList && notificationList.length > 0 ? (
-                    notificationList.map((notification) => (
+                  {mergedNotifications.length > 0 ? (
+                    mergedNotifications.map((notification) => (
                       <div
                         key={notification.id}
-                        onClick={() => handleNotificationItemClick(notification)}
+                        onClick={() =>
+                          handleNotificationItemClick(notification)
+                        }
                         className={`p-3 rounded-md text-sm cursor-pointer ${
-                          notification.read ? "bg-background" : "bg-muted/30"
+                          notification.id === "welcome"
+                            ? "bg-primary/10"
+                            : "bg-muted/30"
                         } hover:bg-muted/50 transition-colors`}
                       >
                         <div className="font-medium text-foreground mb-1">
@@ -270,7 +331,7 @@ const Header = ({
                         <div className="text-muted-foreground text-xs mb-1 line-clamp-2">
                           {notification.message}
                         </div>
-                         <div className="text-[10px] text-muted-foreground/70">
+                        <div className="text-[10px] text-muted-foreground/70">
                           {getTimeAgo(notification.timestamp)}
                         </div>
                       </div>
@@ -310,7 +371,6 @@ const Header = ({
                 <div className="text-xs text-muted-foreground">
                   {getRoleLabel(user.role)}
                 </div>
-                
               </div>
 
               <Icon name="ChevronDown" size={16} />
@@ -329,12 +389,13 @@ const Header = ({
                   </div>
                   <div className="text-xs mt-1">{getRoleLabel(user.role)}</div>
                   {user.role === "OWNER" &&
-                  profile?.openingTime &&
-                  profile?.closingTime && (
-                    <div className="text-xs text-muted-foreground">
-                      ({formatTo12Hour(profile.openingTime)} - {formatTo12Hour(profile.closingTime)})
-                    </div>
-                  )}
+                    profile?.openingTime &&
+                    profile?.closingTime && (
+                      <div className="text-xs text-muted-foreground">
+                        ({formatTo12Hour(profile.openingTime)} -{" "}
+                        {formatTo12Hour(profile.closingTime)})
+                      </div>
+                    )}
                 </div>
 
                 {user.role == "OWNER" && (
@@ -374,172 +435,11 @@ const Header = ({
 
 export default Header;
 
-
-
-// "use client";
-
-// import { useState, useRef, useEffect, useMemo } from "react";
-// import Icon from "./AppIcon";
-// import { useRouter } from "next/navigation";
-// import { useAppDispatch, useAppSelector } from "../store/hooks";
-// import { logout } from "../store/slices/authSlice";
-// import {
-//   getProfile,
-//   clearProfile,
-//   fetchProfileTimings,
-// } from "../store/slices/profileSlice";
-// import { showToast } from "./ui/toast";
-// import ConfirmModal from "./ui/ConfirmModal";
-// import { normalizeRole } from "../utils/normalizeRole";
-// import { formatTo12Hour } from "../utils/formatHour";
-
-// import {
-//   welcomeNotification,
-//   WELCOME_SEEN_KEY,
-// } from "../utils/welcomeNotification";
-
-// /* ---------------- TYPES ---------------- */
-
-// export interface Notification {
-//   id: string;
-//   type: "info" | "warning" | "success" | "error";
-//   title: string;
-//   message: string;
-//   timestamp: Date;
-//   read: boolean;
-//   path?: string;
-// }
-
-// interface User {
-//   name: string;
-//   email: string;
-//   role: unknown;
-//   avatar?: string;
-//   salonName?: string;
-// }
-
-// interface HeaderProps {
-//   user: User;
-//   notifications?: number;
-//   notificationList?: Notification[];
-//   availableSalons?: Array<{ id: string; name: string }>;
-// }
-
 // /* ---------------- COMPONENT ---------------- */
-
-// const Header = ({
-//   user,
-//   notifications = 0,
-//   notificationList = [],
-//   availableSalons = [],
-// }: HeaderProps) => {
-//   const [isProfileOpen, setIsProfileOpen] = useState(false);
-//   const [isSalonSwitcherOpen, setIsSalonSwitcherOpen] = useState(false);
-//   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-//   const [showLogoutModal, setShowLogoutModal] = useState(false);
-
-//   const dispatch = useAppDispatch();
-//   const router = useRouter();
-
-//   const profileRef = useRef<HTMLDivElement>(null);
-//   const salonSwitcherRef = useRef<HTMLDivElement>(null);
-//   const notificationRef = useRef<HTMLDivElement>(null);
-
-//   const isAuthenticated = useAppSelector((state) => !!state.auth.token);
-//   const { profile, timings, isLoading } = useAppSelector(
-//     (state) => state.profile
-//   );
-
-//   const normalizedUserRole = normalizeRole(user?.role);
 
 //   /* ---------------- WELCOME LOGIC ---------------- */
 
-//   const mergedNotifications = useMemo(() => {
-//     if (typeof window === "undefined") return notificationList;
-
-//     const hasSeenWelcome = localStorage.getItem(WELCOME_SEEN_KEY);
-
-//     if (!hasSeenWelcome) {
-//       return [welcomeNotification, ...notificationList];
-//     }
-
-//     return notificationList;
-//   }, [notificationList]);
-
-//   // Auto remove welcome when real notifications increase
-//   useEffect(() => {
-//     if (notificationList.length >= 3) {
-//       localStorage.setItem(WELCOME_SEEN_KEY, "true");
-//     }
-//   }, [notificationList.length]);
-
-//   /* ---------------- EFFECTS ---------------- */
-
-//   useEffect(() => {
-//     if (normalizedUserRole !== "OWNER") return;
-//     if (!profile && !isLoading && isAuthenticated) {
-//       dispatch(getProfile());
-//     }
-//     if (!timings && !isLoading && isAuthenticated) {
-//       dispatch(fetchProfileTimings());
-//     }
-//   }, [normalizedUserRole, isAuthenticated, profile, timings]);
-
-//   useEffect(() => {
-//     const handleClickOutside = (event: MouseEvent) => {
-//       if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
-//         setIsProfileOpen(false);
-//       }
-//       if (
-//         salonSwitcherRef.current &&
-//         !salonSwitcherRef.current.contains(event.target as Node)
-//       ) {
-//         setIsSalonSwitcherOpen(false);
-//       }
-//       if (
-//         notificationRef.current &&
-//         !notificationRef.current.contains(event.target as Node)
-//       ) {
-//         setIsNotificationsOpen(false);
-//       }
-//     };
-
-//     document.addEventListener("mousedown", handleClickOutside);
-//     return () => document.removeEventListener("mousedown", handleClickOutside);
-//   }, []);
-
 //   /* ---------------- HELPERS ---------------- */
-
-//   const getTimeAgo = (timestamp: Date) => {
-//     const diff =
-//       (new Date().getTime() - new Date(timestamp).getTime()) / 60000;
-//     if (diff < 1) return "Just now";
-//     if (diff < 60) return `${Math.floor(diff)}m ago`;
-//     if (diff < 1440) return `${Math.floor(diff / 60)}h ago`;
-//     return `${Math.floor(diff / 1440)}d ago`;
-//   };
-
-//   const handleNotificationItemClick = (notification: Notification) => {
-//     setIsNotificationsOpen(false);
-
-//     // Mark welcome as seen
-//     if (notification.id === "welcome") {
-//       localStorage.setItem(WELCOME_SEEN_KEY, "true");
-//       return;
-//     }
-
-//     if (notification.path) {
-//       router.push(notification.path);
-//     }
-//   };
-
-//   const handleLogout = () => {
-//     localStorage.clear();
-//     dispatch(logout());
-//     dispatch(clearProfile());
-//     showToast({ message: "Logged out successfully", status: "success" });
-//     router.push("/salon-login");
-//   };
 
 //   /* ---------------- UI ---------------- */
 

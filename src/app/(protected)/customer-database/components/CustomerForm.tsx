@@ -297,6 +297,12 @@ const CustomerForm = ({
                   error={touched.phone ? errors.phone : undefined}
                   maxLength={10}
                   disabled={isEditMode}
+                  onInput={(e) => {
+                    e.currentTarget.value = e.currentTarget.value.replace(
+                      /\D/g,
+                      "",
+                    );
+                  }}
                 />
 
                 <Input

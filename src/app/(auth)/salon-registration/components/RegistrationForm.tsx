@@ -5,17 +5,14 @@ import Input from "../../../components/ui/Input";
 import Button from "../../../components/ui/Button";
 import { Checkbox } from "../../../components/ui/Checkbox";
 import PasswordStrengthIndicator from "./PasswordStrengthIndicator";
-import {
-  RegistrationFormData,
-  ValidationErrors,
-} from "../types";
+import { RegistrationFormData, ValidationErrors } from "../types";
 
 interface RegistrationFormProps {
   formData: RegistrationFormData;
   errors: ValidationErrors;
   onInputChange: (
     field: keyof RegistrationFormData,
-    value: string | boolean
+    value: string | boolean,
   ) => void;
   onSubmit: any;
   isSubmitting: boolean;
@@ -77,6 +74,9 @@ const RegistrationForm = ({
         required
         disabled={isSubmitting}
         maxLength={10}
+        onInput={(e) => {
+          e.currentTarget.value = e.currentTarget.value.replace(/\D/g, "");
+        }}
       />
 
       <Input
@@ -148,9 +148,7 @@ const RegistrationForm = ({
       <Checkbox
         label="I agree to the Terms of Service and Privacy Policy"
         checked={formData.termsAccepted}
-        onChange={(e) =>
-          onInputChange("termsAccepted", e.target.checked)
-        }
+        onChange={(e) => onInputChange("termsAccepted", e.target.checked)}
         error={errors.termsAccepted}
         required
         disabled={isSubmitting}
