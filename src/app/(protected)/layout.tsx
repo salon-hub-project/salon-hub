@@ -25,13 +25,23 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
       ? authUser.role[0]
       : authUser.role;
 
-    if (userRole === "OWNER") {
-      fetchNotifications();
-    }
+    const fetchAll = () => {
+      if (userRole === "OWNER") {
+        fetchNotifications();
+      }
 
-    if (userRole === "STAFF") {
-      fetchStaffNotifications();
-    }
+      if (userRole === "STAFF") {
+        fetchStaffNotifications();
+      }
+    };
+
+    // Initial fetch
+    fetchAll();
+
+    // Poll every 30 seconds
+    const intervalId = setInterval(fetchAll, 30000);
+
+    return () => clearInterval(intervalId);
   }, [authUser]);
 
   const fetchStaffNotifications = async () => {

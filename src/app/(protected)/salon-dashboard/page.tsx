@@ -184,7 +184,7 @@ const SalonDashboard = () => {
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    const fetchNotifications = async () => {
+    const fetchAllNotifications = async () => {
       try {
         const res = await notificationApi.getAllNotifications();
         if (!res?.data) return;
@@ -234,7 +234,12 @@ const SalonDashboard = () => {
       }
     };
 
-    fetchNotifications();
+    fetchAllNotifications();
+
+    // Poll every 30 seconds
+    const intervalId = setInterval(fetchAllNotifications, 30000);
+
+    return () => clearInterval(intervalId);
   }, [isAuthenticated]);
 
   const quickActions: QuickAction[] = [
