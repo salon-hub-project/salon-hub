@@ -33,6 +33,13 @@ export interface UpdateStaffPayload {
     staffImage?: string | File ;
 }
 
+export interface AvailableStaffPayload {
+    timeOfAppointment: string;
+    dateOfAppointment: string;
+    services: string[];
+    comboOffers: string[];
+}
+
 export const staffApi = {
     // ADD STAFF
     addStaff: async (data: FormData) => {
@@ -65,16 +72,8 @@ export const staffApi = {
         });
         return res.data;
     },
-    getAllStaffBreakTime: async (params?: {
-        // page?: number;
-        // limit?: number;
-        // role?: string;
-        dateOfAppointment?: string;
-        timeOfAppointment?: string;
-    }) => {
-        const res = await api.get("/staff/availablestaff", {
-            params,
-        });
+    getAllStaffBreakTime: async (payload: AvailableStaffPayload) => {
+        const res = await api.post("/staff/availablestaff", payload);
         return res.data;
     },
     getStaffDetails: async (staffId: string) => {

@@ -90,10 +90,20 @@ const StaffFetcher = ({
             timeOfAppointment: values.startTime,
           });
 
+          const services = (values.selectedItems || [])
+            .filter((item: any) => item.type === "service")
+            .map((item: any) => item.value);
+
+          const comboOffers = (values.selectedItems || [])
+            .filter((item: any) => item.type === "combo")
+            .map((item: any) => item.value);
+
           // 2️⃣ Get staff NOT on break
           const breakFreeStaffRes = await staffApi.getAllStaffBreakTime({
             dateOfAppointment: formattedDate,
             timeOfAppointment: values.startTime,
+            services,
+            comboOffers,
           });
 
           const allStaff = Array.isArray(allStaffRes)
@@ -133,7 +143,7 @@ const StaffFetcher = ({
     };
 
     fetchStaff();
-  }, [values.date, values.startTime, initialStaff, setAvailableStaff]);
+  }, [values.date, values.startTime, values.selectedItems, initialStaff, setAvailableStaff]);
 
   return null;
 };
