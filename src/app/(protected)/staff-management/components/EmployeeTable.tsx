@@ -46,7 +46,6 @@ const EmployeeTable = ({
     }
   };
 
-  console.log(employees)
   const sortedEmployees = [...employees].sort((a, b) => {
     let aValue: string | number = "";
     let bValue: string | number = "";
