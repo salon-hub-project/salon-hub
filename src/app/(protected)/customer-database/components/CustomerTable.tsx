@@ -138,7 +138,7 @@ const CustomerTable = ({
                   Tags
                 </span>
               </th>
-              <th className="px-6 py-4 text-left">
+              {/* <th className="px-6 py-4 text-left">
                 <button
                   onClick={() => handleSort("lastVisit")}
                   className="flex items-center gap-2 text-sm font-semibold text-foreground hover:text-primary transition-smooth"
@@ -146,7 +146,7 @@ const CustomerTable = ({
                   Last Visit
                   <SortIcon column="lastVisit" />
                 </button>
-              </th>
+              </th> */}
               <th className="px-6 py-4 text-left">
                 <button
                   onClick={() => handleSort("totalVisits")}
@@ -235,11 +235,11 @@ const CustomerTable = ({
                   </div>
                 </td>
 
-                <td className="px-6 py-4">
+                {/* <td className="px-6 py-4">
                   <div className="text-sm text-foreground">
                     {formatDate(customer.lastVisit)}
                   </div>
-                </td>
+                </td> */}
                 <td className="px-6 py-4">
                   <div className="text-sm text-foreground">
                     {customer.totalVisits}

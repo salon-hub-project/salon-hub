@@ -1,9 +1,9 @@
-import Icon from '../../../components/AppIcon';
-import Image from '../../../components/AppImage';
-import Button from '../../../components/ui/Button';
-import { Employee } from '../types';
-import EmployeeAvatar from '../types/EmployeeAvatar';
-
+import { staffApi } from "@/app/services/staff.api";
+import Icon from "../../../components/AppIcon";
+import Image from "../../../components/AppImage";
+import Button from "../../../components/ui/Button";
+import { Employee } from "../types";
+import EmployeeAvatar from "../types/EmployeeAvatar";
 
 interface Role {
   _id: string;
@@ -14,7 +14,7 @@ interface MobileEmployeeCardProps {
   employee: Employee;
   role: Role[];
   onEdit: (employee: Employee) => void;
-  onToggleStatus: (employeeId: string) => void;
+  onToggleStatus: (employeeId: string, isActive?: boolean) => void;
   onViewDetails: (employee: Employee) => void;
   onDelete: (id: string) => void;
 }
@@ -29,25 +29,29 @@ const MobileEmployeeCard = ({
 }: MobileEmployeeCardProps) => {
   const getRoleColor = (role: string) => {
     const colors: Record<string, string> = {
-      Manager: 'bg-purple-100 text-purple-800',
-      Stylist: 'bg-blue-100 text-blue-800',
-      Colorist: 'bg-pink-100 text-pink-800',
-      'Nail Technician': 'bg-green-100 text-green-800',
-      Receptionist: 'bg-yellow-100 text-yellow-800',
-      'Hair Stylist': 'bg-blue-100 text-blue-800',
-      'Nails technician': 'bg-green-100 text-green-800',
+      Manager: "bg-purple-100 text-purple-800",
+      Stylist: "bg-blue-100 text-blue-800",
+      Colorist: "bg-pink-100 text-pink-800",
+      "Nail Technician": "bg-green-100 text-green-800",
+      Receptionist: "bg-yellow-100 text-yellow-800",
+      "Hair Stylist": "bg-blue-100 text-blue-800",
+      "Nails technician": "bg-green-100 text-green-800",
     };
-    return colors[role] || 'bg-gray-100 text-gray-800';
+    return colors[role] || "bg-gray-100 text-gray-800";
   };
 
   // ✅ ONLY ROLE FIX
   const roleName =
-    typeof employee.role === 'object' && employee.role?.name
+    typeof employee.role === "object" && employee.role?.name
       ? employee.role?.name
-      : 'N/A';
+      : "N/A";
 
   return (
-    <div className="bg-card rounded-lg border border-border p-4 space-y-4">
+    <div
+      className={`rounded-lg border border-border p-4 space-y-4 transition-all
+    ${employee.isActive ? "bg-card" : "bg-muted/40 opacity-60 grayscale"}
+  `}
+    >
       <div className="flex items-start gap-3">
         <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex-shrink-0">
           <EmployeeAvatar employee={employee} onViewDetails={onViewDetails} />
@@ -60,7 +64,7 @@ const MobileEmployeeCard = ({
 
           <span
             className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium mt-1 ${getRoleColor(
-              roleName
+              roleName,
             )}`}
           >
             {roleName}
@@ -68,11 +72,9 @@ const MobileEmployeeCard = ({
         </div>
 
         <button
-          onClick={() => onToggleStatus(employee.id)}
-          className={`flex-shrink-0 w-2 h-2 rounded-full ${
-            employee.status === 'active'
-              ? 'bg-success'
-              : 'bg-muted-foreground'
+          onClick={() => onToggleStatus(employee.id, !employee.isActive)}
+          className={`flex-shrink-0 w-2.5 h-2.5 rounded-full ${
+            employee.isActive ? "bg-green-500" : "bg-gray-400"
           }`}
           aria-label={`Toggle ${employee.name} status`}
         />
@@ -119,12 +121,27 @@ const MobileEmployeeCard = ({
             <span className="text-xs text-muted-foreground">Revenue</span>
           </div>
           <p className="text-lg font-semibold text-foreground">
-            INR {(employee.performanceMetrics.revenueGenerated / 1000).toFixed(1)}k
+            INR{" "}
+            {(employee.performanceMetrics.revenueGenerated / 1000).toFixed(1)}k
           </p>
         </div>
       </div>
 
       <div className="flex flex-col sm:flex-row items-center gap-2 pt-2 border-t border-border">
+        <select
+          value={employee.isActive ? "active" : "inactive"}
+          onChange={async (e) => {
+            e.stopPropagation();
+            const newStatus = e.target.value === "active";
+
+            await staffApi.updateStaffStatus(employee.id, newStatus);
+            onToggleStatus(employee.id, newStatus);
+          }}
+          className="border rounded-md px-2 py-1 text-sm bg-background"
+        >
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
         <Button
           variant="outline"
           size="sm"
@@ -132,6 +149,7 @@ const MobileEmployeeCard = ({
           iconPosition="left"
           onClick={() => onEdit(employee)}
           className="flex-1"
+          disabled= {!employee.isActive}
         >
           Edit
         </Button>
@@ -143,6 +161,7 @@ const MobileEmployeeCard = ({
           iconPosition="left"
           onClick={() => onViewDetails(employee)}
           className="flex-1"
+          disabled= {!employee.isActive}
         >
           View
         </Button>
@@ -154,6 +173,7 @@ const MobileEmployeeCard = ({
           iconPosition="left"
           onClick={() => onDelete(employee.id)}
           className="flex-1 text-red-500 hover:text-red-700"
+          disabled= {!employee.isActive}
         >
           Delete
         </Button>

@@ -155,7 +155,7 @@ const CustomerProfile = ({
                       INR {customer.totalSpent.toFixed(2)}
                     </div>
                   </div>
-                  <div className="bg-muted/30 rounded-lg p-4">
+                  {/* <div className="bg-muted/30 rounded-lg p-4">
                     <div className="text-xs text-muted-foreground mb-1">Last Visit</div>
                     <div className="text-sm font-medium text-foreground">
                       {customer.lastVisit
@@ -166,7 +166,7 @@ const CustomerProfile = ({
                           }).format(customer.lastVisit)
                         : 'Never'}
                     </div>
-                  </div>
+                  </div> */}
                 </div>
 
                 <div className="flex gap-2">

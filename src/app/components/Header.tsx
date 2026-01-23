@@ -106,7 +106,7 @@ const Header = ({
 
     // Otherwise → show welcome
     return [...realNotifications, welcomeNotification];
-  }, [notificationList]);
+  }, [safeNotificationList]);
 
   //------Effects----------
   useEffect(() => {
