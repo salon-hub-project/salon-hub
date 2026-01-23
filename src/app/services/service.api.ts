@@ -5,7 +5,7 @@ import { showToast } from "../components/ui/toast";
 export interface CreateServicePayload {
   serviceName: string;
   category: string;
-  duration: string; // e.g., "45 minutes"
+  duration: number; // e.g., "45 minutes"
   price: number;
   isActive: boolean;
   markAsPopularService: boolean;
@@ -24,7 +24,7 @@ export interface ServiceResponse {
   _id: string;
   serviceName: string;
   category: string;
-  duration: string;
+  duration: number;
   price: number;
   isActive: boolean;
   markAsPopularService: boolean;

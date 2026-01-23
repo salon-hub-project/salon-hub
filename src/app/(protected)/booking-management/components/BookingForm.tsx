@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Formik, Form, useFormikContext } from "formik";
 import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
 import Icon from "../../../components/AppIcon";
 import Button from "../../../components/ui/Button";
 import Input from "../../../components/ui/Input";
@@ -148,6 +149,9 @@ const BookingForm = ({
   onSuccess,
   isLoading = false,
 }: BookingFormProps) => {
+  // Get salon timings from Redux
+  const timings = useSelector((state: any) => state.profile.timings);
+
   // State for available staff, initialized with the passed staff list
   const [availableStaff, setAvailableStaff] = useState<Staff[]>(staff);
 
@@ -180,21 +184,24 @@ const BookingForm = ({
       label: m.name,
     }));
 
-  const timeSlots = Array.from({ length: 13 }, (_, i) => {
-    const hour24 = i + 9;
-    const hour = hour24.toString().padStart(2, "0");
-
+  const timeSlots = Array.from({ length: 24 }, (_, i) => {
+    const hour = i.toString().padStart(2, "0");
     return [
-      {
-        value: `${hour}:00`, // 24-hour (API safe)
-        label: `${hour}:00`, // 12-hour UI
-      },
-      {
-        value: `${hour}:30`,
-        label: `${hour}:30`,
-      },
+      { value: `${hour}:00`, label: `${hour}:00` },
+      { value: `${hour}:30`, label: `${hour}:30` },
     ];
-  }).flat();
+  })
+    .flat()
+    .filter((slot) => {
+      if (!timings?.openingTime || !timings?.closingTime) {
+        // Fallback if timings not loaded yet: 09:00 - 20:00
+        const [h] = slot.value.split(":").map(Number);
+        return h >= 9 && h <= 20;
+      }
+      return (
+        slot.value >= timings.openingTime && slot.value < timings.closingTime
+      );
+    });
 
   const handleSubmit = async (values: any, { resetForm }: any) => {
     try {
@@ -256,6 +263,23 @@ const BookingForm = ({
           onSubmit={handleSubmit}
         >
           {({ values, errors, touched, setFieldValue }) => {
+            const selectedDayIndex = values.date.getDay();
+            const isWorkingDay =
+              timings?.workingDays?.includes(selectedDayIndex) ?? true;
+            const dateError = !isWorkingDay
+              ? "The salon is closed on this day. Please select another date."
+              : undefined;
+
+            const isWithinHours =
+              !values.startTime ||
+              !timings?.openingTime ||
+              !timings?.closingTime ||
+              (values.startTime >= timings.openingTime &&
+                values.startTime < timings.closingTime);
+            const timeError = !isWithinHours
+              ? "The salon is closed at this time. Please select another time."
+              : undefined;
+
             return (
               <Form className="flex-1 overflow-y-auto p-6 space-y-6">
                 <StaffFetcher
@@ -324,14 +348,23 @@ const BookingForm = ({
                 />
 
                 {/* Date */}
-                <Input
-                  type="date"
-                  label="Date"
-                  value={values.date.toISOString().split("T")[0]}
-                  onChange={(e) =>
-                    setFieldValue("date", new Date(e.target.value))
-                  }
-                />
+                <div className="space-y-1">
+                  <Input
+                    type="date"
+                    label="Date"
+                    value={values.date.toISOString().split("T")[0]}
+                    onChange={(e) =>
+                      setFieldValue("date", new Date(e.target.value))
+                    }
+                    error={dateError}
+                  />
+                  {dateError && (
+                    <p className="text-xs text-destructive font-medium px-1">
+                      {/* Already shown by Input component if it handles error prop, 
+                          but let's be sure since the user said it shows 'we are closed today' */}
+                    </p>
+                  )}
+                </div>
 
                 {/* Time */}
                 <Select
@@ -341,7 +374,7 @@ const BookingForm = ({
                   value={values.startTime}
                   searchable
                   onChange={(v) => setFieldValue("startTime", v)}
-                  error={touched.startTime ? errors.startTime : undefined}
+                  error={touched.startTime ? errors.startTime : timeError}
                 />
 
                 {/* Staff */}
@@ -380,6 +413,7 @@ const BookingForm = ({
                     variant="default"
                     fullWidth
                     loading={isLoading}
+                    disabled={!!dateError || !!timeError}
                   >
                     Create Booking
                   </Button>

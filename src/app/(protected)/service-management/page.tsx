@@ -58,31 +58,30 @@ const ServiceManagement = () => {
   const [isMobileView, setIsMobileView] = useState(false);
 
   // Helper function to convert duration string to number (e.g., "45 minutes" -> 45)
-  const parseDuration = (duration: string): number => {
+  // const parseDuration = (duration: string): number => {
+  //   const match = duration.match(/(\d+)/);
+  //   return match ? parseInt(match[1], 10) : 0;
+  // };
+  const parseDuration = (duration: string | number): number => {
+  // ✅ new backend format
+  if (typeof duration === "number") {
+    return duration;
+  }
+
+  // ✅ old backend format (safety / backward compatibility)
+  if (typeof duration === "string") {
     const match = duration.match(/(\d+)/);
     return match ? parseInt(match[1], 10) : 0;
-  };
+  }
+
+  return 0;
+};
+
 
   useEffect(() => {
     setPage(1);
   }, [filters]);
 
-  // Helper function to convert number to duration string matching backend format
-  const formatDuration = (duration: number): string => {
-    // Map duration values to backend expected format
-    const durationMap: Record<number, string> = {
-      15: "15 minutes",
-      30: "30 minutes",
-      45: "45 minutes",
-      60: "1 hour",
-      90: "1.5 hours",
-      120: "2 hours",
-      180: "3 hours",
-    };
-
-    // Return mapped value if exists, otherwise format as minutes
-    return durationMap[duration] || `${duration} minutes`;
-  };
 
   // Helper function to get category ID from category name
   const getCategoryIdByName = (categoryName: string): string => {
@@ -357,7 +356,7 @@ const ServiceManagement = () => {
       const payload = {
         serviceName: data.name,
         category: categoryId,
-        duration: formatDuration(data.duration),
+        duration: data.duration,
         price: data.price,
         isActive: true,
         markAsPopularService: data.isPopular,
@@ -384,7 +383,7 @@ const ServiceManagement = () => {
       const payload = {
         serviceName: data.name,
         category: categoryId,
-        duration: formatDuration(data.duration),
+        duration: data.duration,
         price: data.price,
         isActive: data.isActive ?? editingService.isActive,
         markAsPopularService: data.isPopular,
