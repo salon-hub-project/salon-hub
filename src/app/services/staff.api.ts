@@ -128,5 +128,20 @@ export const staffApi = {
             });
         }
     },
+    updateStaffStatus: async(staffId: string, isActive: boolean) => {
+        try{
+            const res= await api.post(`/staff/updateactivestatus/${staffId}`, {isActive});
+            showToast({
+                message: res?.data?.message || "Status updated",
+                status: "success"
+            })
+            return res.data;
+        }catch(error: any){
+            showToast({
+                message: error?.response?.data?.message || "Failed to update status",
+                status: "error"
+            })
+        }
+    }
 
 };

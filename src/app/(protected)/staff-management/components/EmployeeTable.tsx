@@ -4,6 +4,7 @@ import Icon from "../../../components/AppIcon";
 import Button from "../../../components/ui/Button";
 import { Employee, SortField, SortOrder } from "../types";
 import EmployeeAvatar from "../types/EmployeeAvatar";
+import { staffApi } from "@/app/services/staff.api";
 
 interface Role {
   _id: string;
@@ -14,7 +15,7 @@ interface EmployeeTableProps {
   employees: Employee[];
   roles: Role[]; // ✅ ONLY ADDITION
   onEdit: (employee: Employee) => void;
-  onToggleStatus: (employeeId: string) => void;
+  onToggleStatus: (employeeId: string, isActive?: boolean) => void;
   onViewDetails: (employee: Employee) => void;
   onDelete: (id: string) => void;
 }
@@ -29,6 +30,7 @@ const EmployeeTable = ({
 }: EmployeeTableProps) => {
   const [sortField, setSortField] = useState<SortField>("name");
   const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
+  const [statusUpdate, setStatusUpdate] = useState(true);
 
   // ✅ ROLE ID → ROLE NAME MAP
   const roleMap = useMemo(() => {
@@ -174,20 +176,28 @@ const EmployeeTable = ({
             return (
               <tr
                 key={employee.id}
-                onClick={() => onViewDetails(employee)}
-                className="hover:bg-muted/30 cursor-pointer"
+                className={`cursor-pointer transition-all
+    ${!employee.isActive ? "opacity-50 grayscale" : "hover:bg-muted/30"}
+  `}
               >
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
-                    <EmployeeAvatar employee={employee} onViewDetails={onViewDetails} />
+                    <EmployeeAvatar
+                      employee={employee}
+                      onViewDetails={onViewDetails}
+                      onClick={() => onViewDetails(employee)}
+                    />
                     <div>
                       <div className="text-sm font-medium">{employee.name}</div>
                       <div className="text-xs text-muted-foreground">
                         Joined{" "}
-                        {new Date(employee.joinDate).toLocaleDateString("en-US", {
-                          month: "short",
-                          year: "numeric",
-                        })}
+                        {new Date(employee.joinDate).toLocaleDateString(
+                          "en-US",
+                          {
+                            month: "short",
+                            year: "numeric",
+                          },
+                        )}
                       </div>
                     </div>
                   </div>
@@ -196,7 +206,7 @@ const EmployeeTable = ({
                 <td className="px-6 py-4">
                   <span
                     className={`px-2 py-1 rounded-md text-xs font-medium ${getRoleColor(
-                      roleName || ""
+                      roleName || "",
                     )}`}
                   >
                     {roleName || "N/A"}
@@ -224,15 +234,51 @@ const EmployeeTable = ({
                 </td>
 
                 <td className="px-6 py-4">
-                  {employee.status === "active" ? "Active" : "Inactive"}
+                  <span
+                    className={`text-sm font-medium ${
+                      employee.isActive ? "text-green-600" : "text-red-500"
+                    }`}
+                  >
+                    {employee.status === "active" ? "Active" : "Inactive"}
+                  </span>
                 </td>
 
                 <td className="px-6 py-4 text-right">
                   <div className="flex justify-end gap-2">
-                    <button onClick={(e) => { e.stopPropagation(); onEdit(employee); }}>
+                    <select
+                      value={employee.isActive ? "active" : "inactive"}
+                      onChange={async (e) => {
+                        e.stopPropagation();
+                        const newStatus = e.target.value === "active";
+
+                        await staffApi.updateStaffStatus(
+                          employee.id,
+                          newStatus,
+                        );
+                        onToggleStatus(employee.id, newStatus);
+                      }}
+                      className="border rounded-md px-2 py-1 text-sm bg-background"
+                    >
+                      <option value="active">Active</option>
+                      <option value="inactive">Inactive</option>
+                    </select>
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEdit(employee);
+                      }}
+                      disabled= {!employee.isActive}
+                    >
                       <Icon name="Edit" size={16} />
                     </button>
-                    <button onClick={(e) => { e.stopPropagation(); onDelete(employee.id); }}>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(employee.id);
+                      }}
+                      disabled= {!employee.isActive}
+                    >
                       <Icon name="Trash" size={16} />
                     </button>
                   </div>

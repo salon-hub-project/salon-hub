@@ -139,7 +139,7 @@ const ComboPreviewModal: React.FC<ComboPreviewModalProps> = ({
               </p>
             </div>
 
-            <div className="p-4 bg-muted/50 rounded-lg">
+            {/* <div className="p-4 bg-muted/50 rounded-lg">
               <div className="flex items-center gap-2 mb-1">
                 <Icon name="Percent" size={16} className="text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">Staff Commission</span>
@@ -147,18 +147,18 @@ const ComboPreviewModal: React.FC<ComboPreviewModalProps> = ({
               <p className="font-medium text-foreground">
                 {combo.staffCommissionRate}%
               </p>
-            </div>
+            </div> */}
           </div>
 
           {/* Performance Stats */}
           <div className="grid grid-cols-2 gap-4 mb-6 p-4 bg-primary/5 rounded-lg">
-            <div>
+            {/* <div>
               <div className="flex items-center gap-2 mb-1">
                 <Icon name="TrendingUp" size={16} className="text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">Total Bookings</span>
               </div>
-              <p className="text-2xl font-bold text-foreground">{combo.popularity}</p>
-            </div>
+               <p className="text-2xl font-bold text-foreground">{combo.popularity}</p> 
+            </div> */}
 
             <div>
               <div className="flex items-center gap-2 mb-1">

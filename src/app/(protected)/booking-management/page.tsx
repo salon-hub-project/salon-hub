@@ -94,7 +94,7 @@ const BookingManagement = () => {
         const services = Array.isArray(b.services) ? b.services : [];
         const singleService = b.serviceId;
 
-        let serviceName = "N/A";
+        let serviceName = "";
         let serviceId = "";
         let serviceCategory = "General";
         let serviceDuration = 30;
@@ -444,11 +444,32 @@ const BookingManagement = () => {
     setViewMode("day");
   };
 
-  const convertDuration = (durationString: string) => {
-    if (!durationString) return 30;
-    const num = parseInt(durationString);
-    if (durationString.includes("hour")) return num * 60;
-    return num;
+  // const convertDuration = (durationString: string) => {
+  //   if (!durationString) return 30;
+  //   const num = parseInt(durationString);
+  //   if (durationString.includes("hour")) return num * 60;
+  //   return num;
+  // };
+
+  const convertDuration = (duration: string | number | undefined): number => {
+    if (!duration) return 30;
+
+    // ✅ If backend already sent number (minutes)
+    if (typeof duration === "number") {
+      return duration;
+    }
+
+    // ✅ Handle string cases
+    const lower = duration.toLowerCase();
+
+    const num = parseInt(lower, 10);
+    if (isNaN(num)) return 30;
+
+    if (lower.includes("hour")) {
+      return num * 60;
+    }
+
+    return num; // assume minutes
   };
 
   const handleBookingClick = async (bookingId: string) => {

@@ -70,11 +70,24 @@ const StaffManagement = () => {
     setIsDetailsOpen(false);
   };
 
-  const handleToggleStatus = (employeeId: string) => {
+  // const handleToggleStatus = (employeeId: string) => {
+  //   setEmployees((prev) =>
+  //     prev.map((emp) =>
+  //       emp.id === employeeId
+  //         ? { ...emp, status: emp.status === "active" ? "inactive" : "active" }
+  //         : emp,
+  //     ),
+  //   );
+  // };
+  const handleToggleStatus = (id: string, isActive = false) => {
     setEmployees((prev) =>
       prev.map((emp) =>
-        emp.id === employeeId
-          ? { ...emp, status: emp.status === "active" ? "inactive" : "active" }
+        emp.id === id
+          ? {
+              ...emp,
+              isActive,
+              status: isActive ? "active" : "inactive",
+            }
           : emp,
       ),
     );
@@ -113,6 +126,7 @@ const StaffManagement = () => {
         role: emp.role,
         phone: emp.userId?.phoneNumber ?? "",
         email: emp.userId?.email ?? "",
+        isActive: emp.isActive ?? emp.status === "active",
         status: emp.isActive ? "active" : "inactive",
         staffImage: emp.staffImage || "No image found",
         joinDate: emp.createdAt,
@@ -258,7 +272,7 @@ const StaffManagement = () => {
   };
 
   const activeEmployees = employees.filter(
-    (emp) => emp.status === "active",
+    (emp) => emp.isActive,
   ).length;
   const totalRevenue = employees.reduce(
     (sum, emp) => sum + emp.performanceMetrics.revenueGenerated,
@@ -282,18 +296,16 @@ const StaffManagement = () => {
               Manage employees and track performance
             </p>
           </div>
-         
-           
-            <Button
-              variant="default"
-              iconName="UserPlus"
-              iconPosition="left"
-              onClick={handleAddEmployee}
-              className="w-full sm:w-auto order-1 sm:order-2"
-            >
-              Add New Employee
-            </Button>
-         
+
+          <Button
+            variant="default"
+            iconName="UserPlus"
+            iconPosition="left"
+            onClick={handleAddEmployee}
+            className="w-full sm:w-auto order-1 sm:order-2"
+          >
+            Add New Employee
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -326,44 +338,46 @@ const StaffManagement = () => {
           </div>
 
           {/* <div className="bg-card rounded-lg border border-border p-6"> */}
-            {/* <div className="flex items-center justify-between"> */}
-              {/* <div> */}
-                {/* <p className="text-sm text-muted-foreground">Total Revenue</p>
+          {/* <div className="flex items-center justify-between"> */}
+          {/* <div> */}
+          {/* <p className="text-sm text-muted-foreground">Total Revenue</p>
                 <p className="text-3xl font-bold text-foreground mt-2">
                   INR {totalRevenue.toLocaleString()}
                 </p> */}
-              {/* </div> */}
-              {/* <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
+          {/* </div> */}
+          {/* <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
                 <Icon name="IndianRupee" size={24} className="text-accent" />
               </div> */}
-            {/* </div> */}
+          {/* </div> */}
           {/* </div> */}
         </div>
-         <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-        <RolesManager
-          roles={roles}
-          onAddRole={(name) => {
-            setRoles((prev) => [...prev, { _id: crypto.randomUUID(), name }]);
-          }}
-          onUpdateRole={(id, name) => {
-            setRoles((prev) =>
-              prev.map((role) => (role._id === id ? { ...role, name } : role)),
-            );
-          }}
-          onDeleteRole={(id) => {
-            setRoles((prev) => prev.filter((role) => role._id !== id));
-          }}
-        />
-         <Button
-              variant="outline"
-              iconName="RotateCcw"
-              iconPosition="left"
-              onClick={() => setResetTargetModalOpen(true)}
-              className="w-full sm:w-auto order-2 sm:order-1"
-            >
-              Reset Target
-            </Button>
-         </div>
+        <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+          <RolesManager
+            roles={roles}
+            onAddRole={(name) => {
+              setRoles((prev) => [...prev, { _id: crypto.randomUUID(), name }]);
+            }}
+            onUpdateRole={(id, name) => {
+              setRoles((prev) =>
+                prev.map((role) =>
+                  role._id === id ? { ...role, name } : role,
+                ),
+              );
+            }}
+            onDeleteRole={(id) => {
+              setRoles((prev) => prev.filter((role) => role._id !== id));
+            }}
+          />
+          <Button
+            variant="outline"
+            iconName="RotateCcw"
+            iconPosition="left"
+            onClick={() => setResetTargetModalOpen(true)}
+            className="w-full sm:w-auto order-2 sm:order-1"
+          >
+            Reset Target
+          </Button>
+        </div>
 
         <div className="bg-card rounded-lg border border-border p-4 lg:p-6">
           <div className="flex flex-col lg:flex-row lg:items-center gap-4 mb-6">

@@ -89,9 +89,13 @@ const Header = ({
   //   return [...notificationList, welcomeNotification];
   // }, [notificationList]);
 
+  const safeNotificationList: Notification[] = Array.isArray(notificationList)
+  ? notificationList
+  : [];
+
   const mergedNotifications = useMemo(() => {
     // Remove welcome if backend accidentally sends it
-    const realNotifications = notificationList.filter(
+    const realNotifications = safeNotificationList.filter(
       (n) => n.id !== "welcome",
     );
 
@@ -102,7 +106,7 @@ const Header = ({
 
     // Otherwise → show welcome
     return [...realNotifications, welcomeNotification];
-  }, [notificationList]);
+  }, [safeNotificationList]);
 
   //------Effects----------
   useEffect(() => {
@@ -219,7 +223,7 @@ const Header = ({
     onSalonSwitch?.(salonId);
   };
 
-  const realNotificationCount = notificationList.filter(
+  const realNotificationCount = safeNotificationList.filter(
   (n) => n.id !== "welcome"
 ).length;
 

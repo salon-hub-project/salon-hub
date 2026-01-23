@@ -19,8 +19,46 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
 
   //Show notification count
   useEffect(() => {
-    fetchNotifications();
-  }, []);
+    if (!authUser?.role) return;
+
+    const userRole = Array.isArray(authUser.role)
+      ? authUser.role[0]
+      : authUser.role;
+
+    if (userRole === "OWNER") {
+      fetchNotifications();
+    }
+
+    if (userRole === "STAFF") {
+      fetchStaffNotifications();
+    }
+  }, [authUser]);
+
+  const fetchStaffNotifications = async () => {
+    try {
+      const res = await notificationApi.getAllStaffNotifications();
+      if (!res?.data?.appointments) return;
+
+      const staffNotifications: Notification[] = res.data.appointments.map(
+        (appt: any) => ({
+          id: appt._id,
+          type: "info",
+          title: "New Appointment",
+          message: `${
+            appt.customerId?.fullName || "Customer"
+          } booked an appointment at ${appt.appointmentTime}`,
+          timestamp: new Date(appt.createdAt),
+          read: false,
+          path: `/appointment?appointmentId=${appt._id}`,
+        }),
+      );
+
+      setNotifications(staffNotifications);
+      setNotificationCount(staffNotifications.length);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const fetchNotifications = async () => {
     try {

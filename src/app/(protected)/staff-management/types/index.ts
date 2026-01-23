@@ -9,6 +9,7 @@ export interface Employee {
   email: string;
   avatar?: string;
   status: "active" | "inactive";
+  isActive?: boolean
   joinDate: string;
   assignedServices: string[];
   staffImage: File | string | null;
@@ -83,6 +84,7 @@ export interface EmployeeApiResponse {
   commissionRate: number;
   assignedServices: { serviceName: string }[];
   workingDays: string[];
+  status?: "active" | "inActive";
   isActive: boolean;
   createdAt: string;
   rating: number | null;

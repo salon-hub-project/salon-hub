@@ -1,4 +1,3 @@
-import { showToast } from "../components/ui/toast";
 import api from "./axios";
 
 export const notificationApi = {
@@ -9,6 +8,17 @@ export const notificationApi = {
         }
         catch(error: any){
            console.log(error);
+        }
+    },
+
+    getAllStaffNotifications: async() => {
+        try{
+            const res = await api.get('/appointment/staffnotifications');
+            console.log(res.data);
+            return res.data;
+        }
+        catch(error: any){
+            console.log(error);
         }
     }
 }

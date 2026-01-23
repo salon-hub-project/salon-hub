@@ -52,9 +52,9 @@ const ComboTable: React.FC<ComboTableProps> = ({
               <th className="px-4 py-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-4 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              {/* <th className="px-4 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 Popularity
-              </th>
+              </th> */}
               <th className="px-4 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 Actions
               </th>
@@ -131,7 +131,7 @@ const ComboTable: React.FC<ComboTableProps> = ({
                       </span>
                     )}
                   </td>
-                  <td className="px-4 py-4 text-right">
+                  {/* <td className="px-4 py-4 text-right">
                     <div className="flex flex-col items-end">
                       <span className="text-sm font-medium text-foreground">
                         {combo.popularity} bookings
@@ -140,7 +140,7 @@ const ComboTable: React.FC<ComboTableProps> = ({
                         INR {combo.revenueGenerated.toFixed(0)} 
                       </span>
                     </div>
-                  </td>
+                  </td> */}
                   <td className="px-4 py-4">
                     <div className="flex items-center justify-end gap-2">
                       <button

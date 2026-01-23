@@ -248,12 +248,12 @@ const EmployeeDetailsPanel = ({
 
                   <div>
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm text-muted-foreground">
+                      {/* <span className="text-sm text-muted-foreground">
                         Booking Completion
-                      </span>
-                      <span className="text-sm font-medium text-foreground">
+                      </span> */}
+                      {/* <span className="text-sm font-medium text-foreground">
                         {employee.performanceMetrics.bookingCompletionRate}%
-                      </span>
+                      </span> */}
                     </div>
                     <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
                       <div
