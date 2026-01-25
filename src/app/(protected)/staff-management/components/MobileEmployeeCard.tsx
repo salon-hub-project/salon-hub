@@ -98,6 +98,19 @@ const MobileEmployeeCard = ({
           />
           <span className="truncate">{employee.email}</span>
         </div>
+        <div className="flex items-center gap-2 text-sm text-foreground">
+          <Icon
+            name="Calendar"
+            size={14}
+            className="text-muted-foreground flex-shrink-0"
+          />
+          <span className="truncate">
+            {Object.entries(employee.availability)
+              .filter(([_, isWorking]) => isWorking)
+              .map(([day]) => day.slice(0, 3))
+              .join(", ")}
+          </span>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
