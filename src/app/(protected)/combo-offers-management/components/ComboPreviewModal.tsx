@@ -136,7 +136,8 @@ const ComboPreviewModal: React.FC<ComboPreviewModalProps> = ({
                 <span className="text-sm text-muted-foreground">Eligibility</span>
               </div>
               <p className="font-medium text-foreground">
-                {eligibilityLabel[combo.customerEligibility as keyof typeof eligibilityLabel] || "Specific Group (" + combo.customerEligibility.substring(0, 8) + "...) " }
+                {combo.customerEligibility}
+                {/* {eligibilityLabel[combo.customerEligibility as keyof typeof eligibilityLabel] || "Specific Group (" + combo.customerEligibility.substring(0, 8) + "...) " } */}
               </p>
             </div>
 
