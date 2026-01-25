@@ -22,6 +22,9 @@ import Loader from "@/app/components/Loader";
 import CustomerTagManager from "./components/CustomerTagsManager";
 import { customerTagApi } from "@/app/services/tags.api";
 import ConfirmModal from "@/app/components/ui/ConfirmModal";
+import { showToast } from "@/app/components/ui/toast";
+import { comboApi } from "@/app/services/combo.api";
+import { ComboOffer } from "../combo-offers-management/types";
 
 const CustomerDatabase = () => {
   const router = useRouter();
@@ -54,6 +57,10 @@ const CustomerDatabase = () => {
   });
   const [customerLoading, setCustomerLoading] = useState(false);
   const [customerTags, setCustomerTags] = useState<CustomerTagItem[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isComboModalOpen, setIsComboModalOpen] = useState(false);
+  const [availableCombos, setAvailableCombos] = useState<ComboOffer[]>([]);
+  const [sendingMessages, setSendingMessages] = useState(false);
   const fetchingRef = useRef(false);
   const mountedRef = useRef(true);
 
@@ -352,6 +359,45 @@ const CustomerDatabase = () => {
     );
   };
 
+  const openComboModal = async () => {
+    try {
+      const res = await comboApi.getAllComboOffers({ limit: 100 });
+      const mappedCombos = (res.data || []).map((combo: any) => ({
+        ...combo,
+        id: combo._id || combo.id,
+        originalPrice: combo.actualPrice,
+        discountedPrice: combo.discountedPrice,
+      }));
+      setAvailableCombos(mappedCombos);
+      setIsComboModalOpen(true);
+    } catch (error) {
+      console.error("Failed to fetch combos", error);
+    }
+  };
+
+  const handleSendBulkCombo = async (comboId: string) => {
+    try {
+      setSendingMessages(true);
+      const numbers = customers
+        .filter((c) => selectedIds.includes(c.id))
+        .map((c) => c.phone)
+        .filter(Boolean);
+
+      if (numbers.length === 0) {
+        showToast({ message: "No phone numbers found for selected customers", status: "error" });
+        return;
+      }
+
+      await comboApi.sendComboMessage(comboId, numbers);
+      setIsComboModalOpen(false);
+      setSelectedIds([]);
+    } catch (error) {
+      console.error("Failed to send bulk combo", error);
+    } finally {
+      setSendingMessages(false);
+    }
+  };
+
   return (
     <>
       <div className="p-4 lg:p-6 space-y-6">
@@ -364,14 +410,26 @@ const CustomerDatabase = () => {
               Manage customer relationships and service history
             </p>
           </div>
-          <Button
-            variant="default"
-            iconName="UserPlus"
-            iconPosition="left"
-            onClick={handleAddCustomer}
-          >
-            Add Customer
-          </Button>
+          <div className="flex items-center gap-3">
+            {selectedIds.length > 0 && (
+              <Button
+                variant="outline"
+                iconName="Send"
+                onClick={openComboModal}
+                className="bg-primary/10 border-primary/20 text-primary hover:bg-primary/20"
+              >
+                Send Combo Offer ({selectedIds.length})
+              </Button>
+            )}
+            <Button
+              variant="default"
+              iconName="UserPlus"
+              iconPosition="left"
+              onClick={handleAddCustomer}
+            >
+              Add Customer
+            </Button>
+          </div>
         </div>
 
         {/* <CustomerFilters
@@ -426,6 +484,14 @@ const CustomerDatabase = () => {
                     key={customer.id}
                     customer={customer}
                     onSelect={() => handleCustomerSelect(customer.id)}
+                    isSelected={selectedIds.includes(customer.id)}
+                    onToggle={(id) => {
+                      setSelectedIds((prev) =>
+                        prev.includes(id)
+                          ? prev.filter((item) => item !== id)
+                          : [...prev, id],
+                      );
+                    }}
                   />
                 ))}
               </div>
@@ -438,6 +504,8 @@ const CustomerDatabase = () => {
                 onEditCustomer={handleEditCustomer}
                 selectedCustomerId={selectedCustomer?.id || null}
                 onCustomerDeleted={fetchCustomers}
+                selectedCustomers={selectedIds}
+                onSelectionChange={setSelectedIds}
               />
             )}
 
@@ -484,6 +552,59 @@ const CustomerDatabase = () => {
           }}
           onSuccess={handleSaveCustomer}
         />
+      )}
+      {isComboModalOpen && (
+        <div className="fixed inset-0 bg-black/50 z-[110] flex items-center justify-center p-4">
+          <div className="bg-card rounded-lg shadow-xl max-w-lg w-full max-h-[80vh] flex flex-col">
+            <div className="flex items-center justify-between p-6 border-b border-border">
+              <h2 className="text-xl font-semibold text-foreground">Select Combo Offer</h2>
+              <button
+                onClick={() => setIsComboModalOpen(false)}
+                className="p-2 rounded-md hover:bg-muted transition-smooth"
+              >
+                <Icon name="X" size={20} className="text-muted-foreground" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-6 space-y-3">
+              {availableCombos.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">No active combo offers found.</p>
+              ) : (
+                availableCombos.map((combo) => (
+                  <button
+                    key={combo.id}
+                    onClick={() => handleSendBulkCombo(combo.id)}
+                    disabled={sendingMessages}
+                    className="w-full p-4 rounded-lg border border-border hover:border-primary hover:bg-primary/5 transition-smooth text-left group"
+                  >
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <div className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                          {combo.name}
+                        </div>
+                        <div className="text-sm text-muted-foreground line-clamp-1">
+                          {combo.description}
+                        </div>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <div className="text-sm font-bold text-primary">
+                          INR {combo.discountedPrice}
+                        </div>
+                        <div className="text-xs text-muted-foreground line-through">
+                          INR {combo.originalPrice}
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
+            <div className="p-6 border-t border-border flex justify-end">
+              <Button variant="ghost" onClick={() => setIsComboModalOpen(false)}>
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );

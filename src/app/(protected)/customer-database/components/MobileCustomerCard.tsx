@@ -5,9 +5,16 @@ import { Customer, CustomerTag } from '../types';
 interface MobileCustomerCardProps {
   customer: Customer;
   onSelect: (customer: Customer) => void;
+  isSelected: boolean;
+  onToggle: (id: string) => void;
 }
 
-const MobileCustomerCard = ({ customer, onSelect }: MobileCustomerCardProps) => {
+const MobileCustomerCard = ({
+  customer,
+  onSelect,
+  isSelected,
+  onToggle,
+}: MobileCustomerCardProps) => {
   const getTagColor = (tag: CustomerTag): string => {
     const colors: Record<CustomerTag, string> = {
       VIP: 'bg-accent text-accent-foreground',
@@ -30,9 +37,25 @@ const MobileCustomerCard = ({ customer, onSelect }: MobileCustomerCardProps) => 
   return (
     <div
       onClick={() => onSelect(customer)}
-      className="bg-card rounded-lg border border-border p-4 hover:bg-muted/30 transition-smooth cursor-pointer"
+      className={`bg-card rounded-lg border p-4 hover:bg-muted/30 transition-smooth cursor-pointer ${
+        isSelected ? 'border-primary ring-1 ring-primary' : 'border-border'
+      }`}
     >
       <div className="flex items-start gap-3 mb-3">
+        <div 
+          className="flex items-center self-center"
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={isSelected}
+            onChange={() => onToggle(customer.id)}
+            className="w-4 h-4 rounded border-border text-primary focus:ring-primary cursor-pointer"
+          />
+        </div>
+
         <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex-shrink-0">
           {customer.avatar ? (
             <Image

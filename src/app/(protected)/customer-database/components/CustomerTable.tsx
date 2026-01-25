@@ -5,6 +5,7 @@ import Image from "../../../components/AppImage";
 import { Customer, CustomerTag } from "../types";
 import { customerApi } from "@/app/services/customer.api";
 import ConfirmModal from "@/app/components/ui/ConfirmModal";
+import { showToast } from "@/app/components/ui/toast";
 
 interface CustomerTableProps {
   customers: Customer[];
@@ -12,6 +13,8 @@ interface CustomerTableProps {
   onEditCustomer: (customer: Customer) => void;
   selectedCustomerId: string | null;
   onCustomerDeleted: () => void;
+  selectedCustomers: string[];
+  onSelectionChange: (selectedIds: string[]) => void;
 }
 
 const CustomerTable = ({
@@ -20,6 +23,8 @@ const CustomerTable = ({
   onEditCustomer,
   selectedCustomerId,
   onCustomerDeleted,
+  selectedCustomers,
+  onSelectionChange,
 }: CustomerTableProps) => {
   const [sortBy, setSortBy] = useState<
     "name" | "lastVisit" | "totalVisits" | "totalSpent"
@@ -96,6 +101,44 @@ const CustomerTable = ({
     }
   };
 
+  const toggleCustomerSelection = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (selectedCustomers.includes(id)) {
+      onSelectionChange(selectedCustomers.filter((sid) => sid !== id));
+    } else {
+      if (selectedCustomers.length >= 10) {
+        showToast({
+          message: "You can select a maximum of 10 customers.",
+          status: "info",
+        });
+        return;
+      }
+      onSelectionChange([...selectedCustomers, id]);
+    }
+  };
+
+  const isAllSelected =
+    customers.length > 0 &&
+    customers.every((c) => selectedCustomers.includes(c.id));
+
+  const toggleSelectAll = () => {
+    if (isAllSelected) {
+      onSelectionChange([]);
+    } else {
+      const newSelection = [...selectedCustomers];
+      for (const customer of customers) {
+        if (!newSelection.includes(customer.id)) {
+          if (newSelection.length < 10) {
+            newSelection.push(customer.id);
+          } else {
+            break;
+          }
+        }
+      }
+      onSelectionChange(newSelection);
+    }
+  };
+
   const SortIcon = ({ column }: { column: typeof sortBy }) => {
     if (sortBy !== column) {
       return (
@@ -119,6 +162,14 @@ const CustomerTable = ({
         <table className="w-full">
           <thead className="bg-muted/50 border-b border-border">
             <tr>
+              <th className="px-6 py-4 text-left w-10">
+                {/* <input
+                  type="checkbox"
+                  checked={isAllSelected}
+                  onChange={toggleSelectAll}
+                  className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                /> */}
+              </th>
               <th className="px-6 py-4 text-left">
                 <button
                   onClick={() => handleSort("name")}
@@ -179,8 +230,17 @@ const CustomerTable = ({
                 onClick={() => onCustomerSelect(customer)}
                 className={`hover:bg-muted/30 transition-smooth cursor-pointer ${
                   selectedCustomerId === customer.id ? "bg-muted/50" : ""
-                }`}
+                } ${selectedCustomers.includes(customer.id) ? "bg-primary/5" : ""}`}
               >
+                <td className="px-6 py-4">
+                  <input
+                    type="checkbox"
+                    checked={selectedCustomers.includes(customer.id)}
+                    onChange={() => {}} // Controlled by row click or checkbox click
+                    onClick={(e) => toggleCustomerSelection(customer.id, e)}
+                    className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                  />
+                </td>
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full overflow-hidden bg-muted flex-shrink-0">

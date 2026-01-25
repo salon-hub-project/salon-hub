@@ -88,4 +88,23 @@ export const comboApi = {
       throw error;
     }
   },
+
+  sendComboMessage: async (comboId: string, numbers: string[]) => {
+    try {
+      const res = await api.post(`/customer/sendmsg?comboId=${comboId}`, {
+        numbers,
+      });
+      showToast({
+        message: res?.data?.message || "Messages sent successfully",
+        status: "success",
+      });
+      return res.data;
+    } catch (error: any) {
+      showToast({
+        message: error?.response?.data?.message || "Failed to send messages",
+        status: "error",
+      });
+      throw error;
+    }
+  },
 };
