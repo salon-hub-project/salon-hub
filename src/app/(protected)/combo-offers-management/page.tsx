@@ -113,10 +113,10 @@ const ComboOffersManagement = () => {
           isActive: true, // API doesn't seem to return isActive for combo, defaulting to true
           validFrom: new Date(c.validFrom),
           validUntil: new Date(c.validTill), // note naming difference
-          customerEligibility: 
-            typeof c.customerEligibility === "object" && c.customerEligibility !== null
-              ? c.customerEligibility._id
-              : c.customerEligibility || "all",
+          customerEligibility: c.customerEligibility,
+            // typeof c.customerEligibility === "object" && c.customerEligibility !== null
+            //   ? c.customerEligibility._id
+            //   : c.customerEligibility || "all",
           staffCommissionRate: c.staffCommissionRate || null,
           minBookingRequirement: c.minBookingRequirement || undefined,
           popularity: 0,
@@ -239,7 +239,7 @@ const ComboOffersManagement = () => {
     const savingsPercentage =
       ((originalPrice - discountedPrice) / originalPrice) * 100;
     const savedAmount = originalPrice - discountedPrice;
-
+    console.log(data, "....")
     const payload = {
       name: data.name,
       description: data.description,
@@ -326,7 +326,7 @@ const ComboOffersManagement = () => {
         isActive: true,
         validFrom: new Date(c.validFrom),
         validUntil: new Date(c.validTill),
-        customerEligibility: "all",
+        customerEligibility: c.customerEligibility?.name,
         staffCommissionRate: 0,
         popularity: 0,
         totalBookings: 0,
