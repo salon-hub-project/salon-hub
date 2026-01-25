@@ -9,10 +9,11 @@ export interface User {
   phoneNumber?: string;
   address?: string;
   avatar?: string;
-  role?: string;
+  role?: string | string[];
   firstName?: string;
   lastName?: string;
   isVerified?: boolean;
+  accountExpiry?: string;
 }
 
 interface AuthState {

@@ -8,12 +8,14 @@ import AuthGuard from "../components/AuthGuard";
 import Sidebar from "../components/Sidebar";
 import Header, { Notification } from "../components/Header";
 import { notificationApi } from "../services/notification.api";
+import AccountExpiryModal from "../components/AccountExpiryModal";
 
 export default function ProtectedLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const authUser = useAppSelector((state) => state.auth.user);
   const [notificationCount, setNotificationCount] = useState(0);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [isAccountExpired, setIsAccountExpired] = useState(false);
 
   const pathname = usePathname();
 
@@ -115,10 +117,27 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
     }
   };
 
-  // 🔹 UPDATE LAST VISITED PROTECTED ROUTE
   useEffect(() => {
     localStorage.setItem("lastProtectedRoute", pathname);
   }, [pathname]);
+
+  // Account Expiry Check
+  useEffect(() => {
+    if (!authUser || !authUser.role || !authUser.accountExpiry) return;
+
+    const userRole = Array.isArray(authUser.role)
+      ? authUser.role[0]
+      : authUser.role;
+
+    if (userRole === "OWNER") {
+      const expiryDate = new Date(authUser.accountExpiry);
+      const currentDate = new Date();
+
+      if (currentDate > expiryDate) {
+        setIsAccountExpired(true);
+      }
+    }
+  }, [authUser]);
 
   const user = {
     name: authUser
@@ -144,9 +163,11 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
           onProfileClick={() => router.push("/profile")}
         />
 
-        <main className="ml-16 lg:ml-sidebar pt-header lg:pb-0">
+        <main className={`ml-16 lg:ml-sidebar pt-header lg:pb-0 ${isAccountExpired ? "blur-sm pointer-events-none" : ""}`}>
           {children}
         </main>
+
+        <AccountExpiryModal isOpen={isAccountExpired} />
       </div>
     </AuthGuard>
   );
