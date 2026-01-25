@@ -58,6 +58,7 @@ export interface Booking {
     id: string, 
     name: string
   }[];
+  amount: number;
 }
 
 export interface TimeSlot {
@@ -120,4 +121,6 @@ export interface BookingFormProps {
   onCancel: () => void;
   onSuccess: ()=> void;
   isLoading?: boolean;
+  bookingToEdit?: Booking | null;
+  changeStaffOnly?: boolean;
 }

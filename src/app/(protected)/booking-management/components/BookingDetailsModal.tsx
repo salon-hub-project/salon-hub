@@ -7,10 +7,14 @@ import Select from "../../../components/ui/Select";
 import ConfirmModal from "../../../components/ui/ConfirmModal";
 import { Booking } from "../types";
 import { useAppSelector } from "@/app/store/hooks";
+import { isStaff } from "@/app/utils/routePermissions";
+import RescheduleAppointmentModal from "./RescheduleAppointment";
 
 interface BookingDetailsModalProps {
   booking: Booking;
+  onBookingUpdate?: (updated: Partial<Booking> & { id: string }) => void;
   onClose: () => void;
+  onChangeStaff?: () => void;
   onStatusChange?: (bookingId: string, status: Booking["status"]) => void;
   onPaymentStatusChange?: (
     bookingId: string,
@@ -18,28 +22,27 @@ interface BookingDetailsModalProps {
   ) => void;
   onDelete?: (bookingId: string) => void;
   handleStatusUpdate?: () => void;
+  changeStaffOnly?: boolean;
 }
 
 const BookingDetailsModal = ({
   booking,
   onClose,
+  onBookingUpdate,
   onStatusChange,
   onPaymentStatusChange,
   onDelete,
   handleStatusUpdate,
+  onChangeStaff,
+  changeStaffOnly,
 }: BookingDetailsModalProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const user = useAppSelector((state: any) => state.auth.user);
-  // ✅ NEW — delete confirmation modal toggle
-  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const isStaffUser = isStaff(user?.role);
 
-  // const statusOptions = [
-  //   { value: "pending", label: "Pending" },
-  //   { value: "confirmed", label: "Confirmed" },
-  //   { value: "completed", label: "Completed" },
-  //   { value: "cancelled", label: "Cancelled" },
-  // ];
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [showRescheduleModal, setShowRescheduleModal] = useState(false);
 
   const getStatusColor = (status: Booking["status"]) => {
     const colors = {
@@ -70,7 +73,7 @@ const BookingDetailsModal = ({
   return (
     <>
       {/* MAIN MODAL UI — unchanged */}
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4">
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[90] p-4">
         <div className="bg-card rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
           <div className="sticky top-0 bg-card border-b border-border p-6 flex items-center justify-between">
             <h2 className="text-xl font-semibold text-foreground">
@@ -99,7 +102,7 @@ const BookingDetailsModal = ({
                 )}
               </div>
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-foreground">
+                <h3 className="text-lg font-semibold text-foreground pt-4">
                   {booking.customerName}
                 </h3>
                 <p className="text-sm text-muted-foreground">
@@ -155,7 +158,7 @@ const BookingDetailsModal = ({
                     })}
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    {booking.startTime} - {booking.endTime}
+                    {booking.startTime} - {booking.endTime || "N/A"}
                   </div>
                 </div>
               </div>
@@ -194,7 +197,7 @@ const BookingDetailsModal = ({
               <div className="flex items-center justify-between py-3 border-b border-border">
                 <span className="text-sm text-muted-foreground">Price</span>
                 <span className="text-lg font-semibold text-foreground">
-                  INR {booking.servicePrice.toFixed(2)}
+                  INR {booking?.amount || 0}
                 </span>
               </div>
 
@@ -254,6 +257,26 @@ const BookingDetailsModal = ({
               <Button variant="outline" onClick={onClose} className="w-full">
                 Close
               </Button>
+              {!isStaffUser && (
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={onChangeStaff}
+                >
+                  {changeStaffOnly ? "Update Staff" : "Change Staff"}
+                </Button>
+              )}
+
+              {isStaffUser && booking.status === "Confirmed" && (
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => setShowRescheduleModal(true)}
+                >
+                  Reschedule Appointment
+                </Button>
+              )}
+
               {/* {
                 user?.role[0] === "STAFF" && <Button
                 variant="destructive"
@@ -293,6 +316,27 @@ const BookingDetailsModal = ({
         onCancel={() => setShowConfirmDelete(false)}
         onConfirm={confirmDelete}
       />
+
+      {showRescheduleModal && (
+        <RescheduleAppointmentModal
+          booking={{
+            id: booking.id,
+            date: booking.date,
+            startTime: booking.startTime,
+          }}
+          onClose={() => setShowRescheduleModal(false)}
+          // onSuccess={onClose}
+          onSuccess={(updated) => {
+            onBookingUpdate?.({
+              id: updated.id,
+              date: updated.date,
+              startTime: updated.startTime,
+            });
+            setShowRescheduleModal(false);
+            onClose();
+          }}
+        />
+      )}
     </>
   );
 };

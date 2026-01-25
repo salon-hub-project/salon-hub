@@ -52,16 +52,17 @@ const BookingManagement = () => {
   const [loading, setLoading] = useState(false);
   const [combo, setCombo] = useState<ComboOffer[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [changeStaffMode, setChangeStaffMode] = useState(false);
 
-  const calculateEndTime = (startTime: string, duration: number): string => {
-    const [hours, minutes] = startTime.split(":").map(Number);
-    const totalMinutes = hours * 60 + minutes + duration;
-    const endHours = Math.floor(totalMinutes / 60);
-    const endMinutes = totalMinutes % 60;
-    return `${endHours.toString().padStart(2, "0")}:${endMinutes
-      .toString()
-      .padStart(2, "0")}`;
-  };
+  // const calculateEndTime = (startTime: string, duration: number): string => {
+  //   const [hours, minutes] = startTime.split(":").map(Number);
+  //   const totalMinutes = hours * 60 + minutes + duration;
+  //   const endHours = Math.floor(totalMinutes / 60);
+  //   const endMinutes = totalMinutes % 60;
+  //   return `${endHours.toString().padStart(2, "0")}:${endMinutes
+  //     .toString()
+  //     .padStart(2, "0")}`;
+  // };
 
   const user = useSelector((state: any) => state.auth.user);
   const timings = useSelector((state: any) => state.profile.timings);
@@ -126,6 +127,7 @@ const BookingManagement = () => {
           serviceDuration = singleService?.duration || 30;
           servicePrice = singleService?.price || 0;
         }
+        const amount = typeof b.amount === "number" ? b.amount : 0;
 
         return {
           id: b._id,
@@ -144,7 +146,7 @@ const BookingManagement = () => {
 
           date: new Date(b.appointmentDate),
           startTime: b.appointmentTime,
-          endTime: calculateEndTime(b.appointmentTime, serviceDuration),
+          endTime: b.endTime || "N/A",
 
           status: b.status || "pending",
           notes: b.notes,
@@ -162,6 +164,7 @@ const BookingManagement = () => {
                 name: c.name || c.comboName,
               }))
             : [],
+          amount,
         };
       });
 
@@ -499,11 +502,7 @@ const BookingManagement = () => {
 
         date: new Date(data.appointmentDate),
         startTime: data.appointmentTime,
-        endTime: calculateEndTime(
-          data.appointmentTime,
-          convertDuration(data.services?.[0]?.duration),
-        ),
-
+        endTime: data.endTime,
         status: data.status || "pending",
         notes: data.notes,
         paymentStatus: "pending",
@@ -514,6 +513,7 @@ const BookingManagement = () => {
               name: c.name || c.comboName,
             }))
           : [],
+        amount: data.amount || 0,
       };
 
       setSelectedBooking(mappedBooking);
@@ -754,7 +754,7 @@ const BookingManagement = () => {
         </div>
       </div>
 
-      {!isStaffUser && showBookingForm && (
+      {showBookingForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4">
           <div className="max-w-2xl w-full">
             <BookingForm
@@ -764,16 +764,22 @@ const BookingManagement = () => {
               comboOffers={combo}
               selectedDate={selectedDate}
               selectedTime={selectedTime}
+              bookingToEdit={selectedBooking}
+              changeStaffOnly={changeStaffMode}
               onCancel={() => {
                 setShowBookingForm(false);
                 setSelectedDate(undefined);
                 setSelectedTime(undefined);
               }}
               onSuccess={async () => {
-                await loadBookings(); // 🔥 refresh UI
-                setShowBookingForm(false); // close modal
+                await loadBookings();
+                if (selectedBooking?.id) {
+                  await handleBookingClick(selectedBooking.id);
+                }
+                setShowBookingForm(false);
                 setSelectedDate(undefined);
                 setSelectedTime(undefined);
+                setChangeStaffMode(false);
               }}
             />
           </div>
@@ -784,7 +790,31 @@ const BookingManagement = () => {
         <BookingDetailsModal
           booking={selectedBooking}
           handleStatusUpdate={handleStatusUpdate}
-          onClose={() => setSelectedBooking(null)}
+          onClose={() => {
+            setSelectedBooking(null);
+            setChangeStaffMode(false);
+          }}
+          onChangeStaff={() => {
+            if (isStaffUser) {
+              setChangeStaffMode(false);
+            } else {
+              setChangeStaffMode(true);
+            }
+            setShowBookingForm(true);
+          }}
+          onBookingUpdate={(updated) => {
+            setBookings((prev) =>
+              prev.map((b) =>
+                b.id === updated.id
+                  ? {
+                      ...b,
+                      date: updated.date ?? b.date,
+                      startTime: updated.startTime ?? b.startTime,
+                    }
+                  : b,
+              ),
+            );
+          }}
           onStatusChange={handleStatusChange}
           onPaymentStatusChange={handlePaymentStatusChange}
           onDelete={handleDeleteBooking}

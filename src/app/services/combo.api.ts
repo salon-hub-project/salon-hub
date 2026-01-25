@@ -82,6 +82,7 @@ export const comboApi = {
   getComboOfferById: async (id: string) => {
     try {
       const res = await api.get(`/combooffer/${id}`);
+      console.log(res.data)
       return res.data;
     } catch (error: any) {
       console.error("Failed to fetch combo details", error);

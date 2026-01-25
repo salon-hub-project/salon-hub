@@ -5,12 +5,14 @@ import { ComboOffer, PerformanceMetrics } from '../types';
 interface ComboStatsProps {
   combos: ComboOffer[];
   totalCombos: number,
+  totalRevenues: number
 }
 
-const ComboStats: React.FC<ComboStatsProps> = ({ combos, totalCombos }) => {
+const ComboStats: React.FC<ComboStatsProps> = ({ combos, totalCombos, totalRevenues }) => {
+
   const calculateMetrics = (): PerformanceMetrics => {
     const activeCombos = combos.filter(c => c.isActive);
-    const totalRevenue = combos.reduce((sum, c) => sum + c.revenueGenerated, 0);
+    const totalRevenue = totalRevenues;
     const averageSavings = combos.length > 0
       ? combos.reduce((sum, c) => sum + c.savingsPercentage, 0) / combos.length
       : 0;
