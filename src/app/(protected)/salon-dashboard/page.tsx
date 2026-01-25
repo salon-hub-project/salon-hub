@@ -237,9 +237,9 @@ const SalonDashboard = () => {
     fetchAllNotifications();
 
     // Poll every 30 seconds
-    const intervalId = setInterval(fetchAllNotifications, 30000);
+    // const intervalId = setInterval(fetchAllNotifications, 30000);
 
-    return () => clearInterval(intervalId);
+    // return () => clearInterval(intervalId);
   }, [isAuthenticated]);
 
   const quickActions: QuickAction[] = [
