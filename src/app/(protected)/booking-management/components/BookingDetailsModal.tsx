@@ -8,9 +8,11 @@ import ConfirmModal from "../../../components/ui/ConfirmModal";
 import { Booking } from "../types";
 import { useAppSelector } from "@/app/store/hooks";
 import { isStaff } from "@/app/utils/routePermissions";
+import RescheduleAppointmentModal from "./RescheduleAppointment";
 
 interface BookingDetailsModalProps {
   booking: Booking;
+  onBookingUpdate?: (updated: Partial<Booking> & { id: string }) => void;
   onClose: () => void;
   onChangeStaff?: () => void;
   onStatusChange?: (bookingId: string, status: Booking["status"]) => void;
@@ -26,6 +28,7 @@ interface BookingDetailsModalProps {
 const BookingDetailsModal = ({
   booking,
   onClose,
+  onBookingUpdate,
   onStatusChange,
   onPaymentStatusChange,
   onDelete,
@@ -39,13 +42,7 @@ const BookingDetailsModal = ({
   const isStaffUser = isStaff(user?.role);
 
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
-
-  // const statusOptions = [
-  //   { value: "pending", label: "Pending" },
-  //   { value: "confirmed", label: "Confirmed" },
-  //   { value: "completed", label: "Completed" },
-  //   { value: "cancelled", label: "Cancelled" },
-  // ];
+  const [showRescheduleModal, setShowRescheduleModal] = useState(false);
 
   const getStatusColor = (status: Booking["status"]) => {
     const colors = {
@@ -266,7 +263,7 @@ const BookingDetailsModal = ({
                   className="w-full"
                   onClick={onChangeStaff}
                 >
-                  {changeStaffOnly ? "Update Staff": "Change Staff"}
+                  {changeStaffOnly ? "Update Staff" : "Change Staff"}
                 </Button>
               )}
 
@@ -274,7 +271,7 @@ const BookingDetailsModal = ({
                 <Button
                   variant="outline"
                   className="w-full"
-                  onClick={onChangeStaff}
+                  onClick={() => setShowRescheduleModal(true)}
                 >
                   Reschedule Appointment
                 </Button>
@@ -319,6 +316,27 @@ const BookingDetailsModal = ({
         onCancel={() => setShowConfirmDelete(false)}
         onConfirm={confirmDelete}
       />
+
+      {showRescheduleModal && (
+        <RescheduleAppointmentModal
+          booking={{
+            id: booking.id,
+            date: booking.date,
+            startTime: booking.startTime,
+          }}
+          onClose={() => setShowRescheduleModal(false)}
+          // onSuccess={onClose}
+          onSuccess={(updated) => {
+            onBookingUpdate?.({
+              id: updated.id,
+              date: updated.date,
+              startTime: updated.startTime,
+            });
+            setShowRescheduleModal(false);
+            onClose();
+          }}
+        />
+      )}
     </>
   );
 };

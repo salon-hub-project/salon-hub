@@ -611,15 +611,6 @@ const BookingManagement = () => {
     }
   };
 
-  //   const handleStaffReschedule = () => {
-  //   setChangeStaffMode(true);
-  //   setShowBookingForm(true);
-  // };
-  const handleRescheduleAppointment = () => {
-    setChangeStaffMode(false); // date & time mode
-    setShowBookingForm(true); // open reschedule modal
-  };
-
   return (
     <>
       <div className="p-4 lg:p-6 space-y-6">
@@ -763,7 +754,7 @@ const BookingManagement = () => {
         </div>
       </div>
 
-      {!isStaffUser && showBookingForm && (
+      {showBookingForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4">
           <div className="max-w-2xl w-full">
             <BookingForm
@@ -798,15 +789,31 @@ const BookingManagement = () => {
       {selectedBooking && (
         <BookingDetailsModal
           booking={selectedBooking}
-          // onChangeStaff={handleRescheduleAppointment}
           handleStatusUpdate={handleStatusUpdate}
           onClose={() => {
             setSelectedBooking(null);
             setChangeStaffMode(false);
           }}
           onChangeStaff={() => {
-            setChangeStaffMode(true);
+            if (isStaffUser) {
+              setChangeStaffMode(false);
+            } else {
+              setChangeStaffMode(true);
+            }
             setShowBookingForm(true);
+          }}
+          onBookingUpdate={(updated) => {
+            setBookings((prev) =>
+              prev.map((b) =>
+                b.id === updated.id
+                  ? {
+                      ...b,
+                      date: updated.date ?? b.date,
+                      startTime: updated.startTime ?? b.startTime,
+                    }
+                  : b,
+              ),
+            );
           }}
           onStatusChange={handleStatusChange}
           onPaymentStatusChange={handlePaymentStatusChange}

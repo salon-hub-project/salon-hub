@@ -143,7 +143,13 @@ const StaffFetcher = ({
     };
 
     fetchStaff();
-  }, [values.date, values.startTime, values.selectedItems, initialStaff, setAvailableStaff]);
+  }, [
+    values.date,
+    values.startTime,
+    values.selectedItems,
+    initialStaff,
+    setAvailableStaff,
+  ]);
 
   return null;
 };
@@ -167,6 +173,7 @@ const BookingForm = ({
   const isStaffUser = user?.role?.[0] === "STAFF";
   const isOwnerUser = !isStaffUser;
 
+  console.log(isStaffUser);
   const disableAllExceptStaff = isOwnerUser && changeStaffOnly;
   const disableAllExceptDateTime = isStaffUser && !changeStaffOnly;
 
@@ -253,11 +260,11 @@ const BookingForm = ({
       if (!bookingToEdit) {
         // ✅ CREATE BOOKING (unchanged)
         const services = values.selectedItems
-          .filter((item: any) => item.type === "service")
+          ?.filter((item: any) => item.type === "service")
           .map((item: any) => item.value);
 
         const comboOffers = values.selectedItems
-          .filter((item: any) => item.type === "combo")
+          ?.filter((item: any) => item.type === "combo")
           .map((item: any) => item.value);
 
         await appointmentApi.createAppointment({
@@ -328,11 +335,32 @@ const BookingForm = ({
             customerId: bookingToEdit?.customerId || "",
             selectedItems: bookingToEdit
               ? [
-                  {
-                    value: bookingToEdit.serviceId,
-                    label: bookingToEdit.serviceName,
-                    type: "service",
-                  },
+                  // {
+                  //   value: bookingToEdit.serviceId,
+                  //   label: bookingToEdit.serviceName,
+                  //   type: "service",
+                  // },
+                  ...(bookingToEdit.serviceId
+                    ? [
+                        {
+                          value: bookingToEdit.serviceId,
+                          label: bookingToEdit.serviceName,
+                          type: "service",
+                        },
+                      ]
+                    : []),
+                  ...(Array.isArray(bookingToEdit.comboOffers)
+                    ? bookingToEdit.comboOffers.map((combo: any) => ({
+                        value: combo.id || combo._id,
+                        label: combo.name,
+                        type: "combo",
+                      }))
+                    : []),
+                  //  {
+                  //   value: bookingToEdit.comboOffers,
+                  //   label: bookingToEdit.serviceName,
+                  //   type: "combo",
+                  // },
                 ]
               : [],
             staffId: bookingToEdit?.staffId || "",
@@ -472,7 +500,7 @@ const BookingForm = ({
                   onChange={(v) => setFieldValue("staffId", v)}
                   error={touched.staffId ? errors.staffId : undefined}
                   onAddNew={() => router.push("/staff-management")}
-                  disabled={disableAllExceptDateTime}
+                  disabled={isStaffUser}
                 />
 
                 {/* Notes */}
