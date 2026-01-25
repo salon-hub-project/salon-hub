@@ -24,6 +24,7 @@ import { customerApi } from "@/app/services/customer.api";
 import { staffApi } from "@/app/services/staff.api";
 import { notificationApi } from "@/app/services/notification.api";
 import { Icon } from "lucide-react";
+import SalesReportPanel from "./components/SalesReportPanel";
 
 const SalonDashboard = () => {
   const router = useRouter();
@@ -53,7 +54,7 @@ const SalonDashboard = () => {
   >([]);
   const [activeCustomersCount, setActiveCustomersCount] = useState(0);
   const [staffUtilization, setStaffUtilization] = useState<StaffUtilization[]>(
-    []
+    [],
   );
 
   const isToday = (dateString: string) => {
@@ -77,15 +78,37 @@ const SalonDashboard = () => {
     salonName: profile?.salonName || "Salon Hub",
   };
 
+  const getServiceDuration = (services: any[] = []) => {
+    return services.reduce((total, s) => {
+      const d = s?.duration;
+
+      if (!d) return total;
+
+      // number → minutes
+      if (typeof d === "number") return total + d;
+
+      // string → parse
+      if (typeof d === "string") {
+        const num = parseInt(d, 10);
+        if (isNaN(num)) return total;
+
+        return d.toLowerCase().includes("hour")
+          ? total + num * 60
+          : total + num;
+      }
+
+      return total;
+    }, 0);
+  };
+
   //fetch Today Appointments:-
   useEffect(() => {
     if (!isAuthenticated) return;
     const fetchTodayAppointments = async () => {
       try {
         const res = await appointmentApi.getAllAppointments({ limit: 500 });
-
         const todaysAppointments = res.filter(
-          (appt: any) => appt.appointmentDate && isToday(appt.appointmentDate)
+          (appt: any) => appt.appointmentDate && isToday(appt.appointmentDate),
         );
 
         setTodayAppointments(
@@ -94,11 +117,11 @@ const SalonDashboard = () => {
             customerName: appt.customerId?.fullName || "N/A",
             service: "Service", // service details not populated
             time: appt.appointmentTime,
-            duration: null,
+            duration: getServiceDuration(appt.services),
             staffName: appt.staffId?.fullName || "N/A",
             status: appt.status,
-            price: 0, // no price in appointment API
-          }))
+            amount: appt.amount || 0, // no price in appointment API
+          })),
         );
       } catch (err) {
         console.error(err);
@@ -113,7 +136,7 @@ const SalonDashboard = () => {
     if (!isAuthenticated) return;
     // Skip customer API call for staff - they don't have access to customer data
     if (normalizedUserRole === "STAFF") return;
-    
+
     const fetchCustomers = async () => {
       try {
         const res = await customerApi.getCustomers({
@@ -150,14 +173,14 @@ const SalonDashboard = () => {
 
         const staffPerformance = staffRes.data.map((staff: any) => {
           const staffAppts = todaysAppointments.filter(
-            (a: any) => a.staffId?._id === staff._id
+            (a: any) => a.staffId?._id === staff._id,
           );
 
           const appointmentsToday = staffAppts.length;
 
           const bookedMinutes = staffAppts.length * 60; // temp logic
           const utilizationRate = Math.round(
-            (bookedMinutes / WORKING_MINUTES) * 100
+            (bookedMinutes / WORKING_MINUTES) * 100,
           );
 
           return {
@@ -203,7 +226,7 @@ const SalonDashboard = () => {
             timestamp: new Date(appt.createdAt),
             read: false,
             path: `/booking-management?appointmentId=${appt._id}`,
-          })
+          }),
         );
 
         // Customer Notifications (ignore deleted)
@@ -312,7 +335,7 @@ const SalonDashboard = () => {
 
   const handleMarkAsRead = (id: string) => {
     setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
     );
   };
 
@@ -346,6 +369,16 @@ const SalonDashboard = () => {
               </div>
             </div>
 
+            <div className="bg-card border border-border rounded-lg p-6 mb-10">
+                <div className="mb-4">
+                  <h3 className="text-lg font-semibold">Sales Report</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Track revenue, commission & appointments
+                  </p>
+                </div>
+                <SalesReportPanel />
+              </div>
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
               <div className="lg:col-span-2">
                 <div className="bg-card border border-border rounded-lg p-6">
@@ -376,15 +409,15 @@ const SalonDashboard = () => {
                 <StaffUtilizationCard staff={staffUtilization} />
               </div>
             </div>
-             <h2 className="text-lg font-semibold text-foreground mb-2">
-  Notifications
-</h2>
+            <h2 className="text-lg font-semibold text-foreground mb-2">
+              Notifications
+            </h2>
             <div className="grid grid-cols-1 gap-6 mt-4">
               {/* Appointment Notifications */}
               <div
                 onClick={() =>
                   setActiveNotificationType((prev) =>
-                    prev === "appointment" ? null : "appointment"
+                    prev === "appointment" ? null : "appointment",
                   )
                 }
                 className="cursor-pointer bg-card border border-border rounded-lg p-4 hover:bg-muted transition"
@@ -416,7 +449,7 @@ const SalonDashboard = () => {
               <div
                 onClick={() =>
                   setActiveNotificationType((prev) =>
-                    prev === "customer" ? null : "customer"
+                    prev === "customer" ? null : "customer",
                   )
                 }
                 className="cursor-pointer bg-card border border-border rounded-lg p-4 hover:bg-muted transition"

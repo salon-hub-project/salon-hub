@@ -86,10 +86,10 @@ const StaffUtilizationCard = ({
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-1 text-muted-foreground">
+                  {/* <div className="flex items-center gap-1 text-muted-foreground">
                     <Icon name="IndianRupee" size={12} />
                     <span className="text-xs">{member.revenue}</span>
-                  </div>
+                  </div> */}
                 </div>
               </div>
 

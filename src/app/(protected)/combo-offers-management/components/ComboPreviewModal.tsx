@@ -23,6 +23,7 @@ const ComboPreviewModal: React.FC<ComboPreviewModalProps> = ({
     existing: 'Existing Customers',
     vip: 'VIP Members',
   };
+  console.log(combo)
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[999]">

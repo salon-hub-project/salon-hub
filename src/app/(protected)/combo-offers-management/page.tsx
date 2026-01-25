@@ -35,6 +35,7 @@ const ComboOffersManagement = () => {
   const [previewCombo, setPreviewCombo] = useState<ComboOffer | null>(null);
   const [isMobileView, setIsMobileView] = useState(false);
   const [page, setPage] = useState(1);
+  const [totalRevenue, setTotalRevenue] = useState(0);
 
   const [pagination, setPagination] = useState({
     currentPage: 1,
@@ -74,7 +75,7 @@ const ComboOffersManagement = () => {
       });
       const combosData = combosRes?.data || [];
       const paginationData = combosRes?.pagination;
-      
+      setTotalRevenue(combosRes.totalRevenue);
       setPagination({
         currentPage: paginationData.currentPage,
         perPage: paginationData.perPage,
@@ -82,6 +83,7 @@ const ComboOffersManagement = () => {
         totalPages: paginationData.totalPages,
       });
 
+       console.log(combosData)
       // Transform API data to UI model
       const mappedCombos: ComboOffer[] = combosData.map((c: any) => {
         const comboServices: ComboService[] = c.services
@@ -119,7 +121,7 @@ const ComboOffersManagement = () => {
           minBookingRequirement: c.minBookingRequirement || undefined,
           popularity: 0,
           totalBookings: 0,
-          revenueGenerated: c.savedAmount || 0, // Just putting something here
+          revenueGenerated: c.revenueGenerated || 0, // Just putting something here
           createdAt: new Date(),
           updatedAt: new Date(),
         };
@@ -328,7 +330,7 @@ const ComboOffersManagement = () => {
         staffCommissionRate: 0,
         popularity: 0,
         totalBookings: 0,
-        revenueGenerated: c.savedAmount || 0,
+        revenueGenerated: c.revenueGenerated || 0,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -412,7 +414,7 @@ const ComboOffersManagement = () => {
           </Button>
         </div>
 
-        <ComboStats combos={combos} totalCombos={pagination.totalCombos}/>
+        <ComboStats combos={combos} totalCombos={pagination.totalCombos} totalRevenues= {totalRevenue}/>
 
         <ComboFiltersComponent
           filters={filters}

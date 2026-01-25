@@ -68,17 +68,17 @@ export const appointmentApi = {
   }) => {
     try {
       const { staffId, role, ...rest } = params || {};
-  
+
       // 🔑 ROLE BASED API SELECTION
       const url =
         role === "STAFF"
           ? "/staff/appointments" // staff logged in (JWT based)
           : staffId
-          ? `/staff/appointments/${staffId}` // owner viewing staff appointments
-          : "/staff/appointments";
-  
+            ? `/staff/appointments/${staffId}` // owner viewing staff appointments
+            : "/staff/appointments";
+
       const res = await api.get(url, { params: rest });
-  
+
       return Array.isArray(res.data?.appointmentDetails)
         ? res.data.appointmentDetails
         : [];
@@ -87,7 +87,7 @@ export const appointmentApi = {
       throw error;
     }
   },
-  
+
   getAppointmentDetails: async (appointmentId: string) => {
     try {
       const res = await api.get(`/appointment/${appointmentId}`);
@@ -109,10 +109,69 @@ export const appointmentApi = {
       return res.data;
     } catch (error: any) {
       showToast({
-        message: error?.response?.data?.message || "Failed to update appointment status",
+        message:
+          error?.response?.data?.message ||
+          "Failed to update appointment status",
         status: "error",
       });
       console.error("Failed to update appointment status:", error);
+      throw error;
+    }
+  },
+  rescheduleAppointment: async(appointmentId: string, payload: any) => {
+     try{
+      const res= await api.put(`/appointment/reschedule/${appointmentId}`, payload);
+      showToast({
+        message: res?.data?.message || "Update Appointment schedule",
+        status:"success"
+      })
+      return res.data;
+     }
+     catch(error: any){
+      showToast({
+        message: error?.response?.data?.message || "Failed to reschedule appointments",
+        status:"error"
+      })
+     }
+  },
+  changeStaff: async(appointmentId: string, staff: any)=> {
+     try{
+      const res= await api.put(`/appointment/changestaff/${appointmentId}`,staff);
+      showToast({
+        message: res?.data?.message || "Update Appointment staff successfully",
+        status: "success"
+      })
+     }
+     catch(error: any){
+      showToast({
+        message: error?.response?.data?.message || "Failed to change staff",
+        status: "error"
+      })
+     }
+  },
+  getAppointmentSalesReport: async (
+    type: string,
+    params?: { startDate?: string; endDate?: string },
+  ) => {
+    try {
+      const res = await api.post(
+        `/appointment/salesreport`,
+        {},
+        {
+          params: {
+            type,
+            ...(params || {}), // ✅ startDate & endDate go here
+          },
+        },
+      );
+
+      return res.data;
+    } catch (error: any) {
+      showToast({
+        message:
+          error?.response?.data?.message || "Failed to fetch salesReport",
+        status: "error",
+      });
       throw error;
     }
   },
