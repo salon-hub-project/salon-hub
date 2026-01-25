@@ -64,6 +64,7 @@ interface GroupedSelectProps {
   label?: string;
   closeOnSelect?: boolean;
   onAddNew?: () => void;
+  disabled?: boolean;
 }
 
 const GroupedSelect = ({

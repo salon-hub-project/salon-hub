@@ -15,6 +15,7 @@ export interface ComboOffer {
     popularity: number;
     totalBookings: number;
     revenueGenerated: number;
+    totalRevenue?: number;
     createdAt: Date;
     updatedAt: Date;
   }

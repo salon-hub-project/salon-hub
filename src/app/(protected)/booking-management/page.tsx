@@ -52,16 +52,17 @@ const BookingManagement = () => {
   const [loading, setLoading] = useState(false);
   const [combo, setCombo] = useState<ComboOffer[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [changeStaffMode, setChangeStaffMode] = useState(false);
 
-  const calculateEndTime = (startTime: string, duration: number): string => {
-    const [hours, minutes] = startTime.split(":").map(Number);
-    const totalMinutes = hours * 60 + minutes + duration;
-    const endHours = Math.floor(totalMinutes / 60);
-    const endMinutes = totalMinutes % 60;
-    return `${endHours.toString().padStart(2, "0")}:${endMinutes
-      .toString()
-      .padStart(2, "0")}`;
-  };
+  // const calculateEndTime = (startTime: string, duration: number): string => {
+  //   const [hours, minutes] = startTime.split(":").map(Number);
+  //   const totalMinutes = hours * 60 + minutes + duration;
+  //   const endHours = Math.floor(totalMinutes / 60);
+  //   const endMinutes = totalMinutes % 60;
+  //   return `${endHours.toString().padStart(2, "0")}:${endMinutes
+  //     .toString()
+  //     .padStart(2, "0")}`;
+  // };
 
   const user = useSelector((state: any) => state.auth.user);
   const timings = useSelector((state: any) => state.profile.timings);
@@ -126,6 +127,7 @@ const BookingManagement = () => {
           serviceDuration = singleService?.duration || 30;
           servicePrice = singleService?.price || 0;
         }
+        const amount = typeof b.amount === "number" ? b.amount : 0;
 
         return {
           id: b._id,
@@ -144,7 +146,7 @@ const BookingManagement = () => {
 
           date: new Date(b.appointmentDate),
           startTime: b.appointmentTime,
-          endTime: calculateEndTime(b.appointmentTime, serviceDuration),
+          endTime: b.endTime || "N/A",
 
           status: b.status || "pending",
           notes: b.notes,
@@ -162,6 +164,7 @@ const BookingManagement = () => {
                 name: c.name || c.comboName,
               }))
             : [],
+          amount,
         };
       });
 
@@ -499,11 +502,7 @@ const BookingManagement = () => {
 
         date: new Date(data.appointmentDate),
         startTime: data.appointmentTime,
-        endTime: calculateEndTime(
-          data.appointmentTime,
-          convertDuration(data.services?.[0]?.duration),
-        ),
-
+        endTime: data.endTime,
         status: data.status || "pending",
         notes: data.notes,
         paymentStatus: "pending",
@@ -514,6 +513,7 @@ const BookingManagement = () => {
               name: c.name || c.comboName,
             }))
           : [],
+        amount: data.amount || 0,
       };
 
       setSelectedBooking(mappedBooking);
@@ -609,6 +609,15 @@ const BookingManagement = () => {
     } catch (error) {
       console.error("Failed to update status", error);
     }
+  };
+
+  //   const handleStaffReschedule = () => {
+  //   setChangeStaffMode(true);
+  //   setShowBookingForm(true);
+  // };
+  const handleRescheduleAppointment = () => {
+    setChangeStaffMode(false); // date & time mode
+    setShowBookingForm(true); // open reschedule modal
   };
 
   return (
@@ -764,16 +773,22 @@ const BookingManagement = () => {
               comboOffers={combo}
               selectedDate={selectedDate}
               selectedTime={selectedTime}
+              bookingToEdit={selectedBooking}
+              changeStaffOnly={changeStaffMode}
               onCancel={() => {
                 setShowBookingForm(false);
                 setSelectedDate(undefined);
                 setSelectedTime(undefined);
               }}
               onSuccess={async () => {
-                await loadBookings(); // 🔥 refresh UI
-                setShowBookingForm(false); // close modal
+                await loadBookings();
+                if (selectedBooking?.id) {
+                  await handleBookingClick(selectedBooking.id);
+                }
+                setShowBookingForm(false);
                 setSelectedDate(undefined);
                 setSelectedTime(undefined);
+                setChangeStaffMode(false);
               }}
             />
           </div>
@@ -783,8 +798,16 @@ const BookingManagement = () => {
       {selectedBooking && (
         <BookingDetailsModal
           booking={selectedBooking}
+          // onChangeStaff={handleRescheduleAppointment}
           handleStatusUpdate={handleStatusUpdate}
-          onClose={() => setSelectedBooking(null)}
+          onClose={() => {
+            setSelectedBooking(null);
+            setChangeStaffMode(false);
+          }}
+          onChangeStaff={() => {
+            setChangeStaffMode(true);
+            setShowBookingForm(true);
+          }}
           onStatusChange={handleStatusChange}
           onPaymentStatusChange={handlePaymentStatusChange}
           onDelete={handleDeleteBooking}

@@ -157,10 +157,18 @@ const BookingForm = ({
   selectedTime,
   onCancel,
   onSuccess,
+  bookingToEdit,
+  changeStaffOnly,
   isLoading = false,
 }: BookingFormProps) => {
   // Get salon timings from Redux
   const timings = useSelector((state: any) => state.profile.timings);
+  const user = useSelector((state: any) => state.auth.user);
+  const isStaffUser = user?.role?.[0] === "STAFF";
+  const isOwnerUser = !isStaffUser;
+
+  const disableAllExceptStaff = isOwnerUser && changeStaffOnly;
+  const disableAllExceptDateTime = isStaffUser && !changeStaffOnly;
 
   // State for available staff, initialized with the passed staff list
   const [availableStaff, setAvailableStaff] = useState<Staff[]>(staff);
@@ -178,7 +186,6 @@ const BookingForm = ({
       label: `${s.name} - INR${s.price} (${s.duration} min)`,
     }));
 
-  console.log("COMBO OFFERS 👉", comboOffers);
   const comboOptions = comboOffers
     // .filter((c) => c.status === "Active" && !c.isDeleted)
     .map((c: any) => ({
@@ -213,31 +220,79 @@ const BookingForm = ({
       );
     });
 
+  // const handleSubmit = async (values: any, { resetForm }: any) => {
+  //   try {
+  //     const services = values.selectedItems
+  //       .filter((item: any) => item.type === "service")
+  //       .map((item: any) => item.value);
+
+  //     const comboOffers = values.selectedItems
+  //       .filter((item: any) => item.type === "combo")
+  //       .map((item: any) => item.value);
+
+  //     const payload = {
+  //       customerId: values.customerId,
+  //       services,
+  //       comboOffers,
+  //       staffId: values.staffId,
+  //       appointmentDate: values.date.toISOString().split("T")[0],
+  //       appointmentTime: values.startTime,
+  //       notes: values.notes || "",
+  //     };
+  //     await appointmentApi.createAppointment(payload);
+  //     resetForm();
+  //     onSuccess?.();
+  //     router.push("/booking-management");
+  //   } catch (error) {
+  //     console.error("Create appointment failed", error);
+  //   }
+  // };
+
   const handleSubmit = async (values: any, { resetForm }: any) => {
     try {
-      const services = values.selectedItems
-        .filter((item: any) => item.type === "service")
-        .map((item: any) => item.value);
+      if (!bookingToEdit) {
+        // ✅ CREATE BOOKING (unchanged)
+        const services = values.selectedItems
+          .filter((item: any) => item.type === "service")
+          .map((item: any) => item.value);
 
-      const comboOffers = values.selectedItems
-        .filter((item: any) => item.type === "combo")
-        .map((item: any) => item.value);
+        const comboOffers = values.selectedItems
+          .filter((item: any) => item.type === "combo")
+          .map((item: any) => item.value);
 
-      const payload = {
-        customerId: values.customerId,
-        services,
-        comboOffers,
-        staffId: values.staffId,
-        appointmentDate: values.date.toISOString().split("T")[0],
-        appointmentTime: values.startTime,
-        notes: values.notes || "",
-      };
-      await appointmentApi.createAppointment(payload);
-      resetForm();
-      onSuccess?.();                  
-      router.push("/booking-management"); 
+        await appointmentApi.createAppointment({
+          customerId: values.customerId,
+          services,
+          comboOffers,
+          staffId: values.staffId,
+          appointmentDate: values.date.toISOString().split("T")[0],
+          appointmentTime: values.startTime,
+          notes: values.notes || "",
+        });
+
+        resetForm();
+        onSuccess?.();
+        return;
+      }
+
+      // ✅ STAFF → RESCHEDULE
+      if (isStaffUser) {
+        await appointmentApi.rescheduleAppointment(bookingToEdit.id, {
+          appointmentDate: values.date.toISOString().split("T")[0],
+          appointmentTime: values.startTime,
+        });
+      }
+
+      // ✅ OWNER → CHANGE STAFF
+      if (isOwnerUser && changeStaffOnly) {
+        await appointmentApi.changeStaff(bookingToEdit.id, {
+          staffId: values.staffId,
+        });
+      }
+
+      onSuccess?.();
     } catch (error) {
-      console.error("Create appointment failed", error);
+      console.error("Booking update failed", error);
     }
   };
 
@@ -261,13 +316,29 @@ const BookingForm = ({
           //   startTime: selectedTime || "",
           //   notes: "",
           // }}
+          // initialValues={{
+          //   customerId: "",
+          //   selectedItems: [],
+          //   staffId: "",
+          //   date: selectedDate || new Date(),
+          //   startTime: selectedTime || "",
+          //   notes: "",
+          // }}
           initialValues={{
-            customerId: "",
-            selectedItems: [],
-            staffId: "",
-            date: selectedDate || new Date(),
-            startTime: selectedTime || "",
-            notes: "",
+            customerId: bookingToEdit?.customerId || "",
+            selectedItems: bookingToEdit
+              ? [
+                  {
+                    value: bookingToEdit.serviceId,
+                    label: bookingToEdit.serviceName,
+                    type: "service",
+                  },
+                ]
+              : [],
+            staffId: bookingToEdit?.staffId || "",
+            date: bookingToEdit?.date || selectedDate || new Date(),
+            startTime: bookingToEdit?.startTime || selectedTime || "",
+            notes: bookingToEdit?.notes || "",
           }}
           validationSchema={appointmentValidationSchema}
           onSubmit={handleSubmit}
@@ -309,6 +380,7 @@ const BookingForm = ({
                   onChange={(v) => setFieldValue("customerId", v)}
                   error={touched.customerId ? errors.customerId : undefined}
                   onAddNew={() => router.push("/customer-database")}
+                  disabled={disableAllExceptDateTime || disableAllExceptStaff}
                 />
 
                 {/* Services */}
@@ -337,6 +409,7 @@ const BookingForm = ({
                   multiple
                   value={values.selectedItems}
                   onChange={(val) => setFieldValue("selectedItems", val)}
+                  disabled={disableAllExceptDateTime || disableAllExceptStaff}
                   groups={[
                     {
                       label: "Services",
@@ -367,6 +440,7 @@ const BookingForm = ({
                       setFieldValue("date", new Date(e.target.value))
                     }
                     error={dateError}
+                    disabled={disableAllExceptStaff}
                   />
                   {dateError && (
                     <p className="text-xs text-destructive font-medium px-1">
@@ -385,6 +459,7 @@ const BookingForm = ({
                   searchable
                   onChange={(v) => setFieldValue("startTime", v)}
                   error={touched.startTime ? errors.startTime : timeError}
+                  disabled={disableAllExceptStaff}
                 />
 
                 {/* Staff */}
@@ -397,6 +472,7 @@ const BookingForm = ({
                   onChange={(v) => setFieldValue("staffId", v)}
                   error={touched.staffId ? errors.staffId : undefined}
                   onAddNew={() => router.push("/staff-management")}
+                  disabled={disableAllExceptDateTime}
                 />
 
                 {/* Notes */}
@@ -406,6 +482,7 @@ const BookingForm = ({
                   placeholder="Add any special requirements..."
                   value={values.notes}
                   onChange={(e) => setFieldValue("notes", e.target.value)}
+                  disabled={disableAllExceptDateTime || disableAllExceptStaff}
                 />
 
                 {/* Actions */}
@@ -418,14 +495,12 @@ const BookingForm = ({
                   >
                     Cancel
                   </Button>
-                  <Button
-                    type="submit"
-                    variant="default"
-                    fullWidth
-                    loading={isLoading}
-                    disabled={!!dateError || !!timeError}
-                  >
-                    Create Booking
+                  <Button type="submit" fullWidth>
+                    {bookingToEdit
+                      ? isStaffUser
+                        ? "Reschedule Appointment"
+                        : "Update Staff"
+                      : "Create Booking"}
                   </Button>
                 </div>
               </Form>

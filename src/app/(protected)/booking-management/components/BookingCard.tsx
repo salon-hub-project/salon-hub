@@ -91,7 +91,7 @@ const BookingCard = ({ booking, onClick, onStatusChange }: BookingCardProps) => 
 
         <div className="flex items-center justify-between pt-2 border-t border-border">
           <span className="text-sm font-semibold text-foreground">
-            INR {booking.servicePrice.toFixed(2)}
+            INR {booking.amount}
           </span>
           <span
             className={`text-xs px-2 py-1 rounded ${

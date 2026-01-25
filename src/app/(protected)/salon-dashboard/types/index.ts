@@ -21,7 +21,7 @@ export interface DashboardMetric {
     staffAvatar: string;
     staffAvatarAlt: string;
     status: 'pending' | 'confirmed' | 'in-progress' | 'completed' | 'cancelled';
-    price: number;
+    amount: number;
   }
   
   export interface RecentActivity {

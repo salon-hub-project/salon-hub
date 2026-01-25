@@ -80,7 +80,7 @@ const AppointmentCard = ({
         </div>
         <div className="flex items-center gap-1 text-muted-foreground">
           <Icon name="IndianRupee" size={14} />
-          <span className="text-xs">INR {appointment.price}</span>
+          <span className="text-xs">INR {appointment.amount}</span>
         </div>
       </div>
 
@@ -95,7 +95,7 @@ const AppointmentCard = ({
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-primary text-primary-foreground text-sm font-medium">
-                {appointment.customerName?.charAt(0).toUpperCase()}
+                {appointment.staffName?.charAt(0).toUpperCase()}
               </div>
             )}
           </div>
