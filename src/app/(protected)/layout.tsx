@@ -138,7 +138,7 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
       ? authUser.role[0]
       : authUser.role;
 
-    if (userRole === "OWNER") {
+    if (userRole === "OWNER" || userRole === "STAFF") {
       const checkSubscription = async () => {
         try {
           const res = await profileApi.getSubscriptionDetail();
@@ -192,6 +192,7 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
         <AccountExpiryModal 
           isOpen={isAccountExpired} 
           onRenew={() => setIsPlansModalOpen(true)}
+          role={user?.role}
         />
 
         <PlansModal 

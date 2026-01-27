@@ -7,10 +7,13 @@ import { AlertCircle } from "lucide-react";
 interface AccountExpiryModalProps {
   isOpen: boolean;
   onRenew: () => void;
+  role?: string;
 }
 
-const AccountExpiryModal: React.FC<AccountExpiryModalProps> = ({ isOpen, onRenew }) => {
+const AccountExpiryModal: React.FC<AccountExpiryModalProps> = ({ isOpen, onRenew, role }) => {
   if (!isOpen) return null;
+
+  const isOwner = role === "OWNER" || role === "salon_owner";
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm">
@@ -19,19 +22,29 @@ const AccountExpiryModal: React.FC<AccountExpiryModalProps> = ({ isOpen, onRenew
           <AlertCircle className="w-10 h-10 text-red-600" />
         </div>
         
-        <h2 className="text-2xl font-bold mb-3 text-foreground">Session Expired</h2>
+        <h2 className="text-2xl font-bold mb-3 text-foreground">
+          {isOwner ? "Subscription Expired" : "Access Restricted"}
+        </h2>
         
         <p className="text-muted-foreground mb-8 text-lg">
-          Your account has expired. Please renew your plan to continue accessing your salon dashboard and management tools.
+          {isOwner 
+            ? "Your account subscription has expired. Please renew your plan to continue accessing your salon dashboard and management tools."
+            : "The salon's subscription has expired. Please contact your salon owner or manager to restore access."}
         </p>
 
         <div className="w-full space-y-4">
-          <Button 
-            className="w-full py-6 text-lg font-semibold bg-primary hover:bg-primary/90 text-white transition-all transform hover:scale-[1.02]"
-            onClick={onRenew}
-          >
-            Renew Now
-          </Button>
+          {isOwner ? (
+            <Button 
+              className="w-full py-6 text-lg font-semibold bg-primary hover:bg-primary/90 text-white transition-all transform hover:scale-[1.02]"
+              onClick={onRenew}
+            >
+              Renew Now
+            </Button>
+          ) : (
+            <div className="p-4 bg-muted rounded-lg text-sm text-muted-foreground italic">
+              Access will be restored once the subscription is renewed by the owner.
+            </div>
+          )}
           
           <p className="text-sm text-muted-foreground italic">
             Need help? Contact support or your account manager.
