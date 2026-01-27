@@ -23,7 +23,9 @@ const EmployeeDetailsPanel = ({
   const [showSchedule, setShowSchedule] = useState(false);
   const [appointments, setAppointments] = useState<any[]>([]);
   const [appointmentsLoading, setAppointmentsLoading] = useState(false);
-  const [appointmentsError, setAppointmentsError] = useState<string | null>(null);
+  const [appointmentsError, setAppointmentsError] = useState<string | null>(
+    null,
+  );
 
   if (!employee && !loading) return null;
 
@@ -87,7 +89,9 @@ const EmployeeDetailsPanel = ({
               <h3 className="text-2xl font-semibold text-foreground">
                 {employee.name}
               </h3>
-              <p className="text-muted-foreground mt-1">{employee.role?.name}</p>
+              <p className="text-muted-foreground mt-1">
+                {employee.role?.name}
+              </p>
               <div className="flex items-center gap-4 mt-3">
                 <span
                   className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium ${
@@ -194,7 +198,7 @@ const EmployeeDetailsPanel = ({
                   <div>
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-sm text-muted-foreground">
-                        Completed Services
+                        Completed Appointments
                       </span>
                       <span className="text-sm font-medium text-foreground">
                         {employee.performanceMetrics.completedServices}
@@ -208,7 +212,7 @@ const EmployeeDetailsPanel = ({
                             (employee.performanceMetrics.completedServices /
                               100) *
                               100,
-                            100
+                            100,
                           )}%`,
                         }}
                       />
@@ -228,7 +232,7 @@ const EmployeeDetailsPanel = ({
                         />
                         <span className="text-sm font-medium text-foreground">
                           {employee.performanceMetrics.customerRating.toFixed(
-                            1
+                            1,
                           )}
                         </span>
                       </div>
@@ -268,13 +272,23 @@ const EmployeeDetailsPanel = ({
                   <div className="pt-2 border-t border-border">
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-muted-foreground">
-                        Revenue Generated
+                        Achieved Amount
                       </span>
                       <span className="text-lg font-bold text-success">
                         INR{" "}
-                        {employee.performanceMetrics.revenueGenerated.toLocaleString()}
+                        {employee.performanceMetrics?.achievedAmount?.toLocaleString()}
                       </span>
                     </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">
+                      Total Revenue Generated
+                    </span>
+                    <span className="text-lg font-bold text-success">
+                      INR{" "}
+                      {employee.performanceMetrics.revenueGenerated.toLocaleString()}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -294,6 +308,28 @@ const EmployeeDetailsPanel = ({
                   {service}
                 </span>
               ))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Target */}
+            <div className="p-4 border border-border rounded-lg bg-muted/30">
+              <h4 className="text-sm font-semibold text-foreground mb-1">
+                Target
+              </h4>
+              <p className="text-lg font-bold text-primary">
+                {employee.target || "-"}
+              </p>
+            </div>
+
+            {/* Target Type */}
+            <div className="p-4 border border-border rounded-lg bg-muted/30">
+              <h4 className="text-sm font-semibold text-foreground mb-1">
+                Target Type
+              </h4>
+              <span className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium capitalize">
+                {employee.targetType || "-"}
+              </span>
             </div>
           </div>
 
@@ -416,86 +452,104 @@ const EmployeeDetailsPanel = ({
             </div>
           )} */}
           {showSchedule && (
-  <div className="fixed inset-0 bg-black/50 z-[110] flex items-center justify-center p-4">
-    <div className="bg-card rounded-lg shadow-xl max-w-3xl w-full max-h-[85vh] overflow-y-auto">
-      {/* Header */}
-      <div className="sticky top-0 bg-card border-b border-border px-6 py-4 flex items-center justify-between">
-        <h4 className="text-lg font-semibold text-foreground">
-          Appointment Schedule
-        </h4>
-        <Button
-          variant="ghost"
-          size="icon"
-          iconName="X"
-          iconSize={18}
-          onClick={() => setShowSchedule(false)}
-          className="text-muted-foreground hover:text-foreground"
-        />
-      </div>
+            <div className="fixed inset-0 bg-black/50 z-[110] flex items-center justify-center p-4">
+              <div className="bg-card rounded-lg shadow-xl max-w-3xl w-full max-h-[85vh] overflow-y-auto">
+                {/* Header */}
+                <div className="sticky top-0 bg-card border-b border-border px-6 py-4 flex items-center justify-between">
+                  <h4 className="text-lg font-semibold text-foreground">
+                    Appointment Schedule
+                  </h4>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    iconName="X"
+                    iconSize={18}
+                    onClick={() => setShowSchedule(false)}
+                    className="text-muted-foreground hover:text-foreground"
+                  />
+                </div>
 
-      {/* Content */}
-      <div className="p-6">
-        {appointmentsLoading ? (
-          <Loader label="Loading appointments..." />
-        ) : appointmentsError ? (
-          <p className="text-sm text-destructive">{appointmentsError}</p>
-        ) : appointments.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            No appointments found for this staff member.
-          </p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-muted">
-                <tr className="text-left">
-                  <th className="p-2 font-medium text-foreground">Date</th>
-                  <th className="p-2 font-medium text-foreground">Time</th>
-                  <th className="p-2 font-medium text-foreground">Customer</th>
-                  <th className="p-2 font-medium text-foreground">Services</th>
-                  <th className="p-2 font-medium text-foreground">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {appointments.map((appt) => (
-                  <tr
-                    key={appt._id}
-                    className="border-b border-border last:border-0"
-                  >
-                    <td className="p-2">
-                      {appt.appointmentDate
-                        ? new Date(appt.appointmentDate).toLocaleDateString("en-US")
-                        : "-"}
-                    </td>
-                    <td className="p-2">{appt.appointmentTime || "-"}</td>
-                    <td className="p-2">
-                      {appt.customerId?.fullName || "Unknown"}
-                    </td>
-                    <td className="p-2">
-                      {Array.isArray(appt.services) && appt.services.length > 0
-                        ? appt.services
-                            .map(
-                              (s: any) =>
-                                s?.serviceName || s?.name || "Service"
-                            )
-                            .join(", ")
-                        : appt.serviceId?.serviceName || "-"}
-                    </td>
-                    <td className="p-2">
-                      <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-muted text-foreground">
-                        {appt.status || "Pending"}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-    </div>
-  </div>
-)}
-
+                {/* Content */}
+                <div className="p-6">
+                  {appointmentsLoading ? (
+                    <Loader label="Loading appointments..." />
+                  ) : appointmentsError ? (
+                    <p className="text-sm text-destructive">
+                      {appointmentsError}
+                    </p>
+                  ) : appointments.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      No appointments found for this staff member.
+                    </p>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead className="bg-muted">
+                          <tr className="text-left">
+                            <th className="p-2 font-medium text-foreground">
+                              Date
+                            </th>
+                            <th className="p-2 font-medium text-foreground">
+                              Time
+                            </th>
+                            <th className="p-2 font-medium text-foreground">
+                              Customer
+                            </th>
+                            <th className="p-2 font-medium text-foreground">
+                              Services
+                            </th>
+                            <th className="p-2 font-medium text-foreground">
+                              Status
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {appointments.map((appt) => (
+                            <tr
+                              key={appt._id}
+                              className="border-b border-border last:border-0"
+                            >
+                              <td className="p-2">
+                                {appt.appointmentDate
+                                  ? new Date(
+                                      appt.appointmentDate,
+                                    ).toLocaleDateString("en-US")
+                                  : "-"}
+                              </td>
+                              <td className="p-2">
+                                {appt.appointmentTime || "-"}
+                              </td>
+                              <td className="p-2">
+                                {appt.customerId?.fullName || "Unknown"}
+                              </td>
+                              <td className="p-2">
+                                {Array.isArray(appt.services) &&
+                                appt.services.length > 0
+                                  ? appt.services
+                                      .map(
+                                        (s: any) =>
+                                          s?.serviceName ||
+                                          s?.name ||
+                                          "Service",
+                                      )
+                                      .join(", ")
+                                  : appt.serviceId?.serviceName || "-"}
+                              </td>
+                              <td className="p-2">
+                                <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-muted text-foreground">
+                                  {appt.status || "Pending"}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

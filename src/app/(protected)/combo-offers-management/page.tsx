@@ -10,7 +10,6 @@ import ComboFormModal from "./components/ComboFormModal";
 import ComboPreviewModal from "./components/ComboPreviewModal";
 import Button from "../../components/ui/Button";
 import Icon from "../../components/AppIcon";
-import { useAppSelector } from "../../store/hooks";
 import { comboApi } from "../../services/combo.api";
 import { serviceApi } from "../../services/service.api";
 import { showToast } from "../../components/ui/toast";
@@ -83,7 +82,6 @@ const ComboOffersManagement = () => {
         totalPages: paginationData.totalPages,
       });
 
-       console.log(combosData)
       // Transform API data to UI model
       const mappedCombos: ComboOffer[] = combosData.map((c: any) => {
         const comboServices: ComboService[] = c.services
@@ -110,13 +108,10 @@ const ComboOffersManagement = () => {
           originalPrice: c.actualPrice,
           discountedPrice: c.discountedPrice,
           savingsPercentage: c.savedPercent,
-          isActive: true, // API doesn't seem to return isActive for combo, defaulting to true
+          isActive: true, 
           validFrom: new Date(c.validFrom),
           validUntil: new Date(c.validTill), // note naming difference
           customerEligibility: c.customerEligibility,
-            // typeof c.customerEligibility === "object" && c.customerEligibility !== null
-            //   ? c.customerEligibility._id
-            //   : c.customerEligibility || "all",
           staffCommissionRate: c.staffCommissionRate || null,
           minBookingRequirement: c.minBookingRequirement || undefined,
           popularity: 0,
@@ -239,7 +234,7 @@ const ComboOffersManagement = () => {
     const savingsPercentage =
       ((originalPrice - discountedPrice) / originalPrice) * 100;
     const savedAmount = originalPrice - discountedPrice;
-    console.log(data, "....")
+    
     const payload = {
       name: data.name,
       description: data.description,
