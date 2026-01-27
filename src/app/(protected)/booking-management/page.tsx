@@ -54,19 +54,59 @@ const BookingManagement = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [changeStaffMode, setChangeStaffMode] = useState(false);
 
-  // const calculateEndTime = (startTime: string, duration: number): string => {
-  //   const [hours, minutes] = startTime.split(":").map(Number);
-  //   const totalMinutes = hours * 60 + minutes + duration;
-  //   const endHours = Math.floor(totalMinutes / 60);
-  //   const endMinutes = totalMinutes % 60;
-  //   return `${endHours.toString().padStart(2, "0")}:${endMinutes
-  //     .toString()
-  //     .padStart(2, "0")}`;
-  // };
-
   const user = useSelector((state: any) => state.auth.user);
   const timings = useSelector((state: any) => state.profile.timings);
   const isStaffUser = isStaff(user?.role);
+
+  const calculateDurationFromTimes = (
+    startTime?: string,
+    endTime?: string,
+  ): number => {
+    if (!startTime || !endTime) return 0;
+
+    const [sh, sm] = startTime.split(":").map(Number);
+    const [eh, em] = endTime.split(":").map(Number);
+
+    if ([sh, sm, eh, em].some((n) => Number.isNaN(n))) return 0;
+
+    const startMinutes = sh * 60 + sm;
+    const endMinutes = eh * 60 + em;
+
+    return Math.max(endMinutes - startMinutes, 0);
+  };
+
+  const calculateTotalDuration = ({
+    startTime,
+    endTime,
+    services = [],
+    combos = [],
+  }: {
+    startTime?: string;
+    endTime?: string;
+    services?: any[];
+    combos?: any[];
+  }): number => {
+    // 1️⃣ Time-based always wins
+    const timeBased = calculateDurationFromTimes(startTime, endTime);
+    if (timeBased > 0) return timeBased;
+
+    // 2️⃣ Services duration
+    const serviceDuration = services.reduce(
+      (acc, s) => acc + convertDuration(s?.duration),
+      0,
+    );
+
+    // 3️⃣ Combo duration
+    const comboDuration = combos.reduce(
+      (acc, c) => acc + convertDuration(c?.duration),
+      0,
+    );
+
+    const total = serviceDuration + comboDuration;
+
+    return total > 0 ? total : 30;
+  };
+
   const loadBookings = useCallback(async () => {
     try {
       if (!user) return;
@@ -110,10 +150,24 @@ const BookingManagement = () => {
           serviceId = services[0]?._id || "";
           serviceCategory = services[0]?.category || "General";
 
-          serviceDuration = services.reduce(
-            (acc: any, s: any) => acc + (s?.duration || 0),
-            0,
+          // serviceDuration = services.reduce(
+          //   (acc: any, s: any) => acc + (s?.duration || 0),
+          //   0,
+          // );
+          const timeBasedDuration = calculateDurationFromTimes(
+            b.appointmentTime,
+            b.endTime,
           );
+          serviceDuration =
+            timeBasedDuration > 0
+              ? timeBasedDuration
+              : singleService?.duration || 30;
+          // const serviceDuration = calculateTotalDuration({
+          //   startTime: b.appointmentTime,
+          //   endTime: b.endTime,
+          //   services,
+          //   combos: b.comboOffers || [],
+          // });
 
           servicePrice = services.reduce(
             (acc: any, s: any) => acc + (s?.price || 0),
@@ -124,8 +178,28 @@ const BookingManagement = () => {
           serviceName = singleService?.serviceName || "N/A";
           serviceId = singleService?._id || "";
           serviceCategory = singleService?.category || "General";
-          serviceDuration = singleService?.duration || 30;
-          servicePrice = singleService?.price || 0;
+          // serviceDuration = singleService?.duration || 30;
+          // const timeBasedDuration = calculateDurationFromTimes(
+          //   b.appointmentTime,
+          //   b.endTime,
+          // );
+          // serviceDuration =
+          //   timeBasedDuration > 0
+          //     ? timeBasedDuration
+          //     : singleService?.duration || 30;
+          serviceDuration: (calculateTotalDuration({
+            startTime: b.appointmentTime,
+            endTime: b.endTime,
+            services: b.services || [],
+            combos: b.comboOffers || [],
+          }),
+            // const serviceDuration = calculateTotalDuration({
+            //   startTime: b.appointmentTime,
+            //   endTime: b.endTime,
+            //   services,
+            //   combos: b.comboOffers || [],
+            // });
+            (servicePrice = singleService?.price || 0));
         }
         const amount = typeof b.amount === "number" ? b.amount : 0;
 
@@ -146,7 +220,7 @@ const BookingManagement = () => {
 
           date: new Date(b.appointmentDate),
           startTime: b.appointmentTime,
-          endTime: b.endTime || "N/A",
+          endTime: b.endTime || undefined,
 
           status: b.status || "pending",
           notes: b.notes,
@@ -312,10 +386,10 @@ const BookingManagement = () => {
     // Default values if timings are not available
     let startHour = 9;
     let startMinute = 0;
-    let endHour = 20; // Last booking slot starts at 20:00 (so closes after that)
+    let endHour = 20;
     let endMinute = 0;
 
-    let workingDays = [0, 1, 2, 3, 4, 5, 6]; // Default: all days
+    let workingDays = [0, 1, 2, 3, 4, 5, 6];
 
     if (timings) {
       if (timings.openingTime) {
@@ -334,8 +408,6 @@ const BookingManagement = () => {
     }
 
     const currentDayOfWeek = currentDate.getDay();
-    // If today is not a working day, return empty slots or closed indication
-    // For now, let's return empty slots effectively disabling the day
     if (!workingDays.includes(currentDayOfWeek)) {
       return [];
     }
@@ -493,7 +565,16 @@ const BookingManagement = () => {
         serviceId: data.services?.[0]?._id || "",
         serviceName: data.services?.map((s: any) => s.serviceName).join(", "),
         serviceCategory: "General",
-        serviceDuration: convertDuration(data.services?.[0]?.duration),
+        // serviceDuration: convertDuration(data.services?.[0]?.duration),
+        // serviceDuration:
+        //   calculateDurationFromTimes(data.appointmentTime, data.endTime) ||
+        //   convertDuration(data.services?.[0]?.duration),
+        serviceDuration: calculateTotalDuration({
+          startTime: data.appointmentTime,
+          endTime: data.endTime,
+          services: data.services || [],
+          combos: data.comboOffers || [],
+        }),
         servicePrice: data.services?.reduce(
           (sum: number, s: any) => sum + (s.price || 0),
           0,
