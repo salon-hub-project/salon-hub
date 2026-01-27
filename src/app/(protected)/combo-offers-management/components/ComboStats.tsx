@@ -56,13 +56,13 @@ const ComboStats: React.FC<ComboStatsProps> = ({ combos, totalCombos, totalReven
       color: 'text-purple-600',
       bgColor: 'bg-purple-50',
     },
-    {
-      label: 'Avg. Savings',
-      value: `${metrics.averageSavings.toFixed(1)}%`,
-      icon: 'TrendingDown' as const,
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-50',
-    },
+    // {
+    //   label: 'Avg. Savings',
+    //   value: `${metrics.averageSavings.toFixed(1)}%`,
+    //   icon: 'TrendingDown' as const,
+    //   color: 'text-orange-600',
+    //   bgColor: 'bg-orange-50',
+    // },
   ];
 
   return (
