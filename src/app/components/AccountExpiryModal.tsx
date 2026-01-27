@@ -6,9 +6,10 @@ import { AlertCircle } from "lucide-react";
 
 interface AccountExpiryModalProps {
   isOpen: boolean;
+  onRenew: () => void;
 }
 
-const AccountExpiryModal: React.FC<AccountExpiryModalProps> = ({ isOpen }) => {
+const AccountExpiryModal: React.FC<AccountExpiryModalProps> = ({ isOpen, onRenew }) => {
   if (!isOpen) return null;
 
   return (
@@ -27,7 +28,7 @@ const AccountExpiryModal: React.FC<AccountExpiryModalProps> = ({ isOpen }) => {
         <div className="w-full space-y-4">
           <Button 
             className="w-full py-6 text-lg font-semibold bg-primary hover:bg-primary/90 text-white transition-all transform hover:scale-[1.02]"
-            onClick={() => window.location.href = "tel:0233445566"} // Example: renewal contact
+            onClick={onRenew}
           >
             Renew Now
           </Button>

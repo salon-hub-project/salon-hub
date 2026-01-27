@@ -9,6 +9,7 @@ import Sidebar from "../components/Sidebar";
 import Header, { Notification } from "../components/Header";
 import { notificationApi } from "../services/notification.api";
 import AccountExpiryModal from "../components/AccountExpiryModal";
+import PlansModal from "../components/PlansModal";
 
 export default function ProtectedLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -16,6 +17,7 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
   const [notificationCount, setNotificationCount] = useState(0);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isAccountExpired, setIsAccountExpired] = useState(false);
+  const [isPlansModalOpen, setIsPlansModalOpen] = useState(false);
 
   const pathname = usePathname();
 
@@ -173,7 +175,15 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
           {children}
         </main>
 
-        <AccountExpiryModal isOpen={isAccountExpired} />
+        <AccountExpiryModal 
+          isOpen={isAccountExpired} 
+          onRenew={() => setIsPlansModalOpen(true)}
+        />
+
+        <PlansModal 
+          isOpen={isPlansModalOpen}
+          onClose={() => setIsPlansModalOpen(false)}
+        />
       </div>
     </AuthGuard>
   );
