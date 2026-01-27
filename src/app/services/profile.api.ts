@@ -90,4 +90,12 @@ export const profileApi = {
       throw error;
     }
   },
+  getSubscriptionDetail: async () => {
+    try {
+      const res = await api.get("/subscriptiondetail");
+      return res.data;
+    } catch (error: any) {
+      throw error;
+    }
+  },
 };

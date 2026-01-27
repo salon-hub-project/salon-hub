@@ -9,6 +9,7 @@ import Sidebar from "../components/Sidebar";
 import Header, { Notification } from "../components/Header";
 import { notificationApi } from "../services/notification.api";
 import AccountExpiryModal from "../components/AccountExpiryModal";
+import { profileApi } from "../services/profile.api";
 import PlansModal from "../components/PlansModal";
 
 export default function ProtectedLayout({ children }: { children: ReactNode }) {
@@ -131,19 +132,32 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
 
   // Account Expiry Check
   useEffect(() => {
-    if (!authUser || !authUser.role || !authUser.accountExpiry) return;
+    if (!authUser || !authUser.role) return;
 
     const userRole = Array.isArray(authUser.role)
       ? authUser.role[0]
       : authUser.role;
 
     if (userRole === "OWNER") {
-      const expiryDate = new Date(authUser.accountExpiry);
-      const currentDate = new Date();
+      const checkSubscription = async () => {
+        try {
+          const res = await profileApi.getSubscriptionDetail();
+          if (res?.success && res.data?.subscriptionEndDate) {
+            const expiryDate = new Date(res.data.subscriptionEndDate);
+            const currentDate = new Date();
 
-      if (currentDate > expiryDate) {
-        setIsAccountExpired(true);
-      }
+            if (currentDate > expiryDate) {
+              setIsAccountExpired(true);
+            } else {
+              setIsAccountExpired(false);
+            }
+          }
+        } catch (error) {
+          console.error("Failed to fetch subscription details", error);
+        }
+      };
+
+      checkSubscription();
     }
   }, [authUser]);
 
