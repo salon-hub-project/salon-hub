@@ -73,6 +73,19 @@ export const deleteOwner = createAsyncThunk(
   }
 );
 
+/* RENEW SUBSCRIPTION */
+export const renewSubscription = createAsyncThunk(
+  "owner/renewSubscription",
+  async ({ ownerId, months }: { ownerId: string; months: number }, { rejectWithValue }) => {
+    try {
+      const response = await ownerApi.renewSubscription(ownerId, months);
+      return { ownerId, ...response };
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || "Subscription renewal failed");
+    }
+  }
+);
+
 /* SLICE */
 const ownerSlice = createSlice({
   name: "owner",
@@ -158,6 +171,18 @@ const ownerSlice = createSlice({
           (owner) => owner._id !== deletedOwnerId
         );
         state.total = Math.max(0, state.total - 1);
+      })
+      // RENEW SUBSCRIPTION
+      .addCase(renewSubscription.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(renewSubscription.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(renewSubscription.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
       });
   },
 });

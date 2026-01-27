@@ -8,11 +8,13 @@ import {
   deleteOwner,
   FetchOwnersDetails,
   clearSelectedOwner,
+  renewSubscription,
 } from "@/app/store/slices/ownerSlice";
 import Icon from "@/app/components/AppIcon";
 import ConfirmModal from "@/app/components/ui/ConfirmModal";
 import { normalizeRole } from "@/app/utils/normalizeRole";
 import OwnerDetails from "./OwnerDetails";
+import RenewSubscriptionModal from "./RenewSubscriptionModal";
 import { ownerApi } from "@/app/services/owner.api";
 import Loader from "@/app/components/Loader";
 import Pagination from "@/app/components/Pagination";
@@ -26,7 +28,9 @@ const GetAllOwners = () => {
   const router = useRouter();
 
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [renewModalOpen, setRenewModalOpen] = useState(false);
   const [selectedOwnerId, setSelectedOwnerId] = useState<string | null>(null);
+  const [selectedOwnerEmail, setSelectedOwnerEmail] = useState<string>("");
   const totalPages= Math.ceil(total/limit);
 
   useEffect(() => {
@@ -44,6 +48,23 @@ const GetAllOwners = () => {
     }
     setConfirmOpen(false);
     setSelectedOwnerId(null);
+  };
+
+  const handleRenew = (owner: any) => {
+    setSelectedOwnerId(owner._id);
+    setSelectedOwnerEmail(owner.userId?.email || "");
+    setRenewModalOpen(true);
+  };
+
+  const confirmRenewSubscription = (months: number) => {
+    if (selectedOwnerId) {
+      dispatch(renewSubscription({ ownerId: selectedOwnerId, months }))
+        .unwrap()
+        .then(() => {
+          setRenewModalOpen(false);
+          setSelectedOwnerId(null);
+        });
+    }
   };
 
   const effectiveRole = Array.isArray(authUser?.role)
@@ -128,10 +149,17 @@ const GetAllOwners = () => {
                         />
 
                         <Icon
+                          onClick={() => handleRenew(owner)}
+                          name="RefreshCw"
+                          size={18}
+                          className="text-primary cursor-pointer hover:text-primary/80"
+                        />
+
+                        <Icon
                           onClick={() => handleDelete(owner._id)}
                           name="Trash"
                           size={18}
-                          className="text-destructive"
+                          className="text-destructive cursor-pointer hover:text-destructive/80"
                         />
                       </td>
                     </tr>
@@ -152,6 +180,13 @@ const GetAllOwners = () => {
           description="This action cannot be undone. Are you sure you want to delete this owner?"
           onCancel={() => setConfirmOpen(false)}
           onConfirm={confirmDeleteOwner}
+        />
+        <RenewSubscriptionModal
+          isOpen={renewModalOpen}
+          onClose={() => setRenewModalOpen(false)}
+          onConfirm={confirmRenewSubscription}
+          loading={isLoading}
+          ownerEmail={selectedOwnerEmail}
         />
         <Pagination
           page={page}

@@ -109,4 +109,22 @@ export const ownerApi = {
       throw error;
     }
   },
+
+  // RENEW SUBSCRIPTION
+  renewSubscription: async (ownerId: string, months: number) => {
+    try {
+      const res = await api.post(`/renew/${ownerId}`, { months });
+      showToast({
+        message: res?.data?.message || `Subscription extended by ${months} months`,
+        status: "success",
+      });
+      return res.data;
+    } catch (error: any) {
+      showToast({
+        message: error?.response?.data?.message || "Failed to renew subscription",
+        status: "error",
+      });
+      throw error;
+    }
+  },
 };
