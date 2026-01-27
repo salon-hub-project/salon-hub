@@ -186,6 +186,15 @@ const profileSlice = createSlice({
       .addCase(getStaffProfile.fulfilled, (state, action) => {
         state.isLoading = false;
         state.profile = action.payload;
+        // Also populate timings for staff if available in the profile response
+        const salonData = action.payload?.salonDetails || action.payload;
+        if (salonData?.openingTime && salonData?.closingTime) {
+          state.timings = {
+            openingTime: salonData.openingTime,
+            closingTime: salonData.closingTime,
+            workingDays: salonData.workingDays || [0, 1, 2, 3, 4, 5, 6],
+          };
+        }
       })
       .addCase(getStaffProfile.rejected, (state, action) => {
         state.isLoading = false;

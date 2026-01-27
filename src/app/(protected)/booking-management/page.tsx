@@ -27,7 +27,7 @@ import { serviceApi } from "@/app/services/service.api";
 import { staffApi } from "@/app/services/staff.api";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "@/app/store";
-import { fetchProfileTimings } from "@/app/store/slices/profileSlice";
+import { fetchProfileTimings, getStaffProfile } from "@/app/store/slices/profileSlice";
 import Loader from "@/app/components/Loader";
 import { isStaff } from "@/app/utils/routePermissions";
 import { comboApi } from "@/app/services/combo.api";
@@ -276,7 +276,9 @@ const BookingManagement = () => {
   //   dispatch(fetchProfileTimings());
   // }, [dispatch]);
   useEffect(() => {
-    if (!isStaffUser) {
+    if (isStaffUser) {
+      dispatch(getStaffProfile());
+    } else {
       dispatch(fetchProfileTimings());
     }
   }, [dispatch, isStaffUser]);
