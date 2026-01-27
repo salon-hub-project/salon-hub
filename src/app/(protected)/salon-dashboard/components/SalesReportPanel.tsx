@@ -7,6 +7,7 @@ import Input from "@/app/components/ui/Input";
 import Loader from "@/app/components/Loader";
 import { appointmentApi } from "@/app/services/appointment.api";
 import { showToast } from "@/app/components/ui/toast";
+import { staffApi } from "@/app/services/staff.api";
 
 const FILTER_OPTIONS = [
   { label: "Today", value: "today" },
@@ -22,9 +23,29 @@ export default function SalesReportPanel() {
   const [endDate, setEndDate] = useState("");
   const [loading, setLoading] = useState(false);
   const [report, setReport] = useState<any>(null);
+  const [staff, setStaff] = useState([]);
+  const [selectedStaffId, setSelectedStaffId] = useState<string>();
+
+  const fetchStaff = async () => {
+    try {
+      const res = await staffApi.getAllStaff();
+      console.log(res.data);
+      setStaff(res.data);
+    } catch (error: any) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchStaff();
+  }, []);
+
+  const staffOptions = staff.map((s: any) => ({
+    label: s.fullName,
+    value: s._id,
+  }));
 
   const fetchReport = async () => {
-    // ✅ Block invalid custom request
     if (filterType === "custom") {
       if (!startDate || !endDate) {
         showToast({
@@ -37,18 +58,19 @@ export default function SalesReportPanel() {
 
     setLoading(true);
     try {
-      const params: any =
-        filterType === "custom" ? { startDate, endDate } : undefined;
-
+      const params: any = {
+        ...(filterType === "custom" ? { startDate, endDate } : {}),
+        ...(selectedStaffId ? { staffId: selectedStaffId } : {}),
+      };
       const res = await appointmentApi.getAppointmentSalesReport(
         filterType,
         params,
       );
       setReport(res);
-    if (filterType === "custom") {
-      setStartDate("");
-      setEndDate("");
-    }
+      if (filterType === "custom") {
+        setStartDate("");
+        setEndDate("");
+      }
     } finally {
       setLoading(false);
     }
@@ -62,39 +84,54 @@ export default function SalesReportPanel() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end gap-4">
-        <div className="w-56">
-          <Select
-            label="Filter"
-            options={FILTER_OPTIONS}
-            value={filterType}
-            onChange={(val: string) => setFilterType(val)}
-          />
-        </div>
+      <div className="bg-white border rounded-xl p-4 shadow-sm">
+        <div className="flex flex-wrap gap-4 items-end">
+          <div className="w-56">
+            <Select
+              label="Date Filter"
+              options={FILTER_OPTIONS}
+              value={filterType}
+              onChange={(val: string) => setFilterType(val)}
+            />
+          </div>
 
-        {filterType === "custom" && (
-          <>
-            <div className="w-44">
-              <Input
-                type="date"
-                label="Start Date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-              />
-            </div>
-            <div className="w-44">
-              <Input
-                type="date"
-                label="End Date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-              />
-            </div>
-            <Button disabled={!startDate || !endDate} onClick={fetchReport}>
-              Apply
-            </Button>
-          </>
-        )}
+          <div className="w-56">
+            <Select
+              label="Staff"
+              placeholder="All Staff"
+              options={staffOptions}
+              value={selectedStaffId}
+              onChange={(val: string) => setSelectedStaffId(val)}
+              clearable
+            />
+          </div>
+
+          {filterType === "custom" && (
+            <>
+              <div className="w-44">
+                <Input
+                  type="date"
+                  label="Start Date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                />
+              </div>
+
+              <div className="w-44">
+                <Input
+                  type="date"
+                  label="End Date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                />
+              </div>
+
+              <Button className="h-10" onClick={fetchReport}>
+                Apply
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
       {loading && <Loader label="Loading SalesReport..." />}
