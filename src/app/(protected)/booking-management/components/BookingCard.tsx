@@ -1,33 +1,55 @@
-import Icon from '../../../components/AppIcon';
-import Image from '../../../components/AppImage';
-import { Booking } from '../types';
+import Icon from "../../../components/AppIcon";
+import Image from "../../../components/AppImage";
+import { Booking } from "../types";
 
 interface BookingCardProps {
   booking: Booking;
   onClick: () => void;
-  onStatusChange: (bookingId: string, status: Booking['status']) => void;
+  onStatusChange: (bookingId: string, status: Booking["status"]) => void;
 }
 
-const BookingCard = ({ booking, onClick, onStatusChange }: BookingCardProps) => {
-  const getStatusColor = (status: Booking['status']) => {
+const BookingCard = ({
+  booking,
+  onClick,
+  onStatusChange,
+}: BookingCardProps) => {
+  const getStatusColor = (status: Booking["status"]) => {
     const colors = {
-      pending: 'bg-warning/10 text-warning border-warning/20',
-      Confirmed: 'bg-primary/10 text-primary border-primary/20',
-      Completed: 'bg-success/10 text-success border-success/20',
-      cancelled: 'bg-destructive/10 text-destructive border-destructive/20',
+      pending: "bg-warning/10 text-warning border-warning/20",
+      Confirmed: "bg-primary/10 text-primary border-primary/20",
+      Completed: "bg-success/10 text-success border-success/20",
+      cancelled: "bg-destructive/10 text-destructive border-destructive/20",
     };
     return colors[status];
   };
 
-  const getStatusIcon = (status: Booking['status']) => {
+  const getStatusIcon = (status: Booking["status"]) => {
     const icons = {
-      pending: 'Clock',
-      Confirmed: 'CheckCircle',
-      Completed: 'CheckCircle2',
-      cancelled: 'XCircle',
+      pending: "Clock",
+      Confirmed: "CheckCircle",
+      Completed: "CheckCircle2",
+      cancelled: "XCircle",
     };
     return icons[status];
   };
+
+  const calculateDurationFromTimes = (startTime?: string, endTime?: string) => {
+    if (!startTime || !endTime) return 0;
+
+    const [sh, sm] = startTime.split(":").map(Number);
+    const [eh, em] = endTime.split(":").map(Number);
+
+    if ([sh, sm, eh, em].some(isNaN)) return 0;
+
+    return Math.max(eh * 60 + em - (sh * 60 + sm), 0);
+  };
+
+  const timeBasedDuration = calculateDurationFromTimes(
+    booking.startTime,
+    booking.endTime,
+  );
+  const finalDuration =
+    timeBasedDuration > 0 ? timeBasedDuration : booking.serviceDuration;
 
   return (
     <div
@@ -55,13 +77,15 @@ const BookingCard = ({ booking, onClick, onStatusChange }: BookingCardProps) => 
             <h4 className="text-sm font-semibold text-foreground truncate">
               {booking.customerName}
             </h4>
-            <p className="text-xs text-muted-foreground">{booking.customerPhone}</p>
+            <p className="text-xs text-muted-foreground">
+              {booking.customerPhone}
+            </p>
           </div>
         </div>
 
         <span
           className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium border ${getStatusColor(
-            booking.status
+            booking.status,
           )}`}
         >
           <Icon name={getStatusIcon(booking.status)} size={12} />
@@ -71,21 +95,37 @@ const BookingCard = ({ booking, onClick, onStatusChange }: BookingCardProps) => 
 
       <div className="space-y-2">
         <div className="flex items-center gap-2 text-sm">
-          <Icon name="Scissors" size={16} className="text-muted-foreground flex-shrink-0" />
-          <span className="text-foreground font-medium truncate">{booking?.serviceName || booking?.comboOffers?.map((c: any)=>c.name)}</span>
+          <Icon
+            name="Scissors"
+            size={16}
+            className="text-muted-foreground flex-shrink-0"
+          />
+          <span className="text-foreground font-medium truncate">
+            {booking.serviceName ||
+              booking.comboOffers?.map((c: any) => c.name).join(", ")}
+          </span>
+
           <span className="text-muted-foreground">•</span>
-          <span className="text-muted-foreground">{booking.serviceDuration} min</span>
+          <span className="text-muted-foreground">{finalDuration} min</span>
         </div>
 
         <div className="flex items-center gap-2 text-sm">
-          <Icon name="Clock" size={16} className="text-muted-foreground flex-shrink-0" />
+          <Icon
+            name="Clock"
+            size={16}
+            className="text-muted-foreground flex-shrink-0"
+          />
           <span className="text-foreground">
             {booking.startTime}-{booking.endTime}
           </span>
         </div>
 
         <div className="flex items-center gap-2 text-sm">
-          <Icon name="User" size={16} className="text-muted-foreground flex-shrink-0" />
+          <Icon
+            name="User"
+            size={16}
+            className="text-muted-foreground flex-shrink-0"
+          />
           <span className="text-foreground truncate">{booking.staffName}</span>
         </div>
 
@@ -93,13 +133,15 @@ const BookingCard = ({ booking, onClick, onStatusChange }: BookingCardProps) => 
           <span className="text-sm font-semibold text-foreground">
             INR {booking.amount}
           </span>
-          <span
+          {/* <span
             className={`text-xs px-2 py-1 rounded ${
-              booking.paymentStatus === 'paid' ?'bg-success/10 text-success' :'bg-warning/10 text-warning'
+              booking.paymentStatus === "paid"
+                ? "bg-success/10 text-success"
+                : "bg-warning/10 text-warning"
             }`}
           >
-            {booking.paymentStatus === 'paid' ? 'Paid' : 'Pending'}
-          </span>
+            {booking.paymentStatus === "paid" ? "Paid" : "Pending"}
+          </span> */}
         </div>
       </div>
     </div>
