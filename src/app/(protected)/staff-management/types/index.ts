@@ -13,11 +13,14 @@ export interface Employee {
   joinDate: string;
   assignedServices: string[];
   staffImage: File | string | null;
+  target: number,
+  targetType: string;
   performanceMetrics: {
     completedServices: number;
     customerRating: number;
     revenueGenerated: number;
     bookingCompletionRate: number;
+    achievedAmount: number;
   };
   availability: {
     monday: boolean;
@@ -92,7 +95,12 @@ export interface EmployeeApiResponse {
     email?: string;
     phoneNumber?: string;
   };
+  target: number,
+  targetType: string,
   staffImage?: File | string | null;
+  lifetimeRevenue: number;
+  completedAppointments: number;
+  achievedAmount: number;
 }
 
 export interface ServiceApiResponse {

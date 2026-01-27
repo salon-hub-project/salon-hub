@@ -120,6 +120,7 @@ const StaffManagement = () => {
       if (!mountedRef.current) return;
 
       const employeesFromApi = res.data as EmployeeApiResponse[];
+      console.log(employeesFromApi[0].lifetimeRevenue, "....")
       const mappedEmployees: Employee[] = employeesFromApi.map((emp) => ({
         id: emp._id,
         name: emp.fullName,
@@ -132,6 +133,8 @@ const StaffManagement = () => {
         joinDate: emp.createdAt,
         assignedServices: emp.assignedServices.map((s) => s.serviceName),
         commissionRate: emp.commissionRate,
+        target: emp.target || 0,
+        targetType: emp.targetType || "N/A",
         availability: {
           monday: emp.workingDays?.some((d: any) => String(d) === "1" || String(d) === "Monday") || false,
           tuesday: emp.workingDays?.some((d: any) => String(d) === "2" || String(d) === "Tuesday") || false,
@@ -141,12 +144,13 @@ const StaffManagement = () => {
           saturday: emp.workingDays?.some((d: any) => String(d) === "6" || String(d) === "Saturday") || false,
           sunday: emp.workingDays?.some((d: any) => String(d) === "0" || String(d) === "Sunday") || false,
         },
-        performanceMetrics: {
-          completedServices: 0,
+        performanceMetrics:{
+          completedServices: emp.completedAppointments || 0,
           customerRating: emp.rating ?? 0,
-          revenueGenerated: 0,
+          revenueGenerated: emp.lifetimeRevenue || 0,
           bookingCompletionRate: 0,
-        },
+          achievedAmount: emp.achievedAmount || 0
+        }
       }));
 
       setEmployees(mappedEmployees);
@@ -196,6 +200,7 @@ const StaffManagement = () => {
 
       const res = await staffApi.getStaffDetails(employee.id);
       const emp = res.staffDetails;
+      console.log(emp, "emp")
 
       const mappedEmployee: Employee = {
         id: emp._id,
@@ -208,6 +213,8 @@ const StaffManagement = () => {
         joinDate: emp.createdAt,
         assignedServices: emp.assignedServices.map((s: any) => s.serviceName),
         commissionRate: emp.commissionRate,
+        target: emp.target,
+        targetType: emp.targetType,
         availability: {
           monday: emp.workingDays?.some((d: any) => String(d) === "1" || String(d) === "Monday") || false,
           tuesday: emp.workingDays?.some((d: any) => String(d) === "2" || String(d) === "Tuesday") || false,
@@ -218,10 +225,11 @@ const StaffManagement = () => {
           sunday: emp.workingDays?.some((d: any) => String(d) === "0" || String(d) === "Sunday") || false,
         },
         performanceMetrics: {
-          completedServices: 0,
+          completedServices: emp.completedAppointments || 0,
           customerRating: emp.rating ?? 0,
-          revenueGenerated: 0,
+          revenueGenerated: emp.lifetimeRevenue || 0,
           bookingCompletionRate: 0,
+          achievedAmount: emp.achievedAmount || 0,
         },
       };
 

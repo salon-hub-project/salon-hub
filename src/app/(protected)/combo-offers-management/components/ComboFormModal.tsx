@@ -147,7 +147,6 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
               ...values,
               customerEligibility: values.customerEligibility || undefined,
             };
-
             onSubmit(payload);
             onClose();
           }}
