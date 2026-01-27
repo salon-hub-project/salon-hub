@@ -192,14 +192,14 @@ const CustomerProfile = ({
                 >
                   Details
                 </button>
-                <button
+                {/* <button
                   onClick={() => setActiveTab('history')}
                   className={`px-4 py-2 text-sm font-medium transition-smooth border-b-2 ${
                     activeTab === 'history' ?'border-primary text-primary' :'border-transparent text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   Service History ({serviceHistory.length})
-                </button>
+                </button> */}
               </div>
 
               {activeTab === 'details' && (
