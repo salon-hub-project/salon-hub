@@ -162,14 +162,15 @@ const CustomerTable = ({
         <table className="w-full">
           <thead className="bg-muted/50 border-b border-border">
             <tr>
-              <th className="px-6 py-4 text-left w-10">
-                {/* <input
-                  type="checkbox"
-                  checked={isAllSelected}
-                  onChange={toggleSelectAll}
-                  className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
-                /> */}
+              <th className="px-6 py-4 text-left w-28">
+                <button
+                  onClick={toggleSelectAll}
+                  className="flex items-center gap-2 text-sm font-semibold text-foreground hover:text-primary transition-smooth"
+                >
+                  Select All
+                </button>
               </th>
+
               <th className="px-6 py-4 text-left">
                 <button
                   onClick={() => handleSort("name")}
@@ -290,7 +291,9 @@ const CustomerTable = ({
                         </span>
                       ))
                     ) : (
-                      <span className="text-xs text-muted-foreground pl-4">N/A</span>
+                      <span className="text-xs text-muted-foreground pl-4">
+                        N/A
+                      </span>
                     )}
                   </div>
                 </td>

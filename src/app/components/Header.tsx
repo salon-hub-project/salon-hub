@@ -319,7 +319,7 @@ const Header = ({
             </button>
 
             {isNotificationsOpen && (
-              <div className="absolute right-0 mt-2 w-80 max-h-[400px] overflow-y-auto bg-card border rounded-lg shadow-lg">
+              <div className="fixed lg:absolute top-header lg:top-auto left-4 right-4 lg:left-auto lg:right-0 mt-2 w-auto lg:w-80 max-h-[400px] overflow-y-auto bg-card border rounded-lg shadow-lg z-[100]">
                 <div className="p-4 border-b sticky top-0 bg-card z-10">
                   <h3 className="font-semibold text-sm">Notifications</h3>
                 </div>
