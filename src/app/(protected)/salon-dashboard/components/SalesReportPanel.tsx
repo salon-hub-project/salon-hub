@@ -29,7 +29,6 @@ export default function SalesReportPanel() {
   const fetchStaff = async () => {
     try {
       const res = await staffApi.getAllStaff();
-      console.log(res.data);
       setStaff(res.data);
     } catch (error: any) {
       console.error(error);

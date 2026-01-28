@@ -14,6 +14,7 @@ import { appointmentValidationSchema } from "@/app/components/validation/validat
 import { staffApi } from "@/app/services/staff.api";
 import GroupedSelect from "@/app/components/ui/GroupedSelect";
 import { appointmentApi } from "@/app/services/appointment.api";
+import { isToday } from "date-fns";
 
 // Helper component to handle side effects and data fetching inside Formik context
 const StaffFetcher = ({
@@ -301,6 +302,7 @@ const BookingForm = ({
       console.error("Booking update failed", error);
     }
   };
+  const today = new Date().toISOString().split("T")[0];
 
   return (
     <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
@@ -477,6 +479,7 @@ const BookingForm = ({
                     type="date"
                     label="Date"
                     value={values.date.toISOString().split("T")[0]}
+                    min={today}
                     onChange={(e) =>
                       setFieldValue("date", new Date(e.target.value))
                     }
