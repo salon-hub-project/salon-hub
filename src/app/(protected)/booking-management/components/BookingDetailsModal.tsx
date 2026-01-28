@@ -70,6 +70,7 @@ const BookingDetailsModal = ({
     onClose();
   };
 
+  console.log(booking)
   return (
     <>
       {/* MAIN MODAL UI — unchanged */}
@@ -262,12 +263,13 @@ const BookingDetailsModal = ({
                   variant="outline"
                   className="w-full"
                   onClick={onChangeStaff}
+                  disabled= {booking.status === 'Completed'}
                 >
-                  {changeStaffOnly ? "Update Staff" : "Change Staff"}
+                  Change Staff
                 </Button>
               )}
 
-              {isStaffUser && booking.status === "Confirmed" && (
+              {booking.status === "Confirmed" && (
                 <Button
                   variant="outline"
                   className="w-full"

@@ -1,3 +1,4 @@
+import { useAppSelector } from '@/app/store/hooks';
 import Icon from '../../../components/AppIcon';
 import Button from '../../../components/ui/Button';
 import Select from '../../../components/ui/Select';
@@ -18,6 +19,10 @@ const QuickFilters = ({
   onFiltersChange,
   onClearFilters,
 }: QuickFiltersProps) => {
+
+  const { user } = useAppSelector((state: any) => state.auth);
+  const role = user?.role[0];
+  console.log(role)
   const statusOptions = [
     { value: '', label: 'All Statuses' },
     // { value: 'pending', label: 'Pending' },
@@ -69,6 +74,7 @@ const QuickFilters = ({
           }
         />
 
+        {role === "OWNER" && 
         <Select
           label="Staff Member"
           options={staffOptions}
@@ -78,7 +84,7 @@ const QuickFilters = ({
           }
           searchable
         />
-
+        }
         {/* <Select
           label="Service"
           options={serviceOptions}
