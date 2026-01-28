@@ -404,7 +404,21 @@ const BookingForm = ({
                   options={customerOptions}
                   value={values.customerId}
                   searchable
-                  onChange={(v) => setFieldValue("customerId", v)}
+                  onChange={(v) => {
+                    setFieldValue("customerId", v);
+                    // Pre-select preferred staff if available
+                    const selectedCustomer = customers.find((c) => c.id === v);
+                    if (selectedCustomer?.preferredStaff) {
+                      const prefStaff = selectedCustomer.preferredStaff;
+                      const preferredStaffId = typeof prefStaff === "string" 
+                        ? prefStaff 
+                        : (prefStaff as any)._id || (prefStaff as any).id;
+                      
+                      if (preferredStaffId) {
+                        setFieldValue("staffId", preferredStaffId);
+                      }
+                    }
+                  }}
                   error={touched.customerId ? errors.customerId : undefined}
                   onAddNew={() => router.push("/customer-database")}
                   disabled={disableAllExceptDateTime || disableAllExceptStaff}

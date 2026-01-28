@@ -10,6 +10,7 @@ export interface Customer {
   avatar?: string;
   totalVisits: number;
   lastVisit?: Date;
+  preferredStaff?: any;
 }
 
 export interface Service {
