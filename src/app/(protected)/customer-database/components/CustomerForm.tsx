@@ -15,8 +15,6 @@ import Loader from "@/app/components/Loader";
 import { CustomerFormikValues, CustomerTag, Customer } from "../types";
 import { customerApi } from "@/app/services/customer.api";
 import { staffApi } from "@/app/services/staff.api";
-import { customerTagApi } from "@/app/services/tags.api";
-import ConfirmModal from "@/app/components/ui/ConfirmModal";
 
 const getValidationSchema = (isEditMode: boolean) =>
   Yup.object({
@@ -28,8 +26,7 @@ const getValidationSchema = (isEditMode: boolean) =>
     gender: Yup.string().required(),
     dateOfBirth: Yup.date()
       .typeError("Invalid date of birth")
-      .max(new Date(), "Date of birth cannot be in the future")
-      .required("Date of birth is required"),
+      .max(new Date(), "Date of birth cannot be in the future"),
     password: isEditMode
       ? Yup.string()
       : Yup.string().min(8, "Minimum 8 characters"),
@@ -39,11 +36,8 @@ interface CustomerFormProps {
   onClose: () => void;
   editingCustomer?: Customer;
   onSuccess?: () => void;
-  customerTags: {
-    id: string;
-    name: string;
-  }[];
-  onTagAdded: (tag: { id: string; name: string }) => void;
+  customerTags: {id: string, name: string}[],
+  onTagAdded?: (tag: { id: string; name: string }) => void;
 }
 
 const CustomerForm = ({
@@ -172,27 +166,27 @@ const CustomerForm = ({
   //   }
   // };
 
-  const handleAddTag = async (tagName?: string) => {
-    if (!tagName?.trim()) return;
+  // const handleAddTag = async (tagName?: string) => {
+  //   if (!tagName?.trim()) return;
 
-    try {
-      const res = await customerTagApi.createCustomerTag({
-        name: tagName.trim(),
-      });
+  //   try {
+  //     const res = await customerTagApi.createCustomerTag({
+  //       name: tagName.trim(),
+  //     });
 
-      const createdTag = res?.data;
-      if (!createdTag) return;
+  //     const createdTag = res?.data;
+  //     if (!createdTag) return;
 
-      onTagAdded({
-        id: createdTag._id,
-        name: createdTag.name,
-      });
+  //     onTagAdded({
+  //       id: createdTag._id,
+  //       name: createdTag.name,
+  //     });
 
-      setIsAddCategoryOpen(false);
-    } catch (error) {
-      console.error("Failed to create customer tag", error);
-    }
-  };
+  //     setIsAddCategoryOpen(false);
+  //   } catch (error) {
+  //     console.error("Failed to create customer tag", error);
+  //   }
+  // };
 
   const addCustomer = async (values: CustomerFormikValues) => {
     try {
@@ -443,7 +437,7 @@ const CustomerForm = ({
           )}
         </Formik>
       </div>
-      <ConfirmModal
+      {/* <ConfirmModal
         isOpen={isAddCategoryOpen}
         showInput
         inputPlaceholder="Enter new tag name"
@@ -452,7 +446,7 @@ const CustomerForm = ({
         onCancel={() => setIsAddCategoryOpen(false)}
         onConfirm={handleAddTag}
         confirmColor="green"
-      />
+      /> */}
     </div>
   );
 };

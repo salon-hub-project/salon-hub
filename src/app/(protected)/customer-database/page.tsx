@@ -7,6 +7,7 @@ import CustomerFilters from "./components/CustomerFilters";
 import CustomerProfile from "./components/CustomerProfile";
 import CustomerForm from "./components/CustomerForm";
 import MobileCustomerCard from "./components/MobileCustomerCard";
+import { customerTags } from "./types";
 
 import {
   Customer,
@@ -19,8 +20,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { customerApi } from "@/app/services/customer.api";
 import Pagination from "@/app/components/Pagination";
 import Loader from "@/app/components/Loader";
-import CustomerTagManager from "./components/CustomerTagsManager";
-import { customerTagApi } from "@/app/services/tags.api";
 import ConfirmModal from "@/app/components/ui/ConfirmModal";
 import { showToast } from "@/app/components/ui/toast";
 import { comboApi } from "@/app/services/combo.api";
@@ -56,7 +55,7 @@ const CustomerDatabase = () => {
     sortOrder: "asc",
   });
   const [customerLoading, setCustomerLoading] = useState(false);
-  const [customerTags, setCustomerTags] = useState<CustomerTagItem[]>([]);
+  //const [customerTags, setCustomerTags] = useState<CustomerTagItem[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isComboModalOpen, setIsComboModalOpen] = useState(false);
   const [availableCombos, setAvailableCombos] = useState<ComboOffer[]>([]);
@@ -73,36 +72,43 @@ const CustomerDatabase = () => {
   }, [searchParams]);
 
   //Fetch Customer Tags:-
-  useEffect(() => {
-    const fetchTags = async () => {
-      const res = await customerTagApi.getAllCustomerTags();
-      const list = res?.data || [];
+  // useEffect(() => {
+  //   const fetchTags = async () => {
+  //     const res = await customerTagApi.getAllCustomerTags();
+  //     const list = res?.data || [];
 
-      setCustomerTags(
-        list.map((tag: any) => ({
-          id: tag._id,
-          name: tag.name,
-        })),
-      );
-    };
+  //     setCustomerTags(
+  //       list.map((tag: any) => ({
+  //         id: tag._id,
+  //         name: tag.name,
+  //       })),
+  //     );
+  //   };
 
-    fetchTags();
-  }, []);
+  //   fetchTags();
+  // }, []);
 
   //Handle methods of customerTags:-
-  const handleAddTag = (name: string, id: string) => {
-    setCustomerTags((prev) => [...prev, { id, name }]);
-  };
+  // const handleAddTag = (name: string, id: string) => {
+  //   setCustomerTags((prev) => [...prev, { id, name }]);
+  // };
 
-  const handleUpdateTag = (id: string, name: string) => {
-    setCustomerTags((prev) =>
-      prev.map((tag) => (tag.id === id ? { ...tag, name } : tag)),
-    );
-  };
+  // const handleUpdateTag = (id: string, name: string) => {
+  //   setCustomerTags((prev) =>
+  //     prev.map((tag) => (tag.id === id ? { ...tag, name } : tag)),
+  //   );
+  // };
 
-  const handleDeleteTag = (id: string) => {
-    setCustomerTags((prev) => prev.filter((tag) => tag.id !== id));
-  };
+  // const handleDeleteTag = (id: string) => {
+  //   setCustomerTags((prev) => prev.filter((tag) => tag.id !== id));
+  // };
+
+//   const customerTag = {
+//   VIP: 'VIP',
+//   NEW: 'New',
+//   FREQUENT: 'Frequent',
+//   INACTIVE: 'Inactive',
+// }
 
   //Fetch Customers:-
   const fetchCustomers = useCallback(async () => {
@@ -132,16 +138,16 @@ const CustomerDatabase = () => {
         phone: c.userId.phoneNumber,
         email: c.userId.email,
         gender: c.gender,
-        dateOfBirth: c.DOB,
+        dateOfBirth: c.DOB ? c.DOB.split("T")[0] : "",
         address: c.address || "",
         notes: c.notes || "",
         // tags: c.customerTag || [],
         tags: (c.customerTag || []).map((tag: any) =>
-          typeof tag === "string" ? tag : tag.name,
+          typeof tag === "string" ? tag : tag,
         ),
-        tagIds: (c.customerTag || []).map((tag: any) =>
-          typeof tag === "string" ? tag : tag._id,
-        ),
+        // tagIds: (c.customerTag || []).map((tag: any) =>
+        //   typeof tag === "string" ? tag : tag._id,
+        // ),
 
         lastVisit: c.lastVisit ? new Date(c.lastVisit) : undefined,
         totalVisits: c.totalVisits,
@@ -297,15 +303,15 @@ const CustomerDatabase = () => {
         phone: c.userId.phoneNumber,
         email: c.userId.email,
         gender: c.gender,
-        dateOfBirth: c.DOB.split("T")[0],
+        dateOfBirth: c.DOB ? c.DOB.split("T")[0] : "",
         address: c.address || "",
         notes: c.notes || "",
         tags: (c.customerTag || []).map((tag: any) =>
-          typeof tag === "string" ? tag : tag.name,
+          typeof tag === "string" ? tag : tag,
         ),
-        tagIds: (c.customerTag || []).map((tag: any) =>
-          typeof tag === "string" ? tag : tag._id,
-        ),
+        // tagIds: (c.customerTag || []).map((tag: any) =>
+        //   typeof tag === "string" ? tag : tag._id,
+        // ),
         lastVisit: c.lastVisit ? new Date(c.lastVisit) : null,
         totalVisits: c.totalVisits,
         totalSpent: c.totalSpent,
@@ -438,12 +444,13 @@ const CustomerDatabase = () => {
           onExport={handleExport}
           totalCustomers={totalCustomers}
         /> */}
-        <CustomerTagManager
+
+        {/* <CustomerTagManager
           tags={customerTags}
           onAddTag={handleAddTag}
           onUpdateTag={handleUpdateTag}
           onDeleteTag={handleDeleteTag}
-        />
+        /> */}
 
         {loading ? (
           <Loader label="Loading customers..." />
@@ -543,9 +550,9 @@ const CustomerDatabase = () => {
         <CustomerForm
           editingCustomer={editingCustomer}
           customerTags={customerTags}
-          onTagAdded={(tag) => {
-            setCustomerTags((prev) => [...prev, tag]);
-          }}
+          // onTagAdded={(tag) => {
+          //   setCustomerTags((prev) => [...prev, tag]);
+          // }}
           onClose={() => {
             setShowForm(false);
             setEditingCustomer(undefined);

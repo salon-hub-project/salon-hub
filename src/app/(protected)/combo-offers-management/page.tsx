@@ -297,7 +297,7 @@ const ComboOffersManagement = () => {
     try {
       const res = await comboApi.getComboOfferById(combo.id);
       const c = res.data || res; // handle potential response wrapper
-
+      
       // Map service IDs to full service objects (reusing mappedServices would be ideal but for single item we can look up from availableServices state if populated, or fetch again if needed. For now assuming availableServices has data)
       const comboServices: ComboService[] = c.services
         .map((serviceId: string) => {
@@ -324,7 +324,7 @@ const ComboOffersManagement = () => {
         isActive: true,
         validFrom: new Date(c.validFrom),
         validUntil: new Date(c.validTill),
-        customerEligibility: c.customerEligibility?.name,
+        customerEligibility: c.customerEligibility,
         staffCommissionRate: 0,
         popularity: 0,
         totalBookings: 0,

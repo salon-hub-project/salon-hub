@@ -24,6 +24,13 @@ export interface Customer {
   name: string;
 }
   
+  export const customerTags = [
+  { id: "VIP", name: "VIP" },
+  { id: "New", name: "NEW" },
+  { id: "Frequent", name: "FREQUENT" },
+  { id: "Inactive", name: "INACTIVE" },
+];
+  
   export interface ServiceHistory {
     id: string;
     customerId: string;

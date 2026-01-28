@@ -173,7 +173,6 @@ const BookingForm = ({
   const isStaffUser = user?.role?.[0] === "STAFF";
   const isOwnerUser = !isStaffUser;
 
-  console.log(isStaffUser);
   const disableAllExceptStaff = isOwnerUser && changeStaffOnly;
   const disableAllExceptDateTime = isStaffUser && !changeStaffOnly;
 
@@ -504,13 +503,19 @@ const BookingForm = ({
                 />
 
                 {/* Notes */}
-                <Input
-                  type="text"
-                  label="Notes (Optional)"
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Notes(Optional)
+                </label>
+                <textarea
+                  // type="text"
+                  // label="Notes (Optional)"
                   placeholder="Add any special requirements..."
                   value={values.notes}
                   onChange={(e) => setFieldValue("notes", e.target.value)}
                   disabled={disableAllExceptDateTime || disableAllExceptStaff}
+                  rows={4}
+                  className="w-full px-3 py-2 rounded-md border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-smooth resize-none"
+
                 />
 
                 {/* Actions */}

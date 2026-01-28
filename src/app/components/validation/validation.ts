@@ -52,7 +52,7 @@ export const customerValidationSchema = Yup.object({
     .required("Email is required"),
   gender: Yup.string().required("Gender is required"),
   preferredStaff: Yup.string().required("Please select one member"),
-  dateOfBirth: Yup.string().required("DOB is required"),
+  dateOfBirth: Yup.string(),
 });
 
 export const appointmentValidationSchema = Yup.object({

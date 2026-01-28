@@ -8,8 +8,7 @@ import Select from "../../../components/ui/Select";
 import Button from "../../../components/ui/Button";
 import { ComboOffer, ComboFormData } from "../types";
 import { comboValidationSchema } from "@/app/components/validation/validation";
-import { CustomerTag } from "../../customer-database/types";
-import { customerTagApi } from "@/app/services/tags.api";
+import { customerTags } from "../../customer-database/types";
 import ConfirmModal from "@/app/components/ui/ConfirmModal";
 
 interface ComboFormModalProps {
@@ -66,56 +65,56 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
   };
   
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
-  const [customerTags, setCustomerTags] = useState<any[]>([]); // Use any[] or specific type if available
+ // const [customerTags, setCustomerTags] = useState<any[]>([]); // Use any[] or specific type if available
   const [loadingTags, setLoadingTags] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchCustomerTags = async () => {
-      try {
-        setLoadingTags(true);
-        const res = await customerTagApi.getAllCustomerTags();
-        const list = res?.data || [];
-        setCustomerTags(list);
-      } catch (error) {
-        console.error("Failed to fetch customer tags", error);
-        setCustomerTags([]);
-      } finally {
-        setLoadingTags(false);
-      }
-    };
-    fetchCustomerTags();
-  }, []);
+  // useEffect(() => {
+  //   const fetchCustomerTags = async () => {
+  //     try {
+  //       setLoadingTags(true);
+  //       const res = await customerTagApi.getAllCustomerTags();
+  //       const list = res?.data || [];
+  //       setCustomerTags(list);
+  //     } catch (error) {
+  //       console.error("Failed to fetch customer tags", error);
+  //       setCustomerTags([]);
+  //     } finally {
+  //       setLoadingTags(false);
+  //     }
+  //   };
+  //   fetchCustomerTags();
+  // }, []);
 
-  const handleAddTag = async (tagName?: string) => {
-    if (!tagName?.trim()) return;
+  // const handleAddTag = async (tagName?: string) => {
+  //   if (!tagName?.trim()) return;
 
-    try {
-      const res = await customerTagApi.createCustomerTag({
-        name: tagName.trim(),
-      });
+  //   try {
+  //     const res = await customerTagApi.createCustomerTag({
+  //       name: tagName.trim(),
+  //     });
 
-      const createdTag = res?.data;
-      if (!createdTag) return;
+  //     const createdTag = res?.data;
+  //     if (!createdTag) return;
 
-      setCustomerTags((prev) => [
-        ...prev,
-        {
-          _id: createdTag._id,
-          name: createdTag.name,
-        },
-      ]);
+  //     setCustomerTags((prev) => [
+  //       ...prev,
+  //       {
+  //         _id: createdTag._id,
+  //         name: createdTag.name,
+  //       },
+  //     ]);
 
-      setIsAddCategoryOpen(false);
-    } catch (error) {
-      console.error("Failed to create customer tag", error);
-    }
-  };
+  //     setIsAddCategoryOpen(false);
+  //   } catch (error) {
+  //     console.error("Failed to create customer tag", error);
+  //   }
+  // };
 
   const customerEligibilityOptions = [
     // { value: "all", label: "All Customers" },
     ...customerTags.map((tag) => ({
-      value: tag._id,
+      value: tag.id,
       label: tag.name,
     })),
   ];
@@ -433,7 +432,7 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
           }}
         </Formik>
       </div>
-      <ConfirmModal
+      {/* <ConfirmModal
         isOpen={isAddCategoryOpen}
         showInput
         inputPlaceholder="Enter new customer eligibility name"
@@ -442,7 +441,7 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
         onCancel={() => setIsAddCategoryOpen(false)}
         onConfirm={handleAddTag}
         confirmColor="green"
-      />
+      /> */}
     </div>
   );
 };

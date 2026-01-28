@@ -249,14 +249,23 @@ const ServiceFormModal = ({
               </div>
 
               {/* Description */}
-              <Input
-                label="Description"
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Description
+              </label>
+              <textarea
                 name="description"
                 placeholder="Enter description here"
                 value={values.description}
                 onChange={handleChange}
-                error= {touched.description ? errors.description : undefined}
+                rows={4}
+                className="w-full px-3 py-2 rounded-md border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-smooth resize-none"
+                // error= {touched.description ? errors.description : undefined}
               />
+               {touched.description && errors.description && (
+              <p className="text-sm text-destructive text-red-500">
+                {errors.description}
+              </p>
+            )}
 
               {/* Popular Service */}
               <Checkbox
