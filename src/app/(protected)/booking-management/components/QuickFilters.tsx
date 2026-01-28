@@ -22,7 +22,7 @@ const QuickFilters = ({
 
   const { user } = useAppSelector((state: any) => state.auth);
   const role = user?.role[0];
-  console.log(role)
+  
   const statusOptions = [
     { value: '', label: 'All Statuses' },
     // { value: 'pending', label: 'Pending' },
