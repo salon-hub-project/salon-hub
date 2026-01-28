@@ -37,7 +37,7 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
     if (userRole === "OWNER") {
       fetchNotifications();
     }
-     if (userRole === "STAFF") {
+    if (userRole === "STAFF") {
       fetchStaffNotifications();
     }
 
@@ -70,7 +70,7 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
           } booked an appointment at ${appt.appointmentTime}`,
           timestamp: new Date(appt.createdAt),
           read: false,
-          path: `/appointment?appointmentId=${appt._id}`,
+          path: `/booking-management?appointmentId=${appt._id}`,
         }),
       );
 
@@ -185,17 +185,19 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
           onProfileClick={() => router.push("/profile")}
         />
 
-        <main className={`ml-16 lg:ml-sidebar pt-header lg:pb-0 ${isAccountExpired ? "blur-sm pointer-events-none" : ""}`}>
+        <main
+          className={`ml-16 lg:ml-sidebar pt-header lg:pb-0 ${isAccountExpired ? "blur-sm pointer-events-none" : ""}`}
+        >
           {children}
         </main>
 
-        <AccountExpiryModal 
-          isOpen={isAccountExpired} 
+        <AccountExpiryModal
+          isOpen={isAccountExpired}
           onRenew={() => setIsPlansModalOpen(true)}
           role={user?.role}
         />
 
-        <PlansModal 
+        <PlansModal
           isOpen={isPlansModalOpen}
           onClose={() => setIsPlansModalOpen(false)}
         />
