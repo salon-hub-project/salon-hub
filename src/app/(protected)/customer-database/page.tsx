@@ -103,12 +103,12 @@ const CustomerDatabase = () => {
   //   setCustomerTags((prev) => prev.filter((tag) => tag.id !== id));
   // };
 
-//   const customerTag = {
-//   VIP: 'VIP',
-//   NEW: 'New',
-//   FREQUENT: 'Frequent',
-//   INACTIVE: 'Inactive',
-// }
+  //   const customerTag = {
+  //   VIP: 'VIP',
+  //   NEW: 'New',
+  //   FREQUENT: 'Frequent',
+  //   INACTIVE: 'Inactive',
+  // }
 
   //Fetch Customers:-
   const fetchCustomers = useCallback(async () => {
@@ -121,10 +121,14 @@ const CustomerDatabase = () => {
       const response = await customerApi.getCustomers({
         page,
         limit: 10,
-        ...(filters.searchQuery && { fullName: filters.searchQuery }),
+        ...(filters.searchQuery &&
+          (/^\d+$/.test(filters.searchQuery)
+            ? { phoneNumber: filters.searchQuery }
+            : { fullName: filters.searchQuery })),
         ...(filters.gender && { gender: filters.gender }),
         ...(filters.tags.length > 0 && {
-          customerTag: filters.tags.map((tag) => tag.toUpperCase()),
+          //customerTag: filters.tags.map((tag) => tag.toUpperCase()),
+          customerTag: filters.tags,
         }),
       });
 
@@ -142,13 +146,13 @@ const CustomerDatabase = () => {
         address: c.address || "",
         notes: c.notes || "",
         // tags: c.customerTag || [],
-        tags: (c.customerTag || []).map((tag: any) =>
-          typeof tag === "string" ? tag : tag,
-        ),
+        // tags: (c.customerTag || []).map((tag: any) =>
+        //   typeof tag === "string" ? tag : tag,
+        // ),
         // tagIds: (c.customerTag || []).map((tag: any) =>
         //   typeof tag === "string" ? tag : tag._id,
         // ),
-
+        tags: (c.customerTag || []).map((tag: string) => tag.toUpperCase()),
         lastVisit: c.lastVisit ? new Date(c.lastVisit) : undefined,
         totalVisits: c.totalVisits,
         totalSpent: c.totalSpent,
@@ -266,23 +270,23 @@ const CustomerDatabase = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const filteredCustomers = customers.filter((customer) => {
-    // Search by name or phone
-    const matchesSearch =
-      !filters.searchQuery ||
-      customer.name.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
-      customer.phone?.includes(filters.searchQuery);
+  // const filteredCustomers = customers.filter((customer) => {
+  //   // Search by name or phone
+  //   const matchesSearch =
+  //     !filters.searchQuery ||
+  //     customer.name.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
+  //     customer.phone?.includes(filters.searchQuery);
 
-    // Filter by gender
-    const matchesGender = !filters.gender || customer.gender === filters.gender;
+  //   // Filter by gender
+  //   const matchesGender = !filters.gender || customer.gender === filters.gender;
 
-    // Filter by tags
-    const matchesTags =
-      filters.tags.length === 0 ||
-      filters.tags.every((tag) => customer.tags.includes(tag.toUpperCase()));
+  //   // Filter by tags
+  //   const matchesTags =
+  //     filters.tags.length === 0 ||
+  //     filters.tags.every((tag) => customer.tags.includes(tag.toUpperCase()));
 
-    return matchesSearch && matchesGender && matchesTags;
-  });
+  //   return matchesSearch && matchesGender && matchesTags;
+  // });
 
   const customerFetchingRef = useRef(false);
 
@@ -306,12 +310,13 @@ const CustomerDatabase = () => {
         dateOfBirth: c.DOB ? c.DOB.split("T")[0] : "",
         address: c.address || "",
         notes: c.notes || "",
-        tags: (c.customerTag || []).map((tag: any) =>
-          typeof tag === "string" ? tag : tag,
-        ),
+        // tags: (c.customerTag || []).map((tag: any) =>
+        //   typeof tag === "string" ? tag : tag,
+        // ),
         // tagIds: (c.customerTag || []).map((tag: any) =>
         //   typeof tag === "string" ? tag : tag._id,
         // ),
+        tags: (c.customerTag || []).map((tag: string) => tag.toUpperCase()),
         lastVisit: c.lastVisit ? new Date(c.lastVisit) : null,
         totalVisits: c.totalVisits,
         totalSpent: c.totalSpent,
@@ -390,7 +395,10 @@ const CustomerDatabase = () => {
         .filter(Boolean);
 
       if (numbers.length === 0) {
-        showToast({ message: "No phone numbers found for selected customers", status: "error" });
+        showToast({
+          message: "No phone numbers found for selected customers",
+          status: "error",
+        });
         return;
       }
 
@@ -438,12 +446,12 @@ const CustomerDatabase = () => {
           </div>
         </div>
 
-        {/* <CustomerFilters
+        <CustomerFilters
           filters={filters}
           onFiltersChange={setFilters}
           onExport={handleExport}
           totalCustomers={totalCustomers}
-        /> */}
+        />
 
         {/* <CustomerTagManager
           tags={customerTags}
@@ -504,7 +512,7 @@ const CustomerDatabase = () => {
               </div>
             ) : (
               <CustomerTable
-                customers={filteredCustomers}
+                customers={customers}
                 onCustomerSelect={(customer) =>
                   handleCustomerSelect(customer.id)
                 }
@@ -564,7 +572,9 @@ const CustomerDatabase = () => {
         <div className="fixed inset-0 bg-black/50 z-[110] flex items-center justify-center p-4">
           <div className="bg-card rounded-lg shadow-xl max-w-lg w-full max-h-[80vh] flex flex-col">
             <div className="flex items-center justify-between p-6 border-b border-border">
-              <h2 className="text-xl font-semibold text-foreground">Select Combo Offer</h2>
+              <h2 className="text-xl font-semibold text-foreground">
+                Select Combo Offer
+              </h2>
               <button
                 onClick={() => setIsComboModalOpen(false)}
                 className="p-2 rounded-md hover:bg-muted transition-smooth"
@@ -574,7 +584,9 @@ const CustomerDatabase = () => {
             </div>
             <div className="flex-1 overflow-y-auto p-6 space-y-3">
               {availableCombos.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">No active combo offers found.</p>
+                <p className="text-center text-muted-foreground py-8">
+                  No active combo offers found.
+                </p>
               ) : (
                 availableCombos.map((combo) => (
                   <button
@@ -606,7 +618,10 @@ const CustomerDatabase = () => {
               )}
             </div>
             <div className="p-6 border-t border-border flex justify-end">
-              <Button variant="ghost" onClick={() => setIsComboModalOpen(false)}>
+              <Button
+                variant="ghost"
+                onClick={() => setIsComboModalOpen(false)}
+              >
                 Cancel
               </Button>
             </div>

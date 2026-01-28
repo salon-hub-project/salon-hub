@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import Icon from "../../components/AppIcon";
 import Button from "../../components/ui/Button";
@@ -27,11 +27,15 @@ import { serviceApi } from "@/app/services/service.api";
 import { staffApi } from "@/app/services/staff.api";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "@/app/store";
-import { fetchProfileTimings, getStaffProfile } from "@/app/store/slices/profileSlice";
+import {
+  fetchProfileTimings,
+  getStaffProfile,
+} from "@/app/store/slices/profileSlice";
 import Loader from "@/app/components/Loader";
 import { isStaff } from "@/app/utils/routePermissions";
 import { comboApi } from "@/app/services/combo.api";
 import { ComboOffer } from "../combo-offers-management/types";
+import { useRouter } from "next/navigation";
 
 const BookingManagement = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -57,6 +61,7 @@ const BookingManagement = () => {
   const user = useSelector((state: any) => state.auth.user);
   const timings = useSelector((state: any) => state.profile.timings);
   const isStaffUser = isStaff(user?.role);
+  const router = useRouter();
 
   const calculateDurationFromTimes = (
     startTime?: string,
@@ -106,6 +111,14 @@ const BookingManagement = () => {
 
     return total > 0 ? total : 30;
   };
+
+  const salonStartDate = useMemo(() => {
+    if (!user?.createdAt) return null;
+
+    const d = new Date(user.createdAt);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, [user]);
 
   const loadBookings = useCallback(async () => {
     try {
@@ -375,14 +388,26 @@ const BookingManagement = () => {
         staffId: staffIdFromUrl,
       }));
     }
-
     const appointmentIdFromUrl = searchParams.get("appointmentId");
     if (appointmentIdFromUrl) {
       handleBookingClick(appointmentIdFromUrl);
     }
-  }, [searchParams]);
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("appointmentId");
+
+    router.replace(`?${params.toString()}`);
+  }, [searchParams, router]);
 
   const generateTimeSlots = (): TimeSlot[] => {
+    if (salonStartDate) {
+      const day = new Date(currentDate);
+      day.setHours(0, 0, 0, 0);
+
+      if (day < salonStartDate) {
+        return [];
+      }
+    }
+
     // Default values if timings are not available
     let startHour = 9;
     let startMinute = 0;
@@ -458,6 +483,10 @@ const BookingManagement = () => {
     for (let i = 0; i < 7; i++) {
       const date = new Date(startOfWeek);
       date.setDate(startOfWeek.getDate() + i);
+
+      if (salonStartDate && date < salonStartDate) {
+        continue; 
+      }
       const bookingCount = bookings.filter(
         (b) => b.date.toDateString() === date.toDateString(),
       ).length;
@@ -485,16 +514,19 @@ const BookingManagement = () => {
   };
 
   const handlePreviousClick = () => {
+    if (!salonStartDate) return;
     const newDate = new Date(currentDate);
     if (viewMode === "day") {
       newDate.setDate(currentDate.getDate() - 1);
     } else {
       newDate.setDate(currentDate.getDate() - 7);
     }
+    if (newDate < salonStartDate) return;
     setCurrentDate(newDate);
   };
 
   const handleNextClick = () => {
+    if (!salonStartDate) return;
     const newDate = new Date(currentDate);
     if (viewMode === "day") {
       newDate.setDate(currentDate.getDate() + 1);
@@ -509,7 +541,12 @@ const BookingManagement = () => {
   };
 
   const handleTimeSlotClick = (time: string) => {
-    if (isStaffUser) return;
+
+    if (isStaffUser || !salonStartDate) return;
+    const day = new Date(currentDate);
+    day.setHours(0, 0, 0, 0);
+
+    if (day < salonStartDate) return;
     setSelectedDate(currentDate);
     setSelectedTime(time);
     setShowBookingForm(true);
