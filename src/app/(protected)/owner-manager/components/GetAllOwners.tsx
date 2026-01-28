@@ -18,6 +18,7 @@ import RenewSubscriptionModal from "./RenewSubscriptionModal";
 import { ownerApi } from "@/app/services/owner.api";
 import Loader from "@/app/components/Loader";
 import Pagination from "@/app/components/Pagination";
+import Tooltip from "@/app/components/ui/Tooltip";
 
 const GetAllOwners = () => {
   const dispatch = useAppDispatch();
@@ -105,7 +106,7 @@ const GetAllOwners = () => {
           {error && <p className="text-red-500">{error}</p>}
 
           {!isLoading && owners?.length > 0 && (
-            <div className="bg-card border rounded-lg overflow-hidden">
+            <div className="bg-card border rounded-lg overflow-visible">
               <table className="w-full">
                 <thead className="bg-muted">
                   <tr>
@@ -138,10 +139,11 @@ const GetAllOwners = () => {
                           </button>
                         )}
                       </td>
-                      <td className="flex items-center gap-3 pt-3 pl-3 ">
+                      {/* <td className="flex items-center gap-3 pt-3 pl-3 ">
                         <Icon
                           name="Eye"
                           size={18}
+                          title="View Owner Details"
                           className="text-destructive"
                           onClick={() =>
                             dispatch(FetchOwnersDetails(owner._id))
@@ -150,8 +152,9 @@ const GetAllOwners = () => {
 
                         <Icon
                           onClick={() => handleRenew(owner)}
-                          name="RefreshCw"
+                          name="History"
                           size={18}
+                          title="Renew Subscription"
                           className="text-primary cursor-pointer hover:text-primary/80"
                         />
 
@@ -159,9 +162,42 @@ const GetAllOwners = () => {
                           onClick={() => handleDelete(owner._id)}
                           name="Trash"
                           size={18}
+                          title="Delete Owner"
                           className="text-destructive cursor-pointer hover:text-destructive/80"
                         />
-                      </td>
+                      </td> */}
+                      <td className="flex items-center gap-3 pt-3 pl-3 overflow-visible">
+  {/* View */}
+  <Tooltip label="View Owner Details">
+    <Icon
+      name="Eye"
+      size={18}
+      className="text-destructive cursor-pointer"
+      onClick={() => dispatch(FetchOwnersDetails(owner._id))}
+    />
+  </Tooltip>
+
+  {/* Renew */}
+  <Tooltip label="Renew Subscription">
+    <Icon
+      name="RefreshCcw"
+      size={18}
+      className="text-primary cursor-pointer"
+      onClick={() => handleRenew(owner)}
+    />
+  </Tooltip>
+
+  {/* Delete */}
+  <Tooltip label="Delete Owner">
+    <Icon
+      name="Trash"
+      size={18}
+      className="text-destructive cursor-pointer hover:text-destructive/80"
+      onClick={() => handleDelete(owner._id)}
+    />
+  </Tooltip>
+</td>
+
                     </tr>
                   ))}
                 </tbody>

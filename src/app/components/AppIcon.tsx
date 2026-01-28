@@ -9,6 +9,7 @@ interface IconProps extends Omit<LucideProps, 'size'> {
     color?: string;
     className?: string;
     strokeWidth?: number;
+    title?: string;
 }
 
 function Icon({
@@ -17,6 +18,7 @@ function Icon({
     color = "currentColor",
     className = "",
     strokeWidth = 2,
+    title,
     ...props
 }: IconProps) {
     const formattedName = typeof name === 'string' ? name.split('-').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join('')
@@ -25,24 +27,28 @@ function Icon({
 
     if (!IconComponent) {
         return (
-            <HelpCircle
-                size={size}
-                color="gray"
-                strokeWidth={strokeWidth}
-                className={className}
-                {...props}
-            />
+            <span title={title} className="inline-flex">
+                <HelpCircle
+                    size={size}
+                    color="gray"
+                    strokeWidth={strokeWidth}
+                    className={className}
+                    {...props}
+                />
+            </span>
         );
     }
 
     return (
-        <IconComponent
-            size={size}
-            color={color}
-            strokeWidth={strokeWidth}
-            className={className}
-            {...props}
-        />
+        <span title={title} className="inline-flex">
+            <IconComponent
+                size={size}
+                color={color}
+                strokeWidth={strokeWidth}
+                className={className}
+                {...props}
+            />
+        </span>
     );
 }
 
