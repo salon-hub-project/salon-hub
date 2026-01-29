@@ -39,47 +39,11 @@ const StaffFetcher = ({
     if (selectedTime) setFieldValue("startTime", selectedTime);
   }, [selectedTime, setFieldValue]);
 
-  // Fetch staff
-  // useEffect(() => {
-  //   const fetchStaff = async () => {
-  //     if (values.date && values.startTime) {
-  //       try {
-  //         const formattedDate = values.date.toISOString().split("T")[0];
-  //         const res = await staffApi.getAllStaff({
-  //           page: 1,
-  //           limit: 100,
-  //           dateOfAppointment: formattedDate,
-  //           timeOfAppointment: values.startTime,
-  //         });
-
-  //         const rawStaff = Array.isArray(res) ? res : res?.data || [];
-  //         const mappedStaff = rawStaff
-  //           .map((s: any) => ({
-  //             id: s._id || s.id,
-  //             name: s.fullName || s.name,
-  //             role: s.role || "Staff",
-  //             phone: s.phoneNumber || s.phone,
-  //             avatar: s.avatar,
-  //             specializations: s.specializations || [],
-  //             isAvailable: s.isActive !== undefined ? s.isActive : true, // Default to true if missing
-  //           }))
-  //           .filter((s: any) => s.isAvailable);
-
-  //         setAvailableStaff(mappedStaff);
-  //       } catch (error) {
-  //         console.error("Failed to fetch available staff", error);
-  //       }
-  //     } else {
-  //       setAvailableStaff(initialStaff);
-  //     }
-  //   };
-
-  //   fetchStaff();
-  // }, [values.date, values.startTime, initialStaff, setAvailableStaff]);
   useEffect(() => {
     const fetchStaff = async () => {
       if (values.date && values.startTime) {
         try {
+          if (isNaN(values.date.getTime())) return;
           const formattedDate = values.date.toISOString().split("T")[0];
 
           // 1️⃣ Get base available staff
@@ -481,10 +445,17 @@ const BookingForm = ({
                   <Input
                     type="date"
                     label="Date"
-                    value={values.date.toISOString().split("T")[0]}
-                    onChange={(e) =>
-                      setFieldValue("date", new Date(e.target.value))
+                    value={
+                      values.date && !isNaN(values.date.getTime())
+                        ? values.date.toISOString().split("T")[0]
+                        : ""
                     }
+                    onChange={(e) => {
+                      const newDate = new Date(e.target.value);
+                      if (!isNaN(newDate.getTime())) {
+                        setFieldValue("date", newDate);
+                      }
+                    }}
                     error={dateError}
                     disabled={disableAllExceptStaff}
                   />
