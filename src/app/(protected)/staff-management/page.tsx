@@ -7,7 +7,13 @@ import EmployeeTable from "./components/EmployeeTable";
 import EmployeeDetailsPanel from "./components/EmployeeDetailsPanel";
 import EmployeeFormModal from "./components/EmployeeFormModal";
 import MobileEmployeeCard from "./components/MobileEmployeeCard";
-import { Employee, EmployeeApiResponse, RoleFilter, Service } from "./types";
+import {
+  Employee,
+  EmployeeApiResponse,
+  RoleFilter,
+  Service,
+  StaffFilters,
+} from "./types";
 import { staffApi } from "@/app/services/staff.api";
 import Pagination from "@/app/components/Pagination";
 import Loader from "@/app/components/Loader";
@@ -18,6 +24,7 @@ import RolesManager from "./components/RolesManager";
 import { rolesApi } from "@/app/services/roles.api";
 import { StaffRoles } from "./types";
 import ResetTargetModal from "./components/ResetTargetModal";
+import EmployeeFilters from "./components/EmployeeFilters";
 
 const StaffManagement = () => {
   const [isMobile, setIsMobile] = useState<boolean>(() => {
@@ -45,6 +52,14 @@ const StaffManagement = () => {
   const [employeeToDelete, setEmployeeToDelete] = useState<string | null>(null);
   const [resetTargetModalOpen, setResetTargetModalOpen] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
+  const [filters, setFilters] = useState<StaffFilters>({
+    searchQuery: "",
+    role: "all",
+    isActive: "",
+    fullName: "",
+    dateOfAppointment: "",
+    timeOfAppointment: "",
+  });
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -114,13 +129,17 @@ const StaffManagement = () => {
       const res = await staffApi.getAllStaff({
         page,
         limit,
-        role: roleFilter === "all" ? undefined : roleFilter,
+        role: filters.role === "all" ? undefined : filters.role,
+        fullName: filters.searchQuery || undefined,
+        isActive:
+          filters.isActive === "" ? undefined : filters.isActive === "true",
+        dateOfAppointment: filters.dateOfAppointment || undefined,
+        timeOfAppointment: filters.timeOfAppointment || undefined,
       });
 
       if (!mountedRef.current) return;
 
       const employeesFromApi = res.data as EmployeeApiResponse[];
-      console.log(employeesFromApi[0].lifetimeRevenue, "....")
       const mappedEmployees: Employee[] = employeesFromApi.map((emp) => ({
         id: emp._id,
         name: emp.fullName,
@@ -136,21 +155,42 @@ const StaffManagement = () => {
         target: emp.target || 0,
         targetType: emp.targetType || "N/A",
         availability: {
-          monday: emp.workingDays?.some((d: any) => String(d) === "1" || String(d) === "Monday") || false,
-          tuesday: emp.workingDays?.some((d: any) => String(d) === "2" || String(d) === "Tuesday") || false,
-          wednesday: emp.workingDays?.some((d: any) => String(d) === "3" || String(d) === "Wednesday") || false,
-          thursday: emp.workingDays?.some((d: any) => String(d) === "4" || String(d) === "Thursday") || false,
-          friday: emp.workingDays?.some((d: any) => String(d) === "5" || String(d) === "Friday") || false,
-          saturday: emp.workingDays?.some((d: any) => String(d) === "6" || String(d) === "Saturday") || false,
-          sunday: emp.workingDays?.some((d: any) => String(d) === "0" || String(d) === "Sunday") || false,
+          monday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "1" || String(d) === "Monday",
+            ) || false,
+          tuesday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "2" || String(d) === "Tuesday",
+            ) || false,
+          wednesday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "3" || String(d) === "Wednesday",
+            ) || false,
+          thursday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "4" || String(d) === "Thursday",
+            ) || false,
+          friday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "5" || String(d) === "Friday",
+            ) || false,
+          saturday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "6" || String(d) === "Saturday",
+            ) || false,
+          sunday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "0" || String(d) === "Sunday",
+            ) || false,
         },
-        performanceMetrics:{
-          completedServices: emp.completedAppointments || 0,
-          customerRating: emp.rating ?? 0,
-          revenueGenerated: emp.lifetimeRevenue || 0,
+        performanceMetrics: {
+          completedServices: emp?.completedAppointments || 0,
+          customerRating: emp?.rating ?? 0,
+          revenueGenerated: emp?.lifetimeRevenue || 0,
           bookingCompletionRate: 0,
-          achievedAmount: emp.achievedAmount || 0
-        }
+          achievedAmount: emp.achievedAmount || 0,
+        },
       }));
 
       setEmployees(mappedEmployees);
@@ -175,11 +215,11 @@ const StaffManagement = () => {
       mountedRef.current = false;
       fetchingRef.current = false;
     };
-  }, [roleFilter, page]);
+  }, [filters, page]);
 
   useEffect(() => {
     setPage(1);
-  }, [roleFilter]);
+  }, [filters]);
 
   useEffect(() => {
     fetchRoles();
@@ -200,7 +240,6 @@ const StaffManagement = () => {
 
       const res = await staffApi.getStaffDetails(employee.id);
       const emp = res.staffDetails;
-      console.log(emp, "emp")
 
       const mappedEmployee: Employee = {
         id: emp._id,
@@ -216,18 +255,39 @@ const StaffManagement = () => {
         target: emp.target,
         targetType: emp.targetType,
         availability: {
-          monday: emp.workingDays?.some((d: any) => String(d) === "1" || String(d) === "Monday") || false,
-          tuesday: emp.workingDays?.some((d: any) => String(d) === "2" || String(d) === "Tuesday") || false,
-          wednesday: emp.workingDays?.some((d: any) => String(d) === "3" || String(d) === "Wednesday") || false,
-          thursday: emp.workingDays?.some((d: any) => String(d) === "4" || String(d) === "Thursday") || false,
-          friday: emp.workingDays?.some((d: any) => String(d) === "5" || String(d) === "Friday") || false,
-          saturday: emp.workingDays?.some((d: any) => String(d) === "6" || String(d) === "Saturday") || false,
-          sunday: emp.workingDays?.some((d: any) => String(d) === "0" || String(d) === "Sunday") || false,
+          monday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "1" || String(d) === "Monday",
+            ) || false,
+          tuesday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "2" || String(d) === "Tuesday",
+            ) || false,
+          wednesday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "3" || String(d) === "Wednesday",
+            ) || false,
+          thursday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "4" || String(d) === "Thursday",
+            ) || false,
+          friday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "5" || String(d) === "Friday",
+            ) || false,
+          saturday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "6" || String(d) === "Saturday",
+            ) || false,
+          sunday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "0" || String(d) === "Sunday",
+            ) || false,
         },
         performanceMetrics: {
           completedServices: emp.completedAppointments || 0,
           customerRating: emp.rating ?? 0,
-          revenueGenerated: emp.lifetimeRevenue || 0,
+          revenueGenerated: emp?.lifetimeRevenue || 0,
           bookingCompletionRate: 0,
           achievedAmount: emp.achievedAmount || 0,
         },
@@ -279,9 +339,7 @@ const StaffManagement = () => {
     }
   };
 
-  const activeEmployees = employees.filter(
-    (emp) => emp.isActive,
-  ).length;
+  const activeEmployees = employees.filter((emp) => emp.isActive).length;
   const totalRevenue = employees.reduce(
     (sum, emp) => sum + emp.performanceMetrics.revenueGenerated,
     0,
@@ -386,6 +444,13 @@ const StaffManagement = () => {
             Reset Target
           </Button>
         </div>
+
+        <EmployeeFilters
+          filters={filters}
+          roles={roles}
+          totalStaff={employees.length}
+          onFiltersChange={setFilters}
+        />
 
         <div className="bg-card rounded-lg border border-border p-4 lg:p-6">
           <div className="flex flex-col lg:flex-row lg:items-center gap-4 mb-6">
