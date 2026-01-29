@@ -392,11 +392,17 @@ const BookingManagement = () => {
     if (appointmentIdFromUrl) {
       handleBookingClick(appointmentIdFromUrl);
     }
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete("appointmentId");
+//     const params = new URLSearchParams(searchParams.toString());
+//     params.delete("appointmentId");
 
-    router.replace(`?${params.toString()}`);
-  }, [searchParams, router]);
+//     router.replace(`?${params.toString()}`);
+//   }, [searchParams, router]);
+
+    const customerIdFromUrl = searchParams.get("customerId");
+    if (customerIdFromUrl) {
+      setShowBookingForm(true);
+    }
+  }, [searchParams]);
 
   const generateTimeSlots = (): TimeSlot[] => {
     if (salonStartDate) {
@@ -886,6 +892,7 @@ const BookingManagement = () => {
               selectedTime={selectedTime}
               bookingToEdit={selectedBooking}
               changeStaffOnly={changeStaffMode}
+              initialCustomerId={searchParams.get("customerId") || undefined}
               onCancel={() => {
                 setShowBookingForm(false);
                 setSelectedDate(undefined);
