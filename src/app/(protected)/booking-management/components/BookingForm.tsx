@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Formik, Form, useFormikContext } from "formik";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
@@ -322,6 +322,37 @@ const BookingForm = ({
     return "";
   };
 
+  const initialValues = useMemo(
+    () => ({
+      customerId: bookingToEdit?.customerId || initialCustomerId || "",
+      selectedItems: bookingToEdit
+        ? [
+            ...(bookingToEdit.serviceId
+              ? [
+                  {
+                    value: bookingToEdit.serviceId,
+                    label: bookingToEdit.serviceName,
+                    type: "service",
+                  },
+                ]
+              : []),
+            ...(Array.isArray(bookingToEdit.comboOffers)
+              ? bookingToEdit.comboOffers.map((combo: any) => ({
+                  value: combo.id || combo._id,
+                  label: combo.name,
+                  type: "combo",
+                }))
+              : []),
+          ]
+        : [],
+      staffId: getInitialStaffId(),
+      date: bookingToEdit?.date || selectedDate || new Date(),
+      startTime: bookingToEdit?.startTime || selectedTime || "",
+      notes: bookingToEdit?.notes || "",
+    }),
+    [bookingToEdit, initialCustomerId, selectedDate, selectedTime, customers],
+  );
+
   return (
     <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
       <div className="bg-card rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
@@ -335,33 +366,7 @@ const BookingForm = ({
 
         <Formik
           enableReinitialize={true}
-          initialValues={{
-            customerId: bookingToEdit?.customerId || initialCustomerId || "",
-            selectedItems: bookingToEdit
-              ? [
-                  ...(bookingToEdit.serviceId
-                    ? [
-                        {
-                          value: bookingToEdit.serviceId,
-                          label: bookingToEdit.serviceName,
-                          type: "service",
-                        },
-                      ]
-                    : []),
-                  ...(Array.isArray(bookingToEdit.comboOffers)
-                    ? bookingToEdit.comboOffers.map((combo: any) => ({
-                        value: combo.id || combo._id,
-                        label: combo.name,
-                        type: "combo",
-                      }))
-                    : []),
-                ]
-              : [],
-            staffId: getInitialStaffId(),
-            date: bookingToEdit?.date || selectedDate || new Date(),
-            startTime: bookingToEdit?.startTime || selectedTime || "",
-            notes: bookingToEdit?.notes || "",
-          }}
+          initialValues={initialValues}
           validationSchema={appointmentValidationSchema}
           onSubmit={handleSubmit}
         >
