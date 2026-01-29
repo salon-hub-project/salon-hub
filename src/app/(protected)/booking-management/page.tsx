@@ -27,7 +27,10 @@ import { serviceApi } from "@/app/services/service.api";
 import { staffApi } from "@/app/services/staff.api";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "@/app/store";
-import { fetchProfileTimings, getStaffProfile } from "@/app/store/slices/profileSlice";
+import {
+  fetchProfileTimings,
+  getStaffProfile,
+} from "@/app/store/slices/profileSlice";
 import Loader from "@/app/components/Loader";
 import { isStaff } from "@/app/utils/routePermissions";
 import { comboApi } from "@/app/services/combo.api";
@@ -379,6 +382,11 @@ const BookingManagement = () => {
     const appointmentIdFromUrl = searchParams.get("appointmentId");
     if (appointmentIdFromUrl) {
       handleBookingClick(appointmentIdFromUrl);
+    }
+
+    const customerIdFromUrl = searchParams.get("customerId");
+    if (customerIdFromUrl) {
+      setShowBookingForm(true);
     }
   }, [searchParams]);
 
@@ -849,6 +857,7 @@ const BookingManagement = () => {
               selectedTime={selectedTime}
               bookingToEdit={selectedBooking}
               changeStaffOnly={changeStaffMode}
+              initialCustomerId={searchParams.get("customerId") || undefined}
               onCancel={() => {
                 setShowBookingForm(false);
                 setSelectedDate(undefined);

@@ -165,6 +165,7 @@ const BookingForm = ({
   onSuccess,
   bookingToEdit,
   changeStaffOnly,
+  initialCustomerId,
   isLoading = false,
 }: BookingFormProps) => {
   // Get salon timings from Redux
@@ -302,6 +303,25 @@ const BookingForm = ({
     }
   };
 
+  // Pre-calculate preferred staff ID for initial values
+  const getInitialStaffId = () => {
+    if (bookingToEdit?.staffId) return bookingToEdit.staffId;
+
+    if (initialCustomerId) {
+      const selectedCustomer = customers.find(
+        (c) => c.id === initialCustomerId,
+      );
+      if (selectedCustomer?.preferredStaff) {
+        const prefStaff = selectedCustomer.preferredStaff;
+        return typeof prefStaff === "string"
+          ? prefStaff
+          : (prefStaff as any)._id || (prefStaff as any).id || "";
+      }
+    }
+
+    return "";
+  };
+
   return (
     <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
       <div className="bg-card rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
@@ -314,31 +334,11 @@ const BookingForm = ({
         </div>
 
         <Formik
-          // initialValues={{
-          //   customerId: "",
-          //   selectedItems: [] as SelectedItem[],
-          //   staffId: "",
-          //   date: selectedDate || new Date(),
-          //   startTime: selectedTime || "",
-          //   notes: "",
-          // }}
-          // initialValues={{
-          //   customerId: "",
-          //   selectedItems: [],
-          //   staffId: "",
-          //   date: selectedDate || new Date(),
-          //   startTime: selectedTime || "",
-          //   notes: "",
-          // }}
+          enableReinitialize={true}
           initialValues={{
-            customerId: bookingToEdit?.customerId || "",
+            customerId: bookingToEdit?.customerId || initialCustomerId || "",
             selectedItems: bookingToEdit
               ? [
-                  // {
-                  //   value: bookingToEdit.serviceId,
-                  //   label: bookingToEdit.serviceName,
-                  //   type: "service",
-                  // },
                   ...(bookingToEdit.serviceId
                     ? [
                         {
@@ -355,14 +355,9 @@ const BookingForm = ({
                         type: "combo",
                       }))
                     : []),
-                  //  {
-                  //   value: bookingToEdit.comboOffers,
-                  //   label: bookingToEdit.serviceName,
-                  //   type: "combo",
-                  // },
                 ]
               : [],
-            staffId: bookingToEdit?.staffId || "",
+            staffId: getInitialStaffId(),
             date: bookingToEdit?.date || selectedDate || new Date(),
             startTime: bookingToEdit?.startTime || selectedTime || "",
             notes: bookingToEdit?.notes || "",
@@ -410,16 +405,21 @@ const BookingForm = ({
                     const selectedCustomer = customers.find((c) => c.id === v);
                     if (selectedCustomer?.preferredStaff) {
                       const prefStaff = selectedCustomer.preferredStaff;
-                      const preferredStaffId = typeof prefStaff === "string" 
-                        ? prefStaff 
-                        : (prefStaff as any)._id || (prefStaff as any).id;
-                      
+                      const preferredStaffId =
+                        typeof prefStaff === "string"
+                          ? prefStaff
+                          : (prefStaff as any)._id || (prefStaff as any).id;
+
                       if (preferredStaffId) {
                         setFieldValue("staffId", preferredStaffId);
                       }
                     }
                   }}
-                  error={touched.customerId ? errors.customerId : undefined}
+                  error={
+                    touched.customerId
+                      ? (errors.customerId as string)
+                      : undefined
+                  }
                   onAddNew={() => router.push("/customer-database")}
                   disabled={disableAllExceptDateTime || disableAllExceptStaff}
                 />
@@ -499,7 +499,11 @@ const BookingForm = ({
                   value={values.startTime}
                   searchable
                   onChange={(v) => setFieldValue("startTime", v)}
-                  error={touched.startTime ? errors.startTime : timeError}
+                  error={
+                    touched.startTime
+                      ? (errors.startTime as string)
+                      : (timeError as string)
+                  }
                   disabled={disableAllExceptStaff}
                 />
 
@@ -511,7 +515,9 @@ const BookingForm = ({
                   value={values.staffId}
                   searchable
                   onChange={(v) => setFieldValue("staffId", v)}
-                  error={touched.staffId ? errors.staffId : undefined}
+                  error={
+                    touched.staffId ? (errors.staffId as string) : undefined
+                  }
                   onAddNew={() => router.push("/staff-management")}
                   disabled={isStaffUser}
                 />
@@ -529,7 +535,6 @@ const BookingForm = ({
                   disabled={disableAllExceptDateTime || disableAllExceptStaff}
                   rows={4}
                   className="w-full px-3 py-2 rounded-md border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-smooth resize-none"
-
                 />
 
                 {/* Actions */}

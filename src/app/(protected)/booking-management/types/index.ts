@@ -56,8 +56,8 @@ export interface Booking {
   createdAt: Date;
   commisionEarned?: number;
   comboOffers?: {
-    id: string, 
-    name: string
+    id: string;
+    name: string;
   }[];
   amount: number;
 }
@@ -118,10 +118,11 @@ export interface BookingFormProps {
   comboOffers: ComboOffer[];
   selectedDate?: Date;
   selectedTime?: string;
-  onSubmit? : (data: BookingFormData) => void;
+  onSubmit?: (data: BookingFormData) => void;
   onCancel: () => void;
-  onSuccess: ()=> void;
+  onSuccess: () => void;
   isLoading?: boolean;
   bookingToEdit?: Booking | null;
   changeStaffOnly?: boolean;
+  initialCustomerId?: string;
 }
