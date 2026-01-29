@@ -22,9 +22,8 @@ import Tooltip from "@/app/components/ui/Tooltip";
 
 const GetAllOwners = () => {
   const dispatch = useAppDispatch();
-  const { owners, isLoading, error, selectedOwner, page, limit, total } = useAppSelector(
-    (state) => state.owner
-  );
+  const { owners, isLoading, error, selectedOwner, page, limit, total } =
+    useAppSelector((state) => state.owner);
   const authUser = useAppSelector((state) => state.auth.user);
   const router = useRouter();
 
@@ -32,7 +31,7 @@ const GetAllOwners = () => {
   const [renewModalOpen, setRenewModalOpen] = useState(false);
   const [selectedOwnerId, setSelectedOwnerId] = useState<string | null>(null);
   const [selectedOwnerEmail, setSelectedOwnerEmail] = useState<string>("");
-  const totalPages= Math.ceil(total/limit);
+  const totalPages = Math.ceil(total / limit);
 
   useEffect(() => {
     dispatch(fetchOwners({ page: page, limit: limit }));
@@ -70,7 +69,7 @@ const GetAllOwners = () => {
 
   const effectiveRole = Array.isArray(authUser?.role)
     ? authUser?.role[0]
-    : authUser?.role ?? "salon_owner";
+    : (authUser?.role ?? "salon_owner");
   const normalizedRole = normalizeRole(effectiveRole);
 
   // Only allow SUPERADMIN to access this page
@@ -84,7 +83,7 @@ const GetAllOwners = () => {
     name:
       authUser && (authUser?.firstName || authUser?.lastName)
         ? `${authUser?.firstName ?? ""} ${authUser?.lastName ?? ""}`.trim()
-        : authUser?.email ?? "User",
+        : (authUser?.email ?? "User"),
     email: authUser?.email ?? "",
     role: effectiveRole,
   };
@@ -167,37 +166,38 @@ const GetAllOwners = () => {
                         />
                       </td> */}
                       <td className="flex items-center gap-3 pt-3 pl-3 overflow-visible">
-  {/* View */}
-  <Tooltip label="View Owner Details">
-    <Icon
-      name="Eye"
-      size={18}
-      className="text-destructive cursor-pointer"
-      onClick={() => dispatch(FetchOwnersDetails(owner._id))}
-    />
-  </Tooltip>
+                        {/* View */}
+                        <Tooltip label="View Owner Details">
+                          <Icon
+                            name="Eye"
+                            size={18}
+                            className="text-destructive cursor-pointer"
+                            onClick={() =>
+                              dispatch(FetchOwnersDetails(owner._id))
+                            }
+                          />
+                        </Tooltip>
 
-  {/* Renew */}
-  <Tooltip label="Renew Subscription">
-    <Icon
-      name="RefreshCcw"
-      size={18}
-      className="text-primary cursor-pointer"
-      onClick={() => handleRenew(owner)}
-    />
-  </Tooltip>
+                        {/* Renew */}
+                        <Tooltip label="Renew Subscription">
+                          <Icon
+                            name="RefreshCcw"
+                            size={18}
+                            className="text-primary cursor-pointer"
+                            onClick={() => handleRenew(owner)}
+                          />
+                        </Tooltip>
 
-  {/* Delete */}
-  <Tooltip label="Delete Owner">
-    <Icon
-      name="Trash"
-      size={18}
-      className="text-destructive cursor-pointer hover:text-destructive/80"
-      onClick={() => handleDelete(owner._id)}
-    />
-  </Tooltip>
-</td>
-
+                        {/* Delete */}
+                        <Tooltip label="Delete Owner">
+                          <Icon
+                            name="Trash"
+                            size={18}
+                            className="text-destructive cursor-pointer hover:text-destructive/80"
+                            onClick={() => handleDelete(owner._id)}
+                          />
+                        </Tooltip>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

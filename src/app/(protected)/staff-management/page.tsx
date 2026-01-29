@@ -120,7 +120,7 @@ const StaffManagement = () => {
       if (!mountedRef.current) return;
 
       const employeesFromApi = res.data as EmployeeApiResponse[];
-      console.log(employeesFromApi[0].lifetimeRevenue, "....")
+      console.log(employeesFromApi[0].lifetimeRevenue, "....");
       const mappedEmployees: Employee[] = employeesFromApi.map((emp) => ({
         id: emp._id,
         name: emp.fullName,
@@ -136,24 +136,49 @@ const StaffManagement = () => {
         target: emp.target || 0,
         targetType: emp.targetType || "N/A",
         availability: {
-          monday: emp.workingDays?.some((d: any) => String(d) === "1" || String(d) === "Monday") || false,
-          tuesday: emp.workingDays?.some((d: any) => String(d) === "2" || String(d) === "Tuesday") || false,
-          wednesday: emp.workingDays?.some((d: any) => String(d) === "3" || String(d) === "Wednesday") || false,
-          thursday: emp.workingDays?.some((d: any) => String(d) === "4" || String(d) === "Thursday") || false,
-          friday: emp.workingDays?.some((d: any) => String(d) === "5" || String(d) === "Friday") || false,
-          saturday: emp.workingDays?.some((d: any) => String(d) === "6" || String(d) === "Saturday") || false,
-          sunday: emp.workingDays?.some((d: any) => String(d) === "0" || String(d) === "Sunday") || false,
+          monday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "1" || String(d) === "Monday",
+            ) || false,
+          tuesday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "2" || String(d) === "Tuesday",
+            ) || false,
+          wednesday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "3" || String(d) === "Wednesday",
+            ) || false,
+          thursday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "4" || String(d) === "Thursday",
+            ) || false,
+          friday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "5" || String(d) === "Friday",
+            ) || false,
+          saturday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "6" || String(d) === "Saturday",
+            ) || false,
+          sunday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "0" || String(d) === "Sunday",
+            ) || false,
         },
-        performanceMetrics:{
+        performanceMetrics: {
           completedServices: emp.completedAppointments || 0,
           customerRating: emp.rating ?? 0,
           revenueGenerated: emp.lifetimeRevenue || 0,
           bookingCompletionRate: 0,
-          achievedAmount: emp.achievedAmount || 0
-        }
+          achievedAmount: emp.achievedAmount || 0,
+        },
       }));
 
-      setEmployees(mappedEmployees);
+      const sortedEmployees = [...mappedEmployees].sort(
+        (a, b) =>
+          new Date(b.joinDate).getTime() - new Date(a.joinDate).getTime(),
+      );
+      setEmployees(sortedEmployees);
       setTotalPages(res.pagination.totalPages);
     } catch (error) {
       if (mountedRef.current) {
@@ -200,7 +225,7 @@ const StaffManagement = () => {
 
       const res = await staffApi.getStaffDetails(employee.id);
       const emp = res.staffDetails;
-      console.log(emp, "emp")
+      console.log(emp, "emp");
 
       const mappedEmployee: Employee = {
         id: emp._id,
@@ -216,13 +241,34 @@ const StaffManagement = () => {
         target: emp.target,
         targetType: emp.targetType,
         availability: {
-          monday: emp.workingDays?.some((d: any) => String(d) === "1" || String(d) === "Monday") || false,
-          tuesday: emp.workingDays?.some((d: any) => String(d) === "2" || String(d) === "Tuesday") || false,
-          wednesday: emp.workingDays?.some((d: any) => String(d) === "3" || String(d) === "Wednesday") || false,
-          thursday: emp.workingDays?.some((d: any) => String(d) === "4" || String(d) === "Thursday") || false,
-          friday: emp.workingDays?.some((d: any) => String(d) === "5" || String(d) === "Friday") || false,
-          saturday: emp.workingDays?.some((d: any) => String(d) === "6" || String(d) === "Saturday") || false,
-          sunday: emp.workingDays?.some((d: any) => String(d) === "0" || String(d) === "Sunday") || false,
+          monday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "1" || String(d) === "Monday",
+            ) || false,
+          tuesday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "2" || String(d) === "Tuesday",
+            ) || false,
+          wednesday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "3" || String(d) === "Wednesday",
+            ) || false,
+          thursday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "4" || String(d) === "Thursday",
+            ) || false,
+          friday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "5" || String(d) === "Friday",
+            ) || false,
+          saturday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "6" || String(d) === "Saturday",
+            ) || false,
+          sunday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "0" || String(d) === "Sunday",
+            ) || false,
         },
         performanceMetrics: {
           completedServices: emp.completedAppointments || 0,
@@ -279,9 +325,7 @@ const StaffManagement = () => {
     }
   };
 
-  const activeEmployees = employees.filter(
-    (emp) => emp.isActive,
-  ).length;
+  const activeEmployees = employees.filter((emp) => emp.isActive).length;
   const totalRevenue = employees.reduce(
     (sum, emp) => sum + emp.performanceMetrics.revenueGenerated,
     0,

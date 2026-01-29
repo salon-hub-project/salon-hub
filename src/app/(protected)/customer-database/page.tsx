@@ -103,12 +103,12 @@ const CustomerDatabase = () => {
   //   setCustomerTags((prev) => prev.filter((tag) => tag.id !== id));
   // };
 
-//   const customerTag = {
-//   VIP: 'VIP',
-//   NEW: 'New',
-//   FREQUENT: 'Frequent',
-//   INACTIVE: 'Inactive',
-// }
+  //   const customerTag = {
+  //   VIP: 'VIP',
+  //   NEW: 'New',
+  //   FREQUENT: 'Frequent',
+  //   INACTIVE: 'Inactive',
+  // }
 
   //Fetch Customers:-
   const fetchCustomers = useCallback(async () => {
@@ -157,7 +157,10 @@ const CustomerDatabase = () => {
           c.preferredStaff?._id || c.preferredStaff?.fullName || "",
         avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(c.fullName)}`,
       }));
-      setCustomers(mappedCustomers);
+      const sortedCustomers = [...mappedCustomers].sort(
+        (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
+      );
+      setCustomers(sortedCustomers);
       setTotalPages(Math.ceil(response.meta.total / response.meta.limit));
     } catch (error) {
       if (mountedRef.current) {
@@ -390,7 +393,10 @@ const CustomerDatabase = () => {
         .filter(Boolean);
 
       if (numbers.length === 0) {
-        showToast({ message: "No phone numbers found for selected customers", status: "error" });
+        showToast({
+          message: "No phone numbers found for selected customers",
+          status: "error",
+        });
         return;
       }
 
@@ -564,7 +570,9 @@ const CustomerDatabase = () => {
         <div className="fixed inset-0 bg-black/50 z-[110] flex items-center justify-center p-4">
           <div className="bg-card rounded-lg shadow-xl max-w-lg w-full max-h-[80vh] flex flex-col">
             <div className="flex items-center justify-between p-6 border-b border-border">
-              <h2 className="text-xl font-semibold text-foreground">Select Combo Offer</h2>
+              <h2 className="text-xl font-semibold text-foreground">
+                Select Combo Offer
+              </h2>
               <button
                 onClick={() => setIsComboModalOpen(false)}
                 className="p-2 rounded-md hover:bg-muted transition-smooth"
@@ -574,7 +582,9 @@ const CustomerDatabase = () => {
             </div>
             <div className="flex-1 overflow-y-auto p-6 space-y-3">
               {availableCombos.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">No active combo offers found.</p>
+                <p className="text-center text-muted-foreground py-8">
+                  No active combo offers found.
+                </p>
               ) : (
                 availableCombos.map((combo) => (
                   <button
@@ -606,7 +616,10 @@ const CustomerDatabase = () => {
               )}
             </div>
             <div className="p-6 border-t border-border flex justify-end">
-              <Button variant="ghost" onClick={() => setIsComboModalOpen(false)}>
+              <Button
+                variant="ghost"
+                onClick={() => setIsComboModalOpen(false)}
+              >
                 Cancel
               </Button>
             </div>

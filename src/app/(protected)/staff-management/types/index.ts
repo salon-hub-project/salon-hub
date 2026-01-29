@@ -9,11 +9,11 @@ export interface Employee {
   email: string;
   avatar?: string;
   status: "active" | "inactive";
-  isActive?: boolean
+  isActive?: boolean;
   joinDate: string;
   assignedServices: string[];
   staffImage: File | string | null;
-  target: number,
+  target: number;
   targetType: string;
   performanceMetrics: {
     completedServices: number;
@@ -59,8 +59,8 @@ export interface EmployeeFormData {
   target: number | null;
   targetType: string;
   salary: number | null;
-  breakStartTime: string;   // ✅ ADD
-  breakEndTime: string;  
+  breakStartTime: string; // ✅ ADD
+  breakEndTime: string;
   assignedServices: string[];
   staffImage: File | string | null;
   availability: {
@@ -95,8 +95,8 @@ export interface EmployeeApiResponse {
     email?: string;
     phoneNumber?: string;
   };
-  target: number,
-  targetType: string,
+  target: number;
+  targetType: string;
   staffImage?: File | string | null;
   lifetimeRevenue: number;
   completedAppointments: number;
@@ -135,5 +135,5 @@ export interface ServicesApiResponse {
   message?: string;
 }
 
-export type SortField = "name" | "role" | "rating" | "revenue";
+export type SortField = "name" | "role" | "rating" | "revenue" | "joinDate";
 export type SortOrder = "asc" | "desc";

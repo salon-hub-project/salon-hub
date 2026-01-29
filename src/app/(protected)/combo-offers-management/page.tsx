@@ -24,8 +24,8 @@ const ComboOffersManagement = () => {
   const [filters, setFilters] = useState<ComboFilters>({
     status: "all",
     searchQuery: "",
-    sortBy: "name",
-    sortOrder: "asc",
+    sortBy: "createdAt",
+    sortOrder: "desc",
   });
 
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
@@ -86,8 +86,11 @@ const ComboOffersManagement = () => {
       const mappedCombos: ComboOffer[] = combosData.map((c: any) => {
         const comboServices: ComboService[] = c.services
           .map((serviceItem: any) => {
-             // Handle both string ID and populated object
-            const serviceId = typeof serviceItem === 'string' ? serviceItem : (serviceItem._id || serviceItem.id);
+            // Handle both string ID and populated object
+            const serviceId =
+              typeof serviceItem === "string"
+                ? serviceItem
+                : serviceItem._id || serviceItem.id;
             const found = mappedServices.find((s: any) => s.id === serviceId);
             return found
               ? {
@@ -108,20 +111,20 @@ const ComboOffersManagement = () => {
           originalPrice: c.actualPrice,
           discountedPrice: c.discountedPrice,
           savingsPercentage: c.savedPercent,
-          isActive: true, 
+          isActive: true,
           validFrom: new Date(c.validFrom),
           validUntil: new Date(c.validTill), // note naming difference
           customerEligibility: c.customerEligibility,
-            // typeof c.customerEligibility === "object" && c.customerEligibility !== null
-            //   ? c.customerEligibility._id
-            //   : c.customerEligibility || "all",
+          // typeof c.customerEligibility === "object" && c.customerEligibility !== null
+          //   ? c.customerEligibility._id
+          //   : c.customerEligibility || "all",
           staffCommissionRate: c.staffCommissionRate || null,
           minBookingRequirement: c.minBookingRequirement || undefined,
           popularity: 0,
           totalBookings: 0,
           revenueGenerated: c.revenueGenerated || 0, // Just putting something here
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: c.createdAt ? new Date(c.createdAt) : new Date(),
+          updatedAt: c.updatedAt ? new Date(c.updatedAt) : new Date(),
         };
       });
 
@@ -187,6 +190,10 @@ const ComboOffersManagement = () => {
         case "revenue":
           comparison = a.revenueGenerated - b.revenueGenerated;
           break;
+        case "createdAt":
+        default:
+          comparison = a.createdAt.getTime() - b.createdAt.getTime();
+          break;
       }
 
       return filters.sortOrder === "asc" ? comparison : -comparison;
@@ -196,7 +203,7 @@ const ComboOffersManagement = () => {
     try {
       const originalPrice = data.services.reduce(
         (sum, s) => sum + s.originalPrice,
-        0
+        0,
       );
       const discountedPrice = data.discountedPrice ?? 0;
       const savingsPercentage =
@@ -221,7 +228,7 @@ const ComboOffersManagement = () => {
 
       await comboApi.createComboOffer(payload);
       handleCloseModal();
-      fetchData(); 
+      fetchData();
     } catch (error) {
       console.error("Failed to create combo", error);
     }
@@ -232,12 +239,12 @@ const ComboOffersManagement = () => {
     const discountedPrice = data.discountedPrice ?? 0;
     const originalPrice = data.services.reduce(
       (sum, s) => sum + s.originalPrice,
-      0
+      0,
     );
     const savingsPercentage =
       ((originalPrice - discountedPrice) / originalPrice) * 100;
     const savedAmount = originalPrice - discountedPrice;
-    
+
     const payload = {
       name: data.name,
       description: data.description,
@@ -274,12 +281,11 @@ const ComboOffersManagement = () => {
     // API toggle not yet implemented
     console.log(
       "Toggle requires backend support or full update payload",
-      comboId
+      comboId,
     );
   };
 
   const handleDuplicate = (combo: ComboOffer) => {
-    
     const duplicatedData: ComboFormData = {
       name: `${combo.name} (Copy)`,
       description: combo.description,
@@ -297,7 +303,7 @@ const ComboOffersManagement = () => {
     try {
       const res = await comboApi.getComboOfferById(combo.id);
       const c = res.data || res; // handle potential response wrapper
-      
+
       // Map service IDs to full service objects (reusing mappedServices would be ideal but for single item we can look up from availableServices state if populated, or fetch again if needed. For now assuming availableServices has data)
       const comboServices: ComboService[] = c.services
         .map((serviceId: string) => {
@@ -369,11 +375,10 @@ const ComboOffersManagement = () => {
         originalPrice: s.originalPrice,
       })),
     };
-  
+
     setEditingCombo(normalizedCombo);
     setIsFormModalOpen(true);
   };
-  
 
   const handleCloseModal = () => {
     setIsFormModalOpen(false);
@@ -412,7 +417,11 @@ const ComboOffersManagement = () => {
           </Button>
         </div>
 
-        <ComboStats combos={combos} totalCombos={pagination.totalCombos} totalRevenues= {totalRevenue}/>
+        <ComboStats
+          combos={combos}
+          totalCombos={pagination.totalCombos}
+          totalRevenues={totalRevenue}
+        />
 
         <ComboFiltersComponent
           filters={filters}

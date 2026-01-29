@@ -28,8 +28,8 @@ const EmployeeTable = ({
   onViewDetails,
   onDelete,
 }: EmployeeTableProps) => {
-  const [sortField, setSortField] = useState<SortField>("name");
-  const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
+  const [sortField, setSortField] = useState<SortField>("joinDate");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [statusUpdate, setStatusUpdate] = useState(true);
 
   // ✅ ROLE ID → ROLE NAME MAP
@@ -75,6 +75,11 @@ const EmployeeTable = ({
       case "revenue":
         aValue = a.performanceMetrics.revenueGenerated;
         bValue = b.performanceMetrics.revenueGenerated;
+        break;
+
+      case "joinDate":
+        aValue = new Date(a.joinDate).getTime();
+        bValue = new Date(b.joinDate).getTime();
         break;
     }
 
@@ -268,7 +273,7 @@ const EmployeeTable = ({
                         e.stopPropagation();
                         onEdit(employee);
                       }}
-                      disabled= {!employee.isActive}
+                      disabled={!employee.isActive}
                     >
                       <Icon name="Edit" size={16} />
                     </button>
@@ -277,7 +282,7 @@ const EmployeeTable = ({
                         e.stopPropagation();
                         onDelete(employee.id);
                       }}
-                      disabled= {!employee.isActive}
+                      disabled={!employee.isActive}
                     >
                       <Icon name="Trash" size={16} />
                     </button>

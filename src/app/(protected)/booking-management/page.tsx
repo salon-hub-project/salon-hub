@@ -246,7 +246,11 @@ const BookingManagement = () => {
       });
 
       if (mountedRef.current) {
-        setBookings(mappedBookings);
+        // Sort by createdAt descending (latest first)
+        const sortedBookings = [...mappedBookings].sort(
+          (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
+        );
+        setBookings(sortedBookings);
       }
     } catch (error) {
       if (mountedRef.current) {

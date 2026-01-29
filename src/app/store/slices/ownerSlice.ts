@@ -28,14 +28,14 @@ export const fetchOwners = createAsyncThunk(
   "owner/fetchOwners",
   async ({ page, limit }: { page: number; limit: number }) => {
     return await ownerApi.getAllOwners(page, limit);
-  }
+  },
 );
 
 export const FetchOwnersDetails = createAsyncThunk(
   "owner/ownerDetails",
   async (id: string) => {
     return await ownerApi.getOwnerDetails(id);
-  }
+  },
 );
 
 /* APPROVE OWNER */
@@ -43,7 +43,7 @@ export const approveOwner = createAsyncThunk(
   "owner/approveOwner",
   async (ownerId: string) => {
     return await ownerApi.approveOwner(ownerId);
-  }
+  },
 );
 
 // UPDATE OWNER
@@ -51,17 +51,17 @@ export const updateOwner = createAsyncThunk(
   "owner/updateOwner",
   async (
     { ownerId, formData }: { ownerId: string; formData: FormData },
-    { rejectWithValue }
+    { rejectWithValue },
   ) => {
     try {
       const response = await ownerApi.updateOwner(ownerId, formData);
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Owner update failed"
+        error.response?.data?.message || "Owner update failed",
       );
     }
-  }
+  },
 );
 
 /* DELETE OWNER */
@@ -70,20 +70,25 @@ export const deleteOwner = createAsyncThunk(
   async (ownerId: string) => {
     await ownerApi.deleteOwner(ownerId);
     return ownerId;
-  }
+  },
 );
 
 /* RENEW SUBSCRIPTION */
 export const renewSubscription = createAsyncThunk(
   "owner/renewSubscription",
-  async ({ ownerId, months }: { ownerId: string; months: number }, { rejectWithValue }) => {
+  async (
+    { ownerId, months }: { ownerId: string; months: number },
+    { rejectWithValue },
+  ) => {
     try {
       const response = await ownerApi.renewSubscription(ownerId, months);
       return { ownerId, ...response };
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || "Subscription renewal failed");
+      return rejectWithValue(
+        error.response?.data?.message || "Subscription renewal failed",
+      );
     }
-  }
+  },
 );
 
 /* SLICE */
@@ -144,7 +149,7 @@ const ownerSlice = createSlice({
         const updatedOwner = action.payload;
 
         const index = state.owners.findIndex(
-          (owner) => owner._id === updatedOwner._id
+          (owner) => owner._id === updatedOwner._id,
         );
 
         if (index !== -1) {
@@ -156,7 +161,7 @@ const ownerSlice = createSlice({
         state.isLoading = false;
         const updatedOwner = action.payload;
         const index = state.owners.findIndex(
-          (owner) => owner._id === updatedOwner._id
+          (owner) => owner._id === updatedOwner._id,
         );
 
         if (index !== -1) {
@@ -168,7 +173,7 @@ const ownerSlice = createSlice({
       .addCase(deleteOwner.fulfilled, (state, action) => {
         const deletedOwnerId = action.payload;
         state.owners = state.owners.filter(
-          (owner) => owner._id !== deletedOwnerId
+          (owner) => owner._id !== deletedOwnerId,
         );
         state.total = Math.max(0, state.total - 1);
       })
