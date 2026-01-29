@@ -3,6 +3,10 @@
 import { useRouter } from "next/navigation";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
+import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Clock } from "lucide-react";
+import { cn } from "../../../utils/cn";
 
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import {
@@ -93,8 +97,174 @@ const normalizeWorkingDaysInitialValue = (value: unknown): number[] => {
   return [];
 };
 
+const timeTo12h = (time: string) => {
+  if (!time) return "";
+  const [h] = time.split(":");
+  const hours = parseInt(h);
+  if (isNaN(hours)) return time;
+  const suffix = hours >= 12 ? "PM" : "AM";
+  const h12 = hours % 12 || 12;
+  return `${h12.toString().padStart(2, "0")}:00 ${suffix}`;
+};
 
+const timeTo24h = (time12h: string) => {
+  if (!time12h) return "";
+  const match = time12h.match(/(\d+):00\s*(AM|PM)/i);
+  if (!match) return time12h;
+  let h = parseInt(match[1]);
+  const suffix = match[2].toUpperCase();
+  if (suffix === "PM" && h < 12) h += 12;
+  if (suffix === "AM" && h === 12) h = 0;
+  return `${h.toString().padStart(2, "0")}:00`;
+};
 
+const HOUR_PICKER_OPTIONS = [
+  "12",
+  "01",
+  "02",
+  "03",
+  "04",
+  "05",
+  "06",
+  "07",
+  "08",
+  "09",
+  "10",
+  "11",
+];
+const PERIOD_OPTIONS = ["AM", "PM"];
+
+const HourPicker = ({ label, value, onChange, error, name }: any) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const [h, p] = value ? value.split(" ") : ["10:00", "AM"];
+  const hourPart = h.split(":")[0];
+
+  const handleSelect = (newHour: string, newPeriod: string) => {
+    onChange(`${newHour}:00 ${newPeriod}`);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div className="relative" ref={containerRef}>
+      <div className="space-y-2">
+        {label && (
+          <label className="text-sm font-medium leading-none text-foreground block mb-2">
+            {label}
+          </label>
+        )}
+        <div className="relative flex items-center">
+          <input
+            readOnly
+            value={value}
+            onClick={() => setIsOpen(!isOpen)}
+            placeholder="Select Time"
+            className={cn(
+              "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer pr-10",
+              error && "border-destructive focus-visible:ring-destructive",
+            )}
+          />
+          <button
+            type="button"
+            className="absolute right-3 text-muted-foreground hover:text-foreground transition-colors"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            <Clock size={18} />
+          </button>
+        </div>
+        {error && (
+          <p className="text-sm text-red-600 font-medium mt-1">{error}</p>
+        )}
+      </div>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="absolute z-[100] mt-2 bg-white border border-gray-200 rounded-xl shadow-2xl p-3 flex gap-4 min-w-[220px]"
+            style={{ top: "100%", left: 0 }}
+          >
+            {/* Hour column */}
+            <div className="flex-1 flex flex-col gap-1 max-h-64 overflow-y-auto pr-1">
+              <p className="text-[10px] text-gray-400 font-bold uppercase mb-1 px-2">
+                Hour
+              </p>
+              {HOUR_PICKER_OPTIONS.map((hour) => (
+                <button
+                  key={hour}
+                  type="button"
+                  className={cn(
+                    "w-full text-center py-2 rounded-lg text-sm transition-all duration-200",
+                    hourPart === hour
+                      ? "bg-blue-600 text-white font-bold shadow-md shadow-blue-200"
+                      : "hover:bg-gray-50 text-gray-700 font-medium",
+                  )}
+                  onClick={() => handleSelect(hour, p)}
+                >
+                  {hour}
+                </button>
+              ))}
+            </div>
+
+            {/* Divider */}
+            <div className="w-[1px] bg-gray-100 self-stretch my-2" />
+
+            {/* Period column */}
+            <div className="flex flex-col gap-1 justify-center">
+              <p className="text-[10px] text-gray-400 font-bold uppercase mb-1 px-2 text-center">
+                AM/PM
+              </p>
+              {PERIOD_OPTIONS.map((period) => (
+                <button
+                  key={period}
+                  type="button"
+                  className={cn(
+                    "px-5 py-3 rounded-lg text-sm transition-all duration-200 font-bold",
+                    p === period
+                      ? "bg-blue-600 text-white shadow-md shadow-blue-200"
+                      : "hover:bg-gray-50 text-gray-700",
+                  )}
+                  onClick={() => handleSelect(hourPart, period)}
+                >
+                  {period}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #e5e7eb;
+          border-radius: 4px;
+        }
+      `}</style>
+    </div>
+  );
+};
 
 const CreateProfile = () => {
   const router = useRouter();
@@ -109,8 +279,8 @@ const CreateProfile = () => {
     ownerName: profile?.ownerName || "",
     salonImage: null,
     workingDays: normalizeWorkingDaysInitialValue(profile?.workingDays),
-    openingTime: profile?.openingTime || "",
-    closingTime: profile?.closingTime || "",
+    openingTime: profile?.openingTime ? timeTo12h(profile.openingTime) : "",
+    closingTime: profile?.closingTime ? timeTo12h(profile.closingTime) : "",
   };
 
   const ProfileSchema = Yup.object().shape({
@@ -120,19 +290,15 @@ const CreateProfile = () => {
     closingTime: Yup.string(),
     workingDays: Yup.array().of(Yup.number()),
     salonImage: Yup.mixed()
-    .nullable()
-    .test(
-      "image-required",
-      "Salon image is required",
-      function (value) {
+      .nullable()
+      .test("image-required", "Salon image is required", function (value) {
         // create mode → image required
         if (!isEditMode) {
           return value instanceof File;
         }
         // edit mode → optional
         return true;
-      }
-    ),
+      }),
   });
 
   const handleSubmit = async (values: ProfileFormValues) => {
@@ -140,8 +306,8 @@ const CreateProfile = () => {
     formData.append("salonName", values.salonName);
     formData.append("ownerName", values.ownerName);
     formData.append("workingDays", JSON.stringify(values.workingDays));
-    formData.append("openingTime", values.openingTime);
-    formData.append("closingTime", values.closingTime);
+    formData.append("openingTime", timeTo24h(values.openingTime));
+    formData.append("closingTime", timeTo24h(values.closingTime));
 
     if (values.salonImage) {
       formData.append("salonImage", values.salonImage);
@@ -155,7 +321,6 @@ const CreateProfile = () => {
 
     router.push("/profile");
   };
-  
 
   return (
     <AuthGuard>
@@ -186,18 +351,20 @@ const CreateProfile = () => {
                 error={touched.ownerName ? errors.ownerName : undefined}
               />
 
-              <Input
+              <HourPicker
                 label="Opening Time"
-                type="time"
                 value={values.openingTime}
-                onChange={(e) => setFieldValue("openingTime", e.target.value)}
+                onChange={(val: string) => setFieldValue("openingTime", val)}
+                error={touched.openingTime ? errors.openingTime : undefined}
+                name="openingTime"
               />
 
-              <Input
+              <HourPicker
                 label="Closing Time"
-                type="time"
                 value={values.closingTime}
-                onChange={(e) => setFieldValue("closingTime", e.target.value)}
+                onChange={(val: string) => setFieldValue("closingTime", val)}
+                error={touched.closingTime ? errors.closingTime : undefined}
+                name="closingTime"
               />
 
               <Select
@@ -211,7 +378,7 @@ const CreateProfile = () => {
                     "workingDays",
                     arr
                       .map((n) => Number(n))
-                      .filter((n) => Number.isFinite(n) && n >= 0 && n <= 6)
+                      .filter((n) => Number.isFinite(n) && n >= 0 && n <= 6),
                   );
                 }}
                 options={DAY_LABELS.map((label, index) => ({
@@ -231,7 +398,6 @@ const CreateProfile = () => {
                       src={profile.salonImage}
                       alt="Salon"
                       className="h-32 w-32 object-cover rounded"
-                      
                     />
                   </div>
                 )}
@@ -253,35 +419,37 @@ const CreateProfile = () => {
                     className="mt-1 block w-full text-sm"
                   /> */}
                   <input
-  type="file"
-  accept="image/*"
-  onChange={(e) => {
-    const file = e.currentTarget.files?.[0];
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.currentTarget.files?.[0];
 
-    if (!file) {
-      setFieldValue("salonImage", null);
-      return;
-    }
+                      if (!file) {
+                        setFieldValue("salonImage", null);
+                        return;
+                      }
 
-    // ✅ Strict image validation
-    if (!file.type.startsWith("image/")) {
-      showToast({
-        message: "Only image files are allowed (jpg, png, jpeg, webp)",
-        status: "error",
-      });
-      e.currentTarget.value = ""; // reset input
-      setFieldValue("salonImage", null);
-      return;
-    }
+                      // ✅ Strict image validation
+                      if (!file.type.startsWith("image/")) {
+                        showToast({
+                          message:
+                            "Only image files are allowed (jpg, png, jpeg, webp)",
+                          status: "error",
+                        });
+                        e.currentTarget.value = ""; // reset input
+                        setFieldValue("salonImage", null);
+                        return;
+                      }
 
-    setFieldValue("salonImage", file);
-  }}
-  className="mt-1 block w-full text-sm"
-/>
-{touched.salonImage && errors.salonImage && (
-  <p className="text-red-500 text-sm mt-1">{errors.salonImage}</p>
-)}
-
+                      setFieldValue("salonImage", file);
+                    }}
+                    className="mt-1 block w-full text-sm"
+                  />
+                  {touched.salonImage && errors.salonImage && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.salonImage}
+                    </p>
+                  )}
                 </div>
               </div>
 
