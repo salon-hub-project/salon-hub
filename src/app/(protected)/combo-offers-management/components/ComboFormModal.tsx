@@ -31,8 +31,6 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
   combo,
   availableServices,
 }) => {
-
-
   // const initialValues: ComboFormData = {
   //   name: combo?.name || "",
   //   description: combo?.description || "",
@@ -53,19 +51,19 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
     validFrom: combo?.validFrom || new Date(),
     validUntil:
       combo?.validUntil || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-  
+
     minBookingRequirement: combo?.minBookingRequirement ?? undefined,
-  
+
     customerEligibility:
       combo?.customerEligibility && combo.customerEligibility !== "all"
         ? combo.customerEligibility
         : "",
-  
+
     staffCommissionRate: combo?.staffCommissionRate ?? null,
   };
-  
+
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
- // const [customerTags, setCustomerTags] = useState<any[]>([]); // Use any[] or specific type if available
+  // const [customerTags, setCustomerTags] = useState<any[]>([]); // Use any[] or specific type if available
   const [loadingTags, setLoadingTags] = useState(false);
   const router = useRouter();
 
@@ -284,7 +282,6 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                     </div>
 
                     {/* DATES */}
-                  
                   </div>
 
                   {/* RIGHT COLUMN */}
@@ -383,30 +380,40 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                       min="0"
                       max="100"
                     /> */}
-                      <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-4">
                       <Input
                         label="Valid From *"
                         type="date"
                         value={
-                          new Date(values.validFrom).toISOString().split("T")[0]
+                          values.validFrom &&
+                          !isNaN(new Date(values.validFrom).getTime())
+                            ? new Date(values.validFrom)
+                                .toISOString()
+                                .split("T")[0]
+                            : ""
                         }
                         min={today}
-                        onChange={(e) =>
-                          setFieldValue("validFrom", new Date(e.target.value))
-                        }
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setFieldValue("validFrom", val ? new Date(val) : "");
+                        }}
                       />
 
                       <Input
                         label="Valid Until *"
                         type="date"
                         value={
-                          new Date(values.validUntil)
-                            .toISOString()
-                            .split("T")[0]
+                          values.validUntil &&
+                          !isNaN(new Date(values.validUntil).getTime())
+                            ? new Date(values.validUntil)
+                                .toISOString()
+                                .split("T")[0]
+                            : ""
                         }
-                        onChange={(e) =>
-                          setFieldValue("validUntil", new Date(e.target.value))
-                        }
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setFieldValue("validUntil", val ? new Date(val) : "");
+                        }}
                         error={
                           touched.validUntil
                             ? (errors.validUntil as string)
