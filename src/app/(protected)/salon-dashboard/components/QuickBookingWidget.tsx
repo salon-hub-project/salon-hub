@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Formik, Form } from "formik";
 import Icon from "../../../components/AppIcon";
 import Button from "../../../components/ui/Button";
@@ -17,6 +17,9 @@ import { useAppSelector } from "@/app/store/hooks";
 import { isStaff } from "@/app/utils/routePermissions";
 import { comboApi } from "@/app/services/combo.api";
 import GroupedSelect from "@/app/components/ui/GroupedSelect";
+import { motion, AnimatePresence } from "framer-motion";
+import { Clock } from "lucide-react";
+import { cn } from "@/app/utils/cn";
 
 interface QuickBookingWidgetProps {
   onCreateBooking: (data: any) => void;
@@ -40,15 +43,14 @@ const BookingValidationSchema = Yup.object({
   customer: Yup.string().required("Please select a customer"),
 
   selectedItems: Yup.array()
-  .of(
-    Yup.object({
-      value: Yup.string().required(),
-      type: Yup.mixed<"service" | "combo">().required(),
-    })
-  )
-  .min(1, "Please select at least one service or combo")
-  .required(),
-
+    .of(
+      Yup.object({
+        value: Yup.string().required(),
+        type: Yup.mixed<"service" | "combo">().required(),
+      }),
+    )
+    .min(1, "Please select at least one service or combo")
+    .required(),
 
   staff: Yup.string().required("Please select a staff member"),
 
@@ -56,6 +58,160 @@ const BookingValidationSchema = Yup.object({
 
   time: Yup.string().required("Please select a time"),
 });
+
+const timeTo24h = (time12h: string) => {
+  if (!time12h) return "";
+  const match = time12h.match(/(\d+):00\s*(AM|PM)/i);
+  if (!match) return time12h;
+  let h = parseInt(match[1]);
+  const suffix = match[2].toUpperCase();
+  if (suffix === "PM" && h < 12) h += 12;
+  if (suffix === "AM" && h === 12) h = 0;
+  return `${h.toString().padStart(2, "0")}:00`;
+};
+
+const HOUR_PICKER_OPTIONS = [
+  "12",
+  "01",
+  "02",
+  "03",
+  "04",
+  "05",
+  "06",
+  "07",
+  "08",
+  "09",
+  "10",
+  "11",
+];
+const PERIOD_OPTIONS = ["AM", "PM"];
+
+const HourPicker = ({ label, value, onChange, error }: any) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const [h, p] = value ? value.split(" ") : ["10:00", "AM"];
+  const hourPart = h.split(":")[0];
+
+  const handleSelect = (newHour: string, newPeriod: string) => {
+    onChange(`${newHour}:00 ${newPeriod}`);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div className="relative" ref={containerRef}>
+      <div className="space-y-2">
+        {label && (
+          <label className="text-sm font-medium leading-none text-foreground">
+            {label}
+          </label>
+        )}
+        <div className="relative flex items-center">
+          <input
+            readOnly
+            value={value}
+            onClick={() => setIsOpen(!isOpen)}
+            placeholder="Select Time"
+            className={cn(
+              "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer pr-10",
+              error && "border-destructive focus-visible:ring-destructive",
+            )}
+          />
+          <button
+            type="button"
+            className="absolute right-3 text-muted-foreground hover:text-foreground transition-colors"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            <Clock size={18} />
+          </button>
+        </div>
+        {error && <p className="text-sm text-red-600">{error}</p>}
+      </div>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="absolute z-[100] mt-2 bg-card border border-border rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.3)] p-2 flex gap-2 w-[150px]"
+            style={{ top: "100%", right: 0 }}
+          >
+            <div className="flex-1 flex flex-col gap-1 max-h-40 overflow-y-auto pr-1 custom-scrollbar">
+              <p className="text-[10px] text-muted-foreground font-bold uppercase mb-1 px-1 text-center">
+                Hr
+              </p>
+              {HOUR_PICKER_OPTIONS.map((hour) => (
+                <button
+                  key={hour}
+                  type="button"
+                  className={cn(
+                    "w-full text-center py-1.5 rounded-lg text-xs transition-all duration-200",
+                    hourPart === hour
+                      ? "bg-primary text-primary-foreground font-bold shadow-sm"
+                      : "hover:bg-accent text-foreground font-medium",
+                  )}
+                  onClick={() => handleSelect(hour, p)}
+                >
+                  {hour}
+                </button>
+              ))}
+            </div>
+
+            <div className="w-[1px] bg-border self-stretch my-1" />
+
+            <div className="flex flex-col gap-1 justify-center">
+              <p className="text-[10px] text-muted-foreground font-bold uppercase mb-1 px-1 text-center">
+                P
+              </p>
+              {PERIOD_OPTIONS.map((period) => (
+                <button
+                  key={period}
+                  type="button"
+                  className={cn(
+                    "px-3 py-3 rounded-lg text-xs transition-all duration-200 font-bold",
+                    p === period
+                      ? "bg-primary text-primary-foreground shadow-md"
+                      : "hover:bg-accent text-foreground",
+                  )}
+                  onClick={() => handleSelect(hourPart, period)}
+                >
+                  {period}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: hsl(var(--border));
+          border-radius: 4px;
+        }
+      `}</style>
+    </div>
+  );
+};
 
 const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
   const user = useAppSelector((state) => state.auth.user);
@@ -157,11 +313,11 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
 
       const payload = {
         customerId: values.customer,
-        services, 
-        comboOffers, 
+        services,
+        comboOffers,
         staffId: values.staff,
         appointmentDate: values.date,
-        appointmentTime: values.time,
+        appointmentTime: timeTo24h(values.time),
       };
 
       await appointmentApi.createAppointment(payload);
@@ -173,25 +329,6 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
       });
     }
   };
-
-  // const serviceComboDropDown = [
-  //   {
-  //     label: "Services",
-  //     options: serviceOptions.map((s) => ({
-  //       value: s.value,
-  //       label: s.label,
-  //       type: "service",
-  //     })),
-  //   },
-  //   {
-  //     label: "Trending Combos",
-  //     options: comboOptions.map((c) => ({
-  //       value: c.value,
-  //       label: `${c.label} (${c.percent}% OFF)`,
-  //       type: "combo",
-  //     })),
-  //   },
-  // ];
 
   // ================= UI =================
 
@@ -223,12 +360,8 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
               value={values.customer}
               onChange={(val) => setFieldValue("customer", val)}
               onAddNew={() => router.push("/customer-database")}
+              error={touched.customer ? errors.customer : undefined}
             />
-            {touched.customer && errors.customer && (
-              <p className="text-xs text-destructive mt-1 text-red-500">
-                {errors.customer}
-              </p>
-            )}
 
             {/* SERVICE */}
             <GroupedSelect
@@ -257,8 +390,8 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
               ]}
             />
             {touched.selectedItems && errors.selectedItems && (
-              <p className="text-xs text-destructive mt-1 text-red-500">
-                {errors.selectedItems}
+              <p className="text-sm text-red-600">
+                {errors.selectedItems as string}
               </p>
             )}
 
@@ -269,25 +402,16 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
                 type="date"
                 value={values.date}
                 onChange={(e) => setFieldValue("date", e.target.value)}
+                error={touched.date ? errors.date : undefined}
               />
-              {touched.date && errors.date && (
-                <p className="text-xs text-destructive mt-1 text-red-500">
-                  {errors.date}
-                </p>
-              )}
 
               {/* TIME */}
-              <Input
+              <HourPicker
                 label="Time"
-                type="time"
                 value={values.time}
-                onChange={(e) => setFieldValue("time", e.target.value)}
+                onChange={(val: string) => setFieldValue("time", val)}
+                error={touched.time ? errors.time : undefined}
               />
-              {touched.time && errors.time && (
-                <p className="text-xs text-destructive mt-1 text-red-500">
-                  {errors.time}
-                </p>
-              )}
             </div>
 
             {/* STAFF */}
@@ -298,12 +422,8 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
               value={values.staff}
               onChange={(val) => setFieldValue("staff", val)}
               onAddNew={() => router.push("/staff-management")}
+              error={touched.staff ? errors.staff : undefined}
             />
-            {touched.staff && errors.staff && (
-              <p className="text-xs text-destructive text-red-500">
-                {errors.staff}
-              </p>
-            )}
 
             <Button type="submit" variant="default" fullWidth iconName="Plus">
               Create Booking
