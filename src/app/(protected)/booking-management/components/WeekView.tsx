@@ -25,13 +25,13 @@ const WeekView = ({
 
     return allBookings.filter(
       (booking) =>
-        booking.status !== "Completed" && booking.status !== "cancelled"
+        booking.status !== "Completed" && booking.status !== "Pending"
     );
   };
 
   const getStatusColor = (status: Booking["status"]) => {
     const colors = {
-      pending: "bg-warning",
+      Pending: "bg-warning",
       Confirmed: "bg-card",
       Completed: "bg-success",
       cancelled: "bg-destructive",
