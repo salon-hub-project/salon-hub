@@ -56,7 +56,7 @@ export const customerTags = [
     tags: CustomerTag[];
     gender: string;
     type?: "today" | "weekly" | "monthly" | "yearly" | "custom" ;
-    sortBy: 'name' | 'lastVisit' | 'totalVisits' | 'totalSpent';
+    sortBy: 'name' | 'lastVisit' | 'totalVisits' | 'totalSpent' | 'createdAt';
     sortOrder: 'asc' | 'desc';
   }
   
@@ -70,44 +70,6 @@ export const customerTags = [
     tags: CustomerTag[];
     preferredStaff: string;
   }
-
-export interface ServiceHistory {
-  id: string;
-  customerId: string;
-  date: Date;
-  services: ServiceItem[];
-  staffName: string;
-  totalAmount: number;
-  paymentStatus: "paid" | "pending" | "cancelled";
-  notes?: string;
-}
-
-export interface ServiceItem {
-  id: string;
-  name: string;
-  category: string;
-  duration: number;
-  price: number;
-}
-
-export interface CustomerFilters {
-  searchQuery: string;
-  tags: CustomerTag[];
-  gender: string;
-  sortBy: "name" | "lastVisit" | "totalVisits" | "totalSpent" | "createdAt";
-  sortOrder: "asc" | "desc";
-}
-
-export interface CustomerFormData {
-  name: string;
-  phone: string;
-  email: string;
-  gender: "male" | "female" | "other";
-  dateOfBirth: string;
-  notes?: string;
-  tags: CustomerTag[];
-  preferredStaff: string;
-}
 
 export interface CustomerFormikValues {
   name: string;
