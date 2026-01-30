@@ -330,6 +330,26 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
     }
   };
 
+  const today = new Date().toISOString().split("T")[0];
+  // const serviceComboDropDown = [
+  //   {
+  //     label: "Services",
+  //     options: serviceOptions.map((s) => ({
+  //       value: s.value,
+  //       label: s.label,
+  //       type: "service",
+  //     })),
+  //   },
+  //   {
+  //     label: "Trending Combos",
+  //     options: comboOptions.map((c) => ({
+  //       value: c.value,
+  //       label: `${c.label} (${c.percent}% OFF)`,
+  //       type: "combo",
+  //     })),
+  //   },
+  // ];
+
   // ================= UI =================
 
   return (
@@ -401,6 +421,7 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
                 label="Date"
                 type="date"
                 value={values.date}
+                min={today}
                 onChange={(e) => setFieldValue("date", e.target.value)}
                 error={touched.date ? errors.date : undefined}
               />

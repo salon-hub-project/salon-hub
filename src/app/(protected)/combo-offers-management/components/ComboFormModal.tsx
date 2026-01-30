@@ -122,6 +122,8 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
   const calculateOriginalPrice = (services: any[]) =>
     services.reduce((sum, s) => sum + s.originalPrice, 0);
 
+  const today = new Date().toISOString().split("T")[0];
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[1000]">
       <div className="bg-card rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
@@ -388,6 +390,7 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                         value={
                           new Date(values.validFrom).toISOString().split("T")[0]
                         }
+                        min={today}
                         onChange={(e) =>
                           setFieldValue("validFrom", new Date(e.target.value))
                         }

@@ -339,12 +339,19 @@ const BookingForm = ({
           onSubmit={handleSubmit}
         >
           {({ values, errors, touched, setFieldValue }) => {
-            const selectedDayIndex = values.date.getDay();
+            const isValidDate =
+              values.date instanceof Date && !isNaN(values.date.getTime());
+            const selectedDayIndex = isValidDate
+              ? values?.date?.getDay()
+              : null;
             const isWorkingDay =
-              timings?.workingDays?.includes(selectedDayIndex) ?? true;
-            const dateError = !isWorkingDay
-              ? "The salon is closed on this day. Please select another date."
-              : undefined;
+              (isValidDate ||
+                timings?.workingDays?.includes(selectedDayIndex!)) ??
+              true;
+            const dateError =
+              isValidDate && !isWorkingDay
+                ? "The salon is closed on this day. Please select another date."
+                : undefined;
 
             const isWithinHours =
               !values.startTime ||
@@ -352,9 +359,10 @@ const BookingForm = ({
               !timings?.closingTime ||
               (values.startTime >= timings.openingTime &&
                 values.startTime < timings.closingTime);
-            const timeError = !isWithinHours
-              ? "The salon is closed at this time. Please select another time."
-              : undefined;
+            const timeError =
+              values.startTime && !isWithinHours
+                ? "The salon is closed at this time. Please select another time."
+                : undefined;
 
             return (
               <Form className="flex-1 overflow-y-auto p-6 space-y-6">
@@ -428,14 +436,18 @@ const BookingForm = ({
                         : ""
                     }
                     min={today}
-                    onChange={(e) =>{
-                      const newDate= new Date(e.target.value);
-                     if (!isNaN(newDate.getTime())) {
-                        setFieldValue("date", newDate);
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (!value) {
+                        setFieldValue("date", null);
+                        return;
                       }
-                      onDateChange?.(newDate);
-                    }
-                    }
+                      const newDate = new Date(value);
+                      if (!isNaN(newDate.getTime())) {
+                        setFieldValue("date", newDate);
+                        onDateChange?.(newDate);
+                      }
+                    }}
                     error={dateError}
                     disabled={disableAllExceptStaff}
                   />
@@ -462,7 +474,6 @@ const BookingForm = ({
                   }
                   disabled={disableAllExceptStaff}
                 />
-
 
                 {/* SERVICE */}
                 <GroupedSelect

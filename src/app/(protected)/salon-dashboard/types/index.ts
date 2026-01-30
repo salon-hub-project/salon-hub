@@ -16,12 +16,15 @@ export interface DashboardMetric {
     service: string;
     serviceId: string;
     time: string;
+    endTime: string;
     duration: number;
     staffName: string;
     staffAvatar: string;
     staffAvatarAlt: string;
-    status: 'pending' | 'confirmed' | 'in-progress' | 'completed' | 'cancelled';
+    status: "Confirmed" | "Completed" | "Pending";
     amount: number;
+    comboOffers: string[];
+    createdAt: Date
   }
   
   export interface RecentActivity {

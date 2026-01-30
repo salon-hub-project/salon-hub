@@ -15,10 +15,10 @@ const BookingCard = ({
 }: BookingCardProps) => {
   const getStatusColor = (status: Booking["status"]) => {
     const colors = {
-      pending: "bg-warning/10 text-warning border-warning/20",
+      Pending: "bg-warning/10 text-warning border-warning/20",
       Confirmed: "bg-primary/10 text-primary border-primary/20",
       Completed: "bg-success/10 text-success border-success/20",
-      cancelled: "bg-destructive/10 text-destructive border-destructive/20",
+      //cancelled: "bg-destructive/10 text-destructive border-destructive/20",
     };
     return colors[status];
   };
@@ -28,7 +28,7 @@ const BookingCard = ({
       pending: "Clock",
       Confirmed: "CheckCircle",
       Completed: "CheckCircle2",
-      cancelled: "XCircle",
+      Pending: "XCircle",
     };
     return icons[status];
   };

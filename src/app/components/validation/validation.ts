@@ -68,7 +68,7 @@ export const appointmentValidationSchema = Yup.object({
     .required(),
   staffId: Yup.string().required("Please select a staff member"),
   startTime: Yup.string().required("Please select a time"),
-  date: Yup.date().required("Date is required"),
+  date: Yup.date().nullable().required("Date is required"),
   notes: Yup.string(),
 });
 
