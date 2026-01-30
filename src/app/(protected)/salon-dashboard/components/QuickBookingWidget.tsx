@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { Formik, Form } from "formik";
 import Icon from "../../../components/AppIcon";
 import Button from "../../../components/ui/Button";
@@ -283,20 +283,33 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
     }
   };
 
-  const fetchCombo = async () => {
+  const fetchCombo = useCallback(async (date?: Date) => {
     try {
-      const res = await comboApi.getAllComboOffers({ limit: 100 });
+      const finalDate = date ?? new Date();
+      const formattedDate = finalDate.toISOString().split("T")[0];
+
+      const comboRes = await comboApi.getAppointmentCombo({
+        page: 1,
+        limit: 100,
+        appointmentDate: formattedDate,
+      });
+
+      const rawCombo = Array.isArray(comboRes)
+        ? comboRes
+        : comboRes?.data || [];
+
       setComboOptions(
-        res.data.map((c: any) => ({
-          value: c._id,
-          label: c.name,
-          percent: c.savedPercent,
+        rawCombo.map((c: any) => ({
+          value: c._id || c.id,
+          label: c.name || c.comboName,
+          percent: c.savedPercent ?? 0,
         })),
       );
     } catch (error) {
       console.error("Combo fetch error", error);
     }
-  };
+  }, []);
+
   useEffect(() => {
     fetchCustomers();
     fetchServices();
@@ -404,7 +417,31 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
               error={touched.customer ? errors.customer : undefined}
             />
 
-            {/* SERVICE */}
+            <div className="grid grid-cols-2 gap-4">
+              {/* DATE */}
+              <Input
+                label="Date"
+                type="date"
+                value={values.date}
+                min={today}
+                onChange={(e) => {
+                  const selectedDate = e.target.value;
+                  setFieldValue("date", selectedDate);
+                  fetchCombo(new Date(selectedDate));
+                }}
+                error={touched.date ? errors.date : undefined}
+              />
+
+              {/* TIME */}
+              <HourPicker
+                label="Time"
+                value={values.time}
+                onChange={(val: string) => setFieldValue("time", val)}
+                error={touched.time ? errors.time : undefined}
+              />
+            </div>
+
+             {/* SERVICE */}
             <GroupedSelect
               label="Service / Combo"
               placeholder="Select service or combo"
@@ -435,26 +472,6 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
                 {errors.selectedItems as string}
               </p>
             )}
-
-            <div className="grid grid-cols-2 gap-4">
-              {/* DATE */}
-              <Input
-                label="Date"
-                type="date"
-                value={values.date}
-                min={today}
-                onChange={(e) => setFieldValue("date", e.target.value)}
-                error={touched.date ? errors.date : undefined}
-              />
-
-              {/* TIME */}
-              <HourPicker
-                label="Time"
-                value={values.time}
-                onChange={(val: string) => setFieldValue("time", val)}
-                error={touched.time ? errors.time : undefined}
-              />
-            </div>
 
             {/* STAFF */}
             <Select
