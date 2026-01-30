@@ -48,7 +48,6 @@ export const comboApi = {
   getAppointmentCombo: async(params?: {page?:number; limit?:number; appointmentDate: string})=> {
      try{
       const res = await api.post("/combooffer/active",{}, {params});
-      console.log(res.data);
       return res.data
      } catch(error: any) {
       console.error("Failed to fetch Combos", error);

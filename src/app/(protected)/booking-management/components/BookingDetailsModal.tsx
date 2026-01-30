@@ -46,10 +46,9 @@ const BookingDetailsModal = ({
 
   const getStatusColor = (status: Booking["status"]) => {
     const colors = {
-      pending: "text-warning",
+      Pending: "text-warning",
       Confirmed: "text-primary",
       Completed: "text-success",
-      cancelled: "text-destructive",
     };
     return colors[status];
   };

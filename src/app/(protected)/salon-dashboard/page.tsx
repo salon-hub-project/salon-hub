@@ -25,6 +25,8 @@ import { staffApi } from "@/app/services/staff.api";
 import { notificationApi } from "@/app/services/notification.api";
 import { Icon } from "lucide-react";
 import SalesReportPanel from "./components/SalesReportPanel";
+import BookingDetailsModal from "../booking-management/components/BookingDetailsModal";
+import { Booking } from "../booking-management/types";
 
 const SalonDashboard = () => {
   const router = useRouter();
@@ -46,8 +48,11 @@ const SalonDashboard = () => {
   const [activeNotificationType, setActiveNotificationType] = useState<
     "appointment" | "customer" | null
   >(null);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
   const normalizedUserRole = normalizeRole(user?.role);
+  const isStaff = normalizedUserRole === "STAFF";
+  const isOwner = normalizedUserRole === "OWNER";
 
   const [todayAppointments, setTodayAppointments] = useState<
     TodayAppointment[]
@@ -56,6 +61,19 @@ const SalonDashboard = () => {
   const [staffUtilization, setStaffUtilization] = useState<StaffUtilization[]>(
     [],
   );
+
+  const normalizeBookingStatus = (status: string): Booking["status"] => {
+    switch (status) {
+      case "Confirmed":
+        return "Confirmed";
+      case "Completed":
+        return "Completed";
+      case "Pending":
+        return "Pending";
+      default:
+        return "Confirmed";
+    }
+  };
 
   const isToday = (dateString: string) => {
     const today = new Date();
@@ -103,10 +121,11 @@ const SalonDashboard = () => {
 
   //fetch Today Appointments:-
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || isStaff) return;
     const fetchTodayAppointments = async () => {
       try {
         const res = await appointmentApi.getAllAppointments({ limit: 500 });
+        
         const todaysAppointments = res.filter(
           (appt: any) => appt.appointmentDate && isToday(appt.appointmentDate),
         );
@@ -115,12 +134,20 @@ const SalonDashboard = () => {
           todaysAppointments.map((appt: any) => ({
             id: appt._id,
             customerName: appt.customerId?.fullName || "N/A",
-            service: "Service", // service details not populated
+            service:
+              appt.services?.[0]?.serviceName ||
+              appt.services?.[0]?.name ||
+              "Service",
             time: appt.appointmentTime,
+            endTime: appt.endTime,
             duration: getServiceDuration(appt.services),
             staffName: appt.staffId?.fullName || "N/A",
-            status: appt.status,
-            amount: appt.amount || 0, // no price in appointment API
+            status: normalizeBookingStatus(appt.status),
+            amount: appt.amount || 0, // no price in appointment API,
+            comboOffers: (appt.comboOffers || []).map(
+              (combo: any) => combo.name,
+            ),
+            createdAt: new Date(appt.createdAt),
           })),
         );
       } catch (err) {
@@ -129,7 +156,7 @@ const SalonDashboard = () => {
     };
 
     fetchTodayAppointments();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, isStaff]);
 
   //fetch active customers:-
   useEffect(() => {
@@ -155,7 +182,7 @@ const SalonDashboard = () => {
 
   //staff utilization
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || isStaff) return;
     const fetchStaffUtilization = async () => {
       try {
         const staffRes = await staffApi.getAllStaff({ limit: 100 });
@@ -201,11 +228,11 @@ const SalonDashboard = () => {
     };
 
     fetchStaffUtilization();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, isStaff]);
 
   //fetch notifications:-
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || isStaff) return;
 
     const fetchAllNotifications = async () => {
       try {
@@ -263,7 +290,7 @@ const SalonDashboard = () => {
     // const intervalId = setInterval(fetchAllNotifications, 30000);
 
     // return () => clearInterval(intervalId);
-  }, [isAuthenticated]);
+  }, [isAuthenticated, isStaff]);
 
   const quickActions: QuickAction[] = [
     {
@@ -324,12 +351,37 @@ const SalonDashboard = () => {
   };
 
   const handleViewDetails = (id: string) => {
-    router.push("/booking-management");
-    console.log("View appointment details:", id);
+    const appt = todayAppointments.find((a) => a.id === id);
+    if (!appt) return;
+
+    setSelectedBooking({
+      id: appt.id,
+      customerId: "",
+      serviceId: "",
+      staffId: "",
+      customerName: appt.customerName,
+      customerPhone: "",
+      customerAvatar: "",
+      serviceName: appt.service,
+      serviceCategory: "",
+      date: new Date(), // today
+      startTime: appt.time,
+      endTime: "",
+      staffName: appt.staffName,
+      staffAvatar: "",
+      status: appt.status,
+      amount: appt.amount,
+      notes: "",
+      comboOffers: appt.comboOffers?.map((name, index) => ({
+        id: `${appt.id}-combo-${index}`, // safe temporary id
+        name,
+      })),
+      createdAt: appt.createdAt,
+      paymentStatus: "pending",
+    });
   };
 
   const handleCreateBooking = (data: any) => {
-    console.log("Create booking:", data);
     router.push("/booking-management");
   };
 
@@ -346,6 +398,31 @@ const SalonDashboard = () => {
   const handleNavigation = (path: string) => {
     router.push(path);
   };
+
+  if (isStaff) {
+    return (
+      <AuthGuard>
+        <div className="min-h-screen bg-background">
+          <main className="ml-0 lg:pb-8">
+            <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+              <div className="mb-6">
+                <h1 className="text-2xl font-bold text-foreground">
+                  Sales Report
+                </h1>
+                <p className="text-muted-foreground">
+                  Your performance & earnings overview
+                </p>
+              </div>
+
+              <div className="bg-card border border-border rounded-lg p-6">
+                <SalesReportPanel />
+              </div>
+            </div>
+          </main>
+        </div>
+      </AuthGuard>
+    );
+  }
 
   return (
     <AuthGuard>
@@ -473,6 +550,17 @@ const SalonDashboard = () => {
                 )}
               </div>
             </div>
+            {selectedBooking && (
+              <BookingDetailsModal
+                booking={selectedBooking}
+                onClose={() => setSelectedBooking(null)}
+                onBookingUpdate={(updated) =>
+                  setSelectedBooking((prev) =>
+                    prev ? { ...prev, ...updated } : prev,
+                  )
+                }
+              />
+            )}
           </div>
         </main>
       </div>

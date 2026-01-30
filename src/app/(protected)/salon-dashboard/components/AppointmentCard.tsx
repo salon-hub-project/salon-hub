@@ -14,22 +14,20 @@ const AppointmentCard = ({
 }: AppointmentCardProps) => {
   const getStatusColor = (status: TodayAppointment["status"]) => {
     const colors = {
-      pending: "bg-warning/10 text-warning border-warning/20",
-      confirmed: "bg-primary/10 text-primary border-primary/20",
-      "in-progress": "bg-accent/10 text-accent border-accent/20",
-      completed: "bg-success/10 text-success border-success/20",
-      cancelled: "bg-error/10 text-error border-error/20",
+      Confirmed: "bg-primary/10 text-primary border-primary/20",
+      "In-progress": "bg-accent/10 text-accent border-accent/20",
+      Completed: "bg-success/10 text-success border-success/20",
+      Pending: "bg-warning/10 text-warning border-warning/20",
     };
     return colors[status];
   };
 
   const getStatusLabel = (status: TodayAppointment["status"]) => {
     const labels = {
-      pending: "Pending",
-      confirmed: "Confirmed",
-      "in-progress": "In Progress",
-      completed: "Completed",
-      cancelled: "Cancelled",
+      Confirmed: "Confirmed",
+      "In-progress": "In Progress",
+      Completed: "Completed",
+      Pending: "Pending",
     };
     return labels[status];
   };
@@ -56,13 +54,18 @@ const AppointmentCard = ({
               {appointment.customerName}
             </h4>
             <p className="text-xs text-muted-foreground">
-              {appointment.service}
+                Service: {appointment.service}
             </p>
+            {appointment.comboOffers && appointment.comboOffers.length > 0 && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Combo: {appointment.comboOffers.join(", ")}
+              </p>
+            )}
           </div>
         </div>
         <span
           className={`px-2 py-1 text-xs font-medium rounded-md border ${getStatusColor(
-            appointment.status
+            appointment.status,
           )}`}
         >
           {getStatusLabel(appointment.status)}
@@ -72,7 +75,9 @@ const AppointmentCard = ({
       <div className="flex items-center gap-4 mb-3">
         <div className="flex items-center gap-1 text-muted-foreground">
           <Icon name="Clock" size={14} />
-          <span className="text-xs">{formatTo12Hour(appointment.time)}</span>
+          <span className="text-xs">
+            {formatTo12Hour(appointment.time)}-{appointment.endTime}
+          </span>
         </div>
         <div className="flex items-center gap-1 text-muted-foreground">
           <Icon name="Timer" size={14} />

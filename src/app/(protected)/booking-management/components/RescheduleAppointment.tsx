@@ -63,6 +63,7 @@ const RescheduleAppointmentModal = ({
       console.error("Reschedule failed", err);
     }
   };
+   const today = new Date().toISOString().split("T")[0];
 
   return (
     <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
@@ -91,6 +92,7 @@ const RescheduleAppointmentModal = ({
                 type="date"
                 label="Appointment Date"
                 value={values.date}
+                min={today}
                 onChange={(e) => setFieldValue("date", e.target.value)}
               />
 

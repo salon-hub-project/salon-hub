@@ -106,8 +106,15 @@ const Sidebar = ({
       path: "/salon-dashboard",
       icon: "LayoutDashboard",
       // roles: ["super_admin", "salon_owner"],
-      roles: ["salon_owner"],
+      roles: ["salon_owner", "staff"],
     },
+    // ,
+    // {
+    //   label: "Dashboard",
+    //   path: "/salon-dashboard",
+    //   icon: "LayoutDashboard",
+    //   roles: ["staff"],
+    // },
     {
       label: "Appointments",
       path: "/booking-management",
@@ -154,7 +161,7 @@ const Sidebar = ({
       path: "/owner-manager",
       icon: "BadgePercent",
       roles: ["super_admin"],
-    },
+    }
   ];
 
   const filteredMenuItems = menuItems.filter((item) =>

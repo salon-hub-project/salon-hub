@@ -8,6 +8,8 @@ import Loader from "@/app/components/Loader";
 import { appointmentApi } from "@/app/services/appointment.api";
 import { showToast } from "@/app/components/ui/toast";
 import { staffApi } from "@/app/services/staff.api";
+import { useAppSelector } from "@/app/store/hooks";
+import { normalizeRole } from "@/app/utils/normalizeRole";
 
 const FILTER_OPTIONS = [
   { label: "Today", value: "today" },
@@ -26,6 +28,11 @@ export default function SalesReportPanel() {
   const [staff, setStaff] = useState([]);
   const [selectedStaffId, setSelectedStaffId] = useState<string>();
 
+  const { user } = useAppSelector((state: any) => state.auth);
+  const role = normalizeRole(user?.role);
+  const isStaff = role === "STAFF";
+  const isOwner = role === "OWNER";
+
   const fetchStaff = async () => {
     try {
       const res = await staffApi.getAllStaff();
@@ -36,8 +43,9 @@ export default function SalesReportPanel() {
   };
 
   useEffect(() => {
+    if(!isOwner) return;
     fetchStaff();
-  }, []);
+  }, [isOwner]);
 
   const staffOptions = staff.map((s: any) => ({
     label: s.fullName,
@@ -94,6 +102,7 @@ export default function SalesReportPanel() {
             />
           </div>
 
+          {role === "OWNER" && 
           <div className="w-56">
             <Select
               label="Staff"
@@ -104,6 +113,7 @@ export default function SalesReportPanel() {
               clearable
             />
           </div>
+          }
 
           {filterType === "custom" && (
             <>

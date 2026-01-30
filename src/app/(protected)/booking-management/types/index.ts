@@ -42,17 +42,17 @@ export interface Booking {
   serviceId: string;
   serviceName: string;
   serviceCategory: string;
-  serviceDuration: number;
-  servicePrice: number;
-  staffId: string;
+  serviceDuration?: number;
+  servicePrice?: number;
+  staffId?: string;
   staffName: string;
   staffAvatar?: string;
   date: Date;
   startTime: string;
   endTime: string;
-  status: "Confirmed" | "Completed" | "cancelled";
+  status: "Confirmed" | "Completed" | "Pending";
   notes?: string;
-  paymentStatus: "pending" | "paid";
+  paymentStatus?: "pending" | "paid";
   createdAt: Date;
   commisionEarned?: number;
   comboOffers?: {
