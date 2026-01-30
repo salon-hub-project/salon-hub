@@ -52,8 +52,8 @@ const CustomerDatabase = () => {
     tags: [],
     gender: "",
     type: undefined,
-    sortBy: "name",
-    sortOrder: "asc",
+    sortBy: "createdAt",
+    sortOrder: "desc",
   });
   const [customerLoading, setCustomerLoading] = useState(false);
   //const [customerTags, setCustomerTags] = useState<CustomerTagItem[]>([]);

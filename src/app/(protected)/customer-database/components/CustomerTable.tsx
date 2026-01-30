@@ -27,9 +27,9 @@ const CustomerTable = ({
   onSelectionChange,
 }: CustomerTableProps) => {
   const [sortBy, setSortBy] = useState<
-    "name" | "lastVisit" | "totalVisits" | "totalSpent"
-  >("name");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+    "name" | "lastVisit" | "totalVisits" | "totalSpent" | "createdAt"
+  >("createdAt");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(
     null,
@@ -81,6 +81,9 @@ const CustomerTable = ({
         break;
       case "totalSpent":
         comparison = a.totalSpent - b.totalSpent;
+        break;
+      case "createdAt":
+        comparison = a.createdAt.getTime() - b.createdAt.getTime();
         break;
     }
 
