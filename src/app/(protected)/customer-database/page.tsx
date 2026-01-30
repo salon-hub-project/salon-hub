@@ -121,10 +121,14 @@ const CustomerDatabase = () => {
       const response = await customerApi.getCustomers({
         page,
         limit: 10,
-        ...(filters.searchQuery && { fullName: filters.searchQuery }),
+        ...(filters.searchQuery &&
+          (/^\d+$/.test(filters.searchQuery)
+            ? { phoneNumber: filters.searchQuery }
+            : { fullName: filters.searchQuery })),
         ...(filters.gender && { gender: filters.gender }),
         ...(filters.tags.length > 0 && {
-          customerTag: filters.tags.map((tag) => tag.toUpperCase()),
+          //customerTag: filters.tags.map((tag) => tag.toUpperCase()),
+          customerTag: filters.tags,
         }),
       });
 
@@ -142,13 +146,13 @@ const CustomerDatabase = () => {
         address: c.address || "",
         notes: c.notes || "",
         // tags: c.customerTag || [],
-        tags: (c.customerTag || []).map((tag: any) =>
-          typeof tag === "string" ? tag : tag,
-        ),
+        // tags: (c.customerTag || []).map((tag: any) =>
+        //   typeof tag === "string" ? tag : tag,
+        // ),
         // tagIds: (c.customerTag || []).map((tag: any) =>
         //   typeof tag === "string" ? tag : tag._id,
         // ),
-
+        tags: (c.customerTag || []).map((tag: string) => tag.toUpperCase()),
         lastVisit: c.lastVisit ? new Date(c.lastVisit) : undefined,
         totalVisits: c.totalVisits,
         totalSpent: c.totalSpent,
@@ -269,23 +273,23 @@ const CustomerDatabase = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const filteredCustomers = customers.filter((customer) => {
-    // Search by name or phone
-    const matchesSearch =
-      !filters.searchQuery ||
-      customer.name.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
-      customer.phone?.includes(filters.searchQuery);
+  // const filteredCustomers = customers.filter((customer) => {
+  //   // Search by name or phone
+  //   const matchesSearch =
+  //     !filters.searchQuery ||
+  //     customer.name.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
+  //     customer.phone?.includes(filters.searchQuery);
 
-    // Filter by gender
-    const matchesGender = !filters.gender || customer.gender === filters.gender;
+  //   // Filter by gender
+  //   const matchesGender = !filters.gender || customer.gender === filters.gender;
 
-    // Filter by tags
-    const matchesTags =
-      filters.tags.length === 0 ||
-      filters.tags.every((tag) => customer.tags.includes(tag.toUpperCase()));
+  //   // Filter by tags
+  //   const matchesTags =
+  //     filters.tags.length === 0 ||
+  //     filters.tags.every((tag) => customer.tags.includes(tag.toUpperCase()));
 
-    return matchesSearch && matchesGender && matchesTags;
-  });
+  //   return matchesSearch && matchesGender && matchesTags;
+  // });
 
   const customerFetchingRef = useRef(false);
 
@@ -309,12 +313,13 @@ const CustomerDatabase = () => {
         dateOfBirth: c.DOB ? c.DOB.split("T")[0] : "",
         address: c.address || "",
         notes: c.notes || "",
-        tags: (c.customerTag || []).map((tag: any) =>
-          typeof tag === "string" ? tag : tag,
-        ),
+        // tags: (c.customerTag || []).map((tag: any) =>
+        //   typeof tag === "string" ? tag : tag,
+        // ),
         // tagIds: (c.customerTag || []).map((tag: any) =>
         //   typeof tag === "string" ? tag : tag._id,
         // ),
+        tags: (c.customerTag || []).map((tag: string) => tag.toUpperCase()),
         lastVisit: c.lastVisit ? new Date(c.lastVisit) : null,
         totalVisits: c.totalVisits,
         totalSpent: c.totalSpent,
@@ -444,12 +449,12 @@ const CustomerDatabase = () => {
           </div>
         </div>
 
-        {/* <CustomerFilters
+        <CustomerFilters
           filters={filters}
           onFiltersChange={setFilters}
           onExport={handleExport}
           totalCustomers={totalCustomers}
-        /> */}
+        />
 
         {/* <CustomerTagManager
           tags={customerTags}
@@ -510,7 +515,7 @@ const CustomerDatabase = () => {
               </div>
             ) : (
               <CustomerTable
-                customers={filteredCustomers}
+                customers={customers}
                 onCustomerSelect={(customer) =>
                   handleCustomerSelect(customer.id)
                 }

@@ -34,6 +34,15 @@ export interface Employee {
   commissionRate: number;
 }
 
+export interface StaffFilters {
+  searchQuery: string;
+  role: string;
+  isActive: "" | "true" | "false";
+  fullName?: string;
+  dateOfAppointment: string;
+  timeOfAppointment: string;
+}
+
 export interface PerformancePeriod {
   value: string;
   label: string;

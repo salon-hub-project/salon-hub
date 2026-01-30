@@ -351,34 +351,36 @@ const CustomerForm = ({
                   <div className="text-sm text-muted-foreground">
                     Loading tags...
                   </div>
-                ) : customerTags.length === 0 ? (
-                  <div className="border border-dashed border-border rounded-lg p-4 text-center">
-                    <Icon
-                      name="Tag"
-                      size={24}
-                      className="mx-auto mb-2 text-muted-foreground"
-                    />
+                )
+                // customerTags.length === 0 ? (
+                //   <div className="border border-dashed border-border rounded-lg p-4 text-center">
+                //     <Icon
+                //       name="Tag"
+                //       size={24}
+                //       className="mx-auto mb-2 text-muted-foreground"
+                //     />
 
-                    <p className="text-sm font-medium text-foreground">
-                      No customer tags
-                    </p>
+                //     <p className="text-sm font-medium text-foreground">
+                //       No customer tags
+                //     </p>
 
-                    <p className="text-xs text-muted-foreground mb-3">
-                      Create tags to categorize your customers
-                    </p>
+                //     <p className="text-xs text-muted-foreground mb-3">
+                //       Create tags to categorize your customers
+                //     </p>
 
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      iconName="Plus"
-                      iconPosition="left"
-                      onClick={() => setIsAddCategoryOpen(true)}
-                    >
-                      Create Tag
-                    </Button>
-                  </div>
-                ) : (
+                //     <Button
+                //       type="button"
+                //       size="sm"
+                //       variant="outline"
+                //       iconName="Plus"
+                //       iconPosition="left"
+                //       onClick={() => setIsAddCategoryOpen(true)}
+                //     >
+                //       Create Tag
+                //     </Button>
+                //   </div>
+                // ) 
+                : (
                   <div className="flex flex-wrap gap-4">
                     {tagOptions.map((tag) => (
                       <label key={tag.value} className="flex gap-2">

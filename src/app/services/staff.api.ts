@@ -64,6 +64,8 @@ export const staffApi = {
         page?: number;
         limit?: number;
         role?: string;
+        fullName?: string;
+        isActive?: boolean;
         dateOfAppointment?: string;
         timeOfAppointment?: string;
     }) => {
