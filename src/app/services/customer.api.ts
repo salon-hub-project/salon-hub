@@ -22,6 +22,7 @@ export interface GetCustomersParams {
   fullName?: string;
   customerTag?: string[];
   gender?: string;
+  type?: string;
 }
 
 export interface UpdateCustomerPayload {
@@ -58,6 +59,7 @@ export const customerApi = {
     if (params.gender) query.append("gender", params.gender);
     if (params.customerTag?.length)
       query.append("customerTag", params.customerTag.join(","));
+    if(params.type) query.append('type', params.type);
 
     const res = await api.get(`/customer?${query.toString()}`);
     return res.data;

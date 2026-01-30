@@ -55,6 +55,7 @@ export interface Customer {
     searchQuery: string;
     tags: CustomerTag[];
     gender: string;
+    type?: "today" | "weekly" | "monthly" | "yearly" | "custom" ;
     sortBy: 'name' | 'lastVisit' | 'totalVisits' | 'totalSpent';
     sortOrder: 'asc' | 'desc';
   }
