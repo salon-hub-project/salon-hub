@@ -29,6 +29,7 @@ export interface Customer {
   { id: "New", name: "NEW" },
   { id: "Frequent", name: "FREQUENT" },
   { id: "Inactive", name: "INACTIVE" },
+  { id: "Old", name: "OLD"}
 ];
   
   export interface ServiceHistory {

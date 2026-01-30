@@ -6,6 +6,7 @@ import Input from "../../../components/ui/Input";
 import Select from "../../../components/ui/Select";
 import { Checkbox } from "../../../components/ui/Checkbox";
 import { CustomerFilters as FilterType, CustomerTag } from "../types";
+import { customerTags } from "../types";
 import { customerTagApi } from "@/app/services/tags.api";
 
 interface CustomerFiltersProps {
@@ -22,7 +23,6 @@ const CustomerFilters = ({
   totalCustomers,
 }: CustomerFiltersProps) => {
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [tagOptions, setTagOptions] = useState<CustomerTag[]>([]);
   const [loadingTags, setLoadingTags] = useState(false);
 
   /* =======================
@@ -93,11 +93,11 @@ const CustomerFilters = ({
             <Icon
               name="Search"
               size={20}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+              className="absolute left-3 top-1/2 mt-3 -translate-y-1/2 text-muted-foreground"
             />
             <Input
               type="search"
-              placeholder="Search by name or phone number..."
+              placeholder="Search by name..."
               value={filters.searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
               className="pl-10"
@@ -105,8 +105,8 @@ const CustomerFilters = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          {/* <Button
+        <div className="flex items-center gap-2 mt-5">
+          <Button
             variant="outline"
             iconName="Filter"
             iconPosition="left"
@@ -118,7 +118,7 @@ const CustomerFilters = ({
                 {activeFilterCount}
               </span>
             )}
-          </Button> */}
+          </Button>
 
           {/* <Button
             variant="outline"
@@ -146,16 +146,16 @@ const CustomerFilters = ({
                 </div>
               ) : (
                 <div className="flex flex-wrap gap-2">
-                  {tagOptions.map((tag) => (
+                  {customerTags.map((tag) => (
                     <label
-                      key={tag}
+                      key={tag.id}
                       className="flex items-center gap-2 px-3 py-2 rounded-md border border-border hover:bg-muted transition-smooth cursor-pointer"
                     >
                       <Checkbox
-                        checked={filters.tags.includes(tag)}
-                        onChange={() => handleTagToggle(tag)}
+                        checked={filters.tags.includes(tag.id)}
+                        onChange={() => handleTagToggle(tag.id)}
                       />
-                      <span className="text-sm text-foreground">{tag}</span>
+                      <span className="text-sm text-foreground">{tag.name}</span>
                     </label>
                   ))}
                 </div>

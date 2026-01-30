@@ -69,8 +69,7 @@ const BookingDetailsModal = ({
     setShowConfirmDelete(false);
     onClose();
   };
-
-  console.log(booking)
+  
   return (
     <>
       {/* MAIN MODAL UI — unchanged */}

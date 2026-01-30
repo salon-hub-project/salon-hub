@@ -12,8 +12,10 @@ import { BookingFormProps, SelectedItem } from "../types";
 import { Staff, BookingFormData } from "../types";
 import { appointmentValidationSchema } from "@/app/components/validation/validation";
 import { staffApi } from "@/app/services/staff.api";
+import { comboApi } from "@/app/services/combo.api";
 import GroupedSelect from "@/app/components/ui/GroupedSelect";
 import { appointmentApi } from "@/app/services/appointment.api";
+import { isToday } from "date-fns";
 
 // Helper component to handle side effects and data fetching inside Formik context
 const StaffFetcher = ({
@@ -129,6 +131,7 @@ const BookingForm = ({
   onSuccess,
   bookingToEdit,
   changeStaffOnly,
+  onDateChange,
   initialCustomerId,
   isLoading = false,
 }: BookingFormProps) => {
@@ -266,6 +269,7 @@ const BookingForm = ({
       console.error("Booking update failed", error);
     }
   };
+  const today = new Date().toISOString().split("T")[0];
 
   // Pre-calculate preferred staff ID for initial values
   const getInitialStaffId = () => {
@@ -412,6 +416,54 @@ const BookingForm = ({
                   }
                   onAddNew={() => router.push("/service-management")}
                 /> */}
+
+                {/* Date */}
+                <div className="space-y-1">
+                  <Input
+                    type="date"
+                    label="Date"
+                    value={
+                      values.date && !isNaN(values.date.getTime())
+                        ? values.date.toISOString().split("T")[0]
+                        : ""
+                    }
+                    min={today}
+                    onChange={(e) =>{
+                      const newDate= new Date(e.target.value);
+                     if (!isNaN(newDate.getTime())) {
+                        setFieldValue("date", newDate);
+                      }
+                      onDateChange?.(newDate);
+                    }
+                    }
+                    error={dateError}
+                    disabled={disableAllExceptStaff}
+                  />
+                  {dateError && (
+                    <p className="text-xs text-destructive font-medium px-1">
+                      {/* Already shown by Input component if it handles error prop, 
+                          but let's be sure since the user said it shows 'we are closed today' */}
+                    </p>
+                  )}
+                </div>
+
+                {/* Time */}
+                <Select
+                  label="Time"
+                  placeholder="Select time..."
+                  options={timeSlots}
+                  value={values.startTime}
+                  searchable
+                  onChange={(v) => setFieldValue("startTime", v)}
+                  error={
+                    touched.startTime
+                      ? (errors.startTime as string)
+                      : (timeError as string)
+                  }
+                  disabled={disableAllExceptStaff}
+                />
+
+
                 {/* SERVICE */}
                 <GroupedSelect
                   label="Service / Combo"
@@ -438,49 +490,6 @@ const BookingForm = ({
                       })),
                     },
                   ]}
-                />
-
-                {/* Date */}
-                <div className="space-y-1">
-                  <Input
-                    type="date"
-                    label="Date"
-                    value={
-                      values.date && !isNaN(values.date.getTime())
-                        ? values.date.toISOString().split("T")[0]
-                        : ""
-                    }
-                    onChange={(e) => {
-                      const newDate = new Date(e.target.value);
-                      if (!isNaN(newDate.getTime())) {
-                        setFieldValue("date", newDate);
-                      }
-                    }}
-                    error={dateError}
-                    disabled={disableAllExceptStaff}
-                  />
-                  {dateError && (
-                    <p className="text-xs text-destructive font-medium px-1">
-                      {/* Already shown by Input component if it handles error prop, 
-                          but let's be sure since the user said it shows 'we are closed today' */}
-                    </p>
-                  )}
-                </div>
-
-                {/* Time */}
-                <Select
-                  label="Time"
-                  placeholder="Select time..."
-                  options={timeSlots}
-                  value={values.startTime}
-                  searchable
-                  onChange={(v) => setFieldValue("startTime", v)}
-                  error={
-                    touched.startTime
-                      ? (errors.startTime as string)
-                      : (timeError as string)
-                  }
-                  disabled={disableAllExceptStaff}
                 />
 
                 {/* Staff */}
