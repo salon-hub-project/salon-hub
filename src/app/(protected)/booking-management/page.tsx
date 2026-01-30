@@ -419,6 +419,7 @@ const BookingManagement = () => {
   }, [loadInitialData]);
 
   useEffect(() => {
+    if(isStaffUser) return;
     const dateToUse = selectedDate || currentDate;
     // if (selectedDate) {
     //   fetchCombosByDate(selectedDate);

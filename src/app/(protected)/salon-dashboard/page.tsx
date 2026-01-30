@@ -48,6 +48,8 @@ const SalonDashboard = () => {
   >(null);
 
   const normalizedUserRole = normalizeRole(user?.role);
+  const isStaff = normalizedUserRole === "STAFF";
+  const isOwner = normalizedUserRole === "OWNER";
 
   const [todayAppointments, setTodayAppointments] = useState<
     TodayAppointment[]
@@ -103,7 +105,7 @@ const SalonDashboard = () => {
 
   //fetch Today Appointments:-
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || isStaff) return;
     const fetchTodayAppointments = async () => {
       try {
         const res = await appointmentApi.getAllAppointments({ limit: 500 });
@@ -129,7 +131,7 @@ const SalonDashboard = () => {
     };
 
     fetchTodayAppointments();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, isStaff]);
 
   //fetch active customers:-
   useEffect(() => {
@@ -155,7 +157,7 @@ const SalonDashboard = () => {
 
   //staff utilization
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || isStaff) return;
     const fetchStaffUtilization = async () => {
       try {
         const staffRes = await staffApi.getAllStaff({ limit: 100 });
@@ -201,11 +203,11 @@ const SalonDashboard = () => {
     };
 
     fetchStaffUtilization();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, isStaff]);
 
   //fetch notifications:-
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || isStaff) return;
 
     const fetchAllNotifications = async () => {
       try {
@@ -263,7 +265,7 @@ const SalonDashboard = () => {
     // const intervalId = setInterval(fetchAllNotifications, 30000);
 
     // return () => clearInterval(intervalId);
-  }, [isAuthenticated]);
+  }, [isAuthenticated, isStaff]);
 
   const quickActions: QuickAction[] = [
     {
@@ -346,6 +348,31 @@ const SalonDashboard = () => {
   const handleNavigation = (path: string) => {
     router.push(path);
   };
+
+  if (isStaff) {
+    return (
+      <AuthGuard>
+        <div className="min-h-screen bg-background">
+          <main className="ml-0 lg:pb-8">
+            <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+              <div className="mb-6">
+                <h1 className="text-2xl font-bold text-foreground">
+                  Sales Report
+                </h1>
+                <p className="text-muted-foreground">
+                  Your performance & earnings overview
+                </p>
+              </div>
+
+              <div className="bg-card border border-border rounded-lg p-6">
+                <SalesReportPanel />
+              </div>
+            </div>
+          </main>
+        </div>
+      </AuthGuard>
+    );
+  }
 
   return (
     <AuthGuard>
