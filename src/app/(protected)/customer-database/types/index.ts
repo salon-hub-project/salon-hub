@@ -1,76 +1,76 @@
 export interface Customer {
-    id: string;
-    name: string;
-    phone: string;
-    email?: string;
-    gender: 'male' | 'female' | 'other';
-    dateOfBirth?: string;
-    address?: string;
-    notes: string;
-    tags: string[];
-    lastVisit: Date | null;
-    totalVisits: number;
-    totalSpent: number;
-    createdAt: Date;
-    preferredStaff?: string;
-    avatar?: string;
-    tagIds?: string[];
-  }
-  
-  export type CustomerTag = string;
+  id: string;
+  name: string;
+  phone: string;
+  email?: string;
+  gender: "male" | "female" | "other";
+  dateOfBirth?: string;
+  address?: string;
+  notes: string;
+  tags: string[];
+  lastVisit: Date | null;
+  totalVisits: number;
+  totalSpent: number;
+  createdAt: Date;
+  preferredStaff?: string;
+  avatar?: string;
+  tagIds?: string[];
+}
 
-  export interface CustomerTagItem {
+export type CustomerTag = string;
+
+export interface CustomerTagItem {
   id: string;
   name: string;
 }
-  
-  export const customerTags = [
+
+export const customerTags = [
   { id: "VIP", name: "VIP" },
   { id: "New", name: "NEW" },
   { id: "Frequent", name: "FREQUENT" },
   { id: "Inactive", name: "INACTIVE" },
-  { id: "Old", name: "OLD"}
+  { id: "Old", name: "OLD" },
 ];
-  
-  export interface ServiceHistory {
-    id: string;
-    customerId: string;
-    date: Date;
-    services: ServiceItem[];
-    staffName: string;
-    totalAmount: number;
-    paymentStatus: 'paid' | 'pending' | 'cancelled';
-    notes?: string;
-  }
-  
-  export interface ServiceItem {
-    id: string;
-    name: string;
-    category: string;
-    duration: number;
-    price: number;
-  }
-  
-  export interface CustomerFilters {
-    searchQuery: string;
-    tags: CustomerTag[];
-    gender: string;
-    sortBy: 'name' | 'lastVisit' | 'totalVisits' | 'totalSpent';
-    sortOrder: 'asc' | 'desc';
-  }
-  
-  export interface CustomerFormData {
-    name: string;
-    phone: string;
-    email: string;
-    gender: 'male' | 'female' | 'other';
-    dateOfBirth: string;
-    notes?: string;
-    tags: CustomerTag[];
-    preferredStaff: string;
-  }
 
-  export interface CustomerFormikValues {
+export interface ServiceHistory {
+  id: string;
+  customerId: string;
+  date: Date;
+  services: ServiceItem[];
+  staffName: string;
+  totalAmount: number;
+  paymentStatus: "paid" | "pending" | "cancelled";
+  notes?: string;
+}
+
+export interface ServiceItem {
+  id: string;
+  name: string;
+  category: string;
+  duration: number;
+  price: number;
+}
+
+export interface CustomerFilters {
+  searchQuery: string;
+  tags: CustomerTag[];
+  gender: string;
+  sortBy: "name" | "lastVisit" | "totalVisits" | "totalSpent" | "createdAt";
+  sortOrder: "asc" | "desc";
+}
+
+export interface CustomerFormData {
+  name: string;
+  phone: string;
+  email: string;
+  gender: "male" | "female" | "other";
+  dateOfBirth: string;
+  notes?: string;
+  tags: CustomerTag[];
+  preferredStaff: string;
+}
+
+export interface CustomerFormikValues {
   name: string;
   phone: string;
   email: string;
@@ -78,7 +78,7 @@ export interface Customer {
   dateOfBirth: string;
   tags: CustomerTag[];
   preferredStaff: string;
-  notes?:string;
+  notes?: string;
 }
 
 export interface CustomerApiResponse {
@@ -100,4 +100,3 @@ export interface CustomerApiResponse {
     phoneNumber: string;
   };
 }
-

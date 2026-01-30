@@ -239,9 +239,13 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
 
     try {
       const res = await customerApi.getCustomers({ limit: 1000 });
-      setCustomers(res.data);
+      const sortedData = [...res.data].sort(
+        (a: any, b: any) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      );
+      setCustomers(sortedData);
       setCustomerOptions(
-        res.data.map((c: any) => ({
+        sortedData.map((c: any) => ({
           value: c._id,
           label: c.fullName,
         })),
