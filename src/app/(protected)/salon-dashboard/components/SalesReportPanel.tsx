@@ -153,17 +153,18 @@ export default function SalesReportPanel() {
             </div>
 
             <div className="bg-white rounded-xl border p-4 shadow-sm">
-              <p className="text-sm text-gray-500">Appointments</p>
+              <p className="text-sm text-gray-500"> Completed Appointments</p>
               <p className="text-2xl font-semibold">
                 {report.totalAppointments}
               </p>
             </div>
 
             <div className="bg-white rounded-xl border p-4 shadow-sm">
-              <p className="text-sm text-gray-500">Date Range</p>
+              <p className="text-sm text-gray-500">Customers</p>
               <p className="text-sm">
-                {new Date(report.dateRange.from).toLocaleDateString()} –{" "}
-                {new Date(report.dateRange.to).toLocaleDateString()}
+                {/* {new Date(report.dateRange.from).toLocaleDateString()} –{" "}
+                {new Date(report.dateRange.to).toLocaleDateString()} */}
+                {report.totalCustomers}
               </p>
             </div>
           </div>

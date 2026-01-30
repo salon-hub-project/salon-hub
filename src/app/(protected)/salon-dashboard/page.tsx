@@ -370,14 +370,14 @@ const SalonDashboard = () => {
             </div>
 
             <div className="bg-card border border-border rounded-lg p-6 mb-10">
-                <div className="mb-4">
-                  <h3 className="text-lg font-semibold">Sales Report</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Track revenue, commission & appointments
-                  </p>
-                </div>
-                <SalesReportPanel />
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold">Sales Report</h3>
+                <p className="text-sm text-muted-foreground">
+                  Track revenue, commission & appointments
+                </p>
               </div>
+              <SalesReportPanel />
+            </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
               <div className="lg:col-span-2">
