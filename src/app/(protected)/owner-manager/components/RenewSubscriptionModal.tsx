@@ -24,8 +24,8 @@ const RenewSubscriptionModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[110] bg-black/50 flex items-center justify-center p-4">
-      <div className="bg-card rounded-xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+    <div className="fixed inset-0 z-[110] bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <div className="bg-card rounded-t-2xl sm:rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in slide-in-from-bottom sm:zoom-in duration-300">
         {/* HEADER */}
         <div className="flex items-center justify-between px-6 py-4 border-b">
           <h2 className="text-xl font-semibold text-foreground">
@@ -67,18 +67,15 @@ const RenewSubscriptionModal = ({
           <div className="bg-primary/5 p-4 rounded-lg flex gap-3 items-start">
             <Icon name="Info" size={20} className="text-primary mt-0.5" />
             <p className="text-sm text-primary/80 leading-relaxed">
-              Renewing the subscription will extend the owner's access by the selected number of months from their current expiry date.
+              Renewing the subscription will extend the owner's access by the
+              selected number of months from their current expiry date.
             </p>
           </div>
         </div>
 
         {/* FOOTER */}
         <div className="flex items-center justify-end gap-3 px-6 py-4 border-t bg-muted/50">
-          <Button
-            variant="outline"
-            onClick={onClose}
-            disabled={loading}
-          >
+          <Button variant="outline" onClick={onClose} disabled={loading}>
             Cancel
           </Button>
           <Button

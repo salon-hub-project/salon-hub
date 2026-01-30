@@ -117,110 +117,103 @@ const GetAllOwners = () => {
           {error && <p className="text-red-500">{error}</p>}
 
           {!isLoading && owners?.length > 0 && (
-            <div className="bg-card border rounded-lg overflow-visible">
-              <table className="w-full">
-                <thead className="bg-muted">
-                  <tr>
-                    <th className="px-4 py-3 text-left">Email</th>
-                    <th className="px-4 py-3 text-left">Phone</th>
-                    <th className="px-4 py-3 text-left">Status</th>
-                    <th className="px-4 py-3 text-left">Action</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {owners?.map((owner) => (
-                    <tr key={owner._id} className="border-t">
-                      <td className="px-4 py-3">{owner?.userId?.email}</td>
-                      <td className="px-4 py-3">
-                        {owner?.userId?.phoneNumber || "-"}
-                      </td>
-                      <td className="px-4 py-3">
-                        {owner?.isApproved ? (
-                          <span className="text-green-600 flex items-center gap-1">
-                            <Icon name="CheckCircle" size={16} />
-                            Verified
-                          </span>
-                        ) : (
-                          <button
-                            onClick={() => handleApprove(owner._id)}
-                            disabled={approvingId === owner._id}
-                            className={`px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 ${
-                              approvingId === owner._id
-                                ? "opacity-70 cursor-not-allowed"
-                                : ""
-                            }`}
-                          >
-                            {approvingId === owner._id
-                              ? "Approving..."
-                              : "Approve"}
-                          </button>
-                        )}
-                      </td>
-                      {/* <td className="flex items-center gap-3 pt-3 pl-3 ">
-                        <Icon
-                          name="Eye"
-                          size={18}
-                          title="View Owner Details"
-                          className="text-destructive"
-                          onClick={() =>
-                            dispatch(FetchOwnersDetails(owner._id))
-                          }
-                        />
-
-                        <Icon
-                          onClick={() => handleRenew(owner)}
-                          name="History"
-                          size={18}
-                          title="Renew Subscription"
-                          className="text-primary cursor-pointer hover:text-primary/80"
-                        />
-
-                        <Icon
-                          onClick={() => handleDelete(owner._id)}
-                          name="Trash"
-                          size={18}
-                          title="Delete Owner"
-                          className="text-destructive cursor-pointer hover:text-destructive/80"
-                        />
-                      </td> */}
-                      <td className="flex items-center gap-3 pt-3 pl-3 overflow-visible">
-                        {/* View */}
-                        <Tooltip label="View Owner Details">
-                          <Icon
-                            name="Eye"
-                            size={18}
-                            className="text-destructive cursor-pointer"
-                            onClick={() =>
-                              dispatch(FetchOwnersDetails(owner._id))
-                            }
-                          />
-                        </Tooltip>
-
-                        {/* Renew */}
-                        <Tooltip label="Renew Subscription">
-                          <Icon
-                            name="RefreshCcw"
-                            size={18}
-                            className="text-primary cursor-pointer"
-                            onClick={() => handleRenew(owner)}
-                          />
-                        </Tooltip>
-
-                        {/* Delete */}
-                        <Tooltip label="Delete Owner">
-                          <Icon
-                            name="Trash"
-                            size={18}
-                            className="text-destructive cursor-pointer hover:text-destructive/80"
-                            onClick={() => handleDelete(owner._id)}
-                          />
-                        </Tooltip>
-                      </td>
+            <div className="bg-card border rounded-lg overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[700px]">
+                  <thead className="bg-muted">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-sm font-semibold">
+                        Email
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold">
+                        Phone
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold">
+                        Status
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold">
+                        Action
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+
+                  <tbody>
+                    {owners?.map((owner) => (
+                      <tr
+                        key={owner._id}
+                        className="border-t hover:bg-muted/30 transition-colors"
+                      >
+                        <td
+                          className="px-4 py-3 text-sm truncate max-w-[200px]"
+                          title={owner?.userId?.email}
+                        >
+                          {owner?.userId?.email}
+                        </td>
+                        <td className="px-4 py-3 text-sm">
+                          {owner?.userId?.phoneNumber || "-"}
+                        </td>
+                        <td className="px-4 py-3 text-sm">
+                          {owner?.isApproved ? (
+                            <span className="text-green-600 flex items-center gap-1">
+                              <Icon name="CheckCircle" size={16} />
+                              Verified
+                            </span>
+                          ) : (
+                            <button
+                              onClick={() => handleApprove(owner._id)}
+                              disabled={approvingId === owner._id}
+                              className={`px-3 py-1.5 bg-yellow-500 text-white text-xs font-medium rounded hover:bg-yellow-600 transition-colors ${
+                                approvingId === owner._id
+                                  ? "opacity-70 cursor-not-allowed"
+                                  : ""
+                              }`}
+                            >
+                              {approvingId === owner._id
+                                ? "Approving..."
+                                : "Approve"}
+                            </button>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-3">
+                            {/* View */}
+                            <Tooltip label="View Owner Details">
+                              <Icon
+                                name="Eye"
+                                size={18}
+                                className="text-muted-foreground hover:text-primary cursor-pointer transition-colors"
+                                onClick={() =>
+                                  dispatch(FetchOwnersDetails(owner._id))
+                                }
+                              />
+                            </Tooltip>
+
+                            {/* Renew */}
+                            <Tooltip label="Renew Subscription">
+                              <Icon
+                                name="RefreshCcw"
+                                size={17}
+                                className="text-muted-foreground hover:text-primary cursor-pointer transition-colors"
+                                onClick={() => handleRenew(owner)}
+                              />
+                            </Tooltip>
+
+                            {/* Delete */}
+                            <Tooltip label="Delete Owner">
+                              <Icon
+                                name="Trash"
+                                size={18}
+                                className="text-muted-foreground hover:text-destructive cursor-pointer transition-colors"
+                                onClick={() => handleDelete(owner._id)}
+                              />
+                            </Tooltip>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
               <OwnerDetails
                 owner={selectedOwner}
                 loading={isLoading}

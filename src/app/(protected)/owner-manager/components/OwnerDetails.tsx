@@ -12,21 +12,18 @@ interface OwnerDetailsPanelProps {
   onClose?: () => void;
 }
 
-const OwnerDetails = ({
-  owner,
-  loading,
-}: OwnerDetailsPanelProps) => {
+const OwnerDetails = ({ owner, loading }: OwnerDetailsPanelProps) => {
   if (!owner && !loading) return null;
 
-  const dispatch = useAppDispatch()
+  const dispatch = useAppDispatch();
 
   const onClose = () => {
-  dispatch(clearSelectedOwner());
-};
+    dispatch(clearSelectedOwner());
+  };
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4">
-      <div className="bg-card rounded-xl shadow-xl w-full max-w-lg overflow-hidden">
+    <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <div className="bg-card rounded-t-2xl sm:rounded-xl shadow-2xl w-full max-w-lg overflow-hidden animate-in slide-in-from-bottom sm:zoom-in duration-300">
         {/* HEADER */}
         <div className="flex items-center justify-between px-6 py-4 border-b">
           <h2 className="text-xl font-semibold text-foreground">
