@@ -438,6 +438,11 @@ const BookingManagement = () => {
     if (appointmentIdFromUrl) {
       handleBookingClick(appointmentIdFromUrl);
     }
+//     const params = new URLSearchParams(searchParams.toString());
+//     params.delete("appointmentId");
+
+//     router.replace(`?${params.toString()}`);
+//   }, [searchParams, router]);
 
     const customerIdFromUrl = searchParams.get("customerId");
     if (customerIdFromUrl) {
@@ -536,7 +541,7 @@ const BookingManagement = () => {
       date.setDate(startOfWeek.getDate() + i);
 
       if (salonStartDate && date < salonStartDate) {
-        continue;
+        continue; 
       }
       const bookingCount = bookings.filter(
         (b) => b.date.toDateString() === date.toDateString(),
@@ -592,6 +597,7 @@ const BookingManagement = () => {
   };
 
   const handleTimeSlotClick = (time: string) => {
+
     if (isStaffUser || !salonStartDate) return;
     const day = new Date(currentDate);
     day.setHours(0, 0, 0, 0);

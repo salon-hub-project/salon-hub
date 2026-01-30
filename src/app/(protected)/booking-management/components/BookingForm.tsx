@@ -15,6 +15,7 @@ import { staffApi } from "@/app/services/staff.api";
 import { comboApi } from "@/app/services/combo.api";
 import GroupedSelect from "@/app/components/ui/GroupedSelect";
 import { appointmentApi } from "@/app/services/appointment.api";
+import { isToday } from "date-fns";
 
 // Helper component to handle side effects and data fetching inside Formik context
 const StaffFetcher = ({
@@ -269,6 +270,7 @@ const BookingForm = ({
     }
   };
   const today = new Date().toISOString().split("T")[0];
+
   // Pre-calculate preferred staff ID for initial values
   const getInitialStaffId = () => {
     if (bookingToEdit?.staffId) return bookingToEdit.staffId;
