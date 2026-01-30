@@ -31,6 +31,7 @@ const GetAllOwners = () => {
   const [renewModalOpen, setRenewModalOpen] = useState(false);
   const [selectedOwnerId, setSelectedOwnerId] = useState<string | null>(null);
   const [selectedOwnerEmail, setSelectedOwnerEmail] = useState<string>("");
+  const [approvingId, setApprovingId] = useState<string | null>(null);
   const totalPages = Math.ceil(total / limit);
 
   useEffect(() => {
@@ -64,6 +65,17 @@ const GetAllOwners = () => {
           setRenewModalOpen(false);
           setSelectedOwnerId(null);
         });
+    }
+  };
+
+  const handleApprove = async (ownerId: string) => {
+    setApprovingId(ownerId);
+    try {
+      await dispatch(approveOwner(ownerId)).unwrap();
+    } catch (err) {
+      console.error("Failed to approve owner:", err);
+    } finally {
+      setApprovingId(null);
     }
   };
 
@@ -131,10 +143,17 @@ const GetAllOwners = () => {
                           </span>
                         ) : (
                           <button
-                            onClick={() => dispatch(approveOwner(owner._id))}
-                            className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                            onClick={() => handleApprove(owner._id)}
+                            disabled={approvingId === owner._id}
+                            className={`px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 ${
+                              approvingId === owner._id
+                                ? "opacity-70 cursor-not-allowed"
+                                : ""
+                            }`}
                           >
-                            Approve
+                            {approvingId === owner._id
+                              ? "Approving..."
+                              : "Approve"}
                           </button>
                         )}
                       </td>
