@@ -7,7 +7,6 @@ import Select from "../../../components/ui/Select";
 import { Checkbox } from "../../../components/ui/Checkbox";
 import { CustomerFilters as FilterType, CustomerTag } from "../types";
 import { customerTags } from "../types";
-import { customerTagApi } from "@/app/services/tags.api";
 
 interface CustomerFiltersProps {
   filters: FilterType;
@@ -24,35 +23,17 @@ const CustomerFilters = ({
 }: CustomerFiltersProps) => {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [loadingTags, setLoadingTags] = useState(false);
-
-  /* =======================
-     FETCH TAGS FROM API
-     ======================= */
-  // useEffect(() => {
-  //   const fetchTags = async () => {
-  //     try {
-  //       setLoadingTags(true);
-  //       const res = await customerTagApi.getAllCustomerTags();
-
-  //       const tags =
-  //         res?.data?.map((tag: any) => tag.name.toUpperCase()) || [];
-
-  //       setTagOptions(tags);
-  //     } catch (error) {
-  //       console.error("Failed to load customer tags", error);
-  //     } finally {
-  //       setLoadingTags(false);
-  //     }
-  //   };
-
-  //   fetchTags();
-  // }, []);
+  const [filterType, setFilterType] = useState("All");
 
   /* =======================
      HANDLERS
      ======================= */
   const handleSearchChange = (value: string) => {
     onFiltersChange({ ...filters, searchQuery: value });
+  };
+
+  const handleTypeChange = (value: any) => {
+    onFiltersChange({ ...filters, type: value ? value : undefined });
   };
 
   const handleTagToggle = (tag: CustomerTag) => {
@@ -71,6 +52,7 @@ const CustomerFilters = ({
     onFiltersChange({
       searchQuery: "",
       tags: [],
+      type: undefined,
       gender: "",
       sortBy: "name",
       sortOrder: "asc",
@@ -81,6 +63,15 @@ const CustomerFilters = ({
     (filters.searchQuery ? 1 : 0) +
     filters.tags.length +
     (filters.gender ? 1 : 0);
+
+  const FILTER_OPTIONS = [
+    { label: "All", value: "" }, 
+    { label: "Today", value: "today" },
+    { label: "Weekly", value: "weekly" },
+    { label: "Monthly", value: "monthly" },
+    { label: "Yearly", value: "yearly" },
+    { label: "Custom", value: "custom" },
+  ];
 
   /* =======================
      UI
@@ -155,7 +146,9 @@ const CustomerFilters = ({
                         checked={filters.tags.includes(tag.id)}
                         onChange={() => handleTagToggle(tag.id)}
                       />
-                      <span className="text-sm text-foreground">{tag.name}</span>
+                      <span className="text-sm text-foreground">
+                        {tag.name}
+                      </span>
                     </label>
                   ))}
                 </div>
@@ -174,6 +167,14 @@ const CustomerFilters = ({
                 ]}
                 value={filters.gender}
                 onChange={handleGenderChange}
+              />
+            </div>
+            <div>
+              <Select
+                label="Last Visits"
+                options={FILTER_OPTIONS}
+                value={filters.type ?? ""}
+                onChange={handleTypeChange}
               />
             </div>
           </div>

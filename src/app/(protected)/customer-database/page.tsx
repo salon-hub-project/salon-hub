@@ -51,6 +51,7 @@ const CustomerDatabase = () => {
     searchQuery: "",
     tags: [],
     gender: "",
+    type: undefined,
     sortBy: "createdAt",
     sortOrder: "desc",
   });
@@ -126,10 +127,8 @@ const CustomerDatabase = () => {
             ? { phoneNumber: filters.searchQuery }
             : { fullName: filters.searchQuery })),
         ...(filters.gender && { gender: filters.gender }),
-        ...(filters.tags.length > 0 && {
-          //customerTag: filters.tags.map((tag) => tag.toUpperCase()),
-          customerTag: filters.tags,
-        }),
+        ...(filters.tags.length > 0 && {customerTag: filters.tags, }),
+        ...(filters.type && { type: filters.type }),
       });
 
       setTotalCustomers(response.meta.total);
@@ -176,7 +175,7 @@ const CustomerDatabase = () => {
       }
       fetchingRef.current = false;
     }
-  }, [page, filters.searchQuery, filters.gender, filters.tags]);
+  }, [page, filters.searchQuery, filters.gender, filters.tags, filters.type]);
 
   // Refetch whenever filters or page change
   useEffect(() => {
@@ -191,7 +190,7 @@ const CustomerDatabase = () => {
 
   useEffect(() => {
     setPage(1);
-  }, [filters.searchQuery, filters.gender, filters.tags]);
+  }, [filters.searchQuery, filters.gender, filters.tags, filters.type]);
 
   const mockServiceHistory: ServiceHistory[] = [
     {
