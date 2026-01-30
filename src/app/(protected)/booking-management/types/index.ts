@@ -116,6 +116,7 @@ export interface BookingFormProps {
   services: Service[];
   staff: Staff[];
   comboOffers: ComboOffer[];
+  setComboOffers?: (c: ComboOffer[])=> void;
   selectedDate?: Date;
   selectedTime?: string;
   onSubmit?: (data: BookingFormData) => void;
@@ -124,5 +125,6 @@ export interface BookingFormProps {
   isLoading?: boolean;
   bookingToEdit?: Booking | null;
   changeStaffOnly?: boolean;
+  onDateChange?: (date: Date) => void;
   initialCustomerId?: string;
 }

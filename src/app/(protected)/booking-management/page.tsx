@@ -273,6 +273,36 @@ const BookingManagement = () => {
     }
   }, [user]);
 
+  const fetchCombosByDate = useCallback(async (date?: Date) => {
+    if (!date) return;
+
+    try {
+      const formattedDate = date.toISOString().split("T")[0];
+
+      const comboRes = await comboApi.getAppointmentCombo({
+        page: 1,
+        limit: 100,
+        appointmentDate: formattedDate,
+      });
+
+      const rawCombo = Array.isArray(comboRes)
+        ? comboRes
+        : comboRes?.data || [];
+
+      if (!mountedRef.current) return;
+
+      setCombo(
+        rawCombo.map((c: any) => ({
+          ...c,
+          id: c._id || c.id,
+          name: c.name || c.comboName,
+        })),
+      );
+    } catch (err) {
+      console.error("Failed to load combo offers", err);
+    }
+  }, []);
+
   const loadInitialData = useCallback(async () => {
     // Prevent duplicate calls
     if (fetchingRef.current) return;
@@ -323,19 +353,23 @@ const BookingManagement = () => {
           })),
         );
 
-        const comboRes = await comboApi.getAllComboOffers({ limit: 100 });
-        const rawCombo = Array.isArray(comboRes)
-          ? comboRes
-          : comboRes?.data || [];
-        if (!mountedRef.current) return;
+        // const comboRes = await comboApi.getAppointmentCombo({
+        //   page: 1,
+        //   limit: 100,
+        //   appointmentDate: "2026-02-20",
+        // });
+        // const rawCombo = Array.isArray(comboRes)
+        //   ? comboRes
+        //   : comboRes?.data || [];
+        // if (!mountedRef.current) return;
 
-        setCombo(
-          rawCombo.map((c: any) => ({
-            ...c,
-            id: c._id || c.id,
-            name: c.name || c.comboName,
-          })),
-        );
+        // setCombo(
+        //   rawCombo.map((c: any) => ({
+        //     ...c,
+        //     id: c._id || c.id,
+        //     name: c.name || c.comboName,
+        //   })),
+        // );
 
         const staffRes = await staffApi.getAllStaff({ page: 1, limit: 100 });
         const rawStaff = Array.isArray(staffRes)
@@ -385,6 +419,14 @@ const BookingManagement = () => {
   }, [loadInitialData]);
 
   useEffect(() => {
+    const dateToUse = selectedDate || currentDate;
+    // if (selectedDate) {
+    //   fetchCombosByDate(selectedDate);
+    // }
+    fetchCombosByDate(dateToUse);
+  }, [selectedDate, currentDate, fetchCombosByDate]);
+
+  useEffect(() => {
     const staffIdFromUrl = searchParams.get("staffId");
     if (staffIdFromUrl) {
       setFilters((prev) => ({
@@ -401,6 +443,10 @@ const BookingManagement = () => {
     if (customerIdFromUrl) {
       setShowBookingForm(true);
     }
+    // const params = new URLSearchParams(searchParams.toString());
+    // params.delete("appointmentId");
+
+    // router.replace(`?${params.toString()}`);
   }, [searchParams]);
 
   const generateTimeSlots = (): TimeSlot[] => {
@@ -490,7 +536,7 @@ const BookingManagement = () => {
       date.setDate(startOfWeek.getDate() + i);
 
       if (salonStartDate && date < salonStartDate) {
-        continue; 
+        continue;
       }
       const bookingCount = bookings.filter(
         (b) => b.date.toDateString() === date.toDateString(),
@@ -546,7 +592,6 @@ const BookingManagement = () => {
   };
 
   const handleTimeSlotClick = (time: string) => {
-
     if (isStaffUser || !salonStartDate) return;
     const day = new Date(currentDate);
     day.setHours(0, 0, 0, 0);
@@ -754,7 +799,11 @@ const BookingManagement = () => {
               variant="default"
               iconName="Plus"
               iconPosition="left"
-              onClick={() => setShowBookingForm(true)}
+              onClick={() => {
+                setSelectedDate(currentDate);
+                fetchCombosByDate(currentDate);
+                setShowBookingForm(true);
+              }}
             >
               New Booking
             </Button>
@@ -887,7 +936,9 @@ const BookingManagement = () => {
               services={services}
               staff={staff}
               comboOffers={combo}
+              // setComboOffers={setCombo}
               selectedDate={selectedDate}
+              // setSelectedDate= {setSelectedDate}
               selectedTime={selectedTime}
               bookingToEdit={selectedBooking}
               changeStaffOnly={changeStaffMode}
@@ -906,6 +957,10 @@ const BookingManagement = () => {
                 setSelectedDate(undefined);
                 setSelectedTime(undefined);
                 setChangeStaffMode(false);
+              }}
+              onDateChange={(date) => {
+                setSelectedDate(date);
+                fetchCombosByDate(date); 
               }}
             />
           </div>
