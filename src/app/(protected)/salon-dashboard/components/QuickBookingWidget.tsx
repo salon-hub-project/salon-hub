@@ -219,6 +219,7 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
   const [customerOptions, setCustomerOptions] = useState<
     { value: string; label: string }[]
   >([]);
+  const [customers, setCustomers] = useState<any[]>([]);
   const [serviceOptions, setServiceOptions] = useState<
     { value: string; label: string }[]
   >([]);
@@ -238,6 +239,7 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
 
     try {
       const res = await customerApi.getCustomers({ limit: 1000 });
+      setCustomers(res.data);
       setCustomerOptions(
         res.data.map((c: any) => ({
           value: c._id,
@@ -358,7 +360,22 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
               placeholder="Select customer"
               options={customerOptions}
               value={values.customer}
-              onChange={(val) => setFieldValue("customer", val)}
+              onChange={(val) => {
+                setFieldValue("customer", val);
+                // Pre-select preferred staff if available
+                const selectedCustomer = customers.find((c) => c._id === val);
+                if (selectedCustomer?.preferredStaff) {
+                  const prefStaff = selectedCustomer.preferredStaff;
+                  const preferredStaffId =
+                    typeof prefStaff === "string"
+                      ? prefStaff
+                      : (prefStaff as any)._id || (prefStaff as any).id;
+
+                  if (preferredStaffId) {
+                    setFieldValue("staff", preferredStaffId);
+                  }
+                }
+              }}
               onAddNew={() => router.push("/customer-database")}
               error={touched.customer ? errors.customer : undefined}
             />
