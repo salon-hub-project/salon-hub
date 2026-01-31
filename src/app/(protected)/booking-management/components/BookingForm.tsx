@@ -318,7 +318,7 @@ const BookingForm = ({
       startTime: bookingToEdit?.startTime || selectedTime || "",
       notes: bookingToEdit?.notes || "",
     }),
-    [bookingToEdit, initialCustomerId, selectedDate, selectedTime, customers],
+    [bookingToEdit, initialCustomerId, customers],
   );
 
   return (
