@@ -29,8 +29,8 @@ export default function SalesReportPanel() {
   const [selectedStaffId, setSelectedStaffId] = useState<string>();
 
   const { user } = useAppSelector((state: any) => state.auth);
+  const isAuthenticated = useAppSelector((state) => !!state.auth.token);
   const role = normalizeRole(user?.role);
-  const isStaff = role === "STAFF";
   const isOwner = role === "OWNER";
 
   const fetchStaff = async () => {
@@ -43,9 +43,9 @@ export default function SalesReportPanel() {
   };
 
   useEffect(() => {
-    if(!isOwner) return;
+    if(!isOwner || !isAuthenticated) return;
     fetchStaff();
-  }, [isOwner]);
+  }, [isOwner, isAuthenticated]);
 
   const staffOptions = staff.map((s: any) => ({
     label: s.fullName,
@@ -84,10 +84,11 @@ export default function SalesReportPanel() {
   };
 
   useEffect(() => {
+    if (!isAuthenticated) return;
     if (filterType !== "custom") {
       fetchReport();
     }
-  }, [filterType]);
+  }, [filterType, isAuthenticated]);
 
   return (
     <div className="space-y-6">
@@ -168,14 +169,15 @@ export default function SalesReportPanel() {
               </p>
             </div>
 
+            {isOwner && 
             <div className="bg-white rounded-xl border p-4 shadow-sm">
               <p className="text-sm text-gray-500">Customers</p>
-              <p className="text-sm">
+              <p className="text-2xl font-semibold">
                 {/* {new Date(report.dateRange.from).toLocaleDateString()} –{" "}
                 {new Date(report.dateRange.to).toLocaleDateString()} */}
                 {report.totalCustomers}
               </p>
-            </div>
+            </div>}
           </div>
         </>
       )}
