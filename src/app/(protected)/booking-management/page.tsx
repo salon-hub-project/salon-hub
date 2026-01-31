@@ -36,6 +36,7 @@ import { isStaff } from "@/app/utils/routePermissions";
 import { comboApi } from "@/app/services/combo.api";
 import { ComboOffer } from "../combo-offers-management/types";
 import { useRouter } from "next/navigation";
+import { useAppSelector } from "@/app/store/hooks";
 
 const BookingManagement = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -59,6 +60,7 @@ const BookingManagement = () => {
   const [changeStaffMode, setChangeStaffMode] = useState(false);
 
   const user = useSelector((state: any) => state.auth.user);
+  const isAuthenticated = useAppSelector((state) => !!state.auth.token);
   const timings = useSelector((state: any) => state.profile.timings);
   const isStaffUser = isStaff(user?.role);
   const router = useRouter();
@@ -401,6 +403,7 @@ const BookingManagement = () => {
   //   dispatch(fetchProfileTimings());
   // }, [dispatch]);
   useEffect(() => {
+    if(!isAuthenticated) return;
     if (isStaffUser) {
       dispatch(getStaffProfile());
     } else {
