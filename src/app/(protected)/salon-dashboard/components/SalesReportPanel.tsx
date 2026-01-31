@@ -169,14 +169,15 @@ export default function SalesReportPanel() {
               </p>
             </div>
 
+            {isOwner && 
             <div className="bg-white rounded-xl border p-4 shadow-sm">
               <p className="text-sm text-gray-500">Customers</p>
-              <p className="text-sm">
+              <p className="text-2xl font-semibold">
                 {/* {new Date(report.dateRange.from).toLocaleDateString()} –{" "}
                 {new Date(report.dateRange.to).toLocaleDateString()} */}
                 {report.totalCustomers}
               </p>
-            </div>
+            </div>}
           </div>
         </>
       )}
