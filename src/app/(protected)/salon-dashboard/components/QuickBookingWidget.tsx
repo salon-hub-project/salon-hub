@@ -383,6 +383,7 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
                   value={values.time}
                   onChange={(val: string) => setFieldValue("time", val)}
                   error={touched.time ? errors.time : (timeError as string)}
+                  className="mt-2.5"
                 />
               </div>
 
