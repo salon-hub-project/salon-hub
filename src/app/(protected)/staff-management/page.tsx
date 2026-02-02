@@ -149,6 +149,16 @@ const StaffManagement = () => {
     );
   };
 
+  const handleResetAchievedAmount = async (staffId: string) => {
+    try {
+      await staffApi.resetIndividualAchievment(staffId);
+      fetchEmployees();
+      handleViewDetails({ id: staffId } as Employee);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const fetchRoles = async () => {
     try {
       const res = await rolesApi.getAllRoles();
@@ -335,6 +345,7 @@ const StaffManagement = () => {
           revenueGenerated: emp?.lifetimeRevenue || 0,
           bookingCompletionRate: 0,
           achievedAmount: emp.achievedAmount || 0,
+          totalCommisionEarned: emp?.totalCommisionEarned || 0,
         },
       };
 
@@ -649,6 +660,7 @@ const StaffManagement = () => {
           }}
           loading={detailsLoading}
           onEdit={handleEditEmployee}
+          onResetAchieved= {handleResetAchievedAmount}
         />
       )}
 

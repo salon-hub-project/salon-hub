@@ -21,6 +21,7 @@ export interface Employee {
     revenueGenerated: number;
     bookingCompletionRate: number;
     achievedAmount: number;
+    totalCommisionEarned?: number;
   };
   availability: {
     monday: boolean;

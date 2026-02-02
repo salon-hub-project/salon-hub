@@ -129,6 +129,22 @@ export const staffApi = {
             });
         }
     },
+    resetIndividualAchievment : async (staffId: string)=> {
+         try{
+            const res= await api.post(`/staff/resetachievement/${staffId}`)
+            showToast({
+                message: res?.data?.message || "Staff achieved amount reset successfully",
+                status: "success"
+            })
+            return res.data;
+         }
+         catch(err: any){
+            showToast({
+                message: err?.response?.data?.message || "Failed to reset amount",
+                status: "error"
+            })
+         }
+    },
     updateStaffStatus: async(staffId: string, isActive: boolean) => {
         try{
             const res= await api.post(`/staff/updateactivestatus/${staffId}`, {isActive});

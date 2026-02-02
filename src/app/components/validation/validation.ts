@@ -103,7 +103,7 @@ export const serviceValidationSchema = Yup.object({
 export const addValidationSchema = Yup.object({
   name: Yup.string().trim().required("Name is required"),
   role: Yup.string().required("Role is required"),
-  phone: Yup.string()
+  phone: Yup.string().min(10)
     .matches(/^\+?[\d\s-()]+$/, "Invalid phone number format")
     .required("Phone number is required"),
   email: Yup.string()

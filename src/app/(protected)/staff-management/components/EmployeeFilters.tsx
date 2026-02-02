@@ -22,7 +22,7 @@ const EmployeeFilters = ({
   totalStaff,
   onFiltersChange,
 }: StaffFiltersProps) => {
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(true);
 
   const activeFilterCount =
     (filters.searchQuery ? 1 : 0) +

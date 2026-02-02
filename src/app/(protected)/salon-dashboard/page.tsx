@@ -366,7 +366,7 @@ const SalonDashboard = () => {
       serviceCategory: "",
       date: new Date(), // today
       startTime: appt.time,
-      endTime: "",
+      endTime: appt.endTime,
       staffName: appt.staffName,
       staffAvatar: "",
       status: appt.status,

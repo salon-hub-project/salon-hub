@@ -258,6 +258,7 @@ const EmployeeTable = ({
                 <td className="px-6 py-4 text-right">
                   <div className="flex justify-end gap-2">
                     <select
+                     name="change status"
                       value={employee.isActive ? "active" : "inactive"}
                       onChange={async (e) => {
                         e.stopPropagation();
@@ -271,6 +272,7 @@ const EmployeeTable = ({
                       }}
                       className="border rounded-md px-2 py-1 text-sm bg-background"
                     >
+                      <option value="" disabled>Change Status</option>
                       <option value="active">Active</option>
                       <option value="inactive">Inactive</option>
                     </select>

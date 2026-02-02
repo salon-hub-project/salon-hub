@@ -12,6 +12,7 @@ interface EmployeeDetailsPanelProps {
   onClose: () => void;
   onEdit: (employee: Employee) => void;
   loading?: boolean;
+  onResetAchieved: (staffId: string) => void;
   profileWorkingDays?: string[];
 }
 
@@ -20,6 +21,7 @@ const EmployeeDetailsPanel = ({
   onClose,
   onEdit,
   loading,
+  onResetAchieved,
   profileWorkingDays = [],
 }: EmployeeDetailsPanelProps) => {
   const [showSchedule, setShowSchedule] = useState(false);
@@ -297,7 +299,26 @@ const EmployeeDetailsPanel = ({
                       {employee.performanceMetrics.revenueGenerated.toLocaleString()}
                     </span>
                   </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">
+                      Total Commission Earned
+                    </span>
+                    <span className="text-lg font-bold text-success">
+                      INR {employee.performanceMetrics.totalCommisionEarned}
+                    </span>
+                  </div>
                 </div>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-border">
+                <Button
+                  variant="outline"
+                  iconName="RotateCcw"
+                  onClick={() => onResetAchieved(employee.id)}
+                  className="w-full"
+                >
+                  Reset Achieved Amount & Commission
+                </Button>
               </div>
             </div>
           </div>

@@ -16,13 +16,6 @@ const ComboPreviewModal: React.FC<ComboPreviewModalProps> = ({
   combo,
 }) => {
   if (!isOpen || !combo) return null;
-
-  // const eligibilityLabel = {
-  //   all: 'All Customers',
-  //   new: 'New Customers Only',
-  //   existing: 'Existing Customers',
-  //   vip: 'VIP Members',
-  // };
   
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[999]">
@@ -129,16 +122,15 @@ const ComboPreviewModal: React.FC<ComboPreviewModalProps> = ({
               </p>
             </div>
 
-            <div className="p-4 bg-muted/50 rounded-lg">
+            {/* <div className="p-4 bg-muted/50 rounded-lg">
               <div className="flex items-center gap-2 mb-1">
                 <Icon name="Users" size={16} className="text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">Eligibility</span>
               </div>
               <p className="font-medium text-foreground">
                 {combo.customerEligibility}
-                {/* {eligibilityLabel[combo.customerEligibility as keyof typeof eligibilityLabel] || "Specific Group (" + combo.customerEligibility.substring(0, 8) + "...) " } */}
               </p>
-            </div>
+            </div> */}
 
             {/* <div className="p-4 bg-muted/50 rounded-lg">
               <div className="flex items-center gap-2 mb-1">

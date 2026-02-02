@@ -336,7 +336,7 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                       }
                     />
 
-                    <Select
+                    {/* <Select
                       label="Customer Eligibility"
                       value={values.customerEligibility}
                       options={customerEligibilityOptions}
@@ -345,7 +345,7 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                       }
                       disabled={loadingTags}
                       onAddNew={() => setIsAddCategoryOpen(true)}
-                    />
+                    /> */}
 
                     {/* <Input
                       label="Minimum Bookings (Optional)"

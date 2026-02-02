@@ -21,7 +21,7 @@ const CustomerFilters = ({
   onExport,
   totalCustomers,
 }: CustomerFiltersProps) => {
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(true);
   const [loadingTags, setLoadingTags] = useState(false);
   const [filterType, setFilterType] = useState("All");
 
@@ -62,7 +62,8 @@ const CustomerFilters = ({
   const activeFilterCount =
     (filters.searchQuery ? 1 : 0) +
     filters.tags.length +
-    (filters.gender ? 1 : 0);
+    (filters.gender ? 1 : 0) +
+    (filters.type ? 1 : 0);
 
   const FILTER_OPTIONS = [
     { label: "All", value: "" },
