@@ -157,6 +157,12 @@ const Sidebar = ({
       roles: ["salon_owner"],
     },
     {
+      label: "Renew Plan",
+      path: "/renew-plan",
+      icon: "Clock",
+      roles: ["salon_owner"],
+    },
+    {
       label: "Owner-Manager",
       path: "/owner-manager",
       icon: "BadgePercent",
