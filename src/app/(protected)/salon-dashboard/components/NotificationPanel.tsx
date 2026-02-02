@@ -6,9 +6,7 @@ interface NotificationPanelProps {
   notifications: Notification[];
 }
 
-const NotificationPanel = ({
-  notifications
-}: NotificationPanelProps) => {
+const NotificationPanel = ({ notifications }: NotificationPanelProps) => {
   const router = useRouter();
 
   const getNotificationIcon = (type: Notification["type"]) => {
@@ -34,7 +32,7 @@ const NotificationPanel = ({
   const getTimeAgo = (timestamp: Date) => {
     const now = new Date();
     const diffInMinutes = Math.floor(
-      (now.getTime() - timestamp.getTime()) / (1000 * 60)
+      (now.getTime() - timestamp.getTime()) / (1000 * 60),
     );
 
     if (diffInMinutes < 1) return "Just now";
@@ -54,16 +52,7 @@ const NotificationPanel = ({
   return (
     <div className="bg-card border border-border rounded-lg p-6">
       <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          {/* <h3 className="text-lg font-semibold text-foreground">
-            Notifications
-          </h3>
-          {unreadCount > 0 && (
-            <span className="flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-medium rounded-full bg-accent text-accent-foreground">
-              {unreadCount}
-            </span>
-          )} */}
-        </div>
+        <div className="flex items-center gap-2"></div>
       </div>
 
       <div className="space-y-3">
