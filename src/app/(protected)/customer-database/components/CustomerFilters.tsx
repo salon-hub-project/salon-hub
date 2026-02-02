@@ -65,7 +65,7 @@ const CustomerFilters = ({
     (filters.gender ? 1 : 0);
 
   const FILTER_OPTIONS = [
-    { label: "All", value: "" }, 
+    { label: "All", value: "" },
     { label: "Today", value: "today" },
     { label: "Weekly", value: "weekly" },
     { label: "Monthly", value: "monthly" },
@@ -88,7 +88,7 @@ const CustomerFilters = ({
             />
             <Input
               type="search"
-              placeholder="Search by name..."
+              placeholder="Search by name or number..."
               value={filters.searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
               className="pl-10"

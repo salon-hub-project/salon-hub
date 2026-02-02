@@ -20,6 +20,7 @@ export interface GetCustomersParams {
   page?: number;
   limit?: number;
   fullName?: string;
+  phoneNumber?: string;
   customerTag?: string[];
   gender?: string;
   type?: string;
@@ -56,10 +57,11 @@ export const customerApi = {
     if (params.page) query.append("page", params.page.toString());
     if (params.limit) query.append("limit", params.limit.toString());
     if (params.fullName) query.append("fullName", params.fullName);
+    if (params.phoneNumber) query.append("phoneNumber", params.phoneNumber);
     if (params.gender) query.append("gender", params.gender);
     if (params.customerTag?.length)
       query.append("customerTag", params.customerTag.join(","));
-    if(params.type) query.append('type', params.type);
+    if (params.type) query.append("type", params.type);
 
     const res = await api.get(`/customer?${query.toString()}`);
     return res.data;
