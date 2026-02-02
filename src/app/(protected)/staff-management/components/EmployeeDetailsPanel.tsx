@@ -12,6 +12,7 @@ interface EmployeeDetailsPanelProps {
   onClose: () => void;
   onEdit: (employee: Employee) => void;
   loading?: boolean;
+  profileWorkingDays?: string[];
 }
 
 const EmployeeDetailsPanel = ({
@@ -19,6 +20,7 @@ const EmployeeDetailsPanel = ({
   onClose,
   onEdit,
   loading,
+  profileWorkingDays = [],
 }: EmployeeDetailsPanelProps) => {
   const [showSchedule, setShowSchedule] = useState(false);
   const [appointments, setAppointments] = useState<any[]>([]);
@@ -32,7 +34,12 @@ const EmployeeDetailsPanel = ({
   // From here on, employee is guaranteed to exist when not loading
   const workingDays = employee
     ? Object.entries(employee.availability)
-        .filter(([_, isWorking]) => isWorking)
+        .filter(([day, isWorking]) => {
+          if (!isWorking) return false;
+          if (profileWorkingDays.length === 0) return true;
+          const capitalizedDay = day.charAt(0).toUpperCase() + day.slice(1);
+          return profileWorkingDays.includes(capitalizedDay);
+        })
         .map(([day]) => day.charAt(0).toUpperCase() + day.slice(1))
     : [];
 

@@ -33,6 +33,7 @@ interface EmployeeFormModalProps {
   onClose: () => void;
   roles: StaffRoles[];
   onRoleAdded: (role: StaffRoles) => void;
+  profileWorkingDaysProp?: string[];
 }
 
 const EmployeeFormModal = ({
@@ -40,6 +41,7 @@ const EmployeeFormModal = ({
   onClose,
   roles,
   onRoleAdded,
+  profileWorkingDaysProp,
 }: EmployeeFormModalProps) => {
   const initialValues: EmployeeFormData = {
     name: "",
@@ -105,8 +107,16 @@ const EmployeeFormModal = ({
     description: service.category?.name || "",
   }));
 
-  // Fetch shop profile to get working days
+  // Sync with prop working days
   useEffect(() => {
+    if (profileWorkingDaysProp && profileWorkingDaysProp.length > 0) {
+      setProfileWorkingDays(profileWorkingDaysProp);
+    }
+  }, [profileWorkingDaysProp]);
+
+  // Fetch shop profile to get working days if not provided
+  useEffect(() => {
+    if (profileWorkingDaysProp && profileWorkingDaysProp.length > 0) return;
     const fetchProfile = async () => {
       try {
         const response = await profileApi.getProfile();
@@ -212,33 +222,54 @@ const EmployeeFormModal = ({
             : [],
           availability: {
             monday:
-              emp.workingDays?.some(
+              (emp.workingDays?.some(
                 (d: any) => String(d) === "1" || String(d) === "Monday",
-              ) || false,
+              ) &&
+                (profileWorkingDays.length === 0 ||
+                  profileWorkingDays.includes("Monday"))) ||
+              false,
             tuesday:
-              emp.workingDays?.some(
+              (emp.workingDays?.some(
                 (d: any) => String(d) === "2" || String(d) === "Tuesday",
-              ) || false,
+              ) &&
+                (profileWorkingDays.length === 0 ||
+                  profileWorkingDays.includes("Tuesday"))) ||
+              false,
             wednesday:
-              emp.workingDays?.some(
+              (emp.workingDays?.some(
                 (d: any) => String(d) === "3" || String(d) === "Wednesday",
-              ) || false,
+              ) &&
+                (profileWorkingDays.length === 0 ||
+                  profileWorkingDays.includes("Wednesday"))) ||
+              false,
             thursday:
-              emp.workingDays?.some(
+              (emp.workingDays?.some(
                 (d: any) => String(d) === "4" || String(d) === "Thursday",
-              ) || false,
+              ) &&
+                (profileWorkingDays.length === 0 ||
+                  profileWorkingDays.includes("Thursday"))) ||
+              false,
             friday:
-              emp.workingDays?.some(
+              (emp.workingDays?.some(
                 (d: any) => String(d) === "5" || String(d) === "Friday",
-              ) || false,
+              ) &&
+                (profileWorkingDays.length === 0 ||
+                  profileWorkingDays.includes("Friday"))) ||
+              false,
             saturday:
-              emp.workingDays?.some(
+              (emp.workingDays?.some(
                 (d: any) => String(d) === "6" || String(d) === "Saturday",
-              ) || false,
+              ) &&
+                (profileWorkingDays.length === 0 ||
+                  profileWorkingDays.includes("Saturday"))) ||
+              false,
             sunday:
-              emp.workingDays?.some(
+              (emp.workingDays?.some(
                 (d: any) => String(d) === "0" || String(d) === "Sunday",
-              ) || false,
+              ) &&
+                (profileWorkingDays.length === 0 ||
+                  profileWorkingDays.includes("Sunday"))) ||
+              false,
           },
           phone: "",
           email: "",
@@ -640,8 +671,15 @@ const EmployeeFormModal = ({
                       Working Days
                     </label>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      {Object.entries(values.availability).map(
-                        ([day, isWorking]) => (
+                      {Object.entries(values.availability)
+                        .filter(
+                          ([day]) =>
+                            profileWorkingDays.length === 0 ||
+                            profileWorkingDays.includes(
+                              day.charAt(0).toUpperCase() + day.slice(1),
+                            ),
+                        )
+                        .map(([day, isWorking]) => (
                           <Checkbox
                             key={day}
                             label={day.charAt(0).toUpperCase() + day.slice(1)}
@@ -653,8 +691,7 @@ const EmployeeFormModal = ({
                               )
                             }
                           />
-                        ),
-                      )}
+                        ))}
                     </div>
                   </div>
 

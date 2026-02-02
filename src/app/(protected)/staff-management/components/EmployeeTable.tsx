@@ -18,6 +18,7 @@ interface EmployeeTableProps {
   onToggleStatus: (employeeId: string, isActive?: boolean) => void;
   onViewDetails: (employee: Employee) => void;
   onDelete: (id: string) => void;
+  profileWorkingDays?: string[];
 }
 
 const EmployeeTable = ({
@@ -27,6 +28,7 @@ const EmployeeTable = ({
   onToggleStatus,
   onViewDetails,
   onDelete,
+  profileWorkingDays = [],
 }: EmployeeTableProps) => {
   const [sortField, setSortField] = useState<SortField>("joinDate");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
@@ -120,7 +122,12 @@ const EmployeeTable = ({
 
   const getWorkingDays = (availability: Employee["availability"]) => {
     return Object.entries(availability)
-      .filter(([_, isWorking]) => isWorking)
+      .filter(([day, isWorking]) => {
+        if (!isWorking) return false;
+        if (profileWorkingDays.length === 0) return true;
+        const capitalizedDay = day.charAt(0).toUpperCase() + day.slice(1);
+        return profileWorkingDays.includes(capitalizedDay);
+      })
       .map(([day]) => day.slice(0, 3))
       .join(", ");
   };

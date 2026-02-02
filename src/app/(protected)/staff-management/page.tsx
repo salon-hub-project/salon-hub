@@ -25,6 +25,7 @@ import { rolesApi } from "@/app/services/roles.api";
 import { StaffRoles } from "./types";
 import ResetTargetModal from "./components/ResetTargetModal";
 import EmployeeFilters from "./components/EmployeeFilters";
+import { profileApi } from "@/app/services/profile.api";
 
 const StaffManagement = () => {
   const [isMobile, setIsMobile] = useState<boolean>(() => {
@@ -61,6 +62,8 @@ const StaffManagement = () => {
     timeOfAppointment: "",
   });
 
+  const [profileWorkingDays, setProfileWorkingDays] = useState<string[]>([]);
+
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -70,6 +73,44 @@ const StaffManagement = () => {
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Fetch shop profile to get working days
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await profileApi.getProfile();
+        const resData = response?.data;
+
+        let days: string[] = [];
+        if (resData && resData.workingDays) {
+          const DAY_LABELS = [
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+          ];
+
+          if (Array.isArray(resData.workingDays)) {
+            days = resData.workingDays.map((d: any) => {
+              const num = Number(d);
+              if (!isNaN(num) && num >= 0 && num <= 6) {
+                return DAY_LABELS[num];
+              }
+              const s = String(d);
+              return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+            });
+          }
+        }
+        setProfileWorkingDays(days);
+      } catch (error) {
+        console.error("Failed to fetch profile for working days", error);
+      }
+    };
+    fetchProfile();
   }, []);
 
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -510,6 +551,7 @@ const StaffManagement = () => {
             <EmployeeTable
               employees={employees}
               roles={roles}
+              profileWorkingDays={profileWorkingDays}
               onDelete={handleDeleteClick}
               onEdit={handleEditEmployee}
               onToggleStatus={handleToggleStatus}
@@ -600,6 +642,7 @@ const StaffManagement = () => {
       {isDetailsOpen && (
         <EmployeeDetailsPanel
           employee={selectedEmployee}
+          profileWorkingDays={profileWorkingDays}
           onClose={() => {
             setIsDetailsOpen(false);
             setSelectedEmployee(null);
@@ -613,6 +656,7 @@ const StaffManagement = () => {
         <EmployeeFormModal
           employee={editingEmployee}
           roles={roles}
+          profileWorkingDaysProp={profileWorkingDays}
           onRoleAdded={(newRole) => {
             setRoles((prev) => [...prev, newRole]);
           }}
