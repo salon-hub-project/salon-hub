@@ -1,4 +1,4 @@
- "use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -10,7 +10,7 @@ interface SidebarProps {
   isCollapsed?: boolean;
   userRole?: string;
   notificationCounts?: Record<string, number>;
-  onNavigate?: (path: string) => void; 
+  onNavigate?: (path: string) => void;
 }
 
 interface MenuItem {
@@ -120,7 +120,7 @@ const Sidebar = ({
       path: "/booking-management",
       icon: "Calendar",
       // roles: ["super_admin", "salon_owner", "staff"],
-      roles: ["salon_owner","staff"],
+      roles: ["salon_owner", "staff"],
     },
     {
       label: "Customers",
@@ -161,11 +161,11 @@ const Sidebar = ({
       path: "/owner-manager",
       icon: "BadgePercent",
       roles: ["super_admin"],
-    }
+    },
   ];
 
   const filteredMenuItems = menuItems.filter((item) =>
-    item.roles.includes(normalizedUserRole)
+    item.roles.includes(normalizedUserRole),
   );
 
   const handleNavigation = (path: string) => {
@@ -182,7 +182,7 @@ const Sidebar = ({
         }`}
       >
         <div className="flex flex-col h-full">
-          {/* Logo */}
+          {/* { role ?
           <div className="flex items-center h-16 px-4 border-b border-border">
             <Link
               href="/salon-dashboard"
@@ -195,6 +195,40 @@ const Sidebar = ({
                 <span className="text-xl font-semibold">SalonHub</span>
               )}
             </Link>
+          </div> : 
+          <div className="flex items-center h-16 px-4 border-b border-border">
+            <div className="flex items-center justify-center w-10 h-10 rounded-md bg-primary">
+                <span className="text-white font-bold">S</span>
+              </div>
+              {!collapsed && (
+                <span className="text-xl font-semibold">SalonHub</span>
+              )}
+            </div>
+          } */}
+
+          <div className="flex items-center h-16 px-4 border-b border-border">
+            {normalizedUserRole !== "super_admin" ? (
+              <Link
+                href="/salon-dashboard"
+                className="flex items-center gap-3 hover:opacity-80"
+              >
+                <div className="flex items-center justify-center w-10 h-10 rounded-md bg-primary">
+                  <span className="text-white font-bold">S</span>
+                </div>
+                {!collapsed && (
+                  <span className="text-xl font-semibold">SalonHub</span>
+                )}
+              </Link>
+            ) : (
+              <div className="flex items-center gap-3 cursor-default">
+                <div className="flex items-center justify-center w-10 h-10 rounded-md bg-primary">
+                  <span className="text-white font-bold">S</span>
+                </div>
+                {!collapsed && (
+                  <span className="text-xl font-semibold">SalonHub</span>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Menu */}
