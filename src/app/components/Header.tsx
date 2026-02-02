@@ -90,8 +90,8 @@ const Header = ({
   // }, [notificationList]);
 
   const safeNotificationList: Notification[] = Array.isArray(notificationList)
-  ? notificationList
-  : [];
+    ? notificationList
+    : [];
 
   const mergedNotifications = useMemo(() => {
     // Remove welcome if backend accidentally sends it
@@ -120,7 +120,7 @@ const Header = ({
         dispatch(getStaffProfile());
       }
     }
-    
+
     if (normalizedUserRole === "OWNER" && !timings && !isLoading) {
       dispatch(fetchProfileTimings());
     }
@@ -224,8 +224,8 @@ const Header = ({
   };
 
   const realNotificationCount = safeNotificationList.filter(
-  (n) => n.id !== "welcome"
-).length;
+    (n) => n.id !== "welcome",
+  ).length;
 
   // const handleNotificationItemClick = (notification: Notification) => {
   //   setIsNotificationsOpen(false);
@@ -292,7 +292,7 @@ const Header = ({
               className="relative w-10 h-10 rounded-md hover:bg-muted flex items-center justify-center"
             >
               <Icon name="Bell" size={20} />
-              {mergedNotifications.length > 0 && (
+              {realNotificationCount > 0 && (
                 // <span className="absolute top-1 right-1 text-xs bg-accent rounded-full px-1 min-w-[16px] h-[16px] flex items-center justify-center text-[10px] text-white">
                 <span
                   className="
@@ -378,8 +378,10 @@ const Header = ({
 
               <div className="hidden md:block text-left">
                 <div className="text-sm font-medium capitalize">
-                  {(user.role == "OWNER" || normalizedUserRole === "OWNER") && `${profile?.ownerName ?? user.name}`}
-                  {normalizedUserRole === "STAFF" && `${profile?.staffDetails?.fullName ?? user.name}`}
+                  {(user.role == "OWNER" || normalizedUserRole === "OWNER") &&
+                    `${profile?.ownerName ?? user.name}`}
+                  {normalizedUserRole === "STAFF" &&
+                    `${profile?.staffDetails?.fullName ?? user.name}`}
                 </div>
                 <div className="text-xs text-muted-foreground">
                   {getRoleLabel(user.role)}
@@ -421,7 +423,9 @@ const Header = ({
                     )}
                 </div>
 
-                {(user.role == "OWNER" || normalizedUserRole === "OWNER" || normalizedUserRole === "STAFF") && (
+                {(user.role == "OWNER" ||
+                  normalizedUserRole === "OWNER" ||
+                  normalizedUserRole === "STAFF") && (
                   <button
                     onClick={handleProfileClick}
                     className="w-full px-4 py-2 hover:bg-muted flex items-center gap-2"
@@ -457,87 +461,3 @@ const Header = ({
 };
 
 export default Header;
-
-// /* ---------------- COMPONENT ---------------- */
-
-//   /* ---------------- WELCOME LOGIC ---------------- */
-
-//   /* ---------------- HELPERS ---------------- */
-
-//   /* ---------------- UI ---------------- */
-
-//   return (
-//     <header className="fixed top-0 right-0 left-16 h-header bg-card border-b z-50">
-//       <div className="flex justify-end pr-6 h-full items-center">
-//         {/* Notifications */}
-//         <div className="relative" ref={notificationRef}>
-//           <button
-//             onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-//             className="relative w-10 h-10 rounded-md hover:bg-muted flex items-center justify-center"
-//           >
-//             <Icon name="Bell" size={20} />
-//             {mergedNotifications.length > 0 && (
-//               <span className="absolute -top-1 -right-1 bg-accent text-white text-[10px] rounded-full px-1">
-//                 {mergedNotifications.length}
-//               </span>
-//             )}
-//           </button>
-
-//           {isNotificationsOpen && (
-//             <div className="absolute right-0 mt-2 w-80 max-h-[400px] overflow-y-auto bg-card border rounded-lg shadow-lg">
-//               <div className="p-4 border-b font-semibold text-sm">
-//                 Notifications
-//               </div>
-
-//               <div className="p-2 space-y-2">
-//                 {mergedNotifications.length > 0 ? (
-//                   mergedNotifications.map((n) => (
-//                     <div
-//                       key={n.id}
-//                       onClick={() => handleNotificationItemClick(n)}
-//                       className={`p-3 rounded-md cursor-pointer ${
-//                         n.id === "welcome"
-//                           ? "bg-primary/10"
-//                           : "bg-muted/30"
-//                       } hover:bg-muted`}
-//                     >
-//                       <div className="font-medium">{n.title}</div>
-//                       <div className="text-xs text-muted-foreground">
-//                         {n.message}
-//                       </div>
-//                       <div className="text-[10px] text-muted-foreground mt-1">
-//                         {getTimeAgo(n.timestamp)}
-//                       </div>
-//                     </div>
-//                   ))
-//                 ) : (
-//                   <div className="p-4 text-center text-sm text-muted-foreground">
-//                     No notifications
-//                   </div>
-//                 )}
-//               </div>
-//             </div>
-//           )}
-//         </div>
-
-//         {/* Logout */}
-//         <button
-//           onClick={() => setShowLogoutModal(true)}
-//           className="ml-4 text-sm"
-//         >
-//           Logout
-//         </button>
-//       </div>
-
-//       <ConfirmModal
-//         isOpen={showLogoutModal}
-//         title="Logout"
-//         description="Are you sure?"
-//         onCancel={() => setShowLogoutModal(false)}
-//         onConfirm={handleLogout}
-//       />
-//     </header>
-//   );
-// };
-
-// export default Header;

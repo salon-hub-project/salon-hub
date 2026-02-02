@@ -403,7 +403,7 @@ const BookingManagement = () => {
   //   dispatch(fetchProfileTimings());
   // }, [dispatch]);
   useEffect(() => {
-    if(!isAuthenticated) return;
+    if (!isAuthenticated) return;
     if (isStaffUser) {
       dispatch(getStaffProfile());
     } else {
@@ -422,7 +422,7 @@ const BookingManagement = () => {
   }, [loadInitialData]);
 
   useEffect(() => {
-    if(isStaffUser) return;
+    if (isStaffUser) return;
     const dateToUse = selectedDate || currentDate;
     // if (selectedDate) {
     //   fetchCombosByDate(selectedDate);
@@ -442,11 +442,11 @@ const BookingManagement = () => {
     if (appointmentIdFromUrl) {
       handleBookingClick(appointmentIdFromUrl);
     }
-//     const params = new URLSearchParams(searchParams.toString());
-//     params.delete("appointmentId");
+    //     const params = new URLSearchParams(searchParams.toString());
+    //     params.delete("appointmentId");
 
-//     router.replace(`?${params.toString()}`);
-//   }, [searchParams, router]);
+    //     router.replace(`?${params.toString()}`);
+    //   }, [searchParams, router]);
 
     const customerIdFromUrl = searchParams.get("customerId");
     if (customerIdFromUrl) {
@@ -545,7 +545,7 @@ const BookingManagement = () => {
       date.setDate(startOfWeek.getDate() + i);
 
       if (salonStartDate && date < salonStartDate) {
-        continue; 
+        continue;
       }
       const bookingCount = bookings.filter(
         (b) => b.date.toDateString() === date.toDateString(),
@@ -601,7 +601,6 @@ const BookingManagement = () => {
   };
 
   const handleTimeSlotClick = (time: string) => {
-
     if (isStaffUser || !salonStartDate) return;
     const day = new Date(currentDate);
     day.setHours(0, 0, 0, 0);
@@ -970,7 +969,7 @@ const BookingManagement = () => {
               }}
               onDateChange={(date) => {
                 setSelectedDate(date);
-                fetchCombosByDate(date); 
+                fetchCombosByDate(date);
               }}
             />
           </div>
