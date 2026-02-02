@@ -32,8 +32,9 @@ export const authApi = {
       });
       return res.data;
     } catch (error: any) {
-      const message = error?.response?.data?.message || error?.message || "Login failed";
-      
+      const message =
+        error?.response?.data?.message || error?.message || "Login failed";
+
       showToast({
         message,
         status: "error",
