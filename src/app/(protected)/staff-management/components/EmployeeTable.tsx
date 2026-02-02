@@ -184,13 +184,13 @@ const EmployeeTable = ({
                 className={`cursor-pointer transition-all
                 ${!employee.isActive ? "opacity-50 grayscale" : "hover:bg-muted/30"}
               `}
-                onClick={() => onViewDetails(employee)}
               >
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
                     <EmployeeAvatar
                       employee={employee}
                       onViewDetails={onViewDetails}
+                      onClick={() => onViewDetails(employee)}
                     />
                     <div>
                       <div className="text-sm font-medium">{employee.name}</div>

@@ -112,10 +112,10 @@ const EmployeeFormModal = ({
         const response = await profileApi.getProfile();
         // The API returns the response object where the actual data is in the 'data' property
         const resData = response?.data;
-        
+
         let days: string[] = [];
         if (resData && resData.workingDays) {
-           const DAY_LABELS = [
+          const DAY_LABELS = [
             "Sunday",
             "Monday",
             "Tuesday",
@@ -124,17 +124,17 @@ const EmployeeFormModal = ({
             "Friday",
             "Saturday",
           ];
-          
+
           if (Array.isArray(resData.workingDays)) {
-             days = resData.workingDays.map((d: any) => {
-                const num = Number(d);
-                if (!isNaN(num) && num >= 0 && num <= 6) {
-                   return DAY_LABELS[num];
-                }
-                // If it's a string, ensure it's capitalized correctly
-                const s = String(d);
-                return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
-             });
+            days = resData.workingDays.map((d: any) => {
+              const num = Number(d);
+              if (!isNaN(num) && num >= 0 && num <= 6) {
+                return DAY_LABELS[num];
+              }
+              // If it's a string, ensure it's capitalized correctly
+              const s = String(d);
+              return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+            });
           }
         }
         setProfileWorkingDays(days);
@@ -164,7 +164,6 @@ const EmployeeFormModal = ({
     value: role._id,
     label: role.name,
   }));
-
 
   useEffect(() => {
     if (!employee?.id) {
@@ -211,15 +210,36 @@ const EmployeeFormModal = ({
                 return typeof s === "object" ? s._id || s.serviceId || s.id : s;
               })
             : [],
-            availability: {
-              monday: emp.workingDays?.some((d: any) => String(d) === "1" || String(d) === "Monday") || false,
-              tuesday: emp.workingDays?.some((d: any) => String(d) === "2" || String(d) === "Tuesday") || false,
-              wednesday: emp.workingDays?.some((d: any) => String(d) === "3" || String(d) === "Wednesday") || false,
-              thursday: emp.workingDays?.some((d: any) => String(d) === "4" || String(d) === "Thursday") || false,
-              friday: emp.workingDays?.some((d: any) => String(d) === "5" || String(d) === "Friday") || false,
-              saturday: emp.workingDays?.some((d: any) => String(d) === "6" || String(d) === "Saturday") || false,
-              sunday: emp.workingDays?.some((d: any) => String(d) === "0" || String(d) === "Sunday") || false,
-            },
+          availability: {
+            monday:
+              emp.workingDays?.some(
+                (d: any) => String(d) === "1" || String(d) === "Monday",
+              ) || false,
+            tuesday:
+              emp.workingDays?.some(
+                (d: any) => String(d) === "2" || String(d) === "Tuesday",
+              ) || false,
+            wednesday:
+              emp.workingDays?.some(
+                (d: any) => String(d) === "3" || String(d) === "Wednesday",
+              ) || false,
+            thursday:
+              emp.workingDays?.some(
+                (d: any) => String(d) === "4" || String(d) === "Thursday",
+              ) || false,
+            friday:
+              emp.workingDays?.some(
+                (d: any) => String(d) === "5" || String(d) === "Friday",
+              ) || false,
+            saturday:
+              emp.workingDays?.some(
+                (d: any) => String(d) === "6" || String(d) === "Saturday",
+              ) || false,
+            sunday:
+              emp.workingDays?.some(
+                (d: any) => String(d) === "0" || String(d) === "Sunday",
+              ) || false,
+          },
           phone: "",
           email: "",
           password: "",
@@ -353,46 +373,6 @@ const EmployeeFormModal = ({
     }
   };
 
-  // const handleAddRole = async (newRoleName?: string) => {
-  //   if (!newRoleName || !newRoleName.trim()) return;
-
-  //   const trimmedName = newRoleName.trim();
-
-  //   // Prevent duplicate roles
-  //   if (
-  //     roles.some(
-  //       (role) => role.name.toLowerCase() === trimmedName.toLowerCase(),
-  //     )
-  //   ) {
-  //     alert("Role already exists");
-  //     return;
-  //   }
-
-  //   try {
-  //     const res = await rolesApi.createRoles({ name: trimmedName });
-
-  //     // API may return role in different shapes
-  //     const createdRole = res?.role || res?.data?.role || res?.data || null;
-
-  //     if (createdRole) {
-  //       const newRole = {
-  //         _id: createdRole._id,
-  //         name: createdRole.name,
-  //       };
-
-  //       // Update roles list
-  //       setRoles((prev) => [...prev, newRole]);
-
-  //       // Auto-select new role in form
-  //       formikRef.current?.setFieldValue("role", newRole._id);
-  //     }
-  //   } catch (error) {
-  //     console.error("Failed to create role", error);
-  //   } finally {
-  //     setIsAddRoleOpen(false);
-  //   }
-  // };
-
   return (
     <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
       <div className="bg-card rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
@@ -491,8 +471,7 @@ const EmployeeFormModal = ({
                       </>
                     )}
 
-                    
-                       <Input
+                    <Input
                       label="Salary"
                       name="salary"
                       placeholder="10000"
@@ -523,18 +502,17 @@ const EmployeeFormModal = ({
                       error={touched.target ? errors.target : undefined}
                     />
                     <Select
-  label="Target Type"
-  options={[
-    { value: "Weekly", label: "Weekly" },
-    { value: "Monthly", label: "Monthly" },
-  ]}
-  value={values.targetType}
-  onChange={(value) => setFieldValue("targetType", value)}
-  error={touched.targetType ? errors.targetType : undefined}
-/>
+                      label="Target Type"
+                      options={[
+                        { value: "Weekly", label: "Weekly" },
+                        { value: "Monthly", label: "Monthly" },
+                      ]}
+                      value={values.targetType}
+                      onChange={(value) => setFieldValue("targetType", value)}
+                      error={touched.targetType ? errors.targetType : undefined}
+                    />
 
-
-<Input
+                    <Input
                       label="Commission Rate (%)"
                       name="commissionRate"
                       placeholder="0"
