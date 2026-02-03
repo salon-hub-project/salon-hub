@@ -308,6 +308,15 @@ const EmployeeDetailsPanel = ({
                       INR {employee.performanceMetrics.totalCommisionEarned}
                     </span>
                   </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">
+                      Previous Earned Commission
+                    </span>
+                    <span className="text-lg font-bold text-success">
+                      INR {employee.performanceMetrics.lifetimeCommision}
+                    </span>
+                  </div>
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-border">

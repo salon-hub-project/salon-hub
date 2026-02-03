@@ -346,9 +346,9 @@ const StaffManagement = () => {
           bookingCompletionRate: 0,
           achievedAmount: emp.achievedAmount || 0,
           totalCommisionEarned: emp?.totalCommisionEarned || 0,
+          lifetimeCommision: emp?.lifetimeCommision || 0
         },
       };
-
       setSelectedEmployee(mappedEmployee);
     } catch (err) {
       console.error("Failed to fetch staff details", err);

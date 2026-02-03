@@ -22,6 +22,7 @@ export interface Employee {
     bookingCompletionRate: number;
     achievedAmount: number;
     totalCommisionEarned?: number;
+    lifetimeCommision? : number;
   };
   availability: {
     monday: boolean;
