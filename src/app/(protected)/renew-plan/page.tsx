@@ -1,10 +1,16 @@
 "use client";
 
 import React from "react";
+import { useState } from "react";
 import Icon from "../../components/AppIcon";
 import Button from "../../components/ui/Button";
+import PaymentModal from "./PaymentModal";
 
 const RenewPlan = () => {
+  const [qrOpen, setQrOpen] = useState(false);
+  const [qrAmount, setQrAmount] = useState("₹0");
+  const [qrTitle, setQrTitle] = useState("Scan to Pay");
+
   const plans = [
     {
       name: "Basic Plan",
@@ -151,6 +157,11 @@ const RenewPlan = () => {
                   ? "bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500"
                   : "hover:bg-primary/5 border-2"
               }`}
+              onClick={() => {
+                setQrAmount(plan.price === "Free" ? "₹0" : plan.price);
+                setQrTitle(plan.name);
+                setQrOpen(true);
+              }}
             >
               {plan.buttonText}
             </Button>
@@ -169,7 +180,14 @@ const RenewPlan = () => {
               <span>50 WhatsApp Messages</span>
               <span className="flex items-center gap-3 font-semibold">
                 100INR
-                <button className="py-2 px-4 rounded-2xl bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-sm font-semibold text-white">
+                <button
+                  className="py-2 px-4 rounded-2xl bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-sm font-semibold text-white"
+                  onClick={() => {
+                    setQrAmount("₹100");
+                    setQrTitle("50 WhatsApp Messages");
+                    setQrOpen(true);
+                  }}
+                >
                   Recharge Now
                 </button>
               </span>
@@ -179,7 +197,14 @@ const RenewPlan = () => {
               <span>100 WhatsApp Messages</span>
               <span className="flex items-center gap-3 font-semibold">
                 200INR
-                <button className="py-2 px-4 rounded-2xl bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-sm font-semibold text-white">
+                <button
+                  className="py-2 px-4 rounded-2xl bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-sm font-semibold text-white"
+                  onClick={() => {
+                    setQrAmount("₹200");
+                    setQrTitle("100 WhatsApp Messages");
+                    setQrOpen(true);
+                  }}
+                >
                   Recharge Now
                 </button>
               </span>
@@ -189,7 +214,14 @@ const RenewPlan = () => {
               <span>150 WhatsApp Messages</span>
               <span className="flex items-center gap-3 font-semibold">
                 300INR
-                <button className="py-2 px-4 rounded-2xl bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-sm font-semibold text-white">
+                <button
+                  className="py-2 px-4 rounded-2xl bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-sm font-semibold text-white"
+                  onClick={() => {
+                    setQrAmount("₹300");
+                    setQrTitle("150 WhatsApp Messages");
+                    setQrOpen(true);
+                  }}
+                >
                   Recharge Now
                 </button>
               </span>
@@ -247,6 +279,13 @@ const RenewPlan = () => {
           <span>Secure checkout provided by SalonHub Payments</span>
         </div>
       </div>
+
+      <PaymentModal
+        isOpen={qrOpen}
+        onClose={() => setQrOpen(false)}
+        amount={qrAmount}
+        title={qrTitle}
+      />
     </div>
   );
 };
