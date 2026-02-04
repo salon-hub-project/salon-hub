@@ -4,7 +4,6 @@ import { useEffect, useState, useRef } from "react";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { useRouter } from "next/navigation";
-
 import Icon from "../../../components/AppIcon";
 import Button from "../../../components/ui/Button";
 import Input from "../../../components/ui/Input";
@@ -36,7 +35,7 @@ interface CustomerFormProps {
   onClose: () => void;
   editingCustomer?: Customer;
   onSuccess?: () => void;
-  customerTags: {id: string, name: string}[],
+  customerTags: { id: string; name: string }[];
   onTagAdded?: (tag: { id: string; name: string }) => void;
 }
 
@@ -48,9 +47,6 @@ const CustomerForm = ({
   onTagAdded,
 }: CustomerFormProps) => {
   const isEditMode = !!editingCustomer;
-  //const tagOptions: CustomerTag[] = ["VIP", "New", "Frequent", "Inactive"];
-
-  // const [customerTags, setCustomerTags] = useState<any[]>([]);
   const [loadingTags, setLoadingTags] = useState(false);
   const [staff, setStaff] = useState<any[]>([]);
   const [loadingStaff, setLoadingStaff] = useState(false);
@@ -113,80 +109,10 @@ const CustomerForm = ({
     return foundStaff?._id || "";
   };
 
-  //Fetch CustomerTags API:-
-  // const fetchCustomerTags = async () => {
-  //   try {
-  //     setLoadingTags(true);
-  //     const res = await customerTagApi.getAllCustomerTags();
-  //     const list = res?.data || [];
-  //     setCustomerTags(
-  //       list.map((tag: any) => ({
-  //         value: tag._id,
-  //         label: tag.name,
-  //       })),
-  //     );
-  //   } catch (error) {
-  //     console.error("Failed to fetch customer tags", error);
-  //     setCustomerTags([]);
-  //   } finally {
-  //     setLoadingTags(false);
-  //   }
-  // };
-
-  // useEffect(()=> {
-  //    fetchCustomerTags();
-  // },[])
-
   const tagOptions = customerTags.map((tag) => ({
     value: tag.id,
     label: tag.name,
   }));
-
-  // const handleAddTag = async (tagName?: string) => {
-  //   if (!tagName?.trim()) return;
-  //   try {
-  //     const res = await customerTagApi.createCustomerTag({
-  //       name: tagName.trim(),
-  //     });
-
-  //     const createdTag = res?.data;
-  //     if (!createdTag) return;
-
-  //     setCustomerTags((prev) => [
-  //       ...prev,
-  //       {
-  //         value: createdTag._id,
-  //         label: createdTag.name,
-  //       },
-  //     ]);
-
-  //     setIsAddCategoryOpen(false);
-  //   } catch (error) {
-  //     console.error("Failed to create customer tag", error);
-  //   }
-  // };
-
-  // const handleAddTag = async (tagName?: string) => {
-  //   if (!tagName?.trim()) return;
-
-  //   try {
-  //     const res = await customerTagApi.createCustomerTag({
-  //       name: tagName.trim(),
-  //     });
-
-  //     const createdTag = res?.data;
-  //     if (!createdTag) return;
-
-  //     onTagAdded({
-  //       id: createdTag._id,
-  //       name: createdTag.name,
-  //     });
-
-  //     setIsAddCategoryOpen(false);
-  //   } catch (error) {
-  //     console.error("Failed to create customer tag", error);
-  //   }
-  // };
 
   const addCustomer = async (values: CustomerFormikValues) => {
     try {
@@ -202,7 +128,6 @@ const CustomerForm = ({
       });
       onClose();
       onSuccess?.();
-      // await fetchCustomerTags();
     } catch (error) {
       console.error("Failed to add customer", error);
     }
@@ -351,36 +276,7 @@ const CustomerForm = ({
                   <div className="text-sm text-muted-foreground">
                     Loading tags...
                   </div>
-                )
-                // customerTags.length === 0 ? (
-                //   <div className="border border-dashed border-border rounded-lg p-4 text-center">
-                //     <Icon
-                //       name="Tag"
-                //       size={24}
-                //       className="mx-auto mb-2 text-muted-foreground"
-                //     />
-
-                //     <p className="text-sm font-medium text-foreground">
-                //       No customer tags
-                //     </p>
-
-                //     <p className="text-xs text-muted-foreground mb-3">
-                //       Create tags to categorize your customers
-                //     </p>
-
-                //     <Button
-                //       type="button"
-                //       size="sm"
-                //       variant="outline"
-                //       iconName="Plus"
-                //       iconPosition="left"
-                //       onClick={() => setIsAddCategoryOpen(true)}
-                //     >
-                //       Create Tag
-                //     </Button>
-                //   </div>
-                // ) 
-                : (
+                ) : (
                   <div className="flex flex-wrap gap-4">
                     {tagOptions.map((tag) => (
                       <label key={tag.value} className="flex gap-2">
@@ -439,16 +335,6 @@ const CustomerForm = ({
           )}
         </Formik>
       </div>
-      {/* <ConfirmModal
-        isOpen={isAddCategoryOpen}
-        showInput
-        inputPlaceholder="Enter new tag name"
-        title="Add New Customer Tag"
-        description="Enter the name for the new tag"
-        onCancel={() => setIsAddCategoryOpen(false)}
-        onConfirm={handleAddTag}
-        confirmColor="green"
-      /> */}
     </div>
   );
 };

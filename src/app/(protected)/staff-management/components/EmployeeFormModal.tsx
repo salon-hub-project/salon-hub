@@ -154,22 +154,6 @@ const EmployeeFormModal = ({
     };
     fetchProfile();
   }, []);
-
-  // const fetchRoles = async () => {
-  //   try {
-  //     const res = await rolesApi.getAllRoles();
-  //     if (res?.data) {
-  //       setRoles(res.data);
-  //     }
-  //   } catch (err) {
-  //     console.error("Failed to fetch roles", err);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   fetchRoles();
-  // }, []);
-
   const roleFilterOptions: RoleFilter[] = roles?.map((role) => ({
     value: role._id,
     label: role.name,

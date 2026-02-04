@@ -1,8 +1,8 @@
-import { useAppSelector } from '@/app/store/hooks';
-import Icon from '../../../components/AppIcon';
-import Button from '../../../components/ui/Button';
-import Select from '../../../components/ui/Select';
-import { BookingFilters, Staff, Service } from '../types';
+import { useAppSelector } from "@/app/store/hooks";
+import Icon from "../../../components/AppIcon";
+import Button from "../../../components/ui/Button";
+import Select from "../../../components/ui/Select";
+import { BookingFilters, Staff, Service } from "../types";
 
 interface QuickFiltersProps {
   filters: BookingFilters;
@@ -19,20 +19,17 @@ const QuickFilters = ({
   onFiltersChange,
   onClearFilters,
 }: QuickFiltersProps) => {
-
   const { user } = useAppSelector((state: any) => state.auth);
   const role = user?.role[0];
-  
+
   const statusOptions = [
-    { value: '', label: 'All Statuses' },
-    // { value: 'pending', label: 'Pending' },
-    { value: 'Confirmed', label: 'Confirmed' },
-    { value: 'Completed', label: 'Completed' },
-    // { value: 'cancelled', label: 'Cancelled' },
+    { value: "", label: "All Statuses" },
+    { value: "Confirmed", label: "Confirmed" },
+    { value: "Completed", label: "Completed" },
   ];
 
   const staffOptions = [
-    { value: '', label: 'All Staff' },
+    { value: "", label: "All Staff" },
     ...staff.map((member) => ({
       value: member.id,
       label: member.name,
@@ -40,7 +37,7 @@ const QuickFilters = ({
   ];
 
   const serviceOptions = [
-    { value: '', label: 'All Services' },
+    { value: "", label: "All Services" },
     ...services.map((service) => ({
       value: service.id,
       label: service.name,
@@ -48,7 +45,10 @@ const QuickFilters = ({
   ];
 
   const hasActiveFilters =
-    filters.status || filters.staffId || filters.serviceId || filters.searchQuery;
+    filters.status ||
+    filters.staffId ||
+    filters.serviceId ||
+    filters.searchQuery;
 
   return (
     <div className="bg-card border border-border rounded-lg p-4">
@@ -68,32 +68,26 @@ const QuickFilters = ({
         <Select
           label="Status"
           options={statusOptions}
-          value={filters.status || ''}
+          value={filters.status || ""}
           onChange={(value) =>
-            onFiltersChange({ ...filters, status: value? (value as any) : undefined })
+            onFiltersChange({
+              ...filters,
+              status: value ? (value as any) : undefined,
+            })
           }
         />
 
-        {role === "OWNER" && 
-        <Select
-          label="Staff Member"
-          options={staffOptions}
-          value={filters.staffId || ''}
-          onChange={(value) =>
-           onFiltersChange({ ...filters, staffId: value || undefined })
-          }
-          searchable
-        />
-        }
-        {/* <Select
-          label="Service"
-          options={serviceOptions}
-          value={filters.serviceId || ''}
-          onChange={(value) =>
-             onFiltersChange({ ...filters, serviceId: value || undefined })
-          }
-          searchable
-        /> */}
+        {role === "OWNER" && (
+          <Select
+            label="Staff Member"
+            options={staffOptions}
+            value={filters.staffId || ""}
+            onChange={(value) =>
+              onFiltersChange({ ...filters, staffId: value || undefined })
+            }
+            searchable
+          />
+        )}
       </div>
     </div>
   );

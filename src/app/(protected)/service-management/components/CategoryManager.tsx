@@ -26,13 +26,13 @@ const CategoryManager = ({
   const [newCategoryName, setNewCategoryName] = useState("");
   const [error, setError] = useState("");
   const [editingCategoryId, setEditingCategoryId] = useState<string | null>(
-    null
+    null,
   );
   const [editingCategoryName, setEditingCategoryName] = useState("");
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
-    null
+    null,
   );
 
   const handleCancelEdit = () => {
@@ -40,7 +40,6 @@ const CategoryManager = ({
     setEditingCategoryName("");
   };
 
-  
   const handleSaveEdit = async (categoryId: string) => {
     if (!editingCategoryName.trim()) return;
 
@@ -66,7 +65,7 @@ const CategoryManager = ({
 
     if (
       categories.some(
-        (cat) => cat.name.toLowerCase() === newCategoryName.toLowerCase()
+        (cat) => cat.name.toLowerCase() === newCategoryName.toLowerCase(),
       )
     ) {
       setError("Category already exists");
@@ -220,7 +219,6 @@ const CategoryManager = ({
                     size="icon"
                     variant="ghost"
                     iconName="Trash2"
-                    // disabled={category.serviceCount < 0}
                     onClick={() => handleDeleteCategory(category.id)}
                   />
                 </div>
@@ -241,4 +239,3 @@ const CategoryManager = ({
 };
 
 export default CategoryManager;
-

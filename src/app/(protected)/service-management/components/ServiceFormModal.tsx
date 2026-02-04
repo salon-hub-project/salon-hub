@@ -2,18 +2,15 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Formik } from "formik";
-
 import { Service, ServiceFormData } from "../types";
 import Icon from "../../../components/AppIcon";
 import Input from "../../../components/ui/Input";
 import Select from "../../../components/ui/Select";
 import Button from "../../../components/ui/Button";
 import { Checkbox } from "../../../components/ui/Checkbox";
-
 import { categoryApi } from "../../../services/category.api";
 import { serviceValidationSchema } from "@/app/components/validation/validation";
 import ConfirmModal from "@/app/components/ui/ConfirmModal";
-import { cn } from "../../../utils/cn";
 
 interface ServiceFormModalProps {
   isOpen: boolean;
@@ -200,38 +197,6 @@ const ServiceFormModal = ({
     isPopular: service?.isPopular || false,
     description: service?.description || "",
   };
-
-  // Add new category
-  // const handleAddCategories = async () => {
-  //   const newName = prompt("Enter new category name:");
-
-  //   if (!newName || !newName.trim()) return;
-
-  //   // Check for duplicates
-  //   if (fetchedCategories.some((cat) => cat.label.toLowerCase() === newName.trim().toLowerCase())) {
-  //     alert("Category already exists");
-  //     return;
-  //   }
-
-  //   try {
-  //     const res = await categoryApi.createCategory({ name: newName.trim() });
-
-  //     if (res?.category) {
-  //       const newCategory = {
-  //         value: res.category._id,
-  //         label: res.category.name,
-  //       };
-
-  //       // Update dropdown list
-  //       setFetchedCategories((prev: any[]) => [...prev, newCategory]);
-
-  //       // Set selected value in Formik
-  //       formikRef.current?.setFieldValue("category", newCategory.value);
-  //     }
-  //   } catch (error) {
-  //     console.error("Category creation failed", error);
-  //   }
-  // };
 
   const handleAddCategories = async (newName?: string) => {
     if (!newName?.trim()) return;
