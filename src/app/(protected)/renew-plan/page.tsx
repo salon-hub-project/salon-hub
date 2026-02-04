@@ -8,12 +8,14 @@ const RenewPlan = () => {
   const plans = [
     {
       name: "Basic Plan",
+      priceold: "251",
       price: "Free",
-      duration: "3 Months",
+      duration: " UPTO 3 Months",
+      duration1: "/ Per Months",
       description: "Perfect for small salons just getting started.",
       features: [
         { label: "50 WhatsApp Messages", icon: "MessageSquare" },
-        { label: "Unlimited Appointments", icon: "Calendar" },
+        
         { label: "Unlimited Customers", icon: "Users" },
         { label: "3 Combo Offers", icon: "BadgePercent" },
         { label: "10 Staff Members", icon: "UserCog" },
@@ -23,12 +25,12 @@ const RenewPlan = () => {
     },
     {
       name: "Pro Plan",
-      price: "₹2,499",
-      duration: "Per Month",
+      price: "₹551",
+      duration: "/ Per Month",
+      duration2 : "",
       description: "The ultimate solution for high-growth salons.",
       features: [
         { label: "150 WhatsApp Messages", icon: "MessageSquare" },
-        { label: "Unlimited Appointments", icon: "Calendar" },
         { label: "Unlimited Customers", icon: "Users" },
         { label: "Unlimited Combo Offers", icon: "BadgePercent" },
         { label: "Unlimited Staff Members", icon: "UserCog" },
@@ -56,7 +58,7 @@ const RenewPlan = () => {
         {plans.map((plan, index) => (
           <div
             key={index}
-            className={`relative flex flex-col p-8 rounded-3xl border transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl ${
+            className={`relative flex flex-col p-2 rounded-3xl border transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl ${
               plan.isPopular
                 ? "bg-card border-primary shadow-lg ring-1 ring-primary/20"
                 : "bg-card border-border hover:border-primary/50"
@@ -70,24 +72,36 @@ const RenewPlan = () => {
               </div>
             )}
 
-            <div className="mb-8">
-              <h3 className="text-2xl font-bold text-foreground mb-2">
+            <div className="mb-8 p-6 rounded-xl text-white bg-gradient-to-br from-sky-500 via-indigo-500 to-purple-600">
+              <center><span className="text-1xl rounded-full inline-flex font-bold text-foreground mb-2 text-black bg-white px-3 py-2">
                 {plan.name}
-              </h3>
-              <div className="flex items-baseline gap-1 mb-4">
-                <span className="text-5xl font-extrabold text-foreground">
-                  {plan.price}
-                </span>
-                <span className="text-muted-foreground font-medium">
-                  /{plan.duration}
-                </span>
+              </span></center>
+              <div className="mb-4">
+                <div className="flex justify-between w-full">
+                  <div>
+                    <span className="text-4xl font-extrabold text-foreground text-white" >
+                    {plan.price}
+                    </span>
+                    <span className="text-muted-foreground font-medium text-white">
+                      {plan.duration}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-4xl font-extrabold text-foreground line-through opacity-45 text-white">
+                    {plan.priceold}
+                    </span>
+                    <span className="text-muted-foreground font-medium line-through opacity-45 text-white">
+                      {plan.duration1}
+                    </span>
+                  </div>
+                </div>
+                <p className="text-muted-foreground leading-relaxed mt-5 text-white">
+                  {plan.description}
+                </p>
               </div>
-              <p className="text-muted-foreground leading-relaxed">
-                {plan.description}
-              </p>
             </div>
 
-            <div className="flex-grow space-y-6 mb-10">
+            <div className="flex-grow space-y-6 mb-10 px-5">
               <p className="text-sm font-semibold uppercase tracking-widest text-primary/80">
                 What's included:
               </p>
@@ -108,12 +122,25 @@ const RenewPlan = () => {
                 ))}
               </ul>
             </div>
+            <div className="w-full border-0 border-t border-b py-5 px-5 mb-5">
+            <p className="text-sm font-semibold uppercase tracking-widest text-primary/80">
+                Addons
+              </p>
+              <ul className="w-full flex flex-col gap-3 mt-5">
+                <li className="flex justify-between w-full "><span>50 WhatsApp Messages
+                </span><span className="text-bold">100ru</span></li>
+                <li className="flex justify-between w-full "><span>100 WhatsApp Messages
+                </span><span className="text-bold">200ru</span></li>
+                <li className="flex justify-between w-full "><span>150 WhatsApp Messages
+                </span><span className="text-bold">300ru</span></li>
+              </ul>
+            </div>
 
             <Button
               variant={plan.isPopular ? "default" : "outline"}
               className={`w-full py-6 text-lg font-bold rounded-2xl transition-all duration-300 ${
                 plan.isPopular
-                  ? "bg-primary hover:bg-primary/90 text-white shadow-lg"
+                  ? "bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500"
                   : "hover:bg-primary/5 border-2"
               }`}
             >
