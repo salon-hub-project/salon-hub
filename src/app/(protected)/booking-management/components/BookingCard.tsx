@@ -18,7 +18,6 @@ const BookingCard = ({
       Pending: "bg-warning/10 text-warning border-warning/20",
       Confirmed: "bg-primary/10 text-primary border-primary/20",
       Completed: "bg-success/10 text-success border-success/20",
-      //cancelled: "bg-destructive/10 text-destructive border-destructive/20",
     };
     return colors[status];
   };
@@ -133,15 +132,6 @@ const BookingCard = ({
           <span className="text-sm font-semibold text-foreground">
             INR {booking.amount}
           </span>
-          {/* <span
-            className={`text-xs px-2 py-1 rounded ${
-              booking.paymentStatus === "paid"
-                ? "bg-success/10 text-success"
-                : "bg-warning/10 text-warning"
-            }`}
-          >
-            {booking.paymentStatus === "paid" ? "Paid" : "Pending"}
-          </span> */}
         </div>
       </div>
     </div>

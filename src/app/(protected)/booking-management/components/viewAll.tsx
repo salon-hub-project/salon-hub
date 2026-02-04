@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useAppSelector } from "@/app/store/hooks";
-import { appointmentApi } from "@/app/services/appointment.api";
 import Icon from "@/app/components/AppIcon";
 import Pagination from "@/app/components/Pagination";
 import Loader from "@/app/components/Loader";
@@ -30,94 +29,17 @@ interface ViewAllAppointmentsProps {
   onBookingClick: (bookingId: string) => void;
 }
 
-const ViewAllAppointments = ({ onBookingClick, bookings, filters }: ViewAllAppointmentsProps) => {
-  // const [appointments, setAppointments] = useState<Appointment[]>([]);
+const ViewAllAppointments = ({
+  onBookingClick,
+  bookings,
+  filters,
+}: ViewAllAppointmentsProps) => {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
 
-  // const [showConfirmDelete, setShowConfirmDelete] = useState(false);
-  // const [selectedBookingId, setSelectedBookingId] = useState<string | null>(
-  //   null
-  // );
-  // const [isDeleting, setIsDeleting] = useState(false);
-
   const user = useAppSelector((state) => state.auth.user);
   const role = (user?.role ?? []) as ("OWNER" | "STAFF")[];
-
-  // useEffect(() => {
-  //   const fetchAppointments = async () => {
-  //     setLoading(true);
-  //     try {
-  //       let data: Appointment[] = [];
-  //       if (role[0] === "OWNER") {
-  //         data = await appointmentApi.getAllAppointments({ limit: 1000, });
-  //       } else if (role[0] === "STAFF") {
-  //         data = await appointmentApi.getStaffAppointments({ limit: 1000, });
-  //       }
-  //       setAppointments(data);
-  //       setPage(1);
-  //     } catch (error) {
-  //       console.error("Failed to fetch appointments", error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   if (role) fetchAppointments();
-  // }, [role]);
-  // useEffect(() => {
-  //   const fetchAppointments = async () => {
-  //     setLoading(true);
-  //     try {
-  //       let data: Appointment[] = [];
-  
-  //       if (role[0] === "OWNER") {
-  //         data = await appointmentApi.getAllAppointments({ limit: 1000 });
-  //       } 
-  //       else if (role[0] === "STAFF") {
-  //         data = await appointmentApi.getStaffAppointments({
-  //           limit: 1000,
-  //           role: "STAFF", // 🔑 this is the fix
-  //         });
-  //       }
-  
-  //       setAppointments(data);
-  //       setPage(1);
-  //     } catch (error) {
-  //       console.error("Failed to fetch appointments", error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  
-  //   if (role?.length) fetchAppointments();
-  // }, [role]);
-  
-  // const handleDeleteClick = (bookingId: string) => {
-  //   setSelectedBookingId(bookingId);
-  //   setShowConfirmDelete(true);
-  // };
-
-  // const confirmDelete = async () => {
-  //   if (!selectedBookingId) return;
-
-  //   setIsDeleting(true);
-  //   try {
-  //     await appointmentApi.deleteAppointment(selectedBookingId);
-
-  //     // Remove from state
-  //     setAppointments((prev) =>
-  //       prev.filter((b) => b._id !== selectedBookingId)
-  //     );
-
-  //     setShowConfirmDelete(false);
-  //     setSelectedBookingId(null);
-  //   } catch (error) {
-  //     console.error("Failed to delete appointment", error);
-  //   } finally {
-  //     setIsDeleting(false);
-  //   }
-  // };
 
   const filteredAppointments = bookings.filter((b) => {
     if (filters.status && b.status !== filters.status) return false;
@@ -161,7 +83,7 @@ const ViewAllAppointments = ({ onBookingClick, bookings, filters }: ViewAllAppoi
 
   const paginatedAppointments = filteredAppointments.slice(
     (page - 1) * ITEMS_PER_PAGE,
-    page * ITEMS_PER_PAGE
+    page * ITEMS_PER_PAGE,
   );
 
   return (
@@ -219,7 +141,7 @@ const ViewAllAppointments = ({ onBookingClick, bookings, filters }: ViewAllAppoi
                   key={item.id}
                   className="border-b border-border hover:bg-muted/50 transition"
                 >
-                 <td className="p-3">{item.customerName ?? "-"}</td>
+                  <td className="p-3">{item.customerName ?? "-"}</td>
                   <td className="p-3 font-medium">
                     {role[0] === "OWNER" && (item.staffName ?? "-")}
                   </td>

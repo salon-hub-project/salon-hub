@@ -165,10 +165,6 @@ const BookingManagement = () => {
           serviceId = services[0]?._id || "";
           serviceCategory = services[0]?.category || "General";
 
-          // serviceDuration = services.reduce(
-          //   (acc: any, s: any) => acc + (s?.duration || 0),
-          //   0,
-          // );
           const timeBasedDuration = calculateDurationFromTimes(
             b.appointmentTime,
             b.endTime,
@@ -177,12 +173,6 @@ const BookingManagement = () => {
             timeBasedDuration > 0
               ? timeBasedDuration
               : singleService?.duration || 30;
-          // const serviceDuration = calculateTotalDuration({
-          //   startTime: b.appointmentTime,
-          //   endTime: b.endTime,
-          //   services,
-          //   combos: b.comboOffers || [],
-          // });
 
           servicePrice = services.reduce(
             (acc: any, s: any) => acc + (s?.price || 0),
@@ -193,27 +183,13 @@ const BookingManagement = () => {
           serviceName = singleService?.serviceName || "N/A";
           serviceId = singleService?._id || "";
           serviceCategory = singleService?.category || "General";
-          // serviceDuration = singleService?.duration || 30;
-          // const timeBasedDuration = calculateDurationFromTimes(
-          //   b.appointmentTime,
-          //   b.endTime,
-          // );
-          // serviceDuration =
-          //   timeBasedDuration > 0
-          //     ? timeBasedDuration
-          //     : singleService?.duration || 30;
+
           serviceDuration: (calculateTotalDuration({
             startTime: b.appointmentTime,
             endTime: b.endTime,
             services: b.services || [],
             combos: b.comboOffers || [],
           }),
-            // const serviceDuration = calculateTotalDuration({
-            //   startTime: b.appointmentTime,
-            //   endTime: b.endTime,
-            //   services,
-            //   combos: b.comboOffers || [],
-            // });
             (servicePrice = singleService?.price || 0));
         }
         const amount = typeof b.amount === "number" ? b.amount : 0;
@@ -355,24 +331,6 @@ const BookingManagement = () => {
           })),
         );
 
-        // const comboRes = await comboApi.getAppointmentCombo({
-        //   page: 1,
-        //   limit: 100,
-        //   appointmentDate: "2026-02-20",
-        // });
-        // const rawCombo = Array.isArray(comboRes)
-        //   ? comboRes
-        //   : comboRes?.data || [];
-        // if (!mountedRef.current) return;
-
-        // setCombo(
-        //   rawCombo.map((c: any) => ({
-        //     ...c,
-        //     id: c._id || c.id,
-        //     name: c.name || c.comboName,
-        //   })),
-        // );
-
         const staffRes = await staffApi.getAllStaff({ page: 1, limit: 100 });
         const rawStaff = Array.isArray(staffRes)
           ? staffRes
@@ -399,9 +357,6 @@ const BookingManagement = () => {
     }
   }, []);
 
-  // useEffect(() => {
-  //   dispatch(fetchProfileTimings());
-  // }, [dispatch]);
   useEffect(() => {
     if (!isAuthenticated) return;
     if (isStaffUser) {
@@ -424,9 +379,7 @@ const BookingManagement = () => {
   useEffect(() => {
     if (isStaffUser) return;
     const dateToUse = selectedDate || currentDate;
-    // if (selectedDate) {
-    //   fetchCombosByDate(selectedDate);
-    // }
+
     fetchCombosByDate(dateToUse);
   }, [selectedDate, currentDate, fetchCombosByDate]);
 
@@ -442,20 +395,11 @@ const BookingManagement = () => {
     if (appointmentIdFromUrl) {
       handleBookingClick(appointmentIdFromUrl);
     }
-    //     const params = new URLSearchParams(searchParams.toString());
-    //     params.delete("appointmentId");
-
-    //     router.replace(`?${params.toString()}`);
-    //   }, [searchParams, router]);
 
     const customerIdFromUrl = searchParams.get("customerId");
     if (customerIdFromUrl) {
       setShowBookingForm(true);
     }
-    // const params = new URLSearchParams(searchParams.toString());
-    // params.delete("appointmentId");
-
-    // router.replace(`?${params.toString()}`);
   }, [searchParams]);
 
   const generateTimeSlots = (): TimeSlot[] => {
@@ -617,13 +561,6 @@ const BookingManagement = () => {
     setViewMode("day");
   };
 
-  // const convertDuration = (durationString: string) => {
-  //   if (!durationString) return 30;
-  //   const num = parseInt(durationString);
-  //   if (durationString.includes("hour")) return num * 60;
-  //   return num;
-  // };
-
   const convertDuration = (duration: string | number | undefined): number => {
     if (!duration) return 30;
 
@@ -661,10 +598,6 @@ const BookingManagement = () => {
         serviceId: data.services?.[0]?._id || "",
         serviceName: data.services?.map((s: any) => s.serviceName).join(", "),
         serviceCategory: "General",
-        // serviceDuration: convertDuration(data.services?.[0]?.duration),
-        // serviceDuration:
-        //   calculateDurationFromTimes(data.appointmentTime, data.endTime) ||
-        //   convertDuration(data.services?.[0]?.duration),
         serviceDuration: calculateTotalDuration({
           startTime: data.appointmentTime,
           endTime: data.endTime,
@@ -706,52 +639,6 @@ const BookingManagement = () => {
       loadBookings();
     }
   }, [user, loadBookings]);
-
-  // const handleCreateBooking = async (data: BookingFormData) => {
-  //   try {
-  //     if (
-  //       !data.customerId ||
-  //       data.services.length === 0 ||
-  //       !data.staffId ||
-  //       !data.date ||
-  //       !data.startTime
-  //     ) {
-  //       console.error("Missing required booking data");
-  //       return;
-  //     }
-
-  //     // await appointmentApi.createAppointment({
-  //     //   customerId: data.customerId,
-  //     //   services: data.services,
-  //     //   comboOffers: data.comboOffers,
-  //     //   staffId: data.staffId,
-  //     //   appointmentDate: data.date.toISOString().split("T")[0],
-  //     //   appointmentTime: data.startTime,
-  //     //   notes: data.notes,
-  //     // });
-
-  //     await appointmentApi.createAppointment({
-  //       customerId: data.customerId,
-  //       services: data.services,
-  //       comboOffers: data.comboOffers,
-  //       staffId: data.staffId,
-  //       appointmentDate: data.date.toISOString().split("T")[0],
-  //       appointmentTime: data.startTime,
-  //       notes: data.notes,
-  //     });
-
-  //     // Refetch bookings to update calendar
-  //     await loadBookings();
-
-  //     setShowBookingForm(false);
-  //     setSelectedDate(undefined);
-  //     setSelectedTime(undefined);
-
-  //     // OPTIONAL: You might want to show a success toast here if the API doesn't handle it
-  //   } catch (error) {
-  //     console.error("Failed to create appointment:", error);
-  //   }
-  // };
 
   const handleStatusChange = (bookingId: string, status: Booking["status"]) => {
     setBookings(
@@ -945,9 +832,7 @@ const BookingManagement = () => {
               services={services}
               staff={staff}
               comboOffers={combo}
-              // setComboOffers={setCombo}
               selectedDate={selectedDate}
-              // setSelectedDate= {setSelectedDate}
               selectedTime={selectedTime}
               bookingToEdit={selectedBooking}
               changeStaffOnly={changeStaffMode}

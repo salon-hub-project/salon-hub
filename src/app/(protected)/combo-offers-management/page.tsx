@@ -115,9 +115,6 @@ const ComboOffersManagement = () => {
           validFrom: new Date(c.validFrom),
           validUntil: new Date(c.validTill), // note naming difference
           customerEligibility: c.customerEligibility,
-          // typeof c.customerEligibility === "object" && c.customerEligibility !== null
-          //   ? c.customerEligibility._id
-          //   : c.customerEligibility || "all",
           staffCommissionRate: c.staffCommissionRate || null,
           minBookingRequirement: c.minBookingRequirement || undefined,
           popularity: 0,
@@ -382,10 +379,6 @@ const ComboOffersManagement = () => {
     setIsFormModalOpen(true);
   };
 
-  // const handleOpenEditModal = (combo: ComboOffer) => {
-  //   setEditingCombo(combo);
-  //   setIsFormModalOpen(true);
-  // };
   const handleOpenEditModal = (combo: ComboOffer) => {
     const normalizedCombo: ComboOffer = {
       ...combo,

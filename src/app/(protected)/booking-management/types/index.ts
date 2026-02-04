@@ -94,16 +94,6 @@ export interface BookingFormData {
   notes: string;
 }
 
-// export interface BookingFormData {
-//   customerId: string;
-//   services: string[];
-//   comboOffers: string[];
-//   staffId: string;
-//   date: Date;
-//   startTime: string;
-//   notes: string;
-// }
-
 export interface BookingFilters {
   status?: BookingStatus;
   staffId?: string;
@@ -116,7 +106,7 @@ export interface BookingFormProps {
   services: Service[];
   staff: Staff[];
   comboOffers: ComboOffer[];
-  setComboOffers?: (c: ComboOffer[])=> void;
+  setComboOffers?: (c: ComboOffer[]) => void;
   selectedDate?: Date;
   selectedTime?: string;
   onSubmit?: (data: BookingFormData) => void;

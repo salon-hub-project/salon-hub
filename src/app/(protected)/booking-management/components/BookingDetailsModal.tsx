@@ -68,7 +68,7 @@ const BookingDetailsModal = ({
     setShowConfirmDelete(false);
     onClose();
   };
-  
+
   return (
     <>
       {/* MAIN MODAL UI — unchanged */}
@@ -210,47 +210,7 @@ const BookingDetailsModal = ({
               )}
             </div>
 
-            <div className="space-y-4">
-              {/* <Select
-                label="Booking Status"
-                options={statusOptions}
-                value={booking.status}
-                onChange={(value) =>
-                  onStatusChange(booking.id, value as Booking["status"])
-                }
-              /> */}
-
-              {/* <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
-                <div>
-                  <div className="text-sm font-medium text-foreground">
-                    Payment Status
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-1">
-                    {booking.paymentStatus === "paid"
-                      ? "Payment received"
-                      : "Payment pending"}
-                  </div>
-                </div>
-                {onPaymentStatusChange && (
-                  <Button
-                    variant={
-                      booking.paymentStatus === "paid" ? "outline" : "default"
-                    }
-                    size="sm"
-                    onClick={() =>
-                      onPaymentStatusChange(
-                        booking.id,
-                        booking.paymentStatus === "paid" ? "pending" : "paid"
-                      )
-                    }
-                  >
-                    {booking.paymentStatus === "paid"
-                      ? "Mark Unpaid"
-                      : "Mark Paid"}
-                  </Button>
-                )}
-              </div> */}
-            </div>
+            <div className="space-y-4"></div>
 
             <div className="flex flex-col sm:flex-row items-center gap-3 pt-4">
               <Button variant="outline" onClick={onClose} className="w-full">
@@ -261,7 +221,7 @@ const BookingDetailsModal = ({
                   variant="outline"
                   className="w-full"
                   onClick={onChangeStaff}
-                  disabled= {booking.status === 'Completed'}
+                  disabled={booking.status === "Completed"}
                 >
                   Change Staff
                 </Button>
@@ -277,16 +237,6 @@ const BookingDetailsModal = ({
                 </Button>
               )}
 
-              {/* {
-                user?.role[0] === "STAFF" && <Button
-                variant="destructive"
-                fullWidth
-                loading={isDeleting}
-                onClick={handleStatusUpdate}
-              >
-                {booking?.status === "Confirmed" && "Mark as Completed"}
-              </Button>
-              } */}
               {user?.role[0] === "STAFF" &&
                 (booking?.status === "Confirmed" ? (
                   <Button
@@ -325,7 +275,6 @@ const BookingDetailsModal = ({
             startTime: booking.startTime,
           }}
           onClose={() => setShowRescheduleModal(false)}
-          // onSuccess={onClose}
           onSuccess={(updated) => {
             onBookingUpdate?.({
               id: updated.id,
