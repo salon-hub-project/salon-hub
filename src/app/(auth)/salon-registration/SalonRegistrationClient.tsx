@@ -5,7 +5,6 @@ import RegistrationHeader from "./components/RegistrationHeader";
 import RegistrationForm from "./components/RegistrationForm";
 import OTPVerificationModal from "./components/OTPVerificationModal";
 import SuccessMessage from "./components/SuccessMessage";
-import { RegistrationFormData } from "./types";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
@@ -25,7 +24,7 @@ const SalonRegistrationClient = () => {
     useAppSelector((state) => state.auth);
 
   const [currentStep, setCurrentStep] = useState<"form" | "otp" | "success">(
-    "form"
+    "form",
   );
   const [isVerifying, setIsVerifying] = useState(false);
   const [registrationId, setRegistrationId] = useState("");
@@ -36,18 +35,17 @@ const SalonRegistrationClient = () => {
 
   useEffect(() => {
     if (!isAuthenticated) return;
-  
+
     const userRole = user?.role;
     const requestedPath = localStorage.getItem("lastProtectedRoute");
-  
+
     // Validate and get safe redirect path based on user role
     const safeRedirectPath = getSafeRedirectPath(requestedPath, userRole);
-  
+
     localStorage.removeItem("redirectAfterLogin");
     localStorage.removeItem("lastProtectedRoute");
     router.replace(safeRedirectPath);
   }, [isAuthenticated, user, router]);
-  
 
   // Registration success redirects
   useEffect(() => {
@@ -126,24 +124,18 @@ const SalonRegistrationClient = () => {
                       address: values.address.trim(),
                       password: values.password,
                       phoneNumber: values.mobileNumber.trim(),
-                    })
+                    }),
                   );
                 }}
               >
-                {({
-                  values,
-                  errors,
-                  touched,
-                  handleSubmit,
-                  setFieldValue,
-                }) => (
+                {({ values, errors, touched, handleSubmit, setFieldValue }) => (
                   <RegistrationForm
                     formData={values}
                     errors={Object.fromEntries(
                       Object.entries(errors).map(([k, v]) => [
                         k,
                         touched[k as keyof typeof touched] ? v : undefined,
-                      ])
+                      ]),
                     )}
                     onInputChange={(field, value) => {
                       setFieldValue(field, value);
@@ -183,18 +175,3 @@ const SalonRegistrationClient = () => {
 };
 
 export default SalonRegistrationClient;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

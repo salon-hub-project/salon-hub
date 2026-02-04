@@ -1,27 +1,33 @@
-import React from 'react';
-import Icon from '../../../components/AppIcon';
-import { ComboOffer, PerformanceMetrics } from '../types';
+import React from "react";
+import Icon from "../../../components/AppIcon";
+import { ComboOffer, PerformanceMetrics } from "../types";
 
 interface ComboStatsProps {
   combos: ComboOffer[];
-  totalCombos: number,
-  totalRevenues: number
+  totalCombos: number;
+  totalRevenues: number;
 }
 
-const ComboStats: React.FC<ComboStatsProps> = ({ combos, totalCombos, totalRevenues }) => {
-
+const ComboStats: React.FC<ComboStatsProps> = ({
+  combos,
+  totalCombos,
+  totalRevenues,
+}) => {
   const calculateMetrics = (): PerformanceMetrics => {
-    const activeCombos = combos.filter(c => c.isActive);
+    const activeCombos = combos.filter((c) => c.isActive);
     const totalRevenue = totalRevenues;
-    const averageSavings = combos.length > 0
-      ? combos.reduce((sum, c) => sum + c.savingsPercentage, 0) / combos.length
-      : 0;
-    
-    const mostPopular = combos.length > 0
-      ? combos.reduce((prev, current) => 
-          (current.popularity > prev.popularity ? current : prev)
-        )
-      : null;
+    const averageSavings =
+      combos.length > 0
+        ? combos.reduce((sum, c) => sum + c.savingsPercentage, 0) /
+          combos.length
+        : 0;
+
+    const mostPopular =
+      combos.length > 0
+        ? combos.reduce((prev, current) =>
+            current.popularity > prev.popularity ? current : prev,
+          )
+        : null;
 
     return {
       totalCombos,
@@ -36,33 +42,26 @@ const ComboStats: React.FC<ComboStatsProps> = ({ combos, totalCombos, totalReven
 
   const stats = [
     {
-      label: 'Total Combos',
+      label: "Total Combos",
       value: metrics.totalCombos,
-      icon: 'Package' as const,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50',
+      icon: "Package" as const,
+      color: "text-blue-600",
+      bgColor: "bg-blue-50",
     },
     {
-      label: 'Active Combos',
+      label: "Active Combos",
       value: metrics.activeCombos,
-      icon: 'CheckCircle' as const,
-      color: 'text-green-600',
-      bgColor: 'bg-green-50',
+      icon: "CheckCircle" as const,
+      color: "text-green-600",
+      bgColor: "bg-green-50",
     },
     {
-      label: 'Total Revenue',
+      label: "Total Revenue",
       value: `INR ${metrics.totalRevenue.toFixed(2)}`,
-      icon: 'IndianRupee' as const,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-50',
+      icon: "IndianRupee" as const,
+      color: "text-purple-600",
+      bgColor: "bg-purple-50",
     },
-    // {
-    //   label: 'Avg. Savings',
-    //   value: `${metrics.averageSavings.toFixed(1)}%`,
-    //   icon: 'TrendingDown' as const,
-    //   color: 'text-orange-600',
-    //   bgColor: 'bg-orange-50',
-    // },
   ];
 
   return (

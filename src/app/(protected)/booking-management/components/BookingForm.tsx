@@ -194,34 +194,6 @@ const BookingForm = ({
       );
     });
 
-  // const handleSubmit = async (values: any, { resetForm }: any) => {
-  //   try {
-  //     const services = values.selectedItems
-  //       .filter((item: any) => item.type === "service")
-  //       .map((item: any) => item.value);
-
-  //     const comboOffers = values.selectedItems
-  //       .filter((item: any) => item.type === "combo")
-  //       .map((item: any) => item.value);
-
-  //     const payload = {
-  //       customerId: values.customerId,
-  //       services,
-  //       comboOffers,
-  //       staffId: values.staffId,
-  //       appointmentDate: values.date.toISOString().split("T")[0],
-  //       appointmentTime: values.startTime,
-  //       notes: values.notes || "",
-  //     };
-  //     await appointmentApi.createAppointment(payload);
-  //     resetForm();
-  //     onSuccess?.();
-  //     router.push("/booking-management");
-  //   } catch (error) {
-  //     console.error("Create appointment failed", error);
-  //   }
-  // };
-
   const handleSubmit = async (values: any, { resetForm }: any) => {
     try {
       if (!bookingToEdit) {

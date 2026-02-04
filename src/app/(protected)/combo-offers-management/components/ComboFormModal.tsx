@@ -1,15 +1,13 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Formik, Form } from "formik";
 import { useRouter } from "next/navigation";
 import Icon from "../../../components/AppIcon";
 import Input from "../../../components/ui/Input";
-import Select from "../../../components/ui/Select";
 import Button from "../../../components/ui/Button";
 import { ComboOffer, ComboFormData } from "../types";
 import { comboValidationSchema } from "@/app/components/validation/validation";
 import { customerTags } from "../../customer-database/types";
-import ConfirmModal from "@/app/components/ui/ConfirmModal";
 
 interface ComboFormModalProps {
   isOpen: boolean;
@@ -31,18 +29,6 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
   combo,
   availableServices,
 }) => {
-  // const initialValues: ComboFormData = {
-  //   name: combo?.name || "",
-  //   description: combo?.description || "",
-  //   services: combo?.services || [],
-  //   discountedPrice: combo?.discountedPrice || null,
-  //   validFrom: combo?.validFrom || new Date(),
-  //   validUntil:
-  //     combo?.validUntil || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-  //   minBookingRequirement: combo?.minBookingRequirement || undefined,
-  //   customerEligibility: combo?.customerEligibility || "",
-  //   staffCommissionRate: combo?.staffCommissionRate || null,
-  // };
   const initialValues: ComboFormData = {
     name: combo?.name || "",
     description: combo?.description || "",
@@ -63,51 +49,9 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
   };
 
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
-  // const [customerTags, setCustomerTags] = useState<any[]>([]); // Use any[] or specific type if available
+
   const [loadingTags, setLoadingTags] = useState(false);
   const router = useRouter();
-
-  // useEffect(() => {
-  //   const fetchCustomerTags = async () => {
-  //     try {
-  //       setLoadingTags(true);
-  //       const res = await customerTagApi.getAllCustomerTags();
-  //       const list = res?.data || [];
-  //       setCustomerTags(list);
-  //     } catch (error) {
-  //       console.error("Failed to fetch customer tags", error);
-  //       setCustomerTags([]);
-  //     } finally {
-  //       setLoadingTags(false);
-  //     }
-  //   };
-  //   fetchCustomerTags();
-  // }, []);
-
-  // const handleAddTag = async (tagName?: string) => {
-  //   if (!tagName?.trim()) return;
-
-  //   try {
-  //     const res = await customerTagApi.createCustomerTag({
-  //       name: tagName.trim(),
-  //     });
-
-  //     const createdTag = res?.data;
-  //     if (!createdTag) return;
-
-  //     setCustomerTags((prev) => [
-  //       ...prev,
-  //       {
-  //         _id: createdTag._id,
-  //         name: createdTag.name,
-  //       },
-  //     ]);
-
-  //     setIsAddCategoryOpen(false);
-  //   } catch (error) {
-  //     console.error("Failed to create customer tag", error);
-  //   }
-  // };
 
   const customerEligibilityOptions = [
     // { value: "all", label: "All Customers" },
@@ -336,50 +280,6 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                       }
                     />
 
-                    {/* <Select
-                      label="Customer Eligibility"
-                      value={values.customerEligibility}
-                      options={customerEligibilityOptions}
-                      onChange={(value) =>
-                        setFieldValue("customerEligibility", value)
-                      }
-                      disabled={loadingTags}
-                      onAddNew={() => setIsAddCategoryOpen(true)}
-                    /> */}
-
-                    {/* <Input
-                      label="Minimum Bookings (Optional)"
-                      placeholder="Enter bookings"
-                      type="number"
-                      value={values.minBookingRequirement || ""}
-                      onChange={(e) =>
-                        setFieldValue(
-                          "minBookingRequirement",
-                          e.target.value ? Number(e.target.value) : undefined,
-                        )
-                      }
-                      error={
-                        touched.minBookingRequirement
-                          ? errors.minBookingRequirement
-                          : undefined
-                      }
-                    />
-
-                    <Input
-                      label="Staff Commission Rate (%)"
-                      type="number"
-                      value={values.staffCommissionRate ?? ""}
-                      placeholder="0"
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setFieldValue(
-                          "staffCommissionRate",
-                          val === "" ? null : parseFloat(val),
-                        );
-                      }}
-                      min="0"
-                      max="100"
-                    /> */}
                     <div className="grid grid-cols-2 gap-4">
                       <Input
                         label="Valid From *"
@@ -442,16 +342,6 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
           }}
         </Formik>
       </div>
-      {/* <ConfirmModal
-        isOpen={isAddCategoryOpen}
-        showInput
-        inputPlaceholder="Enter new customer eligibility name"
-        title="Add New Customer Eligibility"
-        description="Enter the name for the new eligibility"
-        onCancel={() => setIsAddCategoryOpen(false)}
-        onConfirm={handleAddTag}
-        confirmColor="green"
-      /> */}
     </div>
   );
 };
