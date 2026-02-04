@@ -29,6 +29,7 @@ const WeekView = ({
     );
   };
 
+  
   const getStatusColor = (status: Booking["status"]) => {
     const colors = {
       Pending: "bg-warning",
