@@ -1,53 +1,3 @@
-// import Select, { SelectOption } from "./Select";
-
-// interface SelectGroup {
-//   label: string;
-//   options: SelectOption[];
-// }
-
-// interface GroupedSelectProps {
-//   groups: SelectGroup[];
-//   value?: string[] | string;
-//   onChange?: (value: any) => void;
-//   placeholder?: string;
-//   multiple?: boolean;
-//   label?: string;
-//   closeOnSelect?: boolean;
-//   onAddNew?: ()=> void;
-// }
-
-// // interface GroupedSelectProps {
-// //   groups: SelectGroup[];
-// //   value?: SelectOption[] | SelectOption;
-// //   onChange?: (value: SelectOption[] | SelectOption) => void;
-// //   placeholder?: string;
-// //   multiple?: boolean;
-// //   label?: string;
-// //   closeOnSelect?: boolean;
-// //   onAddNew?: () => void;
-// // }
-
-// const GroupedSelect = ({
-//   groups,
-//   ...props
-// }: GroupedSelectProps) => {
-//   // Flatten options with disabled headings
-//   const options: SelectOption[] = groups.flatMap((group) => [
-//     {
-//       value: `__heading_${group.label}`,
-//       label: group.label,
-//       disabled: true,
-//     },
-//     ...group.options,
-//   ]);
-  
-
-//   return <Select options={options} {...props} />;
-// };
-
-// export default GroupedSelect;
-
-
 import Select, { SelectOption } from "./Select";
 
 interface SelectGroup {
@@ -74,12 +24,11 @@ const GroupedSelect = ({
   multiple,
   ...props
 }: GroupedSelectProps) => {
-
   // 🔹 Flatten options
-  const flatOptions = groups.flatMap(group => group.options);
+  const flatOptions = groups.flatMap((group) => group.options);
 
   // 🔹 Add headings (disabled)
-  const options: SelectOption[] = groups.flatMap(group => [
+  const options: SelectOption[] = groups.flatMap((group) => [
     {
       value: `__heading_${group.label}`,
       label: group.label,
@@ -94,12 +43,12 @@ const GroupedSelect = ({
 
     if (multiple && Array.isArray(val)) {
       const mapped = val
-        .map(v => flatOptions.find(opt => opt.value === v))
+        .map((v) => flatOptions.find((opt) => opt.value === v))
         .filter(Boolean);
 
       onChange(mapped);
     } else {
-      const selected = flatOptions.find(opt => opt.value === val);
+      const selected = flatOptions.find((opt) => opt.value === val);
       onChange(selected ? [selected] : []);
     }
   };
@@ -109,7 +58,7 @@ const GroupedSelect = ({
     ? Array.isArray(value)
       ? value.map((v: any) => v.value)
       : []
-    : value?.value ?? "";
+    : (value?.value ?? "");
 
   return (
     <Select
