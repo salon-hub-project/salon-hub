@@ -54,7 +54,6 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
   const router = useRouter();
 
   const customerEligibilityOptions = [
-    // { value: "all", label: "All Customers" },
     ...customerTags.map((tag) => ({
       value: tag.id,
       label: tag.name,

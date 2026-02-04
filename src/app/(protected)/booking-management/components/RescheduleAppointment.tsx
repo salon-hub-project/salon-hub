@@ -15,19 +15,10 @@ interface Props {
     startTime: string;
   };
   onClose: () => void;
-//   onSuccess?: () => void;
- onSuccess?: (data: {
-    id: string;
-    date: Date;
-    startTime: string;
-  }) => void;
+  onSuccess?: (data: { id: string; date: Date; startTime: string }) => void;
 }
 
-const RescheduleAppointmentModal = ({
-  booking,
-  onClose,
-  onSuccess,
-}: Props) => {
+const RescheduleAppointmentModal = ({ booking, onClose, onSuccess }: Props) => {
   const timings = useSelector((state: any) => state.profile.timings);
 
   const timeSlots = Array.from({ length: 24 }, (_, i) => {
@@ -41,8 +32,7 @@ const RescheduleAppointmentModal = ({
     .filter((slot) => {
       if (!timings?.openingTime || !timings?.closingTime) return true;
       return (
-        slot.value >= timings.openingTime &&
-        slot.value < timings.closingTime
+        slot.value >= timings.openingTime && slot.value < timings.closingTime
       );
     });
 
@@ -52,18 +42,18 @@ const RescheduleAppointmentModal = ({
         appointmentDate: values.date,
         appointmentTime: values.startTime,
       });
-    onSuccess?.({
-      id: booking.id,
-      date: new Date(values.date),
-      startTime: values.startTime,
-    });
+      onSuccess?.({
+        id: booking.id,
+        date: new Date(values.date),
+        startTime: values.startTime,
+      });
 
       onClose();
     } catch (err) {
       console.error("Reschedule failed", err);
     }
   };
-   const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split("T")[0];
 
   return (
     <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">

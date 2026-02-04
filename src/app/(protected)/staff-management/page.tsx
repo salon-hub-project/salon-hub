@@ -126,15 +126,6 @@ const StaffManagement = () => {
     setIsDetailsOpen(false);
   };
 
-  // const handleToggleStatus = (employeeId: string) => {
-  //   setEmployees((prev) =>
-  //     prev.map((emp) =>
-  //       emp.id === employeeId
-  //         ? { ...emp, status: emp.status === "active" ? "inactive" : "active" }
-  //         : emp,
-  //     ),
-  //   );
-  // };
   const handleToggleStatus = (id: string, isActive = false) => {
     setEmployees((prev) =>
       prev.map((emp) =>
@@ -346,7 +337,7 @@ const StaffManagement = () => {
           bookingCompletionRate: 0,
           achievedAmount: emp.achievedAmount || 0,
           totalCommisionEarned: emp?.totalCommisionEarned || 0,
-          lifetimeCommision: emp?.lifetimeCommision || 0
+          lifetimeCommision: emp?.lifetimeCommision || 0,
         },
       };
       setSelectedEmployee(mappedEmployee);
@@ -458,20 +449,6 @@ const StaffManagement = () => {
               </div>
             </div>
           </div>
-
-          {/* <div className="bg-card rounded-lg border border-border p-6"> */}
-          {/* <div className="flex items-center justify-between"> */}
-          {/* <div> */}
-          {/* <p className="text-sm text-muted-foreground">Total Revenue</p>
-                <p className="text-3xl font-bold text-foreground mt-2">
-                  INR {totalRevenue.toLocaleString()}
-                </p> */}
-          {/* </div> */}
-          {/* <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
-                <Icon name="IndianRupee" size={24} className="text-accent" />
-              </div> */}
-          {/* </div> */}
-          {/* </div> */}
         </div>
         <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
           <RolesManager
@@ -514,27 +491,8 @@ const StaffManagement = () => {
               <h2 className="text-lg font-semibold text-foreground">
                 Employee Directory
               </h2>
-              {/* <p className="text-sm text-muted-foreground mt-1">
-                {employees.length}{" "}
-                {employees.length === 1 ? "employee" : "employees"} found
-              </p> */}
             </div>
-            <div className="flex flex-col sm:flex-row gap-3">
-              {/* <Select
-                placeholder="Filter by role"
-                options={roleFilterOptions}
-                value={roleFilter}
-                onChange={(value) => setRoleFilter(value as string)}
-                className="w-full sm:w-48"
-              /> */}
-              {/* <Select
-                      placeholder="Performance period"
-                      options={performancePeriodOptions}
-                      value={performancePeriod}
-                      onChange={(value) => setPerformancePeriod(value as string)}
-                      className="w-full sm:w-48"÷
-                    // />  */}
-            </div>
+            <div className="flex flex-col sm:flex-row gap-3"></div>
           </div>
 
           {loading ? (
@@ -580,74 +538,6 @@ const StaffManagement = () => {
             </div>
           )}
         </div>
-
-        {/* <div className="bg-card rounded-lg border border-border p-6">
-          <h2 className="text-lg font-semibold text-foreground mb-4">
-            Performance Overview
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-muted rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Icon name="CheckCircle" size={20} className="text-success" />
-                <span className="text-sm text-muted-foreground">
-                  Avg. Completion Rate
-                </span>
-              </div>
-              <p className="text-2xl font-bold text-foreground">
-                {(
-                  employees.reduce(
-                    (sum, emp) =>
-                      sum + emp.performanceMetrics.bookingCompletionRate,
-                    0,
-                  ) / employees.length
-                ).toFixed(1)}
-                %
-              </p>
-            </div>
-
-            <div className="bg-muted rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Icon name="Star" size={20} className="text-yellow-500" />
-                <span className="text-sm text-muted-foreground">
-                  Avg. Rating
-                </span>
-              </div>
-              <p className="text-2xl font-bold text-foreground">
-                {averageRating.toFixed(1)}
-              </p>
-            </div>
-
-            <div className="bg-muted rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Icon name="Briefcase" size={20} className="text-primary" />
-                <span className="text-sm text-muted-foreground">
-                  Total Services
-                </span>
-              </div>
-              <p className="text-2xl font-bold text-foreground">
-                {employees.reduce(
-                  (sum, emp) => sum + emp.performanceMetrics.completedServices,
-                  0,
-                )}
-              </p>
-            </div>
-
-            <div className="bg-muted rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Icon name="TrendingUp" size={20} className="text-success" />
-                <span className="text-sm text-muted-foreground">
-                  Avg. Revenue
-                </span>
-              </div>
-              <p className="text-2xl font-bold text-foreground">
-                INR
-                {(totalRevenue / employees.length).toLocaleString(undefined, {
-                  maximumFractionDigits: 0,
-                })}
-              </p>
-            </div>
-          </div>
-        </div> */}
       </div>
 
       {isDetailsOpen && (
@@ -660,7 +550,7 @@ const StaffManagement = () => {
           }}
           loading={detailsLoading}
           onEdit={handleEditEmployee}
-          onResetAchieved= {handleResetAchievedAmount}
+          onResetAchieved={handleResetAchievedAmount}
         />
       )}
 

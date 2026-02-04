@@ -94,8 +94,6 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  // =========`======== FETCH DATA =================
-
   const fetchCustomers = async () => {
     // Skip customer API call for staff - they don't have access to customer data
     if (isStaff(userRole)) return;
@@ -183,8 +181,6 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
     }
   }, []);
 
-  // ================= SUBMIT =================
-
   const handleSubmit = async (
     values: any,
     { resetForm, setFieldError }: any,
@@ -250,8 +246,6 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
   };
 
   const today = new Date().toISOString().split("T")[0];
-
-  // ================= UI =================
 
   return (
     <div className="bg-card border border-border rounded-lg p-6">

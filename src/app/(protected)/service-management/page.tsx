@@ -63,25 +63,23 @@ const ServiceManagement = () => {
   //   return match ? parseInt(match[1], 10) : 0;
   // };
   const parseDuration = (duration: string | number): number => {
-  // ✅ new backend format
-  if (typeof duration === "number") {
-    return duration;
-  }
+    // ✅ new backend format
+    if (typeof duration === "number") {
+      return duration;
+    }
 
-  // ✅ old backend format (safety / backward compatibility)
-  if (typeof duration === "string") {
-    const match = duration.match(/(\d+)/);
-    return match ? parseInt(match[1], 10) : 0;
-  }
+    // ✅ old backend format (safety / backward compatibility)
+    if (typeof duration === "string") {
+      const match = duration.match(/(\d+)/);
+      return match ? parseInt(match[1], 10) : 0;
+    }
 
-  return 0;
-};
-
+    return 0;
+  };
 
   useEffect(() => {
     setPage(1);
   }, [filters]);
-
 
   // Helper function to get category ID from category name
   const getCategoryIdByName = (categoryName: string): string => {
@@ -96,7 +94,7 @@ const ServiceManagement = () => {
   };
 
   const mapServiceResponseToService = (
-    apiService: ServiceResponse
+    apiService: ServiceResponse,
   ): Service => {
     return {
       id: apiService._id,
@@ -293,61 +291,6 @@ const ServiceManagement = () => {
     };
   }, [page, filters, fetchServices]);
 
-  // const filteredServices = services
-  //   .filter((service) => {
-  //     // Convert filter category name to ID for comparison
-  //     if (filters.category !== "all") {
-  //       const filterCategoryId = getCategoryIdByName(filters.category);
-  //       if (service.category !== filterCategoryId) {
-  //         return false;
-  //       }
-  //     }
-
-  //     if (filters.status === "active" && !service.isActive) {
-  //       return false;
-  //     }
-
-  //     if (filters.status === "inactive" && service.isActive) {
-  //       return false;
-  //     }
-
-  //     if (filters.searchQuery) {
-  //       const query = filters.searchQuery.toLowerCase();
-  //       // Convert service category ID to name for search
-  //       const categoryName = getCategoryNameById(service.category);
-  //       return (
-  //         service.name.toLowerCase().includes(query) ||
-  //         categoryName.toLowerCase().includes(query) ||
-  //         service.description?.toLowerCase().includes(query)
-  //       );
-  //     }
-
-  //     return true;
-  //   })
-  //   .sort((a, b) => {
-  //     let comparison = 0;
-
-  //     switch (filters.sortBy) {
-  //       case "name":
-  //         comparison = a.name.localeCompare(b.name);
-  //         break;
-  //       case "price":
-  //         comparison = a.price - b.price;
-  //         break;
-  //       case "duration":
-  //         comparison = a.duration - b.duration;
-  //         break;
-  //       case "category":
-  //         // Convert category IDs to names for sorting
-  //         const categoryA = getCategoryNameById(a.category);
-  //         const categoryB = getCategoryNameById(b.category);
-  //         comparison = categoryA.localeCompare(categoryB);
-  //         break;
-  //     }
-
-  //     return filters.sortOrder === "asc" ? comparison : -comparison;
-  //   });
-
   const handleAddService = async (data: ServiceFormData) => {
     try {
       // Convert category name to category ID
@@ -420,8 +363,8 @@ const ServiceManagement = () => {
       services.map((service) =>
         service.id === serviceId
           ? { ...service, isActive: !service.isActive, updatedAt: new Date() }
-          : service
-      )
+          : service,
+      ),
     );
   };
 
@@ -430,8 +373,8 @@ const ServiceManagement = () => {
       services.map((service) =>
         service.id === serviceId
           ? { ...service, isPopular: !service.isPopular, updatedAt: new Date() }
-          : service
-      )
+          : service,
+      ),
     );
   };
 
@@ -463,7 +406,7 @@ const ServiceManagement = () => {
             const oldCategoryId = service.category;
             // Convert category name to ID
             const newCategoryId = getCategoryIdByName(
-              operation.value as string
+              operation.value as string,
             );
             if (oldCategoryId !== newCategoryId) {
               updateCategoryCount(oldCategoryId, -1);
@@ -504,13 +447,13 @@ const ServiceManagement = () => {
       categories.map((cat) =>
         cat.id === categoryId
           ? { ...cat, serviceCount: Math.max(0, cat.serviceCount + delta) }
-          : cat
-      )
+          : cat,
+      ),
     );
   };
   const handleUpdateCategory = async (id: string, name: string) => {
     setCategories((prev) =>
-      prev.map((cat) => (cat.id === id ? { ...cat, name } : cat))
+      prev.map((cat) => (cat.id === id ? { ...cat, name } : cat)),
     );
   };
 
@@ -546,7 +489,7 @@ const ServiceManagement = () => {
       handleAddService(data);
     }
   };
-  
+
   return (
     <>
       <div className="container mx-auto px-4 py-6">

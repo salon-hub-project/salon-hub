@@ -15,7 +15,6 @@ import { staffApi } from "@/app/services/staff.api";
 import { comboApi } from "@/app/services/combo.api";
 import GroupedSelect from "@/app/components/ui/GroupedSelect";
 import { appointmentApi } from "@/app/services/appointment.api";
-import { isToday } from "date-fns";
 
 // Helper component to handle side effects and data fetching inside Formik context
 const StaffFetcher = ({
@@ -376,27 +375,6 @@ const BookingForm = ({
                   onAddNew={() => router.push("/customer-database")}
                   disabled={disableAllExceptDateTime || disableAllExceptStaff}
                 />
-
-                {/* Services */}
-                {/* <Select
-                  label="Services"
-                  placeholder="Select services..."
-                  options={serviceOptions}
-                  value={values.services}
-                  multiple
-                  closeOnSelect={false}
-                  clearable
-                  searchable
-                  // closeOnSelect
-                  onChange={(v) => setFieldValue("services", v)}
-                  error={
-                    touched.services && typeof errors.services === "string"
-                      ? errors.services
-                      : undefined
-                  }
-                  onAddNew={() => router.push("/service-management")}
-                /> */}
-
                 {/* Date */}
                 <div className="space-y-1">
                   <Input
@@ -495,8 +473,6 @@ const BookingForm = ({
                   Notes(Optional)
                 </label>
                 <textarea
-                  // type="text"
-                  // label="Notes (Optional)"
                   placeholder="Add any special requirements..."
                   value={values.notes}
                   onChange={(e) => setFieldValue("notes", e.target.value)}

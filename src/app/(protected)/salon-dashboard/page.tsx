@@ -125,7 +125,7 @@ const SalonDashboard = () => {
     const fetchTodayAppointments = async () => {
       try {
         const res = await appointmentApi.getAllAppointments({ limit: 500 });
-        
+
         const todaysAppointments = res.filter(
           (appt: any) => appt.appointmentDate && isToday(appt.appointmentDate),
         );
@@ -285,11 +285,6 @@ const SalonDashboard = () => {
     };
 
     fetchAllNotifications();
-
-    // Poll every 30 seconds
-    // const intervalId = setInterval(fetchAllNotifications, 30000);
-
-    // return () => clearInterval(intervalId);
   }, [isAuthenticated, isStaff]);
 
   const quickActions: QuickAction[] = [
@@ -326,29 +321,6 @@ const SalonDashboard = () => {
       description: "Manage team",
     },
   ];
-
-  // const [notifications, setNotifications] = useState<Notification[]>([
-  //   {
-  //     id: "1",
-  //     type: "warning",
-  //     title: "Upcoming Appointment",
-  //     message: "Emma Wilson's appointment starts in 15 minutes",
-  //     timestamp: new Date(Date.now() - 60000),
-  //     read: false,
-  //   },
-  //   {
-  //     id: "2",
-  //     type: "info",
-  //     title: "New Customer",
-  //     message: "Robert Garcia registered as a new customer",
-  //     timestamp: new Date(Date.now() - 300000),
-  //     read: false,
-  //   }
-  // ]);
-
-  const handleNotificationClick = () => {
-    console.log("Notifications clicked");
-  };
 
   const handleViewDetails = (id: string) => {
     const appt = todayAppointments.find((a) => a.id === id);
