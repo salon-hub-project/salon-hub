@@ -19,6 +19,7 @@ interface MenuItem {
   icon: string;
   roles: string[];
   badge?: number;
+  tooltip?: string;
 }
 
 /* ============================
@@ -166,6 +167,20 @@ const Sidebar = ({
       label: "Owner-Manager",
       path: "/owner-manager",
       icon: "BadgePercent",
+      roles: ["super_admin"],
+    },
+    {
+      label: "Subscriptions",
+      path: "/subscription-management",
+      icon: "CreditCardIcon",
+      tooltip: "Complete subscription lifecycle management with plan tracking",
+      roles: ["super_admin"],
+    },
+    {
+      label: "Renewals",
+      path: "/renewals-management",
+      icon: "ArrowPathIcon",
+      tooltip: "Renewal tracking and processing workflows",
       roles: ["super_admin"],
     },
   ];
