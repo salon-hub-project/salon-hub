@@ -1,12 +1,12 @@
 import Icon from "@/app/components/AppIcon";
 
 interface ExpirationAlert {
-  id: number;
+  id: string | number;
   salonName: string;
   ownerName: string;
   expirationDate: string;
   daysRemaining: number;
-  planType: string;
+  planType?: string;
 }
 
 interface ExpirationAlertsWidgetProps {
@@ -39,9 +39,9 @@ const ExpirationAlertsWidget = ({ alerts }: ExpirationAlertsWidgetProps) => {
             </span>
           )}
         </div>
-        <button className="text-primary hover:text-primary/80 transition-smooth font-body text-sm font-medium">
+        {/* <button className="text-primary hover:text-primary/80 transition-smooth font-body text-sm font-medium">
           View All
-        </button>
+        </button> */}
       </div>
       <div className="space-y-3">
         {alerts.length === 0 ? (
@@ -82,9 +82,9 @@ const ExpirationAlertsWidget = ({ alerts }: ExpirationAlertsWidgetProps) => {
                     Owner: {alert.ownerName}
                   </p>
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-caption text-xs opacity-70">
+                    {/* <span className="font-caption text-xs opacity-70">
                       {alert.planType}
-                    </span>
+                    </span> */}
                     <span className="font-caption text-xs opacity-70">
                       Expires: {alert.expirationDate}
                     </span>

@@ -25,12 +25,12 @@ interface Renewal {
 }
 
 interface ExpirationAlert {
-  id: number;
+  id: string | number;
   salonName: string;
   ownerName: string;
   expirationDate: string;
   daysRemaining: number;
-  planType: string;
+  planType?: string;
 }
 
 interface ChartDataPoint {
@@ -51,6 +51,9 @@ const DashboardInteractive = () => {
     totalAppointments: 12847,
   });
   const [recentRenewals, setRecentRenewals] = useState<Renewal[]>([]);
+  const [expirationAlerts, setExpirationAlerts] = useState<ExpirationAlert[]>(
+    [],
+  );
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -66,11 +69,13 @@ const DashboardInteractive = () => {
         activeSalons,
         expiredSalons,
         recentOnboardedResponse,
+        expiringSalonsResponse,
       ] = await Promise.all([
         ownerApi.getTotalSalonsCount(),
         ownerApi.getActiveSalonsCount(),
         ownerApi.getExpiredSalonsCount(),
         ownerApi.getRecentOnboardedSalons(),
+        ownerApi.getExpiringSalons(),
       ]);
 
       setMetrics((prev) => ({
@@ -99,6 +104,30 @@ const DashboardInteractive = () => {
         );
         setRecentRenewals(mappedRenewals);
       }
+
+      // Map API data to ExpirationAlert format
+      if (expiringSalonsResponse && Array.isArray(expiringSalonsResponse)) {
+        const mappedAlerts: ExpirationAlert[] = expiringSalonsResponse.map(
+          (item: any) => ({
+            id: item._id,
+            salonName: item.user?.email || "Unknown Salon",
+            ownerName:
+              item.user?.email?.split("@")[0] ||
+              item.user?.phoneNumber ||
+              "N/A",
+            expirationDate: item.subscriptionEndDate
+              ? new Date(item.subscriptionEndDate).toLocaleDateString("en-US", {
+                  month: "2-digit",
+                  day: "2-digit",
+                  year: "numeric",
+                })
+              : "N/A",
+            daysRemaining: item.daysLeft || 0,
+            // planType: "Active Plan", // API doesn't seem to provide plan name directly in this snippet
+          }),
+        );
+        setExpirationAlerts(mappedAlerts);
+      }
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
     } finally {
@@ -106,40 +135,40 @@ const DashboardInteractive = () => {
     }
   };
 
-  const expirationAlerts: ExpirationAlert[] = [
-    {
-      id: 1,
-      salonName: "Radiant Beauty Bar",
-      ownerName: "Sarah Johnson",
-      expirationDate: "02/03/2026",
-      daysRemaining: 5,
-      planType: "Premium Plan",
-    },
-    {
-      id: 2,
-      salonName: "Chic Cuts & Color",
-      ownerName: "Michael Chen",
-      expirationDate: "02/08/2026",
-      daysRemaining: 10,
-      planType: "Standard Plan",
-    },
-    {
-      id: 3,
-      salonName: "Serenity Spa & Salon",
-      ownerName: "Emily Rodriguez",
-      expirationDate: "02/12/2026",
-      daysRemaining: 14,
-      planType: "Premium Plan",
-    },
-    {
-      id: 4,
-      salonName: "Urban Style Studio",
-      ownerName: "David Thompson",
-      expirationDate: "02/15/2026",
-      daysRemaining: 17,
-      planType: "Basic Plan",
-    },
-  ];
+  // const expirationAlerts: ExpirationAlert[] = [
+  //   {
+  //     id: 1,
+  //     salonName: "Radiant Beauty Bar",
+  //     ownerName: "Sarah Johnson",
+  //     expirationDate: "02/03/2026",
+  //     daysRemaining: 5,
+  //     planType: "Premium Plan",
+  //   },
+  //   {
+  //     id: 2,
+  //     salonName: "Chic Cuts & Color",
+  //     ownerName: "Michael Chen",
+  //     expirationDate: "02/08/2026",
+  //     daysRemaining: 10,
+  //     planType: "Standard Plan",
+  //   },
+  //   {
+  //     id: 3,
+  //     salonName: "Serenity Spa & Salon",
+  //     ownerName: "Emily Rodriguez",
+  //     expirationDate: "02/12/2026",
+  //     daysRemaining: 14,
+  //     planType: "Premium Plan",
+  //   },
+  //   {
+  //     id: 4,
+  //     salonName: "Urban Style Studio",
+  //     ownerName: "David Thompson",
+  //     expirationDate: "02/15/2026",
+  //     daysRemaining: 17,
+  //     planType: "Basic Plan",
+  //   },
+  // ];
 
   const chartData: ChartDataPoint[] = [
     { month: "Jul", revenue: 385000, renewals: 320000 },
