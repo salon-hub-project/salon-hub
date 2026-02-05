@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import MetricCard from "./MetricCard";
 import RecentRenewalsWidget from "./RecentRenewalsWidget";
 import ExpirationAlertsWidget from "./ExpirationAlertsWidget";
+import { ownerApi } from "@/app/services/owner.api";
 
 interface MetricData {
   totalSalons: number;
@@ -41,18 +42,41 @@ interface ChartDataPoint {
 const DashboardInteractive = () => {
   const router = useRouter();
   const [isHydrated, setIsHydrated] = useState(false);
-
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
-
-  const metrics: MetricData = {
-    totalSalons: 247,
-    activeSubscriptions: 189,
-    expiredSubscriptions: 23,
+  const [metrics, setMetrics] = useState<MetricData>({
+    totalSalons: 0,
+    activeSubscriptions: 0,
+    expiredSubscriptions: 0,
     renewalCount: 156,
     totalRevenue: 487650.0,
     totalAppointments: 12847,
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setIsHydrated(true);
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      setIsLoading(true);
+      const [totalSalons, activeSalons, expiredSalons] = await Promise.all([
+        ownerApi.getTotalSalonsCount(),
+        ownerApi.getActiveSalonsCount(),
+        ownerApi.getExpiredSalonsCount(),
+      ]);
+
+      setMetrics((prev) => ({
+        ...prev,
+        totalSalons,
+        activeSubscriptions: activeSalons,
+        expiredSubscriptions: expiredSalons,
+      }));
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const recentRenewals: Renewal[] = [
@@ -143,21 +167,21 @@ const DashboardInteractive = () => {
       title: "Total Salons Onboarded",
       value: metrics.totalSalons,
       icon: "BuildingStorefrontIcon",
-      trend: { value: 12.5, isPositive: true },
+      //   trend: { value: 12.5, isPositive: true },
       route: "/salon-management",
     },
     {
       title: "Active Subscriptions",
       value: metrics.activeSubscriptions,
       icon: "CheckCircleIcon",
-      trend: { value: 8.3, isPositive: true },
+      // trend: { value: 8.3, isPositive: true },
       route: "/subscription-management",
     },
     {
       title: "Expired Subscriptions",
       value: metrics.expiredSubscriptions,
       icon: "XCircleIcon",
-      trend: { value: 3.2, isPositive: false },
+      // trend: { value: 3.2, isPositive: false },
       route: "/subscription-management",
     },
     {
@@ -183,7 +207,7 @@ const DashboardInteractive = () => {
     },
   ];
 
-  if (!isHydrated) {
+  if (!isHydrated || isLoading) {
     return (
       <div className="p-6 lg:p-8">
         <div className="mb-8">

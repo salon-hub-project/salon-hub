@@ -39,12 +39,11 @@ export const ownerApi = {
     }
   },
 
-  getOwnerDetails: async(id: string)=> {
-    try{
+  getOwnerDetails: async (id: string) => {
+    try {
       const res = await api.get(`/owner/${id}`);
       return res.data;
-    }
-    catch(error: any){
+    } catch (error: any) {
       showToast({
         message: "Failed to fetch owners",
         status: "error",
@@ -64,8 +63,7 @@ export const ownerApi = {
       return res.data.owner;
     } catch (error: any) {
       showToast({
-        message:
-          error?.response?.data?.message || "Failed to approve owner",
+        message: error?.response?.data?.message || "Failed to approve owner",
         status: "error",
       });
       throw error;
@@ -83,8 +81,7 @@ export const ownerApi = {
       return res.data;
     } catch (error: any) {
       showToast({
-        message:
-          error?.response?.data?.message || "Failed to update owner",
+        message: error?.response?.data?.message || "Failed to update owner",
         status: "error",
       });
       throw error;
@@ -102,8 +99,7 @@ export const ownerApi = {
       return res.data;
     } catch (error: any) {
       showToast({
-        message:
-          error?.response?.data?.message || "Failed to delete owner",
+        message: error?.response?.data?.message || "Failed to delete owner",
         status: "error",
       });
       throw error;
@@ -115,15 +111,50 @@ export const ownerApi = {
     try {
       const res = await api.post(`/renew/${ownerId}`, { months });
       showToast({
-        message: res?.data?.message || `Subscription extended by ${months} months`,
+        message:
+          res?.data?.message || `Subscription extended by ${months} months`,
         status: "success",
       });
       return res.data;
     } catch (error: any) {
       showToast({
-        message: error?.response?.data?.message || "Failed to renew subscription",
+        message:
+          error?.response?.data?.message || "Failed to renew subscription",
         status: "error",
       });
+      throw error;
+    }
+  },
+
+  // GET TOTAL SALONS COUNT
+  getTotalSalonsCount: async () => {
+    try {
+      const res = await api.get("/owner/totalsalons");
+      return res.data.totalSalons;
+    } catch (error: any) {
+      console.error("Failed to fetch total salons count:", error);
+      throw error;
+    }
+  },
+
+  // GET ACTIVE SALONS COUNT
+  getActiveSalonsCount: async () => {
+    try {
+      const res = await api.get("/owner/activesalons");
+      return res.data.totalActiveSalons;
+    } catch (error: any) {
+      console.error("Failed to fetch active salons count:", error);
+      throw error;
+    }
+  },
+
+  // GET EXPIRED SALONS COUNT
+  getExpiredSalonsCount: async () => {
+    try {
+      const res = await api.get("/owner/expiredsalons");
+      return res.data.totalExpiredSalons;
+    } catch (error: any) {
+      console.error("Failed to fetch expired salons count:", error);
       throw error;
     }
   },
