@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import SubscriptionManagementInteractive from "./components/SubscriptionManagementInteractive";
-import Sidebar from "@/app/components/Sidebar";
-import Header from "@/app/components/Header";
 
 export const metadata: Metadata = {
   title: "Subscription Management - SalonCRM SuperAdmin",
@@ -15,7 +13,7 @@ export default function SubscriptionManagementPage() {
       {/* <Sidebar /> */}
       {/* <Header /> */}
 
-      <main className="min-h-screen bg-background lg:ml-60">
+      <main className="min-h-screen bg-background ">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-8">
             <h1 className="font-heading text-3xl font-semibold text-foreground mb-2">

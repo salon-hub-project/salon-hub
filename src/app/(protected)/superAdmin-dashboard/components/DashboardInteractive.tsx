@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import MetricCard from "./MetricCard";
 import RecentRenewalsWidget from "./RecentRenewalsWidget";
 import ExpirationAlertsWidget from "./ExpirationAlertsWidget";
-import RevenueTrendChart from "./RevenueTrendChart";
 import { ownerApi } from "@/app/services/owner.api";
 
 interface MetricData {
@@ -254,7 +253,7 @@ const DashboardInteractive = () => {
         <ExpirationAlertsWidget alerts={expirationAlerts} />
       </div>
 
-      <RevenueTrendChart data={chartData} />
+      {/* <RevenueTrendChart data={chartData} /> */}
     </div>
   );
 };
