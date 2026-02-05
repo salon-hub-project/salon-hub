@@ -97,8 +97,8 @@ const CustomerDatabase = () => {
       const mappedCustomers: Customer[] = response.data.map((c: any) => ({
         id: c._id,
         name: c.fullName,
-        phone: c.userId.phoneNumber,
-        email: c.userId.email,
+        phone: c.phoneNumber,
+        email: c.email,
         gender: c.gender,
         dateOfBirth: c.DOB ? c.DOB.split("T")[0] : "",
         address: c.address || "",
@@ -240,8 +240,8 @@ const CustomerDatabase = () => {
       const mappedCustomer: Customer = {
         id: c._id,
         name: c.fullName,
-        phone: c.userId.phoneNumber,
-        email: c.userId.email,
+        phone: c.phoneNumber,
+        email: c.email,
         gender: c.gender,
         dateOfBirth: c.DOB ? c.DOB.split("T")[0] : "",
         address: c.address || "",
