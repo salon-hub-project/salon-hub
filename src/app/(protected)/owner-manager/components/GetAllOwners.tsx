@@ -114,7 +114,6 @@ const GetAllOwners = () => {
           </div>
 
           {isLoading && <Loader label="Loading owners..." />}
-          {error && <p className="text-red-500">{error}</p>}
 
           {!isLoading && owners?.length > 0 && (
             <div className="bg-card border rounded-lg overflow-hidden">
