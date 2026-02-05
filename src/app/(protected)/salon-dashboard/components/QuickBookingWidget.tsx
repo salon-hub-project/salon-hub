@@ -92,6 +92,7 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
   >([]);
   const timings = useAppSelector((state: any) => state.profile.timings);
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const dispatch = useAppDispatch();
 
   const fetchCustomers = async () => {
@@ -217,6 +218,7 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
     }
 
     console.log(values);
+    setIsSubmitting(true);
     try {
       const services = values.selectedItems
         .filter((item: any) => item.type === "service")
@@ -242,6 +244,8 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
         message: "Failed to create appointment",
         status: "error",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -406,8 +410,15 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
                 error={touched.staff ? errors.staff : undefined}
               />
 
-              <Button type="submit" variant="default" fullWidth iconName="Plus">
-                Create Booking
+              <Button
+                type="submit"
+                variant="default"
+                fullWidth
+                iconName={isSubmitting ? null : "Plus"}
+                loading={isSubmitting}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Booking Appointment..." : "Create Booking"}
               </Button>
             </Form>
           );

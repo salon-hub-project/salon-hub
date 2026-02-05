@@ -145,6 +145,7 @@ const BookingForm = ({
 
   // State for available staff, initialized with the passed staff list
   const [availableStaff, setAvailableStaff] = useState<Staff[]>(staff);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const customerOptions = customers.map((c) => ({
     value: c.id,
@@ -194,6 +195,7 @@ const BookingForm = ({
     });
 
   const handleSubmit = async (values: any, { resetForm }: any) => {
+    setIsSubmitting(true);
     try {
       if (!bookingToEdit) {
         // ✅ CREATE BOOKING (unchanged)
@@ -238,6 +240,8 @@ const BookingForm = ({
       onSuccess?.();
     } catch (error) {
       console.error("Booking update failed", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
   const today = new Date().toISOString().split("T")[0];
@@ -491,12 +495,23 @@ const BookingForm = ({
                   >
                     Cancel
                   </Button>
-                  <Button type="submit" fullWidth>
-                    {bookingToEdit
-                      ? isStaffUser
-                        ? "Reschedule Appointment"
-                        : "Update Staff"
-                      : "Create Booking"}
+                  <Button
+                    type="submit"
+                    fullWidth
+                    loading={isSubmitting}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting
+                      ? bookingToEdit
+                        ? isStaffUser
+                          ? "Rescheduling..."
+                          : "Updating..."
+                        : "Creating Booking..."
+                      : bookingToEdit
+                        ? isStaffUser
+                          ? "Reschedule Appointment"
+                          : "Update Staff"
+                        : "Create Booking"}
                   </Button>
                 </div>
               </Form>
