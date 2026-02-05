@@ -45,7 +45,7 @@ const PaymentModal = ({
             <QRCodeCanvas
               value={`SALONHUB_PAYMENT_${amount}`}
               size={180}
-              bgColor="#ffffff"
+              bgColor="#ffffff"  
               fgColor="#000000"
             />
           </div>
