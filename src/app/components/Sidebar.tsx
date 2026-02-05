@@ -164,6 +164,14 @@ const Sidebar = ({
       roles: ["salon_owner"],
     },
     {
+      label: "Dashboard",
+      path: "/superAdmin-dashboard",
+      icon: "HomeIcon",
+      tooltip:
+        "Central overview with key metrics and network health indicators",
+      roles: ["super_admin"],
+    },
+    {
       label: "Owner-Manager",
       path: "/owner-manager",
       icon: "BadgePercent",

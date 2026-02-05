@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function SubscriptionManagementPage() {
   return (
     <>
-      <Sidebar />
+      {/* <Sidebar /> */}
       {/* <Header /> */}
 
       <main className="min-h-screen bg-background lg:ml-60">
