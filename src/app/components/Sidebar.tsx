@@ -244,7 +244,7 @@ const Sidebar = ({
             </div>
           } */}
 
-          <div className="flex items-center h-16 px-4 border-b border-border">
+          <div className="flex items-center justify-center h-16 border-b border-border">
             {normalizedUserRole !== "super_admin" ? (
               <Link
                 href="/salon-dashboard"
