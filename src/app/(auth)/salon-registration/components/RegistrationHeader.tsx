@@ -1,4 +1,4 @@
-import Icon from '../../../components/AppIcon';
+import Icon from "../../../components/AppIcon";
 
 interface RegistrationHeaderProps {
   onBackClick?: () => void;
@@ -14,7 +14,11 @@ const RegistrationHeader = ({ onBackClick }: RegistrationHeaderProps) => {
             className="flex items-center justify-center w-10 h-10 rounded-md hover:bg-muted transition-smooth"
             aria-label="Go back"
           >
-            <Icon name="ArrowLeft" size={20} className="text-muted-foreground" />
+            <Icon
+              name="ArrowLeft"
+              size={20}
+              className="text-muted-foreground"
+            />
           </button>
         )}
         <div className="flex items-center justify-center w-16 h-16 rounded-lg bg-primary">
@@ -40,7 +44,8 @@ const RegistrationHeader = ({ onBackClick }: RegistrationHeaderProps) => {
         Register Your Salon
       </h1>
       <p className="text-muted-foreground">
-        Join SalonHub and start managing your salon digitally. Complete the registration form below to get started.
+        Join SalonVala and start managing your salon digitally. Complete the
+        registration form below to get started.
       </p>
     </div>
   );

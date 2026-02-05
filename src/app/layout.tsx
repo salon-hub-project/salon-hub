@@ -2,6 +2,15 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import ReduxProvider from "./providers/ReduxProvider";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Salonvala",
+  description: "Salon Management System",
+  icons: {
+    icon: "/favicon.ico",
+  },
+};
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

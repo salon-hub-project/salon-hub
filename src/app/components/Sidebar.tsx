@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import Image from "next/image";
 import Icon from "./AppIcon";
 import { useAppSelector } from "../store/hooks";
 
@@ -77,7 +78,15 @@ const Sidebar = ({
 }: SidebarProps) => {
   const pathname = usePathname();
   const router = useRouter();
-  const [collapsed, setCollapsed] = useState(isCollapsed);
+  // Initialize collapsed based on screen width
+  const [collapsed, setCollapsed] = useState(true);
+
+  useEffect(() => {
+    // Set initial state based on window size
+    if (window.innerWidth >= 1024) {
+      setCollapsed(false);
+    }
+  }, []);
 
   // Auto-expand on desktop view
   useEffect(() => {
@@ -206,7 +215,7 @@ const Sidebar = ({
   return (
     <>
       <aside
-        className={`fixed left-0 top-0 h-screen bg-card border-r border-border transition-all duration-300 z-50 ${
+        className={`fixed left-0 top-0 h-screen bg-card border-r border-border transition-all duration-300 z-[100] ${
           collapsed ? "w-16" : "w-64"
         }`}
       >
@@ -241,20 +250,38 @@ const Sidebar = ({
                 href="/salon-dashboard"
                 className="flex items-center gap-3 hover:opacity-80"
               >
-                <div className="flex items-center justify-center w-10 h-10 rounded-md bg-primary">
-                  <span className="text-white font-bold">S</span>
-                </div>
-                {!collapsed && (
-                  <span className="text-xl font-semibold">SalonHub</span>
+                {!collapsed ? (
+                  <>
+                    <Image
+                      src="/logo.png"
+                      alt="Salonvala"
+                      width={200}
+                      height={50}
+                      className="h-10 w-auto object-contain"
+                      priority
+                    />
+                  </>
+                ) : (
+                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary">
+                    <span className="text-white font-bold">S</span>
+                  </div>
                 )}
               </Link>
             ) : (
               <div className="flex items-center gap-3 cursor-default">
-                <div className="flex items-center justify-center w-10 h-10 rounded-md bg-primary">
-                  <span className="text-white font-bold">S</span>
-                </div>
-                {!collapsed && (
-                  <span className="text-xl font-semibold">SalonHub</span>
+                {!collapsed ? (
+                  <Image
+                    src="/logo.png"
+                    alt="Salonvala"
+                    width={200}
+                    height={50}
+                    className="h-10 w-auto object-contain"
+                    priority
+                  />
+                ) : (
+                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary">
+                    <span className="text-white font-bold">S</span>
+                  </div>
                 )}
               </div>
             )}
@@ -317,7 +344,7 @@ const Sidebar = ({
 
       {!collapsed && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-[90] lg:hidden"
           onClick={() => setCollapsed(true)}
         />
       )}
