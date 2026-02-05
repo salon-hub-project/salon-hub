@@ -185,27 +185,27 @@ const DashboardInteractive = () => {
       // trend: { value: 3.2, isPositive: false },
       route: "/subscription-management",
     },
-    {
-      title: "Renewal Count",
-      value: metrics.renewalCount,
-      icon: "ArrowPathIcon",
-      trend: { value: 15.7, isPositive: true },
-      route: "/renewals-management",
-    },
-    {
-      title: "Total Revenue from Renewals",
-      value: `$${metrics.totalRevenue.toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
-      icon: "CurrencyDollarIcon",
-      trend: { value: 22.4, isPositive: true },
-      route: "/revenue-analytics",
-    },
-    {
-      title: "Total Appointments",
-      value: metrics.totalAppointments.toLocaleString("en-US"),
-      icon: "CalendarDaysIcon",
-      trend: { value: 18.9, isPositive: true },
-      route: "/dashboard-overview",
-    },
+    // {
+    //   title: "Renewal Count",
+    //   value: metrics.renewalCount,
+    //   icon: "ArrowPathIcon",
+    //   trend: { value: 15.7, isPositive: true },
+    //   route: "/renewals-management",
+    // },
+    // {
+    //   title: "Total Revenue from Renewals",
+    //   value: `$${metrics.totalRevenue.toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
+    //   icon: "CurrencyDollarIcon",
+    //   trend: { value: 22.4, isPositive: true },
+    //   route: "/revenue-analytics",
+    // },
+    // {
+    //   title: "Total Appointments",
+    //   value: metrics.totalAppointments.toLocaleString("en-US"),
+    //   icon: "CalendarDaysIcon",
+    //   trend: { value: 18.9, isPositive: true },
+    //   route: "/dashboard-overview",
+    // },
   ];
 
   if (!isHydrated || isLoading) {
@@ -243,7 +243,7 @@ const DashboardInteractive = () => {
             title={card.title}
             value={card.value}
             icon={card.icon}
-            trend={card.trend}
+            // trend={card.trend}
             onClick={() => router.push(card.route)}
           />
         ))}
