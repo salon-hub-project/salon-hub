@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import MetricCard from "./MetricCard";
 import RecentRenewalsWidget from "./RecentRenewalsWidget";
 import ExpirationAlertsWidget from "./ExpirationAlertsWidget";
-import RevenueTrendChart from "./RevenueTrendChart";
 
 interface MetricData {
   totalSalons: number;
@@ -230,7 +229,7 @@ const DashboardInteractive = () => {
         <ExpirationAlertsWidget alerts={expirationAlerts} />
       </div>
 
-      <RevenueTrendChart data={chartData} />
+      {/* <RevenueTrendChart data={chartData} /> */}
     </div>
   );
 };
