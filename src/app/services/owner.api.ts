@@ -170,4 +170,15 @@ export const ownerApi = {
       throw error;
     }
   },
+
+  // GET EXPIRING SALONS
+  getExpiringSalons: async () => {
+    try {
+      const res = await api.get("/owner/expiringsalons");
+      return res.data.data;
+    } catch (error: any) {
+      console.error("Failed to fetch expiring salons:", error);
+      throw error;
+    }
+  },
 };
