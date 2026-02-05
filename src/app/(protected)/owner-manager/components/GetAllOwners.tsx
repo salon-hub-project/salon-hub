@@ -53,7 +53,7 @@ const GetAllOwners = () => {
 
   const handleRenew = (owner: any) => {
     setSelectedOwnerId(owner._id);
-    setSelectedOwnerEmail(owner.userId?.email || "");
+    setSelectedOwnerEmail(owner.user?.email || "");
     setRenewModalOpen(true);
   };
 
@@ -129,6 +129,9 @@ const GetAllOwners = () => {
                         Phone
                       </th>
                       <th className="px-4 py-3 text-left text-sm font-semibold">
+                        Total Sales
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold">
                         Status
                       </th>
                       <th className="px-4 py-3 text-left text-sm font-semibold">
@@ -145,13 +148,17 @@ const GetAllOwners = () => {
                       >
                         <td
                           className="px-4 py-3 text-sm truncate max-w-[200px]"
-                          title={owner?.userId?.email}
+                          title={owner?.user?.email}
                         >
-                          {owner?.userId?.email}
+                          {owner?.user?.email}
                         </td>
                         <td className="px-4 py-3 text-sm">
-                          {owner?.userId?.phoneNumber || "-"}
+                          {owner?.user?.phoneNumber || "-"}
                         </td>
+                         <td className="px-4 py-3 text-sm">
+                          {owner?.totalSales || "-"}
+                        </td>
+
                         <td className="px-4 py-3 text-sm">
                           {owner?.isApproved ? (
                             <span className="text-green-600 flex items-center gap-1">

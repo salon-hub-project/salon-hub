@@ -4,12 +4,13 @@ import { showToast } from "../components/ui/toast";
 /* TYPES */
 export interface Owner {
   _id: string;
-  userId: {
+  user: {
     email: string;
     phoneNumber?: string;
   };
   isApproved: boolean;
   createdAt?: string;
+  totalSales?: number;
 }
 
 export interface OwnersResponse {
