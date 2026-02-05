@@ -17,11 +17,11 @@ interface MetricData {
 }
 
 interface Renewal {
-  id: number;
+  id: string | number;
   salonName: string;
-  amount: number;
+  phoneNumber: string;
+  address: string;
   date: string;
-  status: "completed" | "pending" | "failed";
 }
 
 interface ExpirationAlert {
@@ -50,6 +50,7 @@ const DashboardInteractive = () => {
     totalRevenue: 487650.0,
     totalAppointments: 12847,
   });
+  const [recentRenewals, setRecentRenewals] = useState<Renewal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -60,10 +61,16 @@ const DashboardInteractive = () => {
   const fetchDashboardData = async () => {
     try {
       setIsLoading(true);
-      const [totalSalons, activeSalons, expiredSalons] = await Promise.all([
+      const [
+        totalSalons,
+        activeSalons,
+        expiredSalons,
+        recentOnboardedResponse,
+      ] = await Promise.all([
         ownerApi.getTotalSalonsCount(),
         ownerApi.getActiveSalonsCount(),
         ownerApi.getExpiredSalonsCount(),
+        ownerApi.getRecentOnboardedSalons(),
       ]);
 
       setMetrics((prev) => ({
@@ -72,50 +79,32 @@ const DashboardInteractive = () => {
         activeSubscriptions: activeSalons,
         expiredSubscriptions: expiredSalons,
       }));
+
+      // Map API data to Renewal format
+      if (recentOnboardedResponse && Array.isArray(recentOnboardedResponse)) {
+        const mappedRenewals: Renewal[] = recentOnboardedResponse.map(
+          (item: any) => ({
+            id: item._id,
+            salonName: item.user?.email || "Unknown Salon",
+            phoneNumber: item.user?.phoneNumber || "N/A",
+            address: item.user?.address || "N/A",
+            date: item.createdAt
+              ? new Date(item.createdAt).toLocaleDateString("en-US", {
+                  month: "2-digit",
+                  day: "2-digit",
+                  year: "numeric",
+                })
+              : "N/A",
+          }),
+        );
+        setRecentRenewals(mappedRenewals);
+      }
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
     } finally {
       setIsLoading(false);
     }
   };
-
-  const recentRenewals: Renewal[] = [
-    {
-      id: 1,
-      salonName: "Glamour Studio Downtown",
-      amount: 2499.99,
-      date: "01/28/2026",
-      status: "completed",
-    },
-    {
-      id: 2,
-      salonName: "Elite Hair & Beauty",
-      amount: 1999.99,
-      date: "01/28/2026",
-      status: "completed",
-    },
-    {
-      id: 3,
-      salonName: "Luxe Salon & Spa",
-      amount: 3499.99,
-      date: "01/27/2026",
-      status: "pending",
-    },
-    {
-      id: 4,
-      salonName: "Beauty Haven",
-      amount: 1499.99,
-      date: "01/27/2026",
-      status: "completed",
-    },
-    {
-      id: 5,
-      salonName: "Style Lounge",
-      amount: 1999.99,
-      date: "01/26/2026",
-      status: "failed",
-    },
-  ];
 
   const expirationAlerts: ExpirationAlert[] = [
     {

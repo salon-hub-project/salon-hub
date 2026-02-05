@@ -158,4 +158,15 @@ export const ownerApi = {
       throw error;
     }
   },
+
+  // GET RECENT ONBOARDED SALONS
+  getRecentOnboardedSalons: async () => {
+    try {
+      const res = await api.get("/owner/recentonboardedsalons");
+      return res.data.data;
+    } catch (error: any) {
+      console.error("Failed to fetch recent onboarded salons:", error);
+      throw error;
+    }
+  },
 };
