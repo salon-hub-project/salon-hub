@@ -1,15 +1,18 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import Icon from '@/app/components/AppIcon';
-import RenewalStatsCard from './RenewalStatsCard';
-import RenewalFilters from './RenewalFilters';
-import RenewalsTable from './RenewalsTable';
-import RenewalsMobileCard from './RenewalsMobileCard';
-import RenewalDetailsModal from './RenewalDetailsModal';
-import BulkActionsBar from './BulkActionsBar';
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAppSelector } from "@/app/store/hooks";
+import { normalizeRole } from "@/app/utils/normalizeRole";
+import Icon from "@/app/components/AppIcon";
+import RenewalStatsCard from "./RenewalStatsCard";
+import RenewalFilters from "./RenewalFilters";
+import RenewalsTable from "./RenewalsTable";
+import RenewalsMobileCard from "./RenewalsMobileCard";
+import RenewalDetailsModal from "./RenewalDetailsModal";
+import BulkActionsBar from "./BulkActionsBar";
 // import Pagination from './pagination';
-import Pagination from '@/app/components/Pagination';
+import Pagination from "@/app/components/Pagination";
 
 interface PaymentHistory {
   id: number;
@@ -29,7 +32,7 @@ interface RenewalRecord {
   amount: number;
   paymentMethod: string;
   renewalDate: string;
-  status: 'overdue' | 'upcoming' | 'completed' | 'pending';
+  status: "overdue" | "upcoming" | "completed" | "pending";
   subscriptionStartDate: string;
   subscriptionEndDate: string;
   autoRenewal: boolean;
@@ -40,15 +43,30 @@ interface RenewalRecord {
 
 const RenewalsInteractive = () => {
   const [isHydrated, setIsHydrated] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState('all');
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('all');
-  const [selectedPlanType, setSelectedPlanType] = useState('all');
-  const [dateRange, setDateRange] = useState({ start: '', end: '' });
-  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState("all");
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("all");
+  const [selectedPlanType, setSelectedPlanType] = useState("all");
+  const [dateRange, setDateRange] = useState({ start: "", end: "" });
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedRenewals, setSelectedRenewals] = useState<number[]>([]);
-  const [selectedRenewal, setSelectedRenewal] = useState<RenewalRecord | null>(null);
+  const [selectedRenewal, setSelectedRenewal] = useState<RenewalRecord | null>(
+    null,
+  );
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const router = useRouter();
+  const authUser = useAppSelector((state) => state.auth.user);
+
+  const effectiveRole = Array.isArray(authUser?.role)
+    ? authUser?.role[0]
+    : (authUser?.role ?? "salon_owner");
+  const normalizedRole = normalizeRole(effectiveRole);
+
+  useEffect(() => {
+    if (normalizedRole !== "SUPERADMIN") {
+      router.replace("/salon-dashboard");
+    }
+  }, [normalizedRole, router]);
 
   useEffect(() => {
     setIsHydrated(true);
@@ -72,10 +90,28 @@ const RenewalsInteractive = () => {
       renewalCount: 3,
       lifetimePayment: 897,
       paymentHistory: [
-        { id: 1, date: "02/15/2025", amount: 299, method: "credit_card", status: "completed" },
-        { id: 2, date: "02/15/2024", amount: 299, method: "credit_card", status: "completed" },
-        { id: 3, date: "02/15/2023", amount: 299, method: "credit_card", status: "completed" }
-      ]
+        {
+          id: 1,
+          date: "02/15/2025",
+          amount: 299,
+          method: "credit_card",
+          status: "completed",
+        },
+        {
+          id: 2,
+          date: "02/15/2024",
+          amount: 299,
+          method: "credit_card",
+          status: "completed",
+        },
+        {
+          id: 3,
+          date: "02/15/2023",
+          amount: 299,
+          method: "credit_card",
+          status: "completed",
+        },
+      ],
     },
     {
       id: 2,
@@ -94,9 +130,21 @@ const RenewalsInteractive = () => {
       renewalCount: 2,
       lifetimePayment: 1198,
       paymentHistory: [
-        { id: 1, date: "01/20/2025", amount: 599, method: "bank_transfer", status: "completed" },
-        { id: 2, date: "01/20/2024", amount: 599, method: "bank_transfer", status: "completed" }
-      ]
+        {
+          id: 1,
+          date: "01/20/2025",
+          amount: 599,
+          method: "bank_transfer",
+          status: "completed",
+        },
+        {
+          id: 2,
+          date: "01/20/2024",
+          amount: 599,
+          method: "bank_transfer",
+          status: "completed",
+        },
+      ],
     },
     {
       id: 3,
@@ -115,11 +163,35 @@ const RenewalsInteractive = () => {
       renewalCount: 4,
       lifetimePayment: 596,
       paymentHistory: [
-        { id: 1, date: "03/10/2025", amount: 149, method: "paypal", status: "completed" },
-        { id: 2, date: "03/10/2024", amount: 149, method: "paypal", status: "completed" },
-        { id: 3, date: "03/10/2023", amount: 149, method: "paypal", status: "completed" },
-        { id: 4, date: "03/10/2022", amount: 149, method: "paypal", status: "completed" }
-      ]
+        {
+          id: 1,
+          date: "03/10/2025",
+          amount: 149,
+          method: "paypal",
+          status: "completed",
+        },
+        {
+          id: 2,
+          date: "03/10/2024",
+          amount: 149,
+          method: "paypal",
+          status: "completed",
+        },
+        {
+          id: 3,
+          date: "03/10/2023",
+          amount: 149,
+          method: "paypal",
+          status: "completed",
+        },
+        {
+          id: 4,
+          date: "03/10/2022",
+          amount: 149,
+          method: "paypal",
+          status: "completed",
+        },
+      ],
     },
     {
       id: 4,
@@ -138,8 +210,14 @@ const RenewalsInteractive = () => {
       renewalCount: 1,
       lifetimePayment: 299,
       paymentHistory: [
-        { id: 1, date: "02/28/2025", amount: 299, method: "debit_card", status: "completed" }
-      ]
+        {
+          id: 1,
+          date: "02/28/2025",
+          amount: 299,
+          method: "debit_card",
+          status: "completed",
+        },
+      ],
     },
     {
       id: 5,
@@ -158,12 +236,42 @@ const RenewalsInteractive = () => {
       renewalCount: 5,
       lifetimePayment: 745,
       paymentHistory: [
-        { id: 1, date: "01/05/2026", amount: 149, method: "credit_card", status: "completed" },
-        { id: 2, date: "01/05/2025", amount: 149, method: "credit_card", status: "completed" },
-        { id: 3, date: "01/05/2024", amount: 149, method: "credit_card", status: "completed" },
-        { id: 4, date: "01/05/2023", amount: 149, method: "credit_card", status: "completed" },
-        { id: 5, date: "01/05/2022", amount: 149, method: "credit_card", status: "completed" }
-      ]
+        {
+          id: 1,
+          date: "01/05/2026",
+          amount: 149,
+          method: "credit_card",
+          status: "completed",
+        },
+        {
+          id: 2,
+          date: "01/05/2025",
+          amount: 149,
+          method: "credit_card",
+          status: "completed",
+        },
+        {
+          id: 3,
+          date: "01/05/2024",
+          amount: 149,
+          method: "credit_card",
+          status: "completed",
+        },
+        {
+          id: 4,
+          date: "01/05/2023",
+          amount: 149,
+          method: "credit_card",
+          status: "completed",
+        },
+        {
+          id: 5,
+          date: "01/05/2022",
+          amount: 149,
+          method: "credit_card",
+          status: "completed",
+        },
+      ],
     },
     {
       id: 6,
@@ -182,9 +290,21 @@ const RenewalsInteractive = () => {
       renewalCount: 2,
       lifetimePayment: 1198,
       paymentHistory: [
-        { id: 1, date: "03/25/2025", amount: 599, method: "bank_transfer", status: "completed" },
-        { id: 2, date: "03/25/2024", amount: 599, method: "bank_transfer", status: "completed" }
-      ]
+        {
+          id: 1,
+          date: "03/25/2025",
+          amount: 599,
+          method: "bank_transfer",
+          status: "completed",
+        },
+        {
+          id: 2,
+          date: "03/25/2024",
+          amount: 599,
+          method: "bank_transfer",
+          status: "completed",
+        },
+      ],
     },
     {
       id: 7,
@@ -203,10 +323,28 @@ const RenewalsInteractive = () => {
       renewalCount: 3,
       lifetimePayment: 897,
       paymentHistory: [
-        { id: 1, date: "02/08/2025", amount: 299, method: "paypal", status: "completed" },
-        { id: 2, date: "02/08/2024", amount: 299, method: "paypal", status: "completed" },
-        { id: 3, date: "02/08/2023", amount: 299, method: "paypal", status: "completed" }
-      ]
+        {
+          id: 1,
+          date: "02/08/2025",
+          amount: 299,
+          method: "paypal",
+          status: "completed",
+        },
+        {
+          id: 2,
+          date: "02/08/2024",
+          amount: 299,
+          method: "paypal",
+          status: "completed",
+        },
+        {
+          id: 3,
+          date: "02/08/2023",
+          amount: 299,
+          method: "paypal",
+          status: "completed",
+        },
+      ],
     },
     {
       id: 8,
@@ -225,8 +363,14 @@ const RenewalsInteractive = () => {
       renewalCount: 1,
       lifetimePayment: 149,
       paymentHistory: [
-        { id: 1, date: "01/15/2025", amount: 149, method: "credit_card", status: "completed" }
-      ]
+        {
+          id: 1,
+          date: "01/15/2025",
+          amount: 149,
+          method: "credit_card",
+          status: "completed",
+        },
+      ],
     },
     {
       id: 9,
@@ -245,11 +389,35 @@ const RenewalsInteractive = () => {
       renewalCount: 4,
       lifetimePayment: 2396,
       paymentHistory: [
-        { id: 1, date: "03/18/2025", amount: 599, method: "debit_card", status: "completed" },
-        { id: 2, date: "03/18/2024", amount: 599, method: "debit_card", status: "completed" },
-        { id: 3, date: "03/18/2023", amount: 599, method: "debit_card", status: "completed" },
-        { id: 4, date: "03/18/2022", amount: 599, method: "debit_card", status: "completed" }
-      ]
+        {
+          id: 1,
+          date: "03/18/2025",
+          amount: 599,
+          method: "debit_card",
+          status: "completed",
+        },
+        {
+          id: 2,
+          date: "03/18/2024",
+          amount: 599,
+          method: "debit_card",
+          status: "completed",
+        },
+        {
+          id: 3,
+          date: "03/18/2023",
+          amount: 599,
+          method: "debit_card",
+          status: "completed",
+        },
+        {
+          id: 4,
+          date: "03/18/2022",
+          amount: 599,
+          method: "debit_card",
+          status: "completed",
+        },
+      ],
     },
     {
       id: 10,
@@ -268,9 +436,21 @@ const RenewalsInteractive = () => {
       renewalCount: 2,
       lifetimePayment: 598,
       paymentHistory: [
-        { id: 1, date: "02/22/2025", amount: 299, method: "bank_transfer", status: "completed" },
-        { id: 2, date: "02/22/2024", amount: 299, method: "bank_transfer", status: "completed" }
-      ]
+        {
+          id: 1,
+          date: "02/22/2025",
+          amount: 299,
+          method: "bank_transfer",
+          status: "completed",
+        },
+        {
+          id: 2,
+          date: "02/22/2024",
+          amount: 299,
+          method: "bank_transfer",
+          status: "completed",
+        },
+      ],
     },
     {
       id: 11,
@@ -289,10 +469,28 @@ const RenewalsInteractive = () => {
       renewalCount: 3,
       lifetimePayment: 447,
       paymentHistory: [
-        { id: 1, date: "03/05/2025", amount: 149, method: "paypal", status: "completed" },
-        { id: 2, date: "03/05/2024", amount: 149, method: "paypal", status: "completed" },
-        { id: 3, date: "03/05/2023", amount: 149, method: "paypal", status: "completed" }
-      ]
+        {
+          id: 1,
+          date: "03/05/2025",
+          amount: 149,
+          method: "paypal",
+          status: "completed",
+        },
+        {
+          id: 2,
+          date: "03/05/2024",
+          amount: 149,
+          method: "paypal",
+          status: "completed",
+        },
+        {
+          id: 3,
+          date: "03/05/2023",
+          amount: 149,
+          method: "paypal",
+          status: "completed",
+        },
+      ],
     },
     {
       id: 12,
@@ -311,20 +509,55 @@ const RenewalsInteractive = () => {
       renewalCount: 5,
       lifetimePayment: 2995,
       paymentHistory: [
-        { id: 1, date: "01/28/2026", amount: 599, method: "credit_card", status: "completed" },
-        { id: 2, date: "01/28/2025", amount: 599, method: "credit_card", status: "completed" },
-        { id: 3, date: "01/28/2024", amount: 599, method: "credit_card", status: "completed" },
-        { id: 4, date: "01/28/2023", amount: 599, method: "credit_card", status: "completed" },
-        { id: 5, date: "01/28/2022", amount: 599, method: "credit_card", status: "completed" }
-      ]
-    }
+        {
+          id: 1,
+          date: "01/28/2026",
+          amount: 599,
+          method: "credit_card",
+          status: "completed",
+        },
+        {
+          id: 2,
+          date: "01/28/2025",
+          amount: 599,
+          method: "credit_card",
+          status: "completed",
+        },
+        {
+          id: 3,
+          date: "01/28/2024",
+          amount: 599,
+          method: "credit_card",
+          status: "completed",
+        },
+        {
+          id: 4,
+          date: "01/28/2023",
+          amount: 599,
+          method: "credit_card",
+          status: "completed",
+        },
+        {
+          id: 5,
+          date: "01/28/2022",
+          amount: 599,
+          method: "credit_card",
+          status: "completed",
+        },
+      ],
+    },
   ];
 
   const filteredRenewals = mockRenewals.filter((renewal) => {
-    const matchesStatus = selectedStatus === 'all' || renewal.status === selectedStatus;
-    const matchesPayment = selectedPaymentMethod === 'all' || renewal.paymentMethod === selectedPaymentMethod;
-    const matchesPlan = selectedPlanType === 'all' || renewal.planType === selectedPlanType;
-    const matchesSearch = searchQuery === '' || 
+    const matchesStatus =
+      selectedStatus === "all" || renewal.status === selectedStatus;
+    const matchesPayment =
+      selectedPaymentMethod === "all" ||
+      renewal.paymentMethod === selectedPaymentMethod;
+    const matchesPlan =
+      selectedPlanType === "all" || renewal.planType === selectedPlanType;
+    const matchesSearch =
+      searchQuery === "" ||
       renewal.salonName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       renewal.ownerName.toLowerCase().includes(searchQuery.toLowerCase());
 
@@ -336,18 +569,26 @@ const RenewalsInteractive = () => {
       matchesDateRange = renewalDate >= startDate && renewalDate <= endDate;
     }
 
-    return matchesStatus && matchesPayment && matchesPlan && matchesSearch && matchesDateRange;
+    return (
+      matchesStatus &&
+      matchesPayment &&
+      matchesPlan &&
+      matchesSearch &&
+      matchesDateRange
+    );
   });
 
   const totalPages = Math.ceil(filteredRenewals.length / itemsPerPage);
   const paginatedRenewals = filteredRenewals.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   const handleSelectRenewal = (id: number) => {
     setSelectedRenewals((prev) =>
-      prev.includes(id) ? prev.filter((renewalId) => renewalId !== id) : [...prev, id]
+      prev.includes(id)
+        ? prev.filter((renewalId) => renewalId !== id)
+        : [...prev, id],
     );
   };
 
@@ -360,7 +601,7 @@ const RenewalsInteractive = () => {
   };
 
   const handleExport = () => {
-    alert('Exporting renewal data...');
+    alert("Exporting renewal data...");
   };
 
   const handleConfirmPayments = () => {
@@ -375,10 +616,12 @@ const RenewalsInteractive = () => {
 
   const stats = {
     totalRenewals: mockRenewals.length,
-    overdueRenewals: mockRenewals.filter(r => r.status === 'overdue').length,
-    upcomingRenewals: mockRenewals.filter(r => r.status === 'upcoming').length,
-    completedRenewals: mockRenewals.filter(r => r.status === 'completed').length,
-    totalRevenue: mockRenewals.reduce((sum, r) => sum + r.amount, 0)
+    overdueRenewals: mockRenewals.filter((r) => r.status === "overdue").length,
+    upcomingRenewals: mockRenewals.filter((r) => r.status === "upcoming")
+      .length,
+    completedRenewals: mockRenewals.filter((r) => r.status === "completed")
+      .length,
+    totalRevenue: mockRenewals.reduce((sum, r) => sum + r.amount, 0),
   };
 
   if (!isHydrated) {
@@ -386,7 +629,10 @@ const RenewalsInteractive = () => {
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="bg-card rounded-lg border border-border p-6 animate-pulse">
+            <div
+              key={i}
+              className="bg-card rounded-lg border border-border p-6 animate-pulse"
+            >
               <div className="h-4 bg-muted rounded w-1/2 mb-4"></div>
               <div className="h-8 bg-muted rounded w-3/4"></div>
             </div>
@@ -408,7 +654,9 @@ const RenewalsInteractive = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold text-foreground mb-2">Renewals Management</h1>
+          <h1 className="text-3xl font-semibold text-foreground mb-2">
+            Renewals Management
+          </h1>
           <p className="text-text-secondary">
             Track and process subscription renewals across all salon locations
           </p>
@@ -489,7 +737,7 @@ const RenewalsInteractive = () => {
           page={currentPage}
           totalPages={totalPages}
           onPageChange={setCurrentPage}
-        //   itemsPerPage={itemsPerPage}
+          //   itemsPerPage={itemsPerPage}
         />
       )}
 

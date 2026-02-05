@@ -6,6 +6,8 @@ import MetricCard from "./MetricCard";
 import RecentRenewalsWidget from "./RecentRenewalsWidget";
 import ExpirationAlertsWidget from "./ExpirationAlertsWidget";
 import { ownerApi } from "@/app/services/owner.api";
+import { useAppSelector } from "@/app/store/hooks";
+import { normalizeRole } from "@/app/utils/normalizeRole";
 
 interface MetricData {
   totalSalons: number;
@@ -55,6 +57,18 @@ const DashboardInteractive = () => {
     [],
   );
   const [isLoading, setIsLoading] = useState(true);
+
+  const authUser = useAppSelector((state) => state.auth.user);
+  const effectiveRole = Array.isArray(authUser?.role)
+    ? authUser?.role[0]
+    : (authUser?.role ?? "salon_owner");
+  const normalizedRole = normalizeRole(effectiveRole);
+
+  useEffect(() => {
+    if (normalizedRole !== "SUPERADMIN") {
+      router.replace("/salon-dashboard");
+    }
+  }, [normalizedRole, router]);
 
   useEffect(() => {
     setIsHydrated(true);

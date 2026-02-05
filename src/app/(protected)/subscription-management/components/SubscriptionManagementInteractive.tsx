@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { useAppSelector } from "@/app/store/hooks";
+import { normalizeRole } from "@/app/utils/normalizeRole";
 import SubscriptionFilters from "./SubscriptionFilters";
 import SubscriptionDetailsModal from "./SubscriptionDetailsModal";
 import BulkActionsBar from "./BulkActionsBar";
@@ -429,6 +432,19 @@ const SubscriptionManagementInteractive = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const router = useRouter();
+  const authUser = useAppSelector((state) => state.auth.user);
+
+  const effectiveRole = Array.isArray(authUser?.role)
+    ? authUser?.role[0]
+    : (authUser?.role ?? "salon_owner");
+  const normalizedRole = normalizeRole(effectiveRole);
+
+  useEffect(() => {
+    if (normalizedRole !== "SUPERADMIN") {
+      router.replace("/salon-dashboard");
+    }
+  }, [normalizedRole, router]);
 
   useEffect(() => {
     setIsHydrated(true);
