@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function DashboardOverviewPage() {
   return (
     <>
-      <main className="lg:ml-60 min-h-screen bg-background">
+      <main className="min-h-screen bg-background">
         <DashboardInteractive />
       </main>
     </>
