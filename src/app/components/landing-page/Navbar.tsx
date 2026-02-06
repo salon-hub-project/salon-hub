@@ -105,12 +105,22 @@ export function Navbar() {
                 </a>
               ))} */}
               <div className="pt-4 space-y-2">
-                <Button variant="outline" className="w-full">
+                {/* <Button variant="outline" className="w-full">
                   Login
-                </Button>
-                <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white">
+                </Button> */}
+                {/* <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white">
                   Start Free Trial
-                </Button>
+                </Button> */}
+                <Link href="/salon-login">
+                  <Button variant="ghost" className="text-white">
+                    Login
+                  </Button>
+                </Link>
+                <Link href="/salon-registration">
+                  <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white">
+                    Register
+                  </Button>
+                </Link>
               </div>
             </div>
           </motion.div>

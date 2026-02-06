@@ -1,10 +1,21 @@
 "use client";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { Button } from "./ui/button";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles, X, Mail, Phone } from "lucide-react";
 import Link from "next/link";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 
 export function CTA() {
+  const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const contactEmail = " support@salonvala.com";
+  const contactNumber = " +91 7987421625";
   return (
     <section className="py-20 bg-gradient-to-br from-purple-600 to-pink-600 relative overflow-hidden">
       {/* Background Pattern */}
@@ -50,7 +61,7 @@ export function CTA() {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="text-xl lg:text-2xl text-white/90 mb-12"
           >
-            Join 1,000+ salon owners who are already growing their business with
+            Join 100+ salon owners who are already growing their business with
             Salonvala.
             <br />
             Start your free 3-month trial today — no credit card required.
@@ -77,6 +88,7 @@ export function CTA() {
               size="lg"
               variant="outline"
               className="border-2 border-white text-white hover:bg-white/10 px-8 py-6 text-lg font-semibold"
+              onClick={() => setIsDemoModalOpen(true)}
             >
               Schedule a Demo
             </Button>
@@ -123,6 +135,99 @@ export function CTA() {
           </motion.div>
         </motion.div>
       </div>
+
+      {/* Demo Modal */}
+      {mounted &&
+        createPortal(
+          <AnimatePresence>
+            {isDemoModalOpen && (
+              <>
+                {/* Backdrop */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setIsDemoModalOpen(false)}
+                  className="fixed inset-0 bg-black/50 z-[9999] backdrop-blur-sm"
+                />
+
+                {/* Modal Container */}
+                <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 pointer-events-none">
+                  {/* Modal */}
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                    className="w-full max-w-md bg-white rounded-2xl shadow-2xl flex flex-col pointer-events-auto"
+                  >
+                    {/* Header */}
+                    <div className="flex items-center justify-between p-6 border-b">
+                      <h2 className="text-2xl font-bold text-gray-900">
+                        Contact Us
+                      </h2>
+                      <button
+                        onClick={() => setIsDemoModalOpen(false)}
+                        className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                      >
+                        <X className="w-5 h-5 text-gray-600" />
+                      </button>
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-6 space-y-6">
+                      <p className="text-gray-600 text-center">
+                        Get in touch with us to schedule a demo
+                      </p>
+
+                      {/* Email */}
+                      <div className="flex items-center gap-4 p-4 bg-purple-50 rounded-lg">
+                        <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
+                          <Mail className="w-6 h-6 text-purple-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500 mb-1">Email</p>
+                          <a
+                            href={`mailto:${contactEmail}`}
+                            className="text-lg font-semibold text-purple-600 hover:underline"
+                          >
+                            {contactEmail}
+                          </a>
+                        </div>
+                      </div>
+
+                      {/* Phone */}
+                      <div className="flex items-center gap-4 p-4 bg-pink-50 rounded-lg">
+                        <div className="w-12 h-12 rounded-full bg-pink-100 flex items-center justify-center">
+                          <Phone className="w-6 h-6 text-pink-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500 mb-1">Phone</p>
+                          <a
+                            href={`tel:${contactNumber}`}
+                            className="text-lg font-semibold text-pink-600 hover:underline"
+                          >
+                            {contactNumber}
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Footer */}
+                    <div className="p-6 border-t">
+                      <Button
+                        onClick={() => setIsDemoModalOpen(false)}
+                        className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                      >
+                        Close
+                      </Button>
+                    </div>
+                  </motion.div>
+                </div>
+              </>
+            )}
+          </AnimatePresence>,
+          document.body
+        )}
     </section>
   );
 }

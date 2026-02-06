@@ -97,7 +97,7 @@ export function HeroSection() {
                   ))}
                 </div>
                 <div className="text-sm text-gray-600">
-                  <div className="font-semibold">1,000+ Salons</div>
+                  <div className="font-semibold">100+ Salons</div>
                   <div className="text-gray-500">Trust Salonvala</div>
                 </div>
               </div>

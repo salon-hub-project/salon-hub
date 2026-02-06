@@ -28,12 +28,12 @@ const businesses = [
     description: "Tailored for specialty beauty services",
     color: "from-fuchsia-500 to-pink-500",
   },
-  {
-    icon: Building2,
-    title: "Multi-branch Salon Chains",
-    description: "Scale across multiple locations",
-    color: "from-purple-500 to-indigo-500",
-  },
+  // {
+  //   icon: Building2,
+  //   title: "Multi-branch Salon Chains",
+  //   description: "Scale across multiple locations",
+  //   color: "from-purple-500 to-indigo-500",
+  // },
 ];
 
 export function TargetAudience() {
@@ -56,7 +56,7 @@ export function TargetAudience() {
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {businesses.map((business, index) => (
             <motion.div
               key={business.title}

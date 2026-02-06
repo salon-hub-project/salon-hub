@@ -160,9 +160,9 @@ export function Footer() {
               >
                 Terms of Service
               </button>
-              <a href="#" className="hover:text-purple-400 transition-colors">
+              {/* <a href="#" className="hover:text-purple-400 transition-colors">
                 Cookie Policy
-              </a>
+              </a> */}
             </div>
           </div>
         </div>
