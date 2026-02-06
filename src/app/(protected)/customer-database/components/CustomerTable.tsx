@@ -272,7 +272,7 @@ const CustomerTable = ({
                 </td>
                 <td className="px-6 py-4">
                   <div className="text-sm text-foreground">
-                    {customer.phone}
+                    {customer.phone || "-"}
                   </div>
                   {customer.email && (
                     <div className="text-xs text-muted-foreground">

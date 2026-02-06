@@ -20,8 +20,8 @@ const RenewPlan = () => {
       duration1: "/ Per Months",
       description: "Perfect for small salons just getting started.",
       features: [
-        { label: "50 WhatsApp Messages", icon: "MessageSquare" },
-
+        { label: "100 WhatsApp Messages", icon: "MessageSquare" },
+        { label: "500 Appointment Messages", icon: "MessageSquare" },
         { label: "Unlimited Customers", icon: "Users" },
         { label: "3 Combo Offers", icon: "BadgePercent" },
         { label: "10 Staff Members", icon: "UserCog" },
@@ -37,6 +37,7 @@ const RenewPlan = () => {
       description: "The ultimate solution for high-growth salons.",
       features: [
         { label: "150 WhatsApp Messages", icon: "MessageSquare" },
+        { label: "1000 Appointment Messages", icon: "MessageSquare" },
         { label: "Unlimited Customers", icon: "Users" },
         { label: "Unlimited Combo Offers", icon: "BadgePercent" },
         { label: "Unlimited Staff Members", icon: "UserCog" },
