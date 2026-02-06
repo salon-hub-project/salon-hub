@@ -52,7 +52,7 @@ const RenewPlan = () => {
       {/* Header Section */}
       <div className="text-center space-y-4">
         <h1 className="text-4xl font-extrabold text-foreground tracking-tight sm:text-5xl">
-          Renew Your <span className="text-primary">SalonHub</span> Plan
+          Renew Your <span className="text-primary">Salonvala</span> Plan
         </h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
           Choose the best plan to keep your salon running smoothly and provide
