@@ -2,7 +2,7 @@
 
 import React from "react";
 import { X } from "lucide-react";
-import { QRCodeCanvas } from "qrcode.react";
+import Image from "next/image";
 import Button from "@/app/components/ui/Button";
 
 interface QrPaymentModalProps {
@@ -21,8 +21,8 @@ const PaymentModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="relative w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="relative w-full max-w-sm rounded-3xl bg-white p-4 shadow-2xl">
         {/* Close */}
         <button
           onClick={onClose}
@@ -35,27 +35,45 @@ const PaymentModal = ({
         <div className="text-center mb-4">
           <h2 className="text-xl font-bold">{title}</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Amount: <span className="font-semibold">{amount}</span>
+            Pay Amount: <span className="font-semibold">{amount}</span>
           </p>
         </div>
 
-        {/* QR */}
-        <div className="flex justify-center my-6">
-          <div className="rounded-2xl border p-4">
-            <QRCodeCanvas
-              value={`SALONHUB_PAYMENT_${amount}`}
-              size={180}
-              bgColor="#ffffff"
-              fgColor="#000000"
+        {/* Merchant Info */}
+        {/* <div className="text-center mb-3">
+          <p className="text-sm font-semibold">MAGICALSWAP PRIVATE LIMITED</p>
+          <p className="text-xs text-muted-foreground">Merchant ID: 62916124</p>
+        </div> */}
+
+        {/* QR Image */}
+        <div className="flex justify-center my-5">
+          <div className="rounded-2xl border p-4 bg-gray-50">
+            <Image
+              src="/payment.image.jpeg" // place image in /public
+              alt="UPI QR Code"
+              width={220}
+              height={220}
+              className="rounded-xl"
             />
           </div>
         </div>
 
-        {/* Footer */}
-        <p className="text-xs text-center text-muted-foreground mb-4">
-          This is a dummy QR code for demo purposes only.
-        </p>
+        {/* Instructions */}
+        <div className="space-y-2 text-center mb-5">
+          <p className="text-sm text-muted-foreground">
+            Scan this QR using any UPI app (GPay, PhonePe, Paytm, BHIM).
+          </p>
 
+          <p className="text-sm font-medium text-gray-800">
+            After payment, please share the screenshot on
+          </p>
+
+          <p className="text-base font-bold text-primary">
+            📲 7987421625
+          </p>
+        </div>
+
+        {/* Footer */}
         <Button className="w-full rounded-xl" onClick={onClose}>
           Close
         </Button>

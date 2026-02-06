@@ -20,7 +20,7 @@ const RenewPlan = () => {
       duration1: "/ Per Months",
       description: "Perfect for small salons just getting started.",
       features: [
-        { label: "100 WhatsApp Messages", icon: "MessageSquare" },
+        { label: "100 Combo-Offer Messages", icon: "MessageSquare" },
         { label: "500 Appointment Messages", icon: "MessageSquare" },
         { label: "Unlimited Customers", icon: "Users" },
         { label: "3 Combo Offers", icon: "BadgePercent" },
@@ -36,7 +36,7 @@ const RenewPlan = () => {
       duration2: "",
       description: "The ultimate solution for high-growth salons.",
       features: [
-        { label: "150 WhatsApp Messages", icon: "MessageSquare" },
+        { label: "150 Combo-Offer Messages", icon: "MessageSquare" },
         { label: "1000 Appointment Messages", icon: "MessageSquare" },
         { label: "Unlimited Customers", icon: "Users" },
         { label: "Unlimited Combo Offers", icon: "BadgePercent" },
@@ -178,14 +178,14 @@ const RenewPlan = () => {
 
           <ul className="w-full flex flex-col gap-4 mt-5">
             <li className="flex justify-between items-center w-full p-4 rounded-xl border border-gray-100">
-              <span>50 WhatsApp Messages</span>
+              <span>50 Combo-Offer Messages</span>
               <span className="flex items-center gap-3 font-semibold">
-                100INR
+                100 INR
                 <button
                   className="py-2 px-4 rounded-2xl bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-sm font-semibold text-white"
                   onClick={() => {
                     setQrAmount("₹100");
-                    setQrTitle("50 WhatsApp Messages");
+                    setQrTitle("50 Combo-Offer Messages");
                     setQrOpen(true);
                   }}
                 >
@@ -195,14 +195,14 @@ const RenewPlan = () => {
             </li>
 
             <li className="flex justify-between items-center w-full p-4 rounded-xl border border-gray-100">
-              <span>100 WhatsApp Messages</span>
+              <span>100 Appointment Messages</span>
               <span className="flex items-center gap-3 font-semibold">
-                200INR
+                100 INR
                 <button
                   className="py-2 px-4 rounded-2xl bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-sm font-semibold text-white"
                   onClick={() => {
-                    setQrAmount("₹200");
-                    setQrTitle("100 WhatsApp Messages");
+                    setQrAmount("₹100");
+                    setQrTitle("100 Appointment Messages");
                     setQrOpen(true);
                   }}
                 >
@@ -211,7 +211,7 @@ const RenewPlan = () => {
               </span>
             </li>
 
-            <li className="flex justify-between items-center w-full p-4 rounded-xl border border-gray-100">
+            {/* <li className="flex justify-between items-center w-full p-4 rounded-xl border border-gray-100">
               <span>150 WhatsApp Messages</span>
               <span className="flex items-center gap-3 font-semibold">
                 300INR
@@ -226,7 +226,7 @@ const RenewPlan = () => {
                   Recharge Now
                 </button>
               </span>
-            </li>
+            </li> */}
           </ul>
         </div>
 
@@ -242,33 +242,26 @@ const RenewPlan = () => {
               </span>
             </center>
 
-            <p className="mt-5 text-white leading-relaxed">
-              The ultimate solution for high-growth salons.
+            <p className="mt-1 text-white leading-relaxed text-sm">
+              A fully customized premium plan designed exclusively for high-end
+              and multi-branch salons. Pricing and features are tailored based
+              on your business size, usage, and growth goals.
             </p>
           </div>
 
           {/* Features */}
           <div className="flex-grow space-y-6 mb-10 px-5">
-            <ul className="space-y-4">
-              <li className="flex items-center gap-4">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Icon name="Users" size={16} className="text-primary" />
-                </div>
-                <span className="font-medium">Contact: 7987421625</span>
-              </li>
-              <li className="flex items-center gap-4">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Icon
-                    name="MessageSquare"
-                    size={16}
-                    className="text-primary"
-                  />
-                </div>
-                <span className="font-medium">
-                  Support: salonvala@yuvasoftech.com
-                </span>
-              </li>
-            </ul>
+            <div className="pt-6 border-t border-white/30 space-y-3">
+              <div className="flex items-center gap-3 text-sm font-medium">
+                <Icon name="Phone" size={16} className="text-white" />
+                <span>Call / WhatsApp: 7987421625</span>
+              </div>
+
+              <div className="flex items-center gap-3 text-sm font-medium">
+                <Icon name="Mail" size={16} className="text-white" />
+                <span>salonvala@magicalswap.com</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -34,6 +34,9 @@ const CategoryManager = ({
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
     null,
   );
+  const [isAdding, setIsAdding] = useState(false);
+  const [editingLoadingId, setEditingLoadingId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleCancelEdit = () => {
     setEditingCategoryId(null);
@@ -44,6 +47,7 @@ const CategoryManager = ({
     if (!editingCategoryName.trim()) return;
 
     try {
+      setEditingLoadingId(categoryId);
       await categoryApi.updateCategory(categoryId, {
         name: editingCategoryName.trim(),
       });
@@ -54,6 +58,8 @@ const CategoryManager = ({
       handleCancelEdit();
     } catch (error) {
       console.error("Error updating category:", error);
+    } finally {
+      setEditingLoadingId(null);
     }
   };
 
@@ -73,12 +79,15 @@ const CategoryManager = ({
     }
 
     try {
+      setIsAdding(true);
       await categoryApi.createCategory({ name: newCategoryName.trim() });
       onAddCategory(newCategoryName.trim());
       setNewCategoryName("");
       setError("");
     } catch (err: any) {
       setError(err?.response?.data?.message || "Failed to add category");
+    } finally {
+      setIsAdding(false);
     }
   };
 
@@ -91,15 +100,17 @@ const CategoryManager = ({
     if (!selectedCategoryId) return;
 
     try {
+      setIsDeleting(true);
       await categoryApi.deleteCategory(selectedCategoryId);
 
       onDeleteCategory(selectedCategoryId);
     } catch (err: any) {
       alert(err?.response?.data?.message || "Failed to delete category");
+    } finally {
+      setIsDeleting(false);
+      setConfirmOpen(false);
+      setSelectedCategoryId(null);
     }
-
-    setConfirmOpen(false);
-    setSelectedCategoryId(null);
   };
 
   const handleMoveUp = (index: number) => {
@@ -148,8 +159,12 @@ const CategoryManager = ({
               }}
               error={error}
             />
-            <Button iconName="Plus" onClick={handleAddCategory}>
-              Add
+            <Button
+              iconName="Plus"
+              onClick={handleAddCategory}
+              disabled={isAdding}
+            >
+              {isAdding ? "Adding..." : "Add"}
             </Button>
           </div>
 
@@ -185,6 +200,7 @@ const CategoryManager = ({
                         size="icon"
                         variant="ghost"
                         iconName="Check"
+                        disabled={editingLoadingId === category.id}
                         onClick={() => handleSaveEdit(category.id)}
                       />
                       <Button
@@ -231,7 +247,7 @@ const CategoryManager = ({
         isOpen={confirmOpen}
         title="Delete Category"
         description="Are you sure you want to delete this category? This action cannot be undone."
-        onCancel={() => setConfirmOpen(false)}
+        onCancel={() => !isDeleting && setConfirmOpen(false)}
         onConfirm={confirmDelete}
       />
     </div>

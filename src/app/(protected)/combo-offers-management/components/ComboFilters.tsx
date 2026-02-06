@@ -1,8 +1,9 @@
-import React from 'react';
-import Input from '../../../components/ui/Input';
-import Select from '../../../components/ui/Select';
-import Button from '../../../components/ui/Button';
-import { ComboFilters } from '../types';
+import React, { useEffect, useState } from "react";
+import Input from "../../../components/ui/Input";
+import Select from "../../../components/ui/Select";
+import Button from "../../../components/ui/Button";
+import { ComboFilters } from "../types";
+import { useDebounce } from "@/app/store/hooks";
 
 interface ComboFiltersProps {
   filters: ComboFilters;
@@ -15,27 +16,33 @@ const ComboFiltersComponent: React.FC<ComboFiltersProps> = ({
   onFilterChange,
   onReset,
 }) => {
+  const [search, setSearch] = useState(filters.searchQuery);
+  const debouncedSearch = useDebounce(search, 500);
   const handleInputChange = (field: keyof ComboFilters, value: string) => {
     onFilterChange({ ...filters, [field]: value });
   };
 
+  useEffect(() => {
+    onFilterChange({ ...filters, searchQuery: debouncedSearch });
+  }, [debouncedSearch]);
+
   const statusOptions = [
-    { value: 'all', label: 'All Status' },
-    { value: 'active', label: 'Active' },
-    { value: 'inactive', label: 'Inactive' },
-    { value: 'expired', label: 'Expired' },
+    { value: "all", label: "All Status" },
+    { value: "active", label: "Active" },
+    { value: "inactive", label: "Inactive" },
+    { value: "expired", label: "Expired" },
   ];
 
   const sortByOptions = [
-    { value: 'name', label: 'Name' },
-    { value: 'savings', label: 'Savings %' },
-    { value: 'popularity', label: 'Popularity' },
-    { value: 'revenue', label: 'Revenue' },
+    { value: "name", label: "Name" },
+    { value: "savings", label: "Savings %" },
+    { value: "popularity", label: "Popularity" },
+    { value: "revenue", label: "Revenue" },
   ];
 
   const sortOrderOptions = [
-    { value: 'asc', label: 'Ascending' },
-    { value: 'desc', label: 'Descending' },
+    { value: "asc", label: "Ascending" },
+    { value: "desc", label: "Descending" },
   ];
 
   return (
@@ -45,8 +52,8 @@ const ComboFiltersComponent: React.FC<ComboFiltersProps> = ({
           <Input
             label="Search Combos"
             placeholder="Search by name or description..."
-            value={filters.searchQuery}
-            onChange={(e) => handleInputChange('searchQuery', e.target.value)}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
             iconName="Search"
             iconPosition="left"
           />

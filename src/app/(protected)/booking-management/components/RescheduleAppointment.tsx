@@ -36,7 +36,7 @@ const RescheduleAppointmentModal = ({ booking, onClose, onSuccess }: Props) => {
       );
     });
 
-  const handleSubmit = async (values: any) => {
+  const handleSubmit = async (values: any,{ setSubmitting }: any) => {
     try {
       await appointmentApi.rescheduleAppointment(booking.id, {
         appointmentDate: values.date,
@@ -51,6 +51,8 @@ const RescheduleAppointmentModal = ({ booking, onClose, onSuccess }: Props) => {
       onClose();
     } catch (err) {
       console.error("Reschedule failed", err);
+    }finally {
+      setSubmitting(false);
     }
   };
   const today = new Date().toISOString().split("T")[0];
@@ -75,7 +77,7 @@ const RescheduleAppointmentModal = ({ booking, onClose, onSuccess }: Props) => {
           }}
           onSubmit={handleSubmit}
         >
-          {({ values, setFieldValue }) => (
+          {({ values, setFieldValue , isSubmitting}) => (
             <Form className="p-6 space-y-6">
               {/* Date */}
               <Input
@@ -84,6 +86,7 @@ const RescheduleAppointmentModal = ({ booking, onClose, onSuccess }: Props) => {
                 value={values.date}
                 min={today}
                 onChange={(e) => setFieldValue("date", e.target.value)}
+                disabled={isSubmitting}
               />
 
               {/* Time */}
@@ -93,6 +96,7 @@ const RescheduleAppointmentModal = ({ booking, onClose, onSuccess }: Props) => {
                 value={values.startTime}
                 searchable
                 onChange={(v) => setFieldValue("startTime", v)}
+                disabled={isSubmitting}
               />
 
               {/* Actions */}
@@ -105,8 +109,8 @@ const RescheduleAppointmentModal = ({ booking, onClose, onSuccess }: Props) => {
                 >
                   Cancel
                 </Button>
-                <Button type="submit" fullWidth>
-                  Reschedule
+                <Button type="submit" fullWidth  disabled={isSubmitting}>
+                  {isSubmitting ? "Rescheduling..." : "Reschedule"}
                 </Button>
               </div>
             </Form>

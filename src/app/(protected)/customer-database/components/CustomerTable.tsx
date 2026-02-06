@@ -286,9 +286,7 @@ const CustomerTable = ({
                       customer.tags.map((tag) => (
                         <span
                           key={tag}
-                          className={`px-2 py-1 rounded-md text-xs font-medium ${getTagColor(
-                            tag,
-                          )}`}
+                          className={`px-2 py-1 rounded-md text-xs font-medium`}
                         >
                           {tag}
                         </span>

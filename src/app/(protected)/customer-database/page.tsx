@@ -23,6 +23,7 @@ import Loader from "@/app/components/Loader";
 import { showToast } from "@/app/components/ui/toast";
 import { comboApi } from "@/app/services/combo.api";
 import { ComboOffer } from "../combo-offers-management/types";
+import { useDebounce } from "@/app/store/hooks";
 
 const CustomerDatabase = () => {
   const router = useRouter();
@@ -59,6 +60,7 @@ const CustomerDatabase = () => {
   const [isComboModalOpen, setIsComboModalOpen] = useState(false);
   const [availableCombos, setAvailableCombos] = useState<ComboOffer[]>([]);
   const [sendingMessages, setSendingMessages] = useState(false);
+  const debouncedSearch = useDebounce(filters.searchQuery, 500);
   const fetchingRef = useRef(false);
   const mountedRef = useRef(true);
 
@@ -81,10 +83,10 @@ const CustomerDatabase = () => {
       const response = await customerApi.getCustomers({
         page,
         limit: 10,
-        ...(filters.searchQuery &&
-          (/^\d+$/.test(filters.searchQuery)
-            ? { phoneNumber: filters.searchQuery }
-            : { fullName: filters.searchQuery })),
+        ...(debouncedSearch &&
+          (/^\d+$/.test(debouncedSearch)
+            ? { phoneNumber: debouncedSearch }
+            : { fullName: debouncedSearch })),
         ...(filters.gender && { gender: filters.gender }),
         ...(filters.tags.length > 0 && { customerTag: filters.tags }),
         ...(filters.type && { type: filters.type }),
@@ -103,7 +105,7 @@ const CustomerDatabase = () => {
         dateOfBirth: c.DOB ? c.DOB.split("T")[0] : "",
         address: c.address || "",
         notes: c.notes || "",
-        tags: (c.customerTag || []).map((tag: string) => tag.toUpperCase()),
+        tags: (c.customerTag || []),
         lastVisit: c.lastVisit ? new Date(c.lastVisit) : undefined,
         totalVisits: c.totalVisits,
         totalSpent: c.totalSpent,
@@ -127,7 +129,7 @@ const CustomerDatabase = () => {
       }
       fetchingRef.current = false;
     }
-  }, [page, filters.searchQuery, filters.gender, filters.tags, filters.type]);
+  }, [page, debouncedSearch, filters.gender, filters.tags, filters.type]);
 
   // Refetch whenever filters or page change
   useEffect(() => {
@@ -142,7 +144,7 @@ const CustomerDatabase = () => {
 
   useEffect(() => {
     setPage(1);
-  }, [filters.searchQuery, filters.gender, filters.tags, filters.type]);
+  }, [debouncedSearch, filters.gender, filters.tags, filters.type]);
 
   const mockServiceHistory: ServiceHistory[] = [
     {
@@ -246,7 +248,7 @@ const CustomerDatabase = () => {
         dateOfBirth: c.DOB ? c.DOB.split("T")[0] : "",
         address: c.address || "",
         notes: c.notes || "",
-        tags: (c.customerTag || []).map((tag: string) => tag.toUpperCase()),
+        tags: (c.customerTag || []),
         lastVisit: c.lastVisit ? new Date(c.lastVisit) : null,
         totalVisits: c.totalVisits,
         totalSpent: c.totalSpent,

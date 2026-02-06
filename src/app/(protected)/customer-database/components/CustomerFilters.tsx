@@ -7,6 +7,7 @@ import Select from "../../../components/ui/Select";
 import { Checkbox } from "../../../components/ui/Checkbox";
 import { CustomerFilters as FilterType, CustomerTag } from "../types";
 import { customerTags } from "../types";
+import { useDebounce } from "@/app/store/hooks";
 
 interface CustomerFiltersProps {
   filters: FilterType;
@@ -21,9 +22,17 @@ const CustomerFilters = ({
   onExport,
   totalCustomers,
 }: CustomerFiltersProps) => {
+
+  const [search, setSearch]= useState(filters.searchQuery);
   const [showAdvanced, setShowAdvanced] = useState(true);
   const [loadingTags, setLoadingTags] = useState(false);
   const [filterType, setFilterType] = useState("All");
+
+  const debouncedSearch = useDebounce(search, 500);
+
+    useEffect(() => {
+    onFiltersChange({ ...filters, searchQuery: debouncedSearch });
+  }, [debouncedSearch]);
 
   /* =======================
      HANDLERS
@@ -90,8 +99,8 @@ const CustomerFilters = ({
             <Input
               type="search"
               placeholder="Search by name or number..."
-              value={filters.searchQuery}
-              onChange={(e) => handleSearchChange(e.target.value)}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
               className="pl-10"
             />
           </div>

@@ -301,25 +301,34 @@ const CreateProfile = () => {
       }),
   });
 
-  const handleSubmit = async (values: ProfileFormValues) => {
-    const formData = new FormData();
-    formData.append("salonName", values.salonName);
-    formData.append("ownerName", values.ownerName);
-    formData.append("workingDays", JSON.stringify(values.workingDays));
-    formData.append("openingTime", timeTo24h(values.openingTime));
-    formData.append("closingTime", timeTo24h(values.closingTime));
+  const handleSubmit = async (
+    values: ProfileFormValues,
+    { setSubmitting }: any,
+  ) => {
+    try {
+      const formData = new FormData();
+      formData.append("salonName", values.salonName);
+      formData.append("ownerName", values.ownerName);
+      formData.append("workingDays", JSON.stringify(values.workingDays));
+      formData.append("openingTime", timeTo24h(values.openingTime));
+      formData.append("closingTime", timeTo24h(values.closingTime));
 
-    if (values.salonImage) {
-      formData.append("salonImage", values.salonImage);
+      if (values.salonImage) {
+        formData.append("salonImage", values.salonImage);
+      }
+
+      if (isEditMode) {
+        await dispatch(updateProfile(formData));
+      } else {
+        await dispatch(createProfile(formData));
+      }
+
+      router.push("/profile");
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSubmitting(false);
     }
-
-    if (isEditMode) {
-      await dispatch(updateProfile(formData));
-    } else {
-      await dispatch(createProfile(formData));
-    }
-
-    router.push("/profile");
   };
 
   return (
@@ -335,7 +344,7 @@ const CreateProfile = () => {
           validationSchema={ProfileSchema}
           onSubmit={handleSubmit}
         >
-          {({ values, errors, touched, setFieldValue }) => (
+          {({ values, errors, touched, setFieldValue, isSubmitting }) => (
             <Form className="space-y-4">
               <Input
                 label="Salon Name"
@@ -453,8 +462,14 @@ const CreateProfile = () => {
                 </div>
               </div>
 
-              <Button type="submit" className="w-full">
-                {isEditMode ? "Update Profile" : "Create Profile"}
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting
+                  ? isEditMode
+                    ? "Updating..."
+                    : "Creating..."
+                  : isEditMode
+                    ? "Update Profile"
+                    : "Create Profile"}
               </Button>
             </Form>
           )}
