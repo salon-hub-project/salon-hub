@@ -69,7 +69,7 @@ const ServiceFiltersComponent = ({
           placeholder="Filter by category"
         />
 
-        <Select
+        {/* <Select
           options={statusOptions}
           value={filters.status}
           onChange={(value) =>
@@ -79,7 +79,7 @@ const ServiceFiltersComponent = ({
             })
           }
           placeholder="Filter by status"
-        />
+        /> */}
 
         {/* <div className="flex gap-2">
           <Select

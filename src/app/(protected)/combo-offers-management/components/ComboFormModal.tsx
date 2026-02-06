@@ -84,16 +84,22 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
           initialValues={initialValues}
           validationSchema={comboValidationSchema}
           enableReinitialize
-          onSubmit={(values) => {
-            const payload = {
-              ...values,
-              customerEligibility: values.customerEligibility || undefined,
-            };
-            onSubmit(payload);
-            onClose();
+          onSubmit={async (values, { setSubmitting }) => {
+            try {
+              const payload = {
+                ...values,
+                customerEligibility: values.customerEligibility || undefined,
+              };
+              await onSubmit(payload);
+              onClose();
+            } catch (error) {
+              console.error("Combo submit failed", error);
+            } finally {
+              setSubmitting(false);
+            }
           }}
         >
-          {({ values, setFieldValue, errors, touched }) => {
+          {({ values, setFieldValue, errors, touched, isSubmitting }) => {
             const originalPrice = calculateOriginalPrice(values.services);
             const discounted = values.discountedPrice ?? 0;
             const savings =
@@ -329,11 +335,23 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                     variant="secondary"
                     onClick={onClose}
                     fullWidth
+                    disabled={isSubmitting}
                   >
                     Cancel
                   </Button>
-                  <Button variant="default" type="submit" fullWidth>
-                    {combo ? "Update Combo" : "Create Combo"}
+                  <Button
+                    variant="default"
+                    type="submit"
+                    fullWidth
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting
+                      ? combo
+                        ? "Updating..."
+                        : "Creating..."
+                      : combo
+                        ? "Update Combo"
+                        : "Create Combo"}
                   </Button>
                 </div>
               </Form>

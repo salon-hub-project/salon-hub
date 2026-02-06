@@ -1,5 +1,5 @@
 import Button from "./Button";
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -23,6 +23,14 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   confirmColor = "red",
 }) => {
   const [inputValue, setInputValue] = useState("");
+  const [isLoading, setIsLoading]= useState(false);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setInputValue("");
+      setIsLoading(false);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -42,6 +50,19 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
       ? "bg-blue-500 hover:bg-blue-600"
       : "bg-red-500 hover:bg-red-600";
 
+   const handleConfirm = async () => {
+    if (isLoading) return;
+
+    try {
+      setIsLoading(true);
+      await onConfirm(inputValue);
+    } catch (err) {
+      console.error("Confirm action failed", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center z-[999] bg-black/50">
       <div className="bg-card rounded-lg p-6 w-80">
@@ -59,15 +80,16 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
         )}
 
         <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={onCancel}>
+          <Button variant="outline" onClick={onCancel} disabled={isLoading}>
             Cancel
           </Button>
           <Button
             variant="destructive"
             className={confirmButtonClass}
-            onClick={() => onConfirm(inputValue)}
+            onClick={handleConfirm}
+            disabled={isLoading}
           >
-            {getConfirmLabel()}
+           {isLoading ? "Processing..." : getConfirmLabel()}
           </Button>
         </div>
       </div>

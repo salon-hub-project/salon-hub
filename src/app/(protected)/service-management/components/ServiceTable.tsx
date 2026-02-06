@@ -117,9 +117,9 @@ const ServiceTable = ({
               <th className="px-4 py-3 text-center text-sm font-semibold text-foreground">
                 Popular
               </th>
-              <th className="px-4 py-3 text-center text-sm font-semibold text-foreground">
+              {/* <th className="px-4 py-3 text-center text-sm font-semibold text-foreground">
                 Status
-              </th>
+              </th> */}
               <th className="px-4 py-3 text-right text-sm font-semibold text-foreground">
                 Actions
               </th>
@@ -195,7 +195,7 @@ const ServiceTable = ({
                     />
                   </button>
                 </td>
-                <td className="px-4 py-3 text-center">
+                {/* <td className="px-4 py-3 text-center">
                   <button
                     onClick={() => onToggleStatus(service.id)}
                     className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-smooth ${
@@ -206,7 +206,7 @@ const ServiceTable = ({
                   >
                     {service.isActive ? "Active" : "Inactive"}
                   </button>
-                </td>
+                </td> */}
                 <td className="px-4 py-3">
                   <div className="flex items-center justify-end gap-2">
                     <Button

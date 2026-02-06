@@ -31,6 +31,10 @@ const RolesManager = ({
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [selectedRoleId, setSelectedRoleId] = useState<string | null>(null);
 
+  const [isAdding, setIsAdding] = useState(false);
+  const [editingLoadingId, setEditingLoadingId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const handleCancelEdit = () => {
     setEditingRoleId(null);
     setEditingRoleName("");
@@ -39,12 +43,18 @@ const RolesManager = ({
   const handleSaveEdit = async (roleId: string) => {
     if (!editingRoleName.trim()) return;
 
-    await rolesApi.updateRole(roleId, {
-      name: editingRoleName.trim(),
-    });
-
-    onUpdateRole?.(roleId, editingRoleName.trim());
-    handleCancelEdit();
+    try {
+      setEditingLoadingId(roleId);
+      await rolesApi.updateRole(roleId, {
+        name: editingRoleName.trim(),
+      });
+      onUpdateRole?.(roleId, editingRoleName.trim());
+      handleCancelEdit();
+    } catch (err) {
+      console.error("Failed to update role", err);
+    } finally {
+      setEditingLoadingId(null);
+    }
   };
 
   const handleAddRole = async () => {
@@ -55,18 +65,22 @@ const RolesManager = ({
 
     if (
       roles.some(
-        (role) => role.name.toLowerCase() === newRoleName.toLowerCase()
+        (role) => role.name.toLowerCase() === newRoleName.toLowerCase(),
       )
     ) {
       setError("Role already exists");
       return;
     }
-
-    await rolesApi.createRoles({ name: newRoleName.trim() });
-    onAddRole?.(newRoleName.trim());
-
-    setNewRoleName("");
-    setError("");
+    try {
+      await rolesApi.createRoles({ name: newRoleName.trim() });
+      onAddRole?.(newRoleName.trim());
+      setNewRoleName("");
+      setError("");
+    } catch (err: any) {
+      setError(err?.response?.data?.message || "Failed to add role");
+    } finally {
+      setIsAdding(false);
+    }
   };
 
   const handleDeleteRole = (roleId: string) => {
@@ -77,11 +91,20 @@ const RolesManager = ({
   const confirmDelete = async () => {
     if (!selectedRoleId) return;
 
+    try{
+    setIsDeleting(true);
     await rolesApi.deleteRole(selectedRoleId);
     onDeleteRole?.(selectedRoleId);
 
     setConfirmOpen(false);
     setSelectedRoleId(null);
+    }catch (err) {
+    console.error("Failed to delete role", err);
+  } finally {
+    setIsDeleting(false);
+    setConfirmOpen(false);
+    setSelectedRoleId(null);
+  }
   };
 
   return (
@@ -109,8 +132,8 @@ const RolesManager = ({
               }}
               error={error}
             />
-            <Button iconName="Plus" onClick={handleAddRole}>
-              Add
+            <Button iconName="Plus" onClick={handleAddRole} disabled={isAdding}>
+              {isAdding ? "Adding..." : "Add"}
             </Button>
           </div>
 
@@ -133,12 +156,14 @@ const RolesManager = ({
                       size="icon"
                       variant="ghost"
                       iconName="Check"
+                      disabled={editingLoadingId === role._id}
                       onClick={() => handleSaveEdit(role._id)}
                     />
                     <Button
                       size="icon"
                       variant="ghost"
                       iconName="X"
+                      disabled={editingLoadingId === role._id}
                       onClick={handleCancelEdit}
                     />
                   </div>
@@ -152,6 +177,7 @@ const RolesManager = ({
                     size="icon"
                     variant="ghost"
                     iconName="Pencil"
+                    disabled= {isDeleting || isAdding}
                     onClick={() => {
                       setEditingRoleId(role._id);
                       setEditingRoleName(role.name);
@@ -161,6 +187,7 @@ const RolesManager = ({
                     size="icon"
                     variant="ghost"
                     iconName="Trash2"
+                    disabled={isDeleting}
                     onClick={() => handleDeleteRole(role._id)}
                   />
                 </div>
@@ -174,7 +201,7 @@ const RolesManager = ({
         isOpen={confirmOpen}
         title="Delete Role"
         description="Are you sure you want to delete this role? This action cannot be undone."
-        onCancel={() => setConfirmOpen(false)}
+        onCancel={() => !isDeleting && setConfirmOpen(false)}
         onConfirm={confirmDelete}
       />
     </div>
