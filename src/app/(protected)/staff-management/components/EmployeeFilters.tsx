@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Icon from "../../../components/AppIcon";
 import Button from "../../../components/ui/Button";
 import Input from "../../../components/ui/Input";
@@ -8,6 +8,7 @@ import Select from "../../../components/ui/Select";
 
 import { StaffFilters as FilterType } from "../types";
 import { StaffRoles } from "../types";
+import { useDebounce } from "@/app/store/hooks";
 
 interface StaffFiltersProps {
   filters: FilterType;
@@ -23,6 +24,12 @@ const EmployeeFilters = ({
   onFiltersChange,
 }: StaffFiltersProps) => {
   const [showAdvanced, setShowAdvanced] = useState(true);
+  const [search, setSearch] = useState(filters.searchQuery);
+  const debouncedSearch = useDebounce(search, 500);
+
+  useEffect(() => {
+    onFiltersChange({ ...filters, searchQuery: debouncedSearch });
+  }, [debouncedSearch]);
 
   const activeFilterCount =
     (filters.searchQuery ? 1 : 0) +
@@ -53,10 +60,8 @@ const EmployeeFilters = ({
           />
           <Input
             placeholder="Search staff by name..."
-            value={filters.searchQuery}
-            onChange={(e) =>
-              onFiltersChange({ ...filters, searchQuery: e.target.value })
-            }
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
             className="pl-10"
           />
         </div>
@@ -91,9 +96,7 @@ const EmployeeFilters = ({
                 })),
               ]}
               value={filters.role}
-              onChange={(value) =>
-                onFiltersChange({ ...filters, role: value })
-              }
+              onChange={(value) => onFiltersChange({ ...filters, role: value })}
             />
 
             <Select

@@ -1,7 +1,9 @@
-import { ServiceFilters } from '../types';
-import Input from '../../../components/ui/Input';
-import Select from '../../../components/ui/Select';
-import Button from '../../../components/ui/Button';
+import { ServiceFilters } from "../types";
+import Input from "../../../components/ui/Input";
+import Select from "../../../components/ui/Select";
+import Button from "../../../components/ui/Button";
+import { useEffect, useState } from "react";
+import { useDebounce } from "@/app/store/hooks";
 
 interface ServiceFiltersProps {
   filters: ServiceFilters;
@@ -16,27 +18,34 @@ const ServiceFiltersComponent = ({
   onFilterChange,
   onReset,
 }: ServiceFiltersProps) => {
+  const [search, setSearch] = useState(filters.searchQuery);
+  const debouncedSearch = useDebounce(search, 500);
+
+  useEffect(() => {
+    onFilterChange({ ...filters, searchQuery: debouncedSearch });
+  }, [debouncedSearch]);
+
   const categoryOptions = [
-    { value: 'all', label: 'All Categories' },
-    ...categories.map(cat => ({ value: cat, label: cat })),
+    { value: "all", label: "All Categories" },
+    ...categories.map((cat) => ({ value: cat, label: cat })),
   ];
 
   const statusOptions = [
-    { value: 'all', label: 'All Status' },
-    { value: 'active', label: 'Active Only' },
-    { value: 'inactive', label: 'Inactive Only' },
+    { value: "all", label: "All Status" },
+    { value: "active", label: "Active Only" },
+    { value: "inactive", label: "Inactive Only" },
   ];
 
   const sortByOptions = [
-    { value: 'name', label: 'Name' },
-    { value: 'price', label: 'Price' },
-    { value: 'duration', label: 'Duration' },
-    { value: 'category', label: 'Category' },
+    { value: "name", label: "Name" },
+    { value: "price", label: "Price" },
+    { value: "duration", label: "Duration" },
+    { value: "category", label: "Category" },
   ];
 
   const sortOrderOptions = [
-    { value: 'asc', label: 'Ascending' },
-    { value: 'desc', label: 'Descending' },
+    { value: "asc", label: "Ascending" },
+    { value: "desc", label: "Descending" },
   ];
 
   return (
@@ -46,10 +55,8 @@ const ServiceFiltersComponent = ({
           <Input
             type="search"
             placeholder="Search services..."
-            value={filters.searchQuery}
-            onChange={(e) =>
-              onFilterChange({ ...filters, searchQuery: e.target.value })
-            }
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
@@ -66,7 +73,10 @@ const ServiceFiltersComponent = ({
           options={statusOptions}
           value={filters.status}
           onChange={(value) =>
-            onFilterChange({ ...filters, status: value as 'all' | 'active' | 'inactive' })
+            onFilterChange({
+              ...filters,
+              status: value as "all" | "active" | "inactive",
+            })
           }
           placeholder="Filter by status"
         />
