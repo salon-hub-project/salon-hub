@@ -14,11 +14,25 @@ module.exports = {
         border: "hsl(var(--border))",
         primary: "hsl(var(--primary))",
         "muted-foreground": "hsl(var(--muted-foreground))",
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        ring: "hsl(var(--ring))",
       },
       spacing: {
         header: "var(--header-height)",
         "bottom-nav": "var(--bottom-nav-height)",
         sidebar: "var(--sidebar-width)",
+      },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
       },
     },
   },

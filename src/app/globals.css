@@ -5,36 +5,44 @@
 /* ---------- ROOT THEME (MATCHES YOUR REACT UI) ---------- */
 :root {
   /* Backgrounds */
-  --background: 0 0% 98%;         /* #fafafa */
-  --card: 0 0% 100%;              /* white */
+  --background: 0 0% 98%; /* #fafafa */
+  --card: 0 0% 100%; /* white */
   --popover: 0 0% 100%;
 
   /* Borders */
-  --border: 240 5% 88%;           /* #e5e7eb */
+  --border: 240 5% 88%; /* #e5e7eb */
   --input: 240 5% 88%;
 
   /* Text colors */
-  --foreground: 240 10% 3.9%;     /* dark gray (#111827) */
+  --foreground: 240 10% 3.9%; /* dark gray (#111827) */
   --muted: 240 4.8% 95%;
   --muted-foreground: 240 3.8% 46.1%; /* gray-500 */
 
   /* Brand / Primary - soft green */
-  --primary: 156 41% 35%;         /* #0F6C48 (your React primary) */
+  --primary: 156 41% 35%; /* #0F6C48 (your React primary) */
   --primary-foreground: 0 0% 100%;
 
   /* Accent (Blue tones like your React UI) */
-  --accent: 217 91% 60%;          /* #3b82f6 */
+  --accent: 217 91% 60%; /* #3b82f6 */
   --accent-foreground: 0 0% 100%;
 
   /* Success, Warning, Error */
-  --success: 142 71% 45%;         /* #22c55e */
-  --warning: 38 92% 50%;          /* #f59e0b */
-  --error: 0 84% 60%;             /* #ef4444 */
+  --success: 142 71% 45%; /* #22c55e */
+  --warning: 38 92% 50%; /* #f59e0b */
+  --error: 0 84% 60%; /* #ef4444 */
 
   /* UI Layout Sizes */
   --header-height: 64px;
   --bottom-nav-height: 56px;
   --sidebar-width: 250px;
+
+  /* Landing Page Extensions */
+  --secondary: 240 4.8% 95.9%;
+  --secondary-foreground: 240 5.9% 10%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
+  --ring: 240 10% 3.9%;
+  --radius: 0.5rem;
 }
 
 /* ---------- DARK MODE ---------- */
@@ -49,6 +57,13 @@
     --muted-foreground: 240 5% 70%;
     --primary: 156 41% 45%;
     --accent: 217 91% 65%;
+
+    /* Landing Page Extensions Dark */
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --ring: 240 5% 65%;
   }
 }
 
@@ -68,7 +83,6 @@ body {
 * {
   @apply transition-colors duration-200;
 }
-
 
 /* Custom Toast */
 /* globals.css or a separate toast.css file */
