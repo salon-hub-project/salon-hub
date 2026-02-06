@@ -88,7 +88,7 @@ export default function SalesReportPanel() {
     if (filterType !== "custom") {
       fetchReport();
     }
-  }, [filterType, isAuthenticated]);
+  }, [filterType, isAuthenticated, selectedStaffId]);
 
   return (
     <div className="space-y-6">
