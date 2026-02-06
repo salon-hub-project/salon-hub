@@ -265,7 +265,7 @@ const RenewPlan = () => {
                   />
                 </div>
                 <span className="font-medium">
-                  Support: salonhub@yuvasoftech.com
+                  Support: salonvala@yuvasoftech.com
                 </span>
               </li>
             </ul>
