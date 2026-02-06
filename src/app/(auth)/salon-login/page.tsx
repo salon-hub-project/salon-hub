@@ -15,31 +15,29 @@ const LoginPage = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { isLoading, error, isAuthenticated, user } = useAppSelector(
-    (state) => state.auth
+    (state) => state.auth,
   );
 
   useEffect(() => {
-    document.title = "Login - SalonHub";
+    document.title = "Login - Salonvala";
   }, []);
 
   useEffect(() => {
     if (!isAuthenticated) return;
-  
+
     const userRole = user?.role;
-    
+
     const requestedPath =
       localStorage.getItem("redirectAfterLogin") ||
       localStorage.getItem("lastProtectedRoute");
-  
+
     // Validate and get safe redirect path based on user role
     const safeRedirectPath = getSafeRedirectPath(requestedPath, userRole);
-  
+
     localStorage.removeItem("redirectAfterLogin");
     localStorage.removeItem("lastProtectedRoute");
     router.replace(safeRedirectPath);
   }, [isAuthenticated, user, router]);
-  
-  
 
   useEffect(() => {
     return () => {
@@ -70,7 +68,7 @@ const LoginPage = () => {
                 loginUser({
                   email: values.email.trim(),
                   password: values.password,
-                })
+                }),
               );
             }}
           >

@@ -1,5 +1,5 @@
-import Icon from '../../../components/AppIcon';
-import Button from '../../../components/ui/Button';
+import Icon from "../../../components/AppIcon";
+import Button from "../../../components/ui/Button";
 
 interface SuccessMessageProps {
   salonName: string;
@@ -7,7 +7,11 @@ interface SuccessMessageProps {
   onContinue: () => void;
 }
 
-const SuccessMessage = ({ salonName, registrationId, onContinue }: SuccessMessageProps) => {
+const SuccessMessage = ({
+  salonName,
+  registrationId,
+  onContinue,
+}: SuccessMessageProps) => {
   return (
     <div className="max-w-2xl mx-auto text-center space-y-6">
       <div className="flex items-center justify-center w-20 h-20 rounded-full bg-success/10 mx-auto">
@@ -19,7 +23,9 @@ const SuccessMessage = ({ salonName, registrationId, onContinue }: SuccessMessag
           Registration Successful!
         </h2>
         <p className="text-muted-foreground">
-          Thank you for registering <span className="font-medium text-foreground">{salonName}</span> with SalonHub
+          Thank you for registering{" "}
+          <span className="font-medium text-foreground">{salonName}</span> with
+          Salonvala
         </p>
       </div>
 
@@ -29,7 +35,8 @@ const SuccessMessage = ({ salonName, registrationId, onContinue }: SuccessMessag
           <div className="text-left space-y-1">
             <h3 className="font-medium text-foreground">Pending Approval</h3>
             <p className="text-sm text-muted-foreground">
-              Your registration is currently under review by our Super Admin team. This process typically takes 24-48 hours.
+              Your registration is currently under review by our Super Admin
+              team. This process typically takes 24-48 hours.
             </p>
           </div>
         </div>
@@ -39,7 +46,8 @@ const SuccessMessage = ({ salonName, registrationId, onContinue }: SuccessMessag
           <div className="text-left space-y-1">
             <h3 className="font-medium text-foreground">Email Notification</h3>
             <p className="text-sm text-muted-foreground">
-              You'll receive an email notification once your salon has been approved and is ready to use.
+              You'll receive an email notification once your salon has been
+              approved and is ready to use.
             </p>
           </div>
         </div>
@@ -49,7 +57,10 @@ const SuccessMessage = ({ salonName, registrationId, onContinue }: SuccessMessag
           <div className="text-left space-y-1">
             <h3 className="font-medium text-foreground">Registration ID</h3>
             <p className="text-sm text-muted-foreground">
-              Keep this ID for reference: <span className="font-mono font-medium text-foreground">{registrationId}</span>
+              Keep this ID for reference:{" "}
+              <span className="font-mono font-medium text-foreground">
+                {registrationId}
+              </span>
             </p>
           </div>
         </div>
@@ -60,9 +71,12 @@ const SuccessMessage = ({ salonName, registrationId, onContinue }: SuccessMessag
           Continue to Login
         </Button>
         <p className="text-sm text-muted-foreground">
-          Need help? Contact our support team at{' '}
-          <a href="mailto:support@salonhub.com" className="text-primary hover:underline">
-            support@salonhub.com
+          Need help? Contact our support team at{" "}
+          <a
+            href="mailto:support@salonvala.com"
+            className="text-primary hover:underline"
+          >
+            support@salonvala.com
           </a>
         </p>
       </div>

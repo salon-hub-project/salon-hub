@@ -28,13 +28,13 @@ const ResetPasswordPage = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    document.title = "Reset Password - SalonHub";
-    
+    document.title = "Reset Password - Salonvala";
+
     // Extract token from params - handle both string and array cases
     const tokenParam = params?.token;
     if (tokenParam) {
-      const extractedToken = Array.isArray(tokenParam) 
-        ? tokenParam[0] 
+      const extractedToken = Array.isArray(tokenParam)
+        ? tokenParam[0]
         : String(tokenParam);
       setToken(extractedToken);
       console.log("Token extracted from URL:", extractedToken);
@@ -92,7 +92,7 @@ const ResetPasswordPage = () => {
               if (!token) {
                 return;
               }
-              
+
               setIsSubmitting(true);
               try {
                 await authApi.resetPassword({
@@ -129,9 +129,7 @@ const ResetPasswordPage = () => {
                     onChange={(e) => {
                       setFieldValue("newPassword", e.target.value);
                     }}
-                    error={
-                      touched.newPassword ? errors.newPassword : undefined
-                    }
+                    error={touched.newPassword ? errors.newPassword : undefined}
                     disabled={isSubmitting}
                     required
                   />
@@ -163,9 +161,7 @@ const ResetPasswordPage = () => {
                   />
                   <button
                     type="button"
-                    onClick={() =>
-                      setShowConfirmPassword(!showConfirmPassword)
-                    }
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-3 top-10 text-muted-foreground"
                   >
                     {showConfirmPassword ? "👁️" : "👁️‍🗨️"}
@@ -200,4 +196,3 @@ const ResetPasswordPage = () => {
 };
 
 export default ResetPasswordPage;
-

@@ -276,7 +276,7 @@ const RenewPlan = () => {
       <div className="text-center pt-8 border-t border-border/50">
         <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-muted/30 border border-border text-sm text-muted-foreground">
           <Icon name="ShieldCheck" size={16} className="text-green-500" />
-          <span>Secure checkout provided by SalonHub Payments</span>
+          <span>Secure checkout provided by Salonvala Payments</span>
         </div>
       </div>
 

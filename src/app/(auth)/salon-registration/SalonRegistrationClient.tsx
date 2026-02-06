@@ -30,7 +30,7 @@ const SalonRegistrationClient = () => {
   const [registrationId, setRegistrationId] = useState("");
 
   useEffect(() => {
-    document.title = "Salon Registration - SalonHub";
+    document.title = "Salon Registration - Salonvala";
   }, []);
 
   useEffect(() => {
