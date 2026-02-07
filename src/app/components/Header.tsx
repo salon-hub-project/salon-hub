@@ -153,15 +153,6 @@ const Header = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  //   const getTimeAgo = (timestamp: Date) => {
-  //     const diff =
-  //       (new Date().getTime() - new Date(timestamp).getTime()) / 60000;
-  //     if (diff < 1) return "Just now";
-  //     if (diff < 60) return `${Math.floor(diff)}m ago`;
-  //     if (diff < 1440) return `${Math.floor(diff / 60)}h ago`;
-  //     return `${Math.floor(diff / 1440)}d ago`;
-  //   };
-
   //-------Helpers----------
   const getRoleLabel = (role: unknown) => {
     const roleMap: Record<string, string> = {
