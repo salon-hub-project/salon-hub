@@ -22,7 +22,7 @@ const benefits = [
   },
   {
     icon: MapPin,
-    title: "Works for single & multi-location salons",
+    title: "Works for single salons",
     description: "Scale from one location to many with ease",
   },
   {

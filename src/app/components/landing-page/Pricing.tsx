@@ -126,7 +126,7 @@ export function Pricing() {
                     <div className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                       {plan.price}
                     </div>
-                    <div className="text-white mt-2">{plan.period}</div>
+                    <div className="text-gray-500 mt-2">{plan.period}</div>
                   </div>
                 </CardHeader>
 
@@ -145,7 +145,7 @@ export function Pricing() {
                       >
                         <Check className="h-3 w-3 text-white" />
                       </div>
-                      <span className="text-white">{feature}</span>
+                      <span className="text-gray-700">{feature}</span>
                     </motion.div>
                   ))}
                 </CardContent>

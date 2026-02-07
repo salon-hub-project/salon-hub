@@ -94,7 +94,7 @@ export function Features() {
                   <CardTitle className="text-xl">{feature.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-white">{feature.description}</p>
+                  <p className="text-gray-500">{feature.description}</p>
                 </CardContent>
               </Card>
             </motion.div>

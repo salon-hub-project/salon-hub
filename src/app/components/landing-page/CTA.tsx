@@ -87,7 +87,7 @@ export function CTA() {
             <Button
               size="lg"
               variant="outline"
-              className="border-2 border-white text-white hover:bg-white/10 px-8 py-6 text-lg font-semibold"
+              className="border-2 border-white text-gray-500 hover:bg-white/10 px-8 py-6 text-lg font-semibold"
               onClick={() => setIsDemoModalOpen(true)}
             >
               Schedule a Demo
@@ -226,7 +226,7 @@ export function CTA() {
               </>
             )}
           </AnimatePresence>,
-          document.body
+          document.body,
         )}
     </section>
   );

@@ -73,7 +73,7 @@ export function TargetAudience() {
                     <business.icon className="h-8 w-8 text-white" />
                   </div>
                   <h3 className="text-xl font-bold mb-2">{business.title}</h3>
-                  <p className="text-white">{business.description}</p>
+                  <p className="text-gray-500">{business.description}</p>
                 </CardContent>
               </Card>
             </motion.div>
