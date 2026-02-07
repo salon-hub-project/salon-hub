@@ -513,6 +513,7 @@ const StaffManagement = () => {
                   onEdit={handleEditEmployee}
                   onToggleStatus={handleToggleStatus}
                   onViewDetails={handleViewDetails}
+                  profileWorkingDays={profileWorkingDays}
                 />
               ))}
             </div>
