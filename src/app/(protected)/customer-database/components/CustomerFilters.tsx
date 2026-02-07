@@ -89,7 +89,7 @@ const CustomerFilters = ({
   return (
     <div className="bg-card rounded-lg border border-border p-6 space-y-4">
       <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex-1 min-w-[300px]">
+        <div className="flex-1 min-w-[200px]">
           <div className="relative">
             <Icon
               name="Search"

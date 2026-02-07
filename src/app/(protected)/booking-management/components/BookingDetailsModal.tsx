@@ -240,7 +240,7 @@ const BookingDetailsModal = ({
               {user?.role[0] === "STAFF" &&
                 (booking?.status === "Confirmed" ? (
                   <Button
-                    variant="destructive"
+                    variant="outline"
                     fullWidth
                     loading={isDeleting}
                     onClick={handleStatusUpdate}
