@@ -10,6 +10,7 @@ import { showToast } from "@/app/components/ui/toast";
 import { staffApi } from "@/app/services/staff.api";
 import { useAppSelector } from "@/app/store/hooks";
 import { normalizeRole } from "@/app/utils/normalizeRole";
+import { useRouter } from "next/navigation";
 
 const FILTER_OPTIONS = [
   { label: "Today", value: "today" },
@@ -30,6 +31,7 @@ export default function SalesReportPanel() {
 
   const { user } = useAppSelector((state: any) => state.auth);
   const isAuthenticated = useAppSelector((state) => !!state.auth.token);
+  const router = useRouter();
   const role = normalizeRole(user?.role);
   const isOwner = role === "OWNER";
 
@@ -112,6 +114,7 @@ export default function SalesReportPanel() {
               value={selectedStaffId}
               onChange={(val: string) => setSelectedStaffId(val)}
               clearable
+              onAddNew={()=> router.push('/staff-management')}
             />
           </div>
           }

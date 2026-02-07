@@ -20,7 +20,7 @@ const ResetTargetModal: React.FC<ResetTargetModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 z-[200]">
       <div className="bg-card rounded-lg p-6 w-96 border border-border shadow-xl">
         <h2 className="text-xl font-bold mb-2">Reset Achieved Target</h2>
         <p className="text-sm text-muted-foreground mb-6">

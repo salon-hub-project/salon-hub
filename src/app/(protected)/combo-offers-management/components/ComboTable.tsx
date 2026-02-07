@@ -4,6 +4,7 @@ import Icon from "../../../components/AppIcon";
 import { ComboOffer } from "../types";
 import { format } from "date-fns";
 import ConfirmModal from "../../../components/ui/ConfirmModal";
+import Button from "@/app/components/ui/Button";
 
 interface ComboTableProps {
   combos: ComboOffer[];
@@ -143,28 +144,22 @@ const ComboTable: React.FC<ComboTableProps> = ({
                   </td> */}
                   <td className="px-4 py-4">
                     <div className="flex items-center justify-end gap-2">
-                      <button
+                      <Button
+                        variant= "ghost"
+                        size= "icon"
                         onClick={() => onPreview(combo)}
-                        className="p-1.5 hover:bg-muted rounded transition-colors"
-                        title="Preview"
-                      >
-                        <Icon
-                          name="Eye"
-                          size={16}
-                          className="text-muted-foreground"
-                        />
-                      </button>
-                      <button
+                        iconName="Eye"
+                        iconSize={16}
+                      />
+                        
+                      <Button
+                        variant= "ghost"
+                        size= "icon"
                         onClick={() => onEdit(combo)}
-                        className="p-1.5 hover:bg-muted rounded transition-colors"
-                        title="Edit"
-                      >
-                        <Icon
-                          name="Edit"
-                          size={16}
-                          className="text-muted-foreground"
-                        />
-                      </button>
+                        iconName="Edit"
+                        iconSize={16}
+
+                      />
                       {/* <button
                         onClick={() => onDuplicate(combo)}
                         className="p-1.5 hover:bg-muted rounded transition-colors"
@@ -193,20 +188,16 @@ const ComboTable: React.FC<ComboTableProps> = ({
                           />
                         </button>
                       )} */}
-                      <button
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        iconName="Trash"
+                        iconSize={16}
                         onClick={() => {
                           setSelectedComboId(combo.id);
                           setIsDeleteModalOpen(true);
                         }}
-                        className="p-1.5 hover:bg-red-50 rounded transition-colors"
-                        title="Delete"
-                      >
-                        <Icon
-                          name="Trash2"
-                          size={16}
-                          className="text-red-600"
-                        />
-                      </button>
+                      />
                     </div>
                   </td>
                 </tr>

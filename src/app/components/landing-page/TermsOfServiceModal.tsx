@@ -277,10 +277,10 @@ export function TermsOfServiceModal({
                       <p>
                         📧 Email:{" "}
                         <a
-                          href="mailto:support@salonvala.com"
+                          href="mailto:support@magicalswap.com"
                           className="text-purple-600 hover:underline"
                         >
-                          support@salonvala.com
+                          support@magicalswap.com
                         </a>
                       </p>
                       <p>📞 Phone: +91 7987421625</p>

@@ -259,7 +259,7 @@ const RenewPlan = () => {
 
               <div className="flex items-center gap-3 text-sm font-medium">
                 <Icon name="Mail" size={16} className="text-white" />
-                <span>salonvala@magicalswap.com</span>
+                <span>support@magicalswap.com</span>
               </div>
             </div>
           </div>

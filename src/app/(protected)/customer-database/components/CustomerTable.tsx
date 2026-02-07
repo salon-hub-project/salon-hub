@@ -6,6 +6,7 @@ import { Customer, CustomerTag } from "../types";
 import { customerApi } from "@/app/services/customer.api";
 import ConfirmModal from "@/app/components/ui/ConfirmModal";
 import { showToast } from "@/app/components/ui/toast";
+import Button from "@/app/components/ui/Button";
 
 interface CustomerTableProps {
   customers: Customer[];
@@ -316,47 +317,40 @@ const CustomerTable = ({
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex items-center justify-end gap-2">
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       onClick={(e) => {
                         e.stopPropagation();
                         onCustomerSelect(customer);
                       }}
-                      className="p-2 rounded-md hover:bg-muted transition-smooth"
-                      aria-label="View customer details"
-                    >
-                      <Icon name="Eye" size={16} className="text-destructive" />
-                    </button>
-
-                    <button
+                      iconName="Eye"
+                      iconSize={16}
+                    />
+                    
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       onClick={(e) => {
                         e.stopPropagation();
                         onEditCustomer(customer);
                       }}
-                      className="p-2 rounded-md hover:bg-muted transition-smooth"
-                      aria-label="View customer details"
-                    >
-                      <Icon
-                        name="Edit"
-                        size={16}
-                        className="text-destructive"
-                      />
-                    </button>
+                      iconName="Edit"
+                      iconSize={16}
+                    />
+                     
 
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       onClick={(e) => {
                         e.stopPropagation();
                         setCustomerToDelete(customer);
                         setShowDeleteModal(true);
                       }}
-                      className="p-2 rounded-md hover:bg-destructive/10 transition-smooth"
-                      aria-label="Delete customer"
-                    >
-                      <Icon
-                        name="Trash"
-                        size={16}
-                        className="text-destructive"
-                      />
-                    </button>
+                      iconName="Trash"
+                      iconSize={16}
+                    />
                   </div>
                 </td>
               </tr>

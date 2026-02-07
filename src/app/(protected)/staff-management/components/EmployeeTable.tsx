@@ -277,24 +277,29 @@ const EmployeeTable = ({
                       <option value="inactive">Inactive</option>
                     </select>
 
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       onClick={(e) => {
                         e.stopPropagation();
                         onEdit(employee);
                       }}
+                      iconName="Edit"
+                      iconSize={16}
                       disabled={!employee.isActive}
-                    >
-                      <Icon name="Edit" size={16} />
-                    </button>
-                    <button
+                    />
+                    
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       onClick={(e) => {
                         e.stopPropagation();
                         onDelete(employee.id);
                       }}
                       disabled={!employee.isActive}
-                    >
-                      <Icon name="Trash" size={16} />
-                    </button>
+                      iconName="Trash"
+                      iconSize={16}
+                    />
                   </div>
                 </td>
               </tr>
