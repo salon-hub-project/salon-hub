@@ -65,10 +65,10 @@ export function TargetAudience() {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
-              <Card className="h-full hover:shadow-xl transition-all duration-300 border-2 hover:border-purple-200 group cursor-pointer">
+              <Card className="h-full text-center hover:shadow-xl transition-all duration-300 border-2 hover:border-purple-200 group cursor-pointer">
                 <CardContent className="p-6">
                   <div
-                    className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${business.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}
+                    className={`w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br ${business.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}
                   >
                     <business.icon className="h-8 w-8 text-white" />
                   </div>
