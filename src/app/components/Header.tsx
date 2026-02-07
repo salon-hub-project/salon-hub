@@ -235,7 +235,7 @@ const Header = ({
   // };
 
   return (
-    <header className="fixed top-0 right-0 left-16 lg:left-sidebar h-header bg-card border-b border-border z-[90]">
+    <header className="fixed top-0 right-0 left-16 lg:left-sidebar h-header bg-card border-b border-border z-[200]">
       <div className="flex items-center justify-between h-full pr-6">
         <div className="flex-1 flex justify-center">
           <h1 className="text-lg font-semibold capitalize">
