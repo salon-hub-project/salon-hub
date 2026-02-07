@@ -112,7 +112,7 @@ export function Navbar() {
                   Start Free Trial
                 </Button> */}
                 <Link href="/salon-login">
-                  <Button variant="ghost" className="text-white">
+                  <Button variant="ghost" className="text-gray-500">
                     Login
                   </Button>
                 </Link>
