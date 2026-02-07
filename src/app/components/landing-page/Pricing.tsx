@@ -2,6 +2,9 @@
 import { motion } from "motion/react";
 import { Check, Sparkles, Crown, ArrowRight } from "lucide-react";
 import { Button } from "./ui/button";
+import { useState } from "react";
+import Icon from "../AppIcon";
+import PaymentModal from "./PaymentModal";
 
 import {
   Card,
@@ -73,6 +76,9 @@ const plans = [
 ];
 
 export function Pricing() {
+  const [qrOpen, setQrOpen] = useState(false);
+  const [qrAmount, setQrAmount] = useState("₹0");
+  const [qrTitle, setQrTitle] = useState("Scan to Pay");
   return (
     <section className="py-20 bg-white">
       <div className="container mx-auto px-4">
@@ -181,6 +187,83 @@ export function Pricing() {
           ))}
         </div>
 
+        {/* Addons & Gold Plan */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 justify-center items-stretch max-w-5xl mx-auto mt-16">
+          <div className="w-full bg-white rounded-2xl border border-gray-200 shadow-sm py-5 px-5 mb-5">
+            <p className="text-sm font-semibold uppercase tracking-widest text-primary/80">
+              Addons
+            </p>
+
+            <ul className="w-full flex flex-col gap-4 mt-5">
+              <li className="flex justify-between items-center w-full p-4 rounded-xl border border-gray-100">
+                <span>50 Combo-Offer Messages</span>
+                <span className="flex items-center gap-3 font-semibold">
+                  100 INR
+                  <button
+                    className="py-2 px-4 rounded-2xl bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-sm font-semibold text-white"
+                    onClick={() => {
+                      setQrAmount("₹100");
+                      setQrTitle("50 Combo-Offer Messages");
+                      setQrOpen(true);
+                    }}
+                  >
+                    Recharge Now
+                  </button>
+                </span>
+              </li>
+
+              <li className="flex justify-between items-center w-full p-4 rounded-xl border border-gray-100">
+                <span>100 Appointment Messages</span>
+                <span className="flex items-center gap-3 font-semibold">
+                  100 INR
+                  <button
+                    className="py-2 px-4 rounded-2xl bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-sm font-semibold text-white"
+                    onClick={() => {
+                      setQrAmount("₹100");
+                      setQrTitle("100 Appointment Messages");
+                      setQrOpen(true);
+                    }}
+                  >
+                    Recharge Now
+                  </button>
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="relative flex flex-col p-2 rounded-3xl border bg-card border-primary shadow-lg ring-1 ring-primary/20 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 text-white">
+            {/* Header */}
+            <div className="mb-8 p-6 rounded-xl text-white ">
+              <center>
+                <span className="text-1xl rounded-full inline-flex font-bold text-black bg-white px-3 py-2 mb-2">
+                  Gold Plan
+                </span>
+              </center>
+
+              <p className="mt-1 text-white leading-relaxed text-sm">
+                A fully customized premium plan designed exclusively for
+                high-end and multi-branch salons. Pricing and features are
+                tailored based on your business size, usage, and growth goals.
+              </p>
+            </div>
+
+            {/* Features */}
+            <div className="flex-grow space-y-6 mb-10 px-5">
+              <div className="pt-6 border-t border-white/30 space-y-3">
+                <div className="flex items-center gap-3 text-sm font-medium">
+                  <Icon name="Phone" size={16} className="text-white" />
+                  <span>Call / WhatsApp: 7987421625</span>
+                </div>
+
+                <div className="flex items-center gap-3 text-sm font-medium">
+                  <Icon name="Mail" size={16} className="text-white" />
+                  <span>salonvala@magicalswap.com</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Additional Info */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -210,6 +293,12 @@ export function Pricing() {
           </p>
         </motion.div>
       </div>
+      <PaymentModal
+        isOpen={qrOpen}
+        onClose={() => setQrOpen(false)}
+        amount={qrAmount}
+        title={qrTitle}
+      />
     </section>
   );
 }
