@@ -73,10 +73,10 @@ const SuccessMessage = ({
         <p className="text-sm text-muted-foreground">
           Need help? Contact our support team at{" "}
           <a
-            href="mailto:support@salonvala.com"
+            href="mailto:support@magicalswap.com"
             className="text-primary hover:underline"
           >
-            support@salonvala.com
+            support@magicalswap.com
           </a>
         </p>
       </div>

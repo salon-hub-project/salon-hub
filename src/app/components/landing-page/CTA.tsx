@@ -14,7 +14,7 @@ export function CTA() {
     setMounted(true);
   }, []);
 
-  const contactEmail = " support@salonvala.com";
+  const contactEmail = " support@magicalswap.com";
   const contactNumber = " +91 7987421625";
   return (
     <section className="py-20 bg-gradient-to-br from-purple-600 to-pink-600 relative overflow-hidden">

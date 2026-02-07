@@ -118,10 +118,10 @@ export function Footer() {
               <li className="flex items-start gap-3 text-gray-400">
                 <Mail className="h-5 w-5 flex-shrink-0 mt-0.5" />
                 <a
-                  href="mailto:support@salonvala.com"
+                  href="mailto:support@magicalswap.com"
                   className="hover:text-purple-400 transition-colors"
                 >
-                  support@salonvala.com
+                  support@magicalswap.com
                 </a>
               </li>
               <li className="flex items-start gap-3 text-gray-400">
