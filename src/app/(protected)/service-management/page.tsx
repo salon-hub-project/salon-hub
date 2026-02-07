@@ -568,16 +568,21 @@ const ServiceManagement = () => {
                 ))}
               </div>
             ) : (
-              <ServiceTable
-                services={services}
-                onEdit={handleOpenEditModal}
-                onDelete={handleDeleteService}
-                onToggleStatus={handleToggleStatus}
-                onTogglePopular={handleTogglePopular}
-                onSelectService={handleSelectService}
-                selectedServices={selectedServices}
-                categories={categories.map((c) => ({ id: c.id, name: c.name }))}
-              />
+              services.length > 0 && (
+                <ServiceTable
+                  services={services}
+                  onEdit={handleOpenEditModal}
+                  onDelete={handleDeleteService}
+                  onToggleStatus={handleToggleStatus}
+                  onTogglePopular={handleTogglePopular}
+                  onSelectService={handleSelectService}
+                  selectedServices={selectedServices}
+                  categories={categories.map((c) => ({
+                    id: c.id,
+                    name: c.name,
+                  }))}
+                />
+              )
             )}
 
             {services.length === 0 && !isLoading && (
