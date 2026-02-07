@@ -17,6 +17,7 @@ interface MobileEmployeeCardProps {
   onToggleStatus: (employeeId: string, isActive?: boolean) => void;
   onViewDetails: (employee: Employee) => void;
   onDelete: (id: string) => void;
+  profileWorkingDays?: string[];
 }
 
 const MobileEmployeeCard = ({
@@ -26,6 +27,7 @@ const MobileEmployeeCard = ({
   onToggleStatus,
   onViewDetails,
   onDelete,
+  profileWorkingDays = [],
 }: MobileEmployeeCardProps) => {
   const getRoleColor = (role: string) => {
     const colors: Record<string, string> = {
@@ -45,6 +47,18 @@ const MobileEmployeeCard = ({
     typeof employee.role === "object" && employee.role?.name
       ? employee.role?.name
       : "N/A";
+
+  const getWorkingDays = (availability: Employee["availability"]) => {
+    return Object.entries(availability)
+      .filter(([day, isWorking]) => {
+        if (!isWorking) return false;
+        if (profileWorkingDays.length === 0) return true;
+        const capitalizedDay = day.charAt(0).toUpperCase() + day.slice(1);
+        return profileWorkingDays.includes(capitalizedDay);
+      })
+      .map(([day]) => day.slice(0, 3))
+      .join(", ");
+  };
 
   return (
     <div
@@ -105,10 +119,7 @@ const MobileEmployeeCard = ({
             className="text-muted-foreground flex-shrink-0"
           />
           <span className="truncate">
-            {Object.entries(employee.availability)
-              .filter(([_, isWorking]) => isWorking)
-              .map(([day]) => day.slice(0, 3))
-              .join(", ")}
+            {getWorkingDays(employee.availability)}
           </span>
         </div>
       </div>
@@ -162,7 +173,7 @@ const MobileEmployeeCard = ({
           iconPosition="left"
           onClick={() => onEdit(employee)}
           className="flex-1"
-          disabled= {!employee.isActive}
+          disabled={!employee.isActive}
         >
           Edit
         </Button>
@@ -174,7 +185,7 @@ const MobileEmployeeCard = ({
           iconPosition="left"
           onClick={() => onViewDetails(employee)}
           className="flex-1"
-          disabled= {!employee.isActive}
+          disabled={!employee.isActive}
         >
           View
         </Button>
@@ -186,7 +197,7 @@ const MobileEmployeeCard = ({
           iconPosition="left"
           onClick={() => onDelete(employee.id)}
           className="flex-1 text-red-500 hover:text-red-700"
-          disabled= {!employee.isActive}
+          disabled={!employee.isActive}
         >
           Delete
         </Button>
