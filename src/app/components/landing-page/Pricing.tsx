@@ -21,6 +21,8 @@ const plans = [
   {
     name: "Basic Plan",
     price: "FREE",
+    oldPrice: "₹251",
+    oldPeriod: "/ Month",
     period: "up to 3 Months",
     description: "Perfect for salons just getting started",
     icon: Sparkles,
@@ -128,11 +130,20 @@ export function Pricing() {
                     {plan.description}
                   </CardDescription>
 
-                  <div className="mt-6">
+                  <div className="mt-6 space-y-2">
+                    {/* Current Price */}
                     <div className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                       {plan.price}
                     </div>
-                    <div className="text-gray-500 mt-2">{plan.period}</div>
+
+                    {/* Old Price (only if exists) */}
+                    {plan.oldPrice && (
+                      <div className="text-gray-400 text-lg line-through">
+                        {plan.oldPrice} {plan.oldPeriod}
+                      </div>
+                    )}
+
+                    <div className="text-gray-500">{plan.period}</div>
                   </div>
                 </CardHeader>
 

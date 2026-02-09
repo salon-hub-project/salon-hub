@@ -159,7 +159,7 @@ const RenewPlan = () => {
                   : "hover:bg-primary/5 border-2"
               }`}
               onClick={() => {
-                setQrAmount(plan.price === "Free" ? "₹0" : plan.price);
+                setQrAmount(plan.price === "Free" ? "₹251" : plan.price);
                 setQrTitle(plan.name);
                 setQrOpen(true);
               }}
