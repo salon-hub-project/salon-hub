@@ -146,7 +146,7 @@ const EmployeeTable = ({
                 onClick={() => handleSort("name")}
                 className="flex items-center gap-2 text-sm font-semibold"
               >
-                Employee <SortIcon field="name" />
+                Name <SortIcon field="name" />
               </button>
             </th>
 

@@ -5,7 +5,11 @@ import { useRouter } from "next/navigation";
 import Icon from "../../components/AppIcon";
 import { useAppSelector } from "../../store/hooks";
 import { useAppDispatch } from "../../store/hooks";
-import { getProfile, deleteProfile, getStaffProfile } from "@/app/store/slices/profileSlice";
+import {
+  getProfile,
+  deleteProfile,
+  getStaffProfile,
+} from "@/app/store/slices/profileSlice";
 import ConfirmModal from "@/app/components/ui/ConfirmModal";
 import { normalizeRole } from "@/app/utils/normalizeRole";
 import Loader from "@/app/components/Loader";
@@ -42,7 +46,7 @@ const ProfilePage = () => {
   if (!user) {
     return (
       <div className="p-6 text-center text-muted-foreground">
-        <Loader label="Loading profile..."/>
+        <Loader label="Loading profile..." />
       </div>
     );
   }
@@ -50,8 +54,8 @@ const ProfilePage = () => {
     user.firstName || user.lastName
       ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim()
       : normalizedUserRole === "STAFF"
-      ? "Staff Member"
-      : "Salon Owner";
+        ? "Staff Member"
+        : "Salon Owner";
 
   const currentUser = {
     name: fullName,
@@ -113,35 +117,51 @@ const ProfilePage = () => {
                 <ProfileItem
                   icon="User"
                   label="Owner Name"
-                  value={profile?.ownerName ?? profile?.salonDetails?.ownerName ?? "—"}
+                  value={
+                    profile?.ownerName ??
+                    profile?.salonDetails?.ownerName ??
+                    "—"
+                  }
                 />
               </>
             )}
             <ProfileItem
               icon="Scissors"
               label="Salon Name"
-              value={profile?.salonName ?? profile?.salonDetails?.salonName ?? "—"}
+              value={
+                profile?.salonName ?? profile?.salonDetails?.salonName ?? "—"
+              }
             />
             <ProfileItem
               icon="Clock"
               label="Opening Time"
-              value={formatTo12Hour(profile?.openingTime ?? profile?.salonDetails?.openingTime) ?? "—"}
+              value={
+                formatTo12Hour(
+                  profile?.openingTime ?? profile?.salonDetails?.openingTime,
+                ) ?? "—"
+              }
             />
             <ProfileItem
               icon="Clock"
               label="Closing Time"
-              value={formatTo12Hour(profile?.closingTime ?? profile?.salonDetails?.closingTime) ?? "—"}
+              value={
+                formatTo12Hour(
+                  profile?.closingTime ?? profile?.salonDetails?.closingTime,
+                ) ?? "—"
+              }
             />
             <ProfileItem
               icon="Calendar"
               label="Working Days"
               value={
-                (profile?.workingDays ?? profile?.salonDetails?.workingDays) && (profile?.workingDays ?? profile?.salonDetails?.workingDays).length > 0
+                (profile?.workingDays ?? profile?.salonDetails?.workingDays) &&
+                (profile?.workingDays ?? profile?.salonDetails?.workingDays)
+                  .length > 0
                   ? (profile?.workingDays ?? profile?.salonDetails?.workingDays)
                       .map((d: any) =>
-                        typeof d === "number" 
+                        typeof d === "number"
                           ? ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d]
-                          : d
+                          : d,
                       )
                       .join(", ")
                   : "—"
@@ -149,15 +169,19 @@ const ProfilePage = () => {
             />
             {normalizedUserRole === "STAFF" && profile?.staffDetails && (
               <>
-               <ProfileItem
+                <ProfileItem
                   icon="Clock"
                   label="Break Start Time"
-                  value={formatTo12Hour(profile.staffDetails.breakStartTime) ?? "—"}
+                  value={
+                    formatTo12Hour(profile.staffDetails.breakStartTime) ?? "—"
+                  }
                 />
                 <ProfileItem
                   icon="Clock"
                   label="Break End Time"
-                  value={formatTo12Hour(profile.staffDetails.breakEndTime) ?? "—"}
+                  value={
+                    formatTo12Hour(profile.staffDetails.breakEndTime) ?? "—"
+                  }
                 />
                 <ProfileItem
                   icon="Target"
@@ -179,7 +203,6 @@ const ProfilePage = () => {
                   label="Rating"
                   value={profile.staffDetails.rating?.toString() ?? "0"}
                 />
-               
               </>
             )}
           </div>
@@ -206,12 +229,12 @@ const ProfilePage = () => {
                   Update Profile
                 </button>
 
-                <button
+                {/* <button
                   className="px-4 py-2 rounded-md bg-destructive text-destructive-foreground text-sm hover:opacity-90 transition"
                   onClick={handleDeleteProfile}
                 >
                   Delete Profile
-                </button>
+                </button> */}
               </>
             )}
           </div>
