@@ -45,7 +45,7 @@ const EmployeeFormModal = ({
 }: EmployeeFormModalProps) => {
   const initialValues: EmployeeFormData = {
     name: "",
-    role: "",
+    role: [],
     phone: "",
     email: "",
     password: "",
@@ -191,7 +191,12 @@ const EmployeeFormModal = ({
 
         setInitialFormValues({
           name: emp.fullName || "",
-          role: typeof emp.role === "object" ? emp.role._id : emp.role || "",
+          // role: typeof emp.role === "object" ? emp.role._id : emp.role || "",
+          role: Array.isArray(emp.role)
+            ? emp.role.map((r: any) => (typeof r === "object" ? r._id : r))
+            : emp.role
+              ? [typeof emp.role === "object" ? emp.role._id : emp.role]
+              : [],
           commissionRate: emp.commissionRate || null,
           target: emp.target || 0,
           targetType: emp.targetType || "Monthly",
@@ -300,7 +305,7 @@ const EmployeeFormModal = ({
       formData.append("breakStartTime", values.breakStartTime);
       formData.append("breakEndTime", values.breakEndTime);
 
-      formData.append("role", values.role);
+      formData.append("role", JSON.stringify(values.role));
       formData.append("rating", String(values.rating));
       formData.append(
         "phoneNumber",
@@ -351,7 +356,7 @@ const EmployeeFormModal = ({
       formData.append("breakStartTime", values.breakStartTime);
       formData.append("breakEndTime", values.breakEndTime);
 
-      formData.append("role", values.role);
+      formData.append("role", JSON.stringify(values.role));
       formData.append(
         "assignedServices",
         JSON.stringify(values.assignedServices),
@@ -379,7 +384,12 @@ const EmployeeFormModal = ({
 
       if (createdRole) {
         onRoleAdded(createdRole);
-        formikRef.current?.setFieldValue("role", createdRole._id);
+        const currentRoles = formikRef.current?.values.role || [];
+        // formikRef.current?.setFieldValue("role", createdRole._id);
+        formikRef.current?.setFieldValue("role", [
+          ...currentRoles,
+          createdRole._id,
+        ]);
       }
     } catch (err) {
       console.error(err);
@@ -442,11 +452,20 @@ const EmployeeFormModal = ({
 
                     <Select
                       label="Role"
+                      multiple
+                      closeOnSelect={true}
                       placeholder="Select role"
                       options={roleFilterOptions}
                       value={values.role}
                       onChange={(value) => setFieldValue("role", value)}
-                      error={touched.role ? errors.role : undefined}
+                      //error={touched.role ? errors.role : undefined}
+                      error={
+                        touched.role
+                          ? Array.isArray(errors.role)
+                            ? errors.role[0]
+                            : errors.role
+                          : undefined
+                      }
                       onAddNew={() => setIsAddRoleOpen(true)}
                     />
 

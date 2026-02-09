@@ -114,7 +114,7 @@ const StaffManagement = () => {
   }, []);
 
   const [employees, setEmployees] = useState<Employee[]>([]);
-
+   
   const handleAddEmployee = () => {
     setEditingEmployee(null);
     setIsFormOpen(true);
@@ -185,7 +185,8 @@ const StaffManagement = () => {
       const mappedEmployees: Employee[] = employeesFromApi.map((emp) => ({
         id: emp._id,
         name: emp.fullName,
-        role: emp.role,
+        //role: emp.role,
+        role: mapRoleNames(emp.role),
         phone: emp.userId?.phoneNumber ?? "",
         email: emp.userId?.email ?? "",
         isActive: emp.isActive ?? emp.status === "active",
@@ -253,6 +254,23 @@ const StaffManagement = () => {
     }
   };
 
+  const mapRoleNames = (role: any): string[] => {
+  if (!role) return [];
+
+  if (Array.isArray(role)) {
+    return role.map((r) =>
+      typeof r === "object" ? r.name : String(r),
+    );
+  }
+
+  if (typeof role === "object") {
+    return [role.name];
+  }
+
+  return [String(role)];
+};
+
+
   useEffect(() => {
     mountedRef.current = true;
     fetchEmployees();
@@ -290,7 +308,8 @@ const StaffManagement = () => {
       const mappedEmployee: Employee = {
         id: emp._id,
         name: emp.fullName,
-        role: emp.role,
+        //role: emp.role,
+        role: mapRoleNames(emp.role),
         phone: emp.userId?.phoneNumber ?? "",
         email: emp.userId?.email ?? "",
         status: emp.isActive ? "active" : "inactive",

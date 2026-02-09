@@ -58,15 +58,19 @@ const EmployeeTable = ({
         bValue = b.name.toLowerCase();
         break;
 
+      // case "role":
+      // aValue =
+      //   typeof a.role === "string"
+      //     ? roleMap.get(a.role)?.toLowerCase() || ""
+      //     : a.role?.name?.toLowerCase() || "";
+      // bValue =
+      //   typeof b.role === "string"
+      //     ? roleMap.get(b.role)?.toLowerCase() || ""
+      //     : b.role?.name?.toLowerCase() || "";
+      // break;
       case "role":
-        aValue =
-          typeof a.role === "string"
-            ? roleMap.get(a.role)?.toLowerCase() || ""
-            : a.role?.name?.toLowerCase() || "";
-        bValue =
-          typeof b.role === "string"
-            ? roleMap.get(b.role)?.toLowerCase() || ""
-            : b.role?.name?.toLowerCase() || "";
+        aValue = a.role.join(", ").toLowerCase();
+        bValue = b.role.join(", ").toLowerCase();
         break;
 
       case "rating":
@@ -180,10 +184,18 @@ const EmployeeTable = ({
 
         <tbody className="divide-y divide-border">
           {sortedEmployees.map((employee) => {
-            const roleName =
-              typeof employee.role === "string"
-                ? roleMap.get(employee.role)
-                : employee.role?.name;
+            // const roleName =
+            //   typeof employee.role === "string"
+            //     ? roleMap.get(employee.role)
+            //     : employee.role?.name;
+
+            const roleNames = Array.isArray(employee.role)
+              ? employee.role
+              : typeof employee.role === "string"
+                ? [roleMap.get(employee.role) ?? employee.role]
+                : employee.role
+                  ? [employee.role]
+                  : [];
 
             return (
               <tr
@@ -216,12 +228,8 @@ const EmployeeTable = ({
                 </td>
 
                 <td className="px-6 py-4">
-                  <span
-                    className={`px-2 py-1 rounded-md text-xs font-medium ${getRoleColor(
-                      roleName || "",
-                    )}`}
-                  >
-                    {roleName || "N/A"}
+                  <span className={`px-2 py-1 rounded-md text-xs font-medium `}>
+                    {roleNames.length > 0 ? roleNames.join(", ") : "N/A"}
                   </span>
                 </td>
 
@@ -258,7 +266,7 @@ const EmployeeTable = ({
                 <td className="px-6 py-4 text-right">
                   <div className="flex justify-end gap-2">
                     <select
-                     name="change status"
+                      name="change status"
                       value={employee.isActive ? "active" : "inactive"}
                       onChange={async (e) => {
                         e.stopPropagation();
@@ -272,7 +280,9 @@ const EmployeeTable = ({
                       }}
                       className="border rounded-md px-2 py-1 text-sm bg-background"
                     >
-                      <option value="" disabled>Change Status</option>
+                      <option value="" disabled>
+                        Change Status
+                      </option>
                       <option value="active">Active</option>
                       <option value="inactive">Inactive</option>
                     </select>
@@ -288,7 +298,7 @@ const EmployeeTable = ({
                       iconSize={16}
                       disabled={!employee.isActive}
                     />
-                    
+
                     <Button
                       variant="ghost"
                       size="icon"
