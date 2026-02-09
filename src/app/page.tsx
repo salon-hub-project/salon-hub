@@ -6,6 +6,7 @@ import { Features } from "@/app/components/landing-page/Features";
 import { WhyChoose } from "@/app/components/landing-page/WhyChoose";
 import { Pricing } from "@/app/components/landing-page/Pricing";
 import { CTA } from "@/app/components/landing-page/CTA";
+import { Testimonials } from "@/app/components/landing-page/Testimonials";
 import { Footer } from "@/app/components/landing-page/Footer";
 
 export default function Home() {
@@ -18,6 +19,7 @@ export default function Home() {
         <PainPoints />
         <Features />
         <WhyChoose />
+        <Testimonials />
         <Pricing />
         <CTA />
       </main>
