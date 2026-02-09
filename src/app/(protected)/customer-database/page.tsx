@@ -105,7 +105,7 @@ const CustomerDatabase = () => {
         dateOfBirth: c.DOB ? c.DOB.split("T")[0] : "",
         address: c.address || "",
         notes: c.notes || "",
-        tags: (c.customerTag || []),
+        tags: c.customerTag || [],
         lastVisit: c.lastVisit ? new Date(c.lastVisit) : undefined,
         totalVisits: c.totalVisits,
         totalSpent: c.totalSpent,
@@ -248,7 +248,7 @@ const CustomerDatabase = () => {
         dateOfBirth: c.DOB ? c.DOB.split("T")[0] : "",
         address: c.address || "",
         notes: c.notes || "",
-        tags: (c.customerTag || []),
+        tags: c.customerTag || [],
         lastVisit: c.lastVisit ? new Date(c.lastVisit) : null,
         totalVisits: c.totalVisits,
         totalSpent: c.totalSpent,
@@ -349,7 +349,7 @@ const CustomerDatabase = () => {
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
-              Customer Database
+              Customers
             </h1>
             <p className="text-muted-foreground">
               Manage customer relationships and service history

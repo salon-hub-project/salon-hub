@@ -417,7 +417,7 @@ const StaffManagement = () => {
             onClick={handleAddEmployee}
             className="w-full sm:w-auto order-1 sm:order-2"
           >
-            Add New Employee
+            Add New Staff
           </Button>
         </div>
 
@@ -425,7 +425,7 @@ const StaffManagement = () => {
           <div className="bg-card rounded-lg border border-border p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Total Employees</p>
+                <p className="text-sm text-muted-foreground">Total Staff</p>
                 <p className="text-3xl font-bold text-foreground mt-2">
                   {employees.length}
                 </p>
