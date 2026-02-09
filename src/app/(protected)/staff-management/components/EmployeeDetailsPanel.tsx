@@ -45,7 +45,7 @@ const EmployeeDetailsPanel = ({
         .map(([day]) => day.charAt(0).toUpperCase() + day.slice(1))
     : [];
 
-    console.log(employee);
+  console.log(employee);
   if (loading) {
     return (
       <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
@@ -100,7 +100,7 @@ const EmployeeDetailsPanel = ({
                 {employee.name}
               </h3>
               <p className="text-muted-foreground mt-1">
-                 {employee.role.length > 0 ? employee.role.join(", ") : "N/A"}
+                {employee.role.length > 0 ? employee.role.join(", ") : "N/A"}
               </p>
               <div className="flex items-center gap-4 mt-3">
                 <span
@@ -330,6 +330,32 @@ const EmployeeDetailsPanel = ({
                   Reset Achieved Amount & Commission
                 </Button>
               </div>
+
+              {/* Reset Summary */}
+              {employee?.performanceMetrics?.lastResetCommissionAmount !==
+                undefined && (
+                <div className="pt-3 border-t border-border space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">
+                      Reset Commission Amount
+                    </span>
+                    <span className="text-sm font-semibold text-destructive">
+                      INR{" "}
+                      {employee.performanceMetrics.lastResetCommissionAmount.toLocaleString()}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">
+                      Remaining Achieved Amount
+                    </span>
+                    <span className="text-sm font-semibold text-success">
+                      INR{" "}
+                      {employee.performanceMetrics.remainingAchievedAmount?.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

@@ -24,6 +24,8 @@ export interface Employee {
     achievedAmount: number;
     totalCommisionEarned?: number;
     lifetimeCommision? : number;
+    lastResetCommissionAmount?: number;
+    remainingAchievedAmount?: number;
   };
   availability: {
     monday: boolean;

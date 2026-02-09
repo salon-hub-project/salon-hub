@@ -26,6 +26,7 @@ import { StaffRoles } from "./types";
 import ResetTargetModal from "./components/ResetTargetModal";
 import EmployeeFilters from "./components/EmployeeFilters";
 import { profileApi } from "@/app/services/profile.api";
+import ResetAchievementModal from "./components/ResetAchievmentModal";
 
 const StaffManagement = () => {
   const [isMobile, setIsMobile] = useState<boolean>(() => {
@@ -42,6 +43,8 @@ const StaffManagement = () => {
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [roles, setRoles] = useState<StaffRoles[]>([]);
+  const [resetModalOpen, setResetModalOpen] = useState(false);
+  const [resetStaffId, setResetStaffId] = useState<string | null>(null);
 
   // Pagination
   const [page, setPage] = useState(1);
@@ -114,7 +117,7 @@ const StaffManagement = () => {
   }, []);
 
   const [employees, setEmployees] = useState<Employee[]>([]);
-   
+
   const handleAddEmployee = () => {
     setEditingEmployee(null);
     setIsFormOpen(true);
@@ -141,14 +144,53 @@ const StaffManagement = () => {
   };
 
   const handleResetAchievedAmount = async (staffId: string) => {
-    try {
-      await staffApi.resetIndividualAchievment(staffId);
-      fetchEmployees();
-      handleViewDetails({ id: staffId } as Employee);
-    } catch (err) {
-      console.error(err);
-    }
+    setResetStaffId(staffId);
+    setResetModalOpen(true);
   };
+
+  //Confirm Handler
+  const handleConfirmResetAchieved = async ({
+  startDate,
+  endDate,
+}: {
+  startDate: string;
+  endDate: string;
+}) => {
+  if (!resetStaffId) return;
+
+  try {
+    setIsResetting(true);
+
+    const res = await staffApi.resetIndividualAchievment(
+      resetStaffId,
+      { startDate, endDate }
+    );
+
+    // 👇 update selected employee immediately
+    setSelectedEmployee((prev) =>
+      prev
+        ? {
+            ...prev,
+            performanceMetrics: {
+              ...prev.performanceMetrics,
+              achievedAmount: res.remainingAchievedAmount,
+              lastResetCommissionAmount: res.resetCommissionAmount,
+              remainingAchievedAmount: res.remainingAchievedAmount,
+            },
+          }
+        : prev
+    );
+
+    fetchEmployees(); // keep list in sync
+    setResetModalOpen(false);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setIsResetting(false);
+    setResetStaffId(null);
+  }
+};
+
 
   const fetchRoles = async () => {
     try {
@@ -255,21 +297,18 @@ const StaffManagement = () => {
   };
 
   const mapRoleNames = (role: any): string[] => {
-  if (!role) return [];
+    if (!role) return [];
 
-  if (Array.isArray(role)) {
-    return role.map((r) =>
-      typeof r === "object" ? r.name : String(r),
-    );
-  }
+    if (Array.isArray(role)) {
+      return role.map((r) => (typeof r === "object" ? r.name : String(r)));
+    }
 
-  if (typeof role === "object") {
-    return [role.name];
-  }
+    if (typeof role === "object") {
+      return [role.name];
+    }
 
-  return [String(role)];
-};
-
+    return [String(role)];
+  };
 
   useEffect(() => {
     mountedRef.current = true;
@@ -486,7 +525,7 @@ const StaffManagement = () => {
               setRoles((prev) => prev.filter((role) => role._id !== id));
             }}
           />
-          <Button
+          {/* <Button
             variant="outline"
             iconName="RotateCcw"
             iconPosition="left"
@@ -494,7 +533,7 @@ const StaffManagement = () => {
             className="w-full sm:w-auto order-2 sm:order-1"
           >
             Reset Target
-          </Button>
+          </Button> */}
         </div>
 
         <EmployeeFilters
@@ -603,6 +642,16 @@ const StaffManagement = () => {
         onClose={() => setResetTargetModalOpen(false)}
         onConfirm={handleResetTarget}
         isLoading={isResetting}
+      />
+
+      <ResetAchievementModal
+        isOpen={resetModalOpen}
+        loading={isResetting}
+        onClose={() => {
+          setResetModalOpen(false);
+          setResetStaffId(null);
+        }}
+        onConfirm={handleConfirmResetAchieved}
       />
     </>
   );

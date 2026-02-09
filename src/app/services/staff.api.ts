@@ -40,6 +40,11 @@ export interface AvailableStaffPayload {
     comboOffers: string[];
 }
 
+export interface ResetStaffPayload {
+    startDate: Date;
+    endDate: Date;
+}
+
 export const staffApi = {
     // ADD STAFF
     addStaff: async (data: FormData) => {
@@ -129,9 +134,9 @@ export const staffApi = {
             });
         }
     },
-    resetIndividualAchievment : async (staffId: string)=> {
+    resetIndividualAchievment : async (staffId: string, payload: {startDate: string, endDate: string})=> {
          try{
-            const res= await api.post(`/staff/resetachievement/${staffId}`)
+            const res= await api.post(`/staff/resetachievement/${staffId}`, payload)
             showToast({
                 message: res?.data?.message || "Staff achieved amount reset successfully",
                 status: "success"

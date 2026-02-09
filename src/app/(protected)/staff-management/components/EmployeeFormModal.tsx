@@ -27,6 +27,12 @@ import {
 import { rolesApi } from "@/app/services/roles.api";
 import ConfirmModal from "@/app/components/ui/ConfirmModal";
 import { profileApi } from "@/app/services/profile.api";
+import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
+import {
+  clearFormDraft,
+  setFormDraft,
+} from "@/app/store/slices/formDraftSlice";
+import { FORMS_KEYS } from "@/app/constants/formKeys";
 
 interface EmployeeFormModalProps {
   employee: Employee | null;
@@ -68,7 +74,9 @@ const EmployeeFormModal = ({
       sunday: false,
     },
   };
-
+  const employeeDraft = useAppSelector(
+    (state) => state.formDraft.drafts[FORMS_KEYS.EMPLOYEE],
+  );
   const [services, setServices] = useState<ServiceApiResponse[]>([]);
   const [loadingServices, setLoadingServices] = useState(false);
   const [initialFormValues, setInitialFormValues] =
@@ -80,6 +88,7 @@ const EmployeeFormModal = ({
 
   const formikRef = useRef<any>(null);
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -161,6 +170,10 @@ const EmployeeFormModal = ({
 
   useEffect(() => {
     if (!employee?.id) {
+      if (employeeDraft) {
+        setInitialFormValues(employeeDraft);
+        return;
+      }
       setInitialFormValues({
         ...initialValues,
         availability:
@@ -322,6 +335,7 @@ const EmployeeFormModal = ({
       }
 
       await staffApi.addStaff(formData);
+      dispatch(clearFormDraft(FORMS_KEYS.EMPLOYEE));
       onClose();
     } catch (error) {
       console.error("Failed to add staff", error);
@@ -398,6 +412,15 @@ const EmployeeFormModal = ({
     }
   };
 
+  const handleClose = () => {
+    if (employee) {
+      onClose();
+    } else {
+      dispatch(clearFormDraft(FORMS_KEYS.EMPLOYEE));
+      onClose();
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
       <div className="bg-card rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
@@ -410,7 +433,17 @@ const EmployeeFormModal = ({
             size="icon"
             iconName="X"
             iconSize={20}
-            onClick={onClose}
+            onClick={() => {
+              if (!employee && formikRef.current) {
+                dispatch(
+                  setFormDraft({
+                    key: FORMS_KEYS.EMPLOYEE,
+                    data: formikRef.current.values,
+                  }),
+                );
+              }
+              onClose();
+            }}
           />
         </div>
 
@@ -631,7 +664,15 @@ const EmployeeFormModal = ({
                     searchable
                     closeOnSelect
                     disabled={loadingServices}
-                    onAddNew={() => router.push("/service-management")}
+                    onAddNew={() => {
+                      dispatch(
+                        setFormDraft({
+                          key: FORMS_KEYS.EMPLOYEE,
+                          data: formikRef.current.values,
+                        }),
+                      );
+                      router.push("/service-management");
+                    }}
                   />
 
                   <div>
@@ -702,7 +743,7 @@ const EmployeeFormModal = ({
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={onClose}
+                      onClick={handleClose}
                       fullWidth
                     >
                       Cancel
