@@ -19,6 +19,21 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isAccountExpired, setIsAccountExpired] = useState(false);
   const [isPlansModalOpen, setIsPlansModalOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setIsSidebarCollapsed(false);
+      } else {
+        setIsSidebarCollapsed(true);
+      }
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const pathname = usePathname();
 
@@ -158,7 +173,11 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
   return (
     <AuthGuard>
       <div className="min-h-screen bg-background">
-        <Sidebar userRole={user?.role} />
+        <Sidebar
+          userRole={user?.role}
+          collapsed={isSidebarCollapsed}
+          setCollapsed={setIsSidebarCollapsed}
+        />
 
         <Header
           user={user}
@@ -166,10 +185,11 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
           notificationList={notifications}
           onLogout={() => router.push("/salon-login")}
           onProfileClick={() => router.push("/profile")}
+          isSidebarCollapsed={isSidebarCollapsed}
         />
 
         <main
-          className={`ml-16 lg:ml-sidebar pt-header lg:pb-0 ${isAccountExpired ? "blur-sm pointer-events-none" : ""}`}
+          className={`transition-all duration-300 ${isSidebarCollapsed ? "ml-16" : "ml-64 lg:ml-sidebar"} pt-header lg:pb-0 ${isAccountExpired ? "blur-sm pointer-events-none" : ""}`}
         >
           {children}
         </main>
