@@ -764,7 +764,7 @@ const BookingManagement = () => {
             </div>
           </div>
 
-          <div className="space-y-4 ">
+          <div className="space-y-4 lg:sticky lg:top-20 h-fit">
             <div className="hidden lg:block">
               <QuickFilters
                 filters={filters}
