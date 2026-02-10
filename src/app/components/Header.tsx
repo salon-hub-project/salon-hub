@@ -44,6 +44,7 @@ interface HeaderProps {
   onNotificationClick?: () => void;
   onSalonSwitch?: (salonId: string) => void;
   availableSalons?: Array<{ id: string; name: string }>;
+  isSidebarCollapsed?: boolean;
 }
 
 const Header = ({
@@ -51,6 +52,7 @@ const Header = ({
   notificationList = [],
   onSalonSwitch,
   availableSalons = [],
+  isSidebarCollapsed = true,
 }: HeaderProps) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSalonSwitcherOpen, setIsSalonSwitcherOpen] = useState(false);
@@ -226,15 +228,17 @@ const Header = ({
   // };
 
   return (
-    <header className="fixed top-0 right-0 left-16 lg:left-sidebar h-header bg-card border-b border-border z-[90]">
-      <div className="flex items-center justify-between h-full pr-6">
-        <div className="flex-1 flex justify-center">
-          <h1 className="text-lg font-semibold capitalize">
+    <header
+      className={`fixed top-0 right-0 ${isSidebarCollapsed ? "left-16" : "left-64 lg:left-sidebar"} h-header bg-card border-b border-border z-[90] transition-all duration-300`}
+    >
+      <div className="flex items-center justify-between h-full px-2 sm:px-4 lg:pr-6">
+        <div className="flex-1 flex justify-center min-w-0">
+          <h1 className="text-base sm:text-lg font-semibold capitalize truncate px-2">
             {profile?.salonName ?? profile?.salonDetails?.salonName ?? "Salon"}
           </h1>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-1 sm:gap-4 shrink-0">
           {/* Salon Switcher (Super Admin only) */}
           {normalizedUserRole === "SUPERADMIN" &&
             availableSalons?.length > 0 && (

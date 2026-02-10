@@ -8,7 +8,8 @@ import Icon from "./AppIcon";
 import { useAppSelector } from "../store/hooks";
 
 interface SidebarProps {
-  isCollapsed?: boolean;
+  collapsed?: boolean;
+  setCollapsed?: (collapsed: boolean) => void;
   userRole?: string;
   notificationCounts?: Record<string, number>;
   onNavigate?: (path: string) => void;
@@ -72,36 +73,15 @@ const normalizeRole = (role: unknown): string => {
    ✅ SIDEBAR COMPONENT
 =============================== */
 const Sidebar = ({
-  isCollapsed = false,
+  collapsed = true,
+  setCollapsed,
   userRole,
   notificationCounts = {},
 }: SidebarProps) => {
   const pathname = usePathname();
   const router = useRouter();
-  // Initialize collapsed based on screen width
-  const [collapsed, setCollapsed] = useState(true);
-
-  useEffect(() => {
-    // Set initial state based on window size
-    if (window.innerWidth >= 1024) {
-      setCollapsed(false);
-    }
-  }, []);
-
-  // Auto-expand on desktop view
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 1024) {
-        setCollapsed(false);
-      }
-    };
-
-    // Initial check
-    handleResize();
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  // State and resize logic moved to parent (layout.tsx)
+  // to coordinate with Header responsiveness.
 
   // Redux user
   const authUser = useAppSelector((state) => state.auth.user);
@@ -330,7 +310,7 @@ const Sidebar = ({
           {/* Toggle */}
           <div className="p-4 border-t">
             <button
-              onClick={() => setCollapsed(!collapsed)}
+              onClick={() => setCollapsed?.(!collapsed)}
               className="w-full flex justify-center h-10 rounded-md hover:bg-muted"
             >
               <Icon
@@ -345,7 +325,7 @@ const Sidebar = ({
       {!collapsed && (
         <div
           className="fixed inset-0 bg-black/50 z-[90] lg:hidden"
-          onClick={() => setCollapsed(true)}
+          onClick={() => setCollapsed?.(true)}
         />
       )}
     </>
