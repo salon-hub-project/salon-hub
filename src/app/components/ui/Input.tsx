@@ -1,15 +1,14 @@
 import React from "react";
 import { cn } from "../../utils/cn";
 
-export interface InputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   description?: string;
   error?: string;
   required?: boolean;
   id?: string;
   iconName?: string;
-  maxLength?:number
+  maxLength?: number;
 
   // ✅ ADD THIS
   iconPosition?: "left" | "right";
@@ -33,7 +32,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
       ...props // ← ONLY valid input attributes go here
     },
-    ref
+    ref,
   ) => {
     const reactId = React.useId();
     const inputId = id || reactId;
@@ -48,7 +47,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           type="checkbox"
           className={cn(
             "h-4 w-4 rounded border border-input bg-background text-primary focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-            className
+            className,
           )}
           ref={ref}
           id={inputId}
@@ -64,7 +63,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           type="radio"
           className={cn(
             "h-4 w-4 rounded-full border border-input bg-background text-primary focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-            className
+            className,
           )}
           ref={ref}
           id={inputId}
@@ -80,8 +79,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <label
             htmlFor={inputId}
             className={cn(
-              "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
-              error ? "text-destructive" : "text-foreground"
+              "text-sm font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 block",
+              error ? "text-destructive" : "text-foreground",
             )}
           >
             {label}
@@ -95,7 +94,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           className={cn(
             baseInputClasses,
             error && "border-destructive focus-visible:ring-destructive",
-            className
+            className,
           )}
           ref={ref}
           id={inputId}
@@ -109,7 +108,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {error && <p className="text-sm text-red-600">{error}</p>}
       </div>
     );
-  }
+  },
 );
 
 Input.displayName = "Input";

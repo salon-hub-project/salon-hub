@@ -137,12 +137,12 @@ const EmployeeTable = ({
       <table className="w-full">
         <thead className="bg-muted">
           <tr>
-            <th className="px-6 py-4 text-left">
+            <th className="px-6 py-4 text-center">
               <button
                 onClick={() => handleSort("name")}
-                className="flex items-center gap-2 text-sm font-semibold"
+                className="flex items-center justify-center gap-2 text-sm font-semibold w-full"
               >
-                Name <SortIcon field="name" />
+                Name
               </button>
             </th>
 
@@ -151,7 +151,7 @@ const EmployeeTable = ({
                 onClick={() => handleSort("role")}
                 className="flex items-center gap-2 text-sm font-semibold"
               >
-                Role <SortIcon field="role" />
+                Role
               </button>
             </th>
 
@@ -161,7 +161,7 @@ const EmployeeTable = ({
                 onClick={() => handleSort("rating")}
                 className="flex items-center gap-2 text-sm font-semibold"
               >
-                Rating <SortIcon field="rating" />
+                Rating
               </button>
             </th>
             <th className="px-6 py-4 text-left">Working Days</th>
@@ -170,7 +170,7 @@ const EmployeeTable = ({
                 onClick={() => handleSort("revenue")}
                 className="flex items-center gap-2 text-sm font-semibold"
               >
-                Revenue <SortIcon field="revenue" />
+                Revenue
               </button>
             </th>
             <th className="px-6 py-4 text-left">Status</th>
