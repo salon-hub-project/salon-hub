@@ -147,7 +147,9 @@ const ViewAllAppointments = ({
                   </td>
                   <td className="p-3">
                     {item?.date
-                      ? new Date(item.date).toLocaleDateString("en-IN")
+                      ? new Date(item.date)
+                          .toLocaleDateString("en-GB")
+                          .replace(/\//g, "/")
                       : "-"}
                   </td>
 
