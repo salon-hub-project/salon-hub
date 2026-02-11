@@ -35,7 +35,7 @@ const EmployeeDetailsPanel = ({
 
   // From here on, employee is guaranteed to exist when not loading
   const workingDays = employee
-    ? Object.entries(employee.availability)
+    ? Object.entries(employee.availability ?? {})
         .filter(([day, isWorking]) => {
           if (!isWorking) return false;
           if (profileWorkingDays.length === 0) return true;
@@ -45,7 +45,6 @@ const EmployeeDetailsPanel = ({
         .map(([day]) => day.charAt(0).toUpperCase() + day.slice(1))
     : [];
 
-  console.log(employee);
   if (loading) {
     return (
       <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
@@ -72,6 +71,10 @@ const EmployeeDetailsPanel = ({
   }
 
   if (!employee) return null;
+
+  const totalCommission =
+  Number(employee.performanceMetrics?.totalCommisionEarned || 0) +
+  Number(employee.performanceMetrics?.lifetimeCommision || 0);
 
   return (
     <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
@@ -286,7 +289,9 @@ const EmployeeDetailsPanel = ({
                       </span>
                       <span className="text-lg font-bold text-success">
                         INR{" "}
-                        {employee.performanceMetrics?.achievedAmount?.toLocaleString()}
+                        {(
+                          employee.performanceMetrics?.achievedAmount ?? 0
+                        ).toLocaleString()}
                       </span>
                     </div>
                   </div>
@@ -306,16 +311,29 @@ const EmployeeDetailsPanel = ({
                       Total Commission Earned
                     </span>
                     <span className="text-lg font-bold text-success">
-                      INR {employee.performanceMetrics.totalCommisionEarned}
+                      INR {totalCommission}
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">
-                      Previous Earned Commission
+                      Paid Commission
                     </span>
                     <span className="text-lg font-bold text-success">
-                      INR {employee.performanceMetrics.lifetimeCommision}
+                      INR {employee.performanceMetrics.lifetimeCommision?.toLocaleString()}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">
+                      Remaining Commission
+                    </span>
+                    <span className="text-lg font-bold text-success">
+                      INR{" "}
+                      {(
+                        totalCommission -
+                        (employee.performanceMetrics?.lifetimeCommision ?? 0)
+                      ).toLocaleString()}
                     </span>
                   </div>
                 </div>
@@ -327,7 +345,7 @@ const EmployeeDetailsPanel = ({
                   onClick={() => onResetAchieved(employee.id)}
                   className="w-full"
                 >
-                  Reset Achieved Amount & Commission
+                  Reset Commission
                 </Button>
               </div>
 
@@ -342,16 +360,6 @@ const EmployeeDetailsPanel = ({
                     <span className="text-sm font-semibold text-destructive">
                       INR{" "}
                       {employee.performanceMetrics.lastResetCommissionAmount.toLocaleString()}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">
-                      Remaining Achieved Amount
-                    </span>
-                    <span className="text-sm font-semibold text-success">
-                      INR{" "}
-                      {employee.performanceMetrics.remainingAchievedAmount?.toLocaleString()}
                     </span>
                   </div>
                 </div>

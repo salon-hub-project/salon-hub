@@ -449,7 +449,7 @@ const CustomerDatabase = () => {
             )}
 
             {totalPages > 1 && (
-              <div className="mt-6 flex justify-end">
+              <div className="mt-6 flex justify-center">
                 <Pagination
                   page={page}
                   totalPages={totalPages}

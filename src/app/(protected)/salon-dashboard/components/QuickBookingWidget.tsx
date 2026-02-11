@@ -95,14 +95,14 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
   const [comboOptions, setComboOptions] = useState<
     { value: string; label: string; percent: number }[]
   >([]);
-  const quickBookingDraft = useAppSelector(
-    (state) => state.formDraft.drafts[FORMS_KEYS.QUICK_BOOKING],
-  );
+  // const quickBookingDraft = useAppSelector(
+  //   (state) => state.formDraft.drafts[FORMS_KEYS.QUICK_BOOKING],
+  // );
   const timings = useAppSelector((state: any) => state.profile.timings);
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const dispatch = useAppDispatch();
-  const formikRef = useRef<any>(null);
+  // const formikRef = useRef<any>(null);
 
   const fetchCustomers = async () => {
     // Skip customer API call for staff - they don't have access to customer data
@@ -245,7 +245,7 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
       };
 
       await appointmentApi.createAppointment(payload);
-      dispatch(clearFormDraft(FORMS_KEYS.QUICK_BOOKING));
+      // dispatch(clearFormDraft(FORMS_KEYS.QUICK_BOOKING));
       resetForm();
     } catch (error) {
       showToast({
@@ -264,17 +264,17 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
   };
 
   const today = new Date().toISOString().split("T")[0];
-  const baseInitialValues = {
+  const initialValues = {
     customer: "",
     selectedItems: [],
     date: "",
     time: "",
     staff: "",
   };
-  const initialValues = {
-    ...baseInitialValues,
-    ...(quickBookingDraft ?? {}),
-  };
+  // const initialValues = {
+  //   ...baseInitialValues,
+  //   ...(quickBookingDraft ?? {}),
+  // };
 
   return (
     <div className="bg-card border border-border rounded-lg p-6">
@@ -284,7 +284,7 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
       </div>
 
       <Formik
-        innerRef={formikRef}
+        // innerRef={formikRef}
         enableReinitialize
         initialValues={initialValues}
         validationSchema={BookingValidationSchema}
@@ -333,14 +333,14 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
               );
             });
 
-          useEffect(() => {
-            dispatch(
-              setFormDraft({
-                key: FORMS_KEYS.QUICK_BOOKING,
-                data: values,
-              }),
-            );
-          }, [values]);
+          // useEffect(() => {
+          //   dispatch(
+          //     setFormDraft({
+          //       key: FORMS_KEYS.QUICK_BOOKING,
+          //       data: values,
+          //     }),
+          //   );
+          // }, [values]);
           return (
             <Form className="space-y-4">
               {/* CUSTOMER */}
@@ -366,12 +366,12 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
                   }
                 }}
                 onAddNew={() => {
-                  dispatch(
-                    setFormDraft({
-                      key: FORMS_KEYS.QUICK_BOOKING,
-                      data: values,
-                    }),
-                  );
+                  // dispatch(
+                  //   setFormDraft({
+                  //     key: FORMS_KEYS.QUICK_BOOKING,
+                  //     data: values,
+                  //   }),
+                  // );
 
                   router.push("/customer-database");
                 }}
@@ -449,12 +449,12 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
                 value={values.staff}
                 onChange={(val) => setFieldValue("staff", val)}
                 onAddNew={() => {
-                  dispatch(
-                    setFormDraft({
-                      key: FORMS_KEYS.QUICK_BOOKING,
-                      data: values,
-                    }),
-                  );
+                  // dispatch(
+                  //   setFormDraft({
+                  //     key: FORMS_KEYS.QUICK_BOOKING,
+                  //     data: values,
+                  //   }),
+                  // );
 
                   router.push("/staff-management");
                 }}

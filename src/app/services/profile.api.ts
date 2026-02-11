@@ -74,7 +74,6 @@ export const profileApi = {
   getProfileTimings: async () => {
     try {
       const res = await api.get("/profile/timings");
-      console.log(res.data);
       return res.data;
     } catch (error: any) {
       throw error;
@@ -83,7 +82,6 @@ export const profileApi = {
   getStaffProfile: async () => {
     try {
       const res = await api.get("/staff/staffprofile");
-       console.log(res.data);
       return res.data;
      
     } catch (error: any) {

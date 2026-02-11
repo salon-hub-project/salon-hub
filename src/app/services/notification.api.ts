@@ -14,7 +14,6 @@ export const notificationApi = {
     getAllStaffNotifications: async() => {
         try{
             const res = await api.get('/appointment/staffnotifications');
-            console.log(res.data);
             return res.data;
         }
         catch(error: any){
