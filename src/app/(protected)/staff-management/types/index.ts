@@ -1,10 +1,11 @@
 export interface Employee {
   id: string;
   name: string;
-  role: {
-    _id: string;
-    name: string;
-  };
+  // role: {
+  //   _id: string;
+  //   name: string;
+  // };
+  role: string[];
   phone: string;
   email: string;
   avatar?: string;
@@ -23,6 +24,8 @@ export interface Employee {
     achievedAmount: number;
     totalCommisionEarned?: number;
     lifetimeCommision? : number;
+    lastResetCommissionAmount?: number;
+    remainingAchievedAmount?: number;
   };
   availability: {
     monday: boolean;
@@ -61,7 +64,7 @@ export interface StaffRoles {
 }
 export interface EmployeeFormData {
   name: string;
-  role: string;
+  role: string[];
   phone: string;
   email: string;
   password: string;

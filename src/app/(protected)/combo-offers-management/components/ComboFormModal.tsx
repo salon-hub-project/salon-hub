@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Formik, Form } from "formik";
 import { useRouter } from "next/navigation";
 import Icon from "../../../components/AppIcon";
@@ -7,7 +7,9 @@ import Input from "../../../components/ui/Input";
 import Button from "../../../components/ui/Button";
 import { ComboOffer, ComboFormData } from "../types";
 import { comboValidationSchema } from "@/app/components/validation/validation";
-import { customerTags } from "../../customer-database/types";
+import { setFormDraft, clearFormDraft } from "@/app/store/slices/formDraftSlice";
+import { FORMS_KEYS } from "@/app/constants/formKeys";
+import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 
 interface ComboFormModalProps {
   isOpen: boolean;
@@ -29,7 +31,14 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
   combo,
   availableServices,
 }) => {
-  const initialValues: ComboFormData = {
+  const comboDraft = useAppSelector(
+    (state) => state.formDraft.drafts[FORMS_KEYS.COMBO],
+  );
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+  const formikRef = useRef<any>(null);
+
+  const baseInitialValues: ComboFormData = {
     name: combo?.name || "",
     description: combo?.description || "",
     services: combo?.services || [],
@@ -47,23 +56,29 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
 
     staffCommissionRate: combo?.staffCommissionRate ?? null,
   };
+  const initialValues = comboDraft && !combo ? comboDraft : baseInitialValues;
 
-  const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
+  // const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
+  // const [loadingTags, setLoadingTags] = useState(false);
 
-  const [loadingTags, setLoadingTags] = useState(false);
-  const router = useRouter();
-
-  const customerEligibilityOptions = [
-    ...customerTags.map((tag) => ({
-      value: tag.id,
-      label: tag.name,
-    })),
-  ];
+  // const customerEligibilityOptions = [
+  //   ...customerTags.map((tag) => ({
+  //     value: tag.id,
+  //     label: tag.name,
+  //   })),
+  // ];
 
   const calculateOriginalPrice = (services: any[]) =>
     services.reduce((sum, s) => sum + s.originalPrice, 0);
 
   const today = new Date().toISOString().split("T")[0];
+
+  const getError = (error: unknown): string | undefined => {
+  if (!error) return undefined;
+  if (typeof error === "string") return error;
+  return undefined;
+};
+
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[1000]">
@@ -73,7 +88,17 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
             {combo ? "Edit Combo Offer" : "Create New Combo Offer"}
           </h2>
           <button
-            onClick={onClose}
+            onClick={() => {
+              if (!combo && formikRef.current) {
+                dispatch(
+                  setFormDraft({
+                    key: FORMS_KEYS.COMBO,
+                    data: formikRef.current.values,
+                  }),
+                );
+              }
+              onClose();
+            }}
             className="p-1 hover:bg-muted rounded-lg transition-colors"
           >
             <Icon name="X" size={20} />
@@ -81,6 +106,7 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
         </div>
 
         <Formik
+          innerRef={formikRef}
           initialValues={initialValues}
           validationSchema={comboValidationSchema}
           enableReinitialize
@@ -91,6 +117,7 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                 customerEligibility: values.customerEligibility || undefined,
               };
               await onSubmit(payload);
+              dispatch(clearFormDraft(FORMS_KEYS.COMBO))
               onClose();
             } catch (error) {
               console.error("Combo submit failed", error);
@@ -117,7 +144,7 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                       placeholder="Enter Combo Name"
                       value={values.name}
                       onChange={(e) => setFieldValue("name", e.target.value)}
-                      error={touched.name ? errors.name : undefined}
+                      error={touched.name ? getError(errors.name) : undefined}
                     />
 
                     <div>
@@ -133,9 +160,9 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                         rows={3}
                         placeholder="Describe your combo offer..."
                       />
-                      {touched.description && errors.description && (
+                      {touched.description && getError(errors.description) && (
                         <p className="text-xs text-destructive text-red-500">
-                          {errors.description}
+                          {getError(errors.description)}
                         </p>
                       )}
                     </div>
@@ -168,9 +195,15 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                                 variant="outline"
                                 size="sm"
                                 iconName="Plus"
-                                onClick={() =>
-                                  router.push("/service-management")
-                                }
+                                onClick={() => {
+                                  dispatch(
+                                    setFormDraft({
+                                      key: FORMS_KEYS.COMBO,
+                                      data: formikRef.current.values,
+                                    }),
+                                  );
+                                  router.push("/service-management");
+                                }}
                               >
                                 Create Service
                               </Button>
@@ -180,7 +213,7 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                           <div className="space-y-2 max-h-48 overflow-y-auto border border-border rounded-lg p-3">
                             {availableServices.map((service) => {
                               const checked = values.services.some(
-                                (s) => s.id === service.id,
+                                (s: any) => s.id === service.id,
                               );
 
                               return (
@@ -197,7 +230,7 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                                           setFieldValue(
                                             "services",
                                             values.services.filter(
-                                              (s) => s.id !== service.id,
+                                              (s: any) => s.id !== service.id,
                                             ),
                                           );
                                         } else {
@@ -280,7 +313,7 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                       }}
                       error={
                         touched.discountedPrice
-                          ? errors.discountedPrice
+                          ? getError(errors.discountedPrice)
                           : undefined
                       }
                     />
@@ -333,7 +366,10 @@ const ComboFormModal: React.FC<ComboFormModalProps> = ({
                   <Button
                     type="button"
                     variant="secondary"
-                    onClick={onClose}
+                    onClick={() => {combo ? onClose() :
+                      dispatch(clearFormDraft(FORMS_KEYS.COMBO));
+                      onClose();
+                    }}
                     fullWidth
                     disabled={isSubmitting}
                   >

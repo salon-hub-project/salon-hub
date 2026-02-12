@@ -21,6 +21,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Clock } from "lucide-react";
 import { cn } from "@/app/utils/cn";
 import { fetchProfileTimings } from "@/app/store/slices/profileSlice";
+import {
+  setFormDraft,
+  clearFormDraft,
+} from "@/app/store/slices/formDraftSlice";
+import { FORMS_KEYS } from "@/app/constants/formKeys";
 
 interface QuickBookingWidgetProps {
   onCreateBooking: (data: any) => void;
@@ -90,10 +95,14 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
   const [comboOptions, setComboOptions] = useState<
     { value: string; label: string; percent: number }[]
   >([]);
+  // const quickBookingDraft = useAppSelector(
+  //   (state) => state.formDraft.drafts[FORMS_KEYS.QUICK_BOOKING],
+  // );
   const timings = useAppSelector((state: any) => state.profile.timings);
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const dispatch = useAppDispatch();
+  // const formikRef = useRef<any>(null);
 
   const fetchCustomers = async () => {
     // Skip customer API call for staff - they don't have access to customer data
@@ -216,8 +225,6 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
       });
       return;
     }
-
-    console.log(values);
     setIsSubmitting(true);
     try {
       const services = values.selectedItems
@@ -238,6 +245,7 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
       };
 
       await appointmentApi.createAppointment(payload);
+      // dispatch(clearFormDraft(FORMS_KEYS.QUICK_BOOKING));
       resetForm();
     } catch (error) {
       showToast({
@@ -249,7 +257,24 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
     }
   };
 
+  const getError = (error: unknown): string | undefined => {
+    if (!error) return undefined;
+    if (typeof error === "string") return error;
+    return undefined;
+  };
+
   const today = new Date().toISOString().split("T")[0];
+  const initialValues = {
+    customer: "",
+    selectedItems: [],
+    date: "",
+    time: "",
+    staff: "",
+  };
+  // const initialValues = {
+  //   ...baseInitialValues,
+  //   ...(quickBookingDraft ?? {}),
+  // };
 
   return (
     <div className="bg-card border border-border rounded-lg p-6">
@@ -259,13 +284,9 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
       </div>
 
       <Formik
-        initialValues={{
-          customer: "",
-          selectedItems: [],
-          date: "",
-          time: "",
-          staff: "",
-        }}
+        // innerRef={formikRef}
+        enableReinitialize
+        initialValues={initialValues}
         validationSchema={BookingValidationSchema}
         onSubmit={handleSubmit}
       >
@@ -312,6 +333,14 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
               );
             });
 
+          // useEffect(() => {
+          //   dispatch(
+          //     setFormDraft({
+          //       key: FORMS_KEYS.QUICK_BOOKING,
+          //       data: values,
+          //     }),
+          //   );
+          // }, [values]);
           return (
             <Form className="space-y-4">
               {/* CUSTOMER */}
@@ -336,8 +365,17 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
                     }
                   }
                 }}
-                onAddNew={() => router.push("/customer-database")}
-                error={touched.customer ? errors.customer : undefined}
+                onAddNew={() => {
+                  // dispatch(
+                  //   setFormDraft({
+                  //     key: FORMS_KEYS.QUICK_BOOKING,
+                  //     data: values,
+                  //   }),
+                  // );
+
+                  router.push("/customer-database");
+                }}
+                error={touched.customer ? getError(errors.customer) : undefined}
               />
 
               <div className="grid grid-cols-2 gap-4">
@@ -352,7 +390,9 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
                     setFieldValue("date", selectedDate);
                     fetchCombo(new Date(selectedDate));
                   }}
-                  error={touched.date ? errors.date : (dateError as string)}
+                  error={
+                    touched.date ? getError(errors.date) : (dateError as string)
+                  }
                 />
 
                 {/* TIME */}
@@ -362,7 +402,9 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
                   options={timeSlots}
                   value={values.time}
                   onChange={(val: string) => setFieldValue("time", val)}
-                  error={touched.time ? errors.time : (timeError as string)}
+                  error={
+                    touched.time ? getError(errors.time) : (timeError as string)
+                  }
                   className="mt-2.5"
                 />
               </div>
@@ -406,8 +448,17 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
                 options={staffOptions}
                 value={values.staff}
                 onChange={(val) => setFieldValue("staff", val)}
-                onAddNew={() => router.push("/staff-management")}
-                error={touched.staff ? errors.staff : undefined}
+                onAddNew={() => {
+                  // dispatch(
+                  //   setFormDraft({
+                  //     key: FORMS_KEYS.QUICK_BOOKING,
+                  //     data: values,
+                  //   }),
+                  // );
+
+                  router.push("/staff-management");
+                }}
+                error={touched.staff ? getError(errors.staff) : undefined}
               />
 
               <Button

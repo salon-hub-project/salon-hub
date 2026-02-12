@@ -154,7 +154,7 @@ const GetAllOwners = () => {
                         <td className="px-4 py-3 text-sm">
                           {owner?.user?.phoneNumber || "-"}
                         </td>
-                         <td className="px-4 py-3 text-sm">
+                        <td className="px-4 py-3 text-sm">
                           {owner?.totalSales || 0}
                         </td>
 

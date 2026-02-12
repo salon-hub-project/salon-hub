@@ -10,10 +10,15 @@ import Input from "../../../components/ui/Input";
 import Select from "../../../components/ui/Select";
 import { Checkbox } from "../../../components/ui/Checkbox";
 import Loader from "@/app/components/Loader";
-
+import {
+  setFormDraft,
+  clearFormDraft,
+} from "@/app/store/slices/formDraftSlice";
+import { FORMS_KEYS } from "@/app/constants/formKeys";
 import { CustomerFormikValues, CustomerTag, Customer } from "../types";
 import { customerApi } from "@/app/services/customer.api";
 import { staffApi } from "@/app/services/staff.api";
+import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 
 const getValidationSchema = (isEditMode: boolean) =>
   Yup.object({
@@ -47,6 +52,9 @@ const CustomerForm = ({
   onTagAdded,
 }: CustomerFormProps) => {
   const isEditMode = !!editingCustomer;
+  const customerDraft = useAppSelector(
+    (state) => state.formDraft.drafts[FORMS_KEYS.CUSTOMER],
+  );
   const [loadingTags, setLoadingTags] = useState(false);
   const [staff, setStaff] = useState<any[]>([]);
   const [loadingStaff, setLoadingStaff] = useState(false);
@@ -54,6 +62,8 @@ const CustomerForm = ({
   const fetchingStaffRef = useRef(false);
   const mountedRef = useRef(true);
   const router = useRouter();
+  const dispatch = useAppDispatch();
+  const formikRef = useRef<any>(null);
 
   //Fetch Staff API:-
   useEffect(() => {
@@ -126,6 +136,7 @@ const CustomerForm = ({
         email: values.email || undefined,
         notes: values.notes || undefined,
       });
+      dispatch(clearFormDraft(FORMS_KEYS.CUSTOMER));
       onClose();
       onSuccess?.();
     } catch (error) {
@@ -144,13 +155,30 @@ const CustomerForm = ({
         preferredStaff: values.preferredStaff || undefined,
         customerTag: values.tags.length ? values.tags : undefined,
       });
-
+      dispatch(clearFormDraft(FORMS_KEYS.CUSTOMER));
       onClose();
       onSuccess?.();
     } catch (error) {
       console.error("Failed to update customer", error);
     }
   };
+
+  const baseInitialValues: CustomerFormikValues = {
+    name: editingCustomer?.name || "",
+    phone: editingCustomer?.phone || "",
+    email: editingCustomer?.email || "",
+    notes: editingCustomer?.notes || "",
+    gender: editingCustomer?.gender || "female",
+    dateOfBirth: editingCustomer?.dateOfBirth || "",
+    tags:
+      editingCustomer?.tagIds || editingCustomer?.tags || ([] as CustomerTag[]),
+    preferredStaff: editingCustomer?.preferredStaff
+      ? getPreferredStaffId(editingCustomer.preferredStaff)
+      : "",
+  };
+
+  const initialValues: CustomerFormikValues =
+    isEditMode || !customerDraft ? baseInitialValues : customerDraft;
 
   return (
     <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
@@ -159,27 +187,25 @@ const CustomerForm = ({
           <h2 className="text-xl font-semibold">
             {isEditMode ? "Edit Customer" : "Add New Customer"}
           </h2>
-          <button onClick={onClose} className="p-2 rounded-md hover:bg-muted">
+          <button
+            onClick={() => {
+              dispatch(
+                setFormDraft({
+                  key: FORMS_KEYS.CUSTOMER,
+                  data: formikRef.current?.values,
+                }),
+              );
+              onClose();
+            }}
+            className="p-2 rounded-md hover:bg-muted"
+          >
             <Icon name="X" size={20} />
           </button>
         </div>
 
         <Formik<CustomerFormikValues>
-          initialValues={{
-            name: editingCustomer?.name || "",
-            phone: editingCustomer?.phone || "",
-            email: editingCustomer?.email || "",
-            notes: editingCustomer?.notes || "",
-            gender: editingCustomer?.gender || "female",
-            dateOfBirth: editingCustomer?.dateOfBirth || "",
-            tags:
-              editingCustomer?.tagIds ||
-              editingCustomer?.tags ||
-              ([] as CustomerTag[]),
-            preferredStaff: editingCustomer?.preferredStaff
-              ? getPreferredStaffId(editingCustomer.preferredStaff)
-              : "",
-          }}
+          innerRef={formikRef}
+          initialValues={initialValues}
           validationSchema={getValidationSchema(isEditMode)}
           enableReinitialize={true}
           onSubmit={isEditMode ? updateCustomer : addCustomer}
@@ -263,7 +289,15 @@ const CustomerForm = ({
                   value={values.preferredStaff}
                   onChange={(v) => setFieldValue("preferredStaff", v)}
                   disabled={loadingStaff}
-                  onAddNew={() => router.push("/staff-management")}
+                  onAddNew={() => {
+                      dispatch(
+                        setFormDraft({
+                          key: FORMS_KEYS.CUSTOMER,
+                          data: formikRef.current.values,
+                        }),
+                      );
+                      router.push("/staff-management");
+                    }}
                 />
               </div>
 
@@ -316,7 +350,12 @@ const CustomerForm = ({
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={onClose}
+                  onClick={() => {
+                      editingCustomer
+                        ? onClose()
+                        : dispatch(clearFormDraft(FORMS_KEYS.SERVICE));
+                      onClose();
+                    }}
                   fullWidth
                 >
                   Cancel

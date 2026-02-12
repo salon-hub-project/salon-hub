@@ -26,6 +26,7 @@ import { StaffRoles } from "./types";
 import ResetTargetModal from "./components/ResetTargetModal";
 import EmployeeFilters from "./components/EmployeeFilters";
 import { profileApi } from "@/app/services/profile.api";
+import ResetAchievementModal from "./components/ResetAchievmentModal";
 
 const StaffManagement = () => {
   const [isMobile, setIsMobile] = useState<boolean>(() => {
@@ -42,6 +43,8 @@ const StaffManagement = () => {
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [roles, setRoles] = useState<StaffRoles[]>([]);
+  const [resetModalOpen, setResetModalOpen] = useState(false);
+  const [resetStaffId, setResetStaffId] = useState<string | null>(null);
 
   // Pagination
   const [page, setPage] = useState(1);
@@ -141,12 +144,97 @@ const StaffManagement = () => {
   };
 
   const handleResetAchievedAmount = async (staffId: string) => {
+    setResetStaffId(staffId);
+    setResetModalOpen(true);
+  };
+
+  //Confirm Handler
+  const handleConfirmResetAchieved = async ({
+    startDate,
+    endDate,
+  }: {
+    startDate: string;
+    endDate: string;
+  }) => {
+    if (!resetStaffId) return;
+
     try {
-      await staffApi.resetIndividualAchievment(staffId);
-      fetchEmployees();
-      handleViewDetails({ id: staffId } as Employee);
+      setIsResetting(true);
+
+      const res = await staffApi.resetIndividualAchievment(resetStaffId, {
+        startDate,
+        endDate,
+      });
+
+      // 🔥 Fetch fresh staff details immediately
+      const updatedDetails = await staffApi.getStaffDetails(resetStaffId);
+      const emp = updatedDetails.staffDetails;
+      
+      const updatedEmployee: Employee = {
+        id: emp._id,
+        name: emp.fullName,
+        role: mapRoleNames(emp.role),
+        phone: emp.userId?.phoneNumber ?? "",
+        email: emp.userId?.email ?? "",
+        status: emp.isActive ? "active" : "inactive",
+        staffImage: emp.staffImage || "No image found",
+        joinDate: emp.createdAt,
+        assignedServices: emp.assignedServices.map((s: any) => s.serviceName),
+        commissionRate: emp.commissionRate,
+        target: emp.target,
+        targetType: emp.targetType,
+        availability: {
+          monday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "1" || String(d) === "Monday",
+            ) || false,
+          tuesday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "2" || String(d) === "Tuesday",
+            ) || false,
+          wednesday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "3" || String(d) === "Wednesday",
+            ) || false,
+          thursday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "4" || String(d) === "Thursday",
+            ) || false,
+          friday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "5" || String(d) === "Friday",
+            ) || false,
+          saturday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "6" || String(d) === "Saturday",
+            ) || false,
+          sunday:
+            emp.workingDays?.some(
+              (d: any) => String(d) === "0" || String(d) === "Sunday",
+            ) || false,
+        },
+        performanceMetrics: {
+          completedServices: emp.completedAppointments || 0,
+          customerRating: emp.rating ?? 0,
+          revenueGenerated: emp?.lifetimeRevenue || 0,
+          bookingCompletionRate: 0,
+          achievedAmount: emp.achievedAmount || 0,
+          totalCommisionEarned: emp?.totalCommisionEarned || 0,
+          lifetimeCommision: emp?.lifetimeCommision || 0,
+          lastResetCommissionAmount: res.resetCommissionAmount,
+          remainingAchievedAmount: res.remainingAchievedAmount,
+        },
+      };
+
+      setSelectedEmployee(updatedEmployee);
+
+      fetchEmployees(); // update list
+      setResetModalOpen(false);
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsResetting(false);
+      setResetStaffId(null);
     }
   };
 
@@ -185,7 +273,8 @@ const StaffManagement = () => {
       const mappedEmployees: Employee[] = employeesFromApi.map((emp) => ({
         id: emp._id,
         name: emp.fullName,
-        role: emp.role,
+        //role: emp.role,
+        role: mapRoleNames(emp.role),
         phone: emp.userId?.phoneNumber ?? "",
         email: emp.userId?.email ?? "",
         isActive: emp.isActive ?? emp.status === "active",
@@ -253,6 +342,20 @@ const StaffManagement = () => {
     }
   };
 
+  const mapRoleNames = (role: any): string[] => {
+    if (!role) return [];
+
+    if (Array.isArray(role)) {
+      return role.map((r) => (typeof r === "object" ? r.name : String(r)));
+    }
+
+    if (typeof role === "object") {
+      return [role.name];
+    }
+
+    return [String(role)];
+  };
+
   useEffect(() => {
     mountedRef.current = true;
     fetchEmployees();
@@ -290,7 +393,8 @@ const StaffManagement = () => {
       const mappedEmployee: Employee = {
         id: emp._id,
         name: emp.fullName,
-        role: emp.role,
+        //role: emp.role,
+        role: mapRoleNames(emp.role),
         phone: emp.userId?.phoneNumber ?? "",
         email: emp.userId?.email ?? "",
         status: emp.isActive ? "active" : "inactive",
@@ -467,7 +571,7 @@ const StaffManagement = () => {
               setRoles((prev) => prev.filter((role) => role._id !== id));
             }}
           />
-          <Button
+          {/* <Button
             variant="outline"
             iconName="RotateCcw"
             iconPosition="left"
@@ -475,7 +579,7 @@ const StaffManagement = () => {
             className="w-full sm:w-auto order-2 sm:order-1"
           >
             Reset Target
-          </Button>
+          </Button> */}
         </div>
 
         <EmployeeFilters
@@ -584,6 +688,17 @@ const StaffManagement = () => {
         onClose={() => setResetTargetModalOpen(false)}
         onConfirm={handleResetTarget}
         isLoading={isResetting}
+      />
+
+      <ResetAchievementModal
+        isOpen={resetModalOpen}
+        loading={isResetting}
+        joinDate= {selectedEmployee?.joinDate}
+        onClose={() => {
+          setResetModalOpen(false);
+          setResetStaffId(null);
+        }}
+        onConfirm={handleConfirmResetAchieved}
       />
     </>
   );

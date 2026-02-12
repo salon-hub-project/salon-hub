@@ -26,7 +26,7 @@ const RenewPlan = () => {
         { label: "3 Combo Offers", icon: "BadgePercent" },
         { label: "10 Staff Members", icon: "UserCog" },
       ],
-      buttonText: "Renew Basic",
+      // buttonText: "Renew Basic",
       isPopular: false,
     },
     {
@@ -151,21 +151,23 @@ const RenewPlan = () => {
               </ul>
             </div> */}
 
-            <Button
-              variant={plan.isPopular ? "default" : "outline"}
-              className={`w-full py-6 text-lg font-bold rounded-2xl transition-all duration-300 ${
-                plan.isPopular
-                  ? "bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500"
-                  : "hover:bg-primary/5 border-2"
-              }`}
-              onClick={() => {
-                setQrAmount(plan.price === "Free" ? "₹251" : plan.price);
-                setQrTitle(plan.name);
-                setQrOpen(true);
-              }}
-            >
-              {plan.buttonText}
-            </Button>
+            {plan.buttonText && (
+              <Button
+                variant={plan.isPopular ? "default" : "outline"}
+                className={`w-full py-6 text-lg font-bold rounded-2xl transition-all duration-300 ${
+                  plan.isPopular
+                    ? "bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500"
+                    : "hover:bg-primary/5 border-2 hover:text-black"
+                }`}
+                onClick={() => {
+                  setQrAmount(plan.price === "Free" ? "₹251" : plan.price);
+                  setQrTitle(plan.name);
+                  setQrOpen(true);
+                }}
+              >
+                {plan.buttonText}
+              </Button>
+            )}
           </div>
         ))}
       </div>

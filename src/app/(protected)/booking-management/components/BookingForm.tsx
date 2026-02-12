@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { Formik, Form, useFormikContext } from "formik";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
@@ -15,6 +15,12 @@ import { staffApi } from "@/app/services/staff.api";
 import { comboApi } from "@/app/services/combo.api";
 import GroupedSelect from "@/app/components/ui/GroupedSelect";
 import { appointmentApi } from "@/app/services/appointment.api";
+import {
+  setFormDraft,
+  clearFormDraft,
+} from "@/app/store/slices/formDraftSlice";
+import { FORMS_KEYS } from "@/app/constants/formKeys";
+import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 
 // Helper component to handle side effects and data fetching inside Formik context
 const StaffFetcher = ({
@@ -135,11 +141,15 @@ const BookingForm = ({
   isLoading = false,
 }: BookingFormProps) => {
   // Get salon timings from Redux
+  const bookingDraft = useAppSelector(
+    (state) => state.formDraft.drafts[FORMS_KEYS.BOOKING],
+  );
   const timings = useSelector((state: any) => state.profile.timings);
   const user = useSelector((state: any) => state.auth.user);
   const isStaffUser = user?.role?.[0] === "STAFF";
   const isOwnerUser = !isStaffUser;
-
+  const dispatch = useAppDispatch();
+  const formikRef = useRef<any>(null);
   const disableAllExceptStaff = isOwnerUser && changeStaffOnly;
   const disableAllExceptDateTime = isStaffUser && !changeStaffOnly;
 
@@ -216,7 +226,7 @@ const BookingForm = ({
           appointmentTime: values.startTime,
           notes: values.notes || "",
         });
-
+        dispatch(clearFormDraft(FORMS_KEYS.BOOKING));
         resetForm();
         onSuccess?.();
         return;
@@ -236,7 +246,7 @@ const BookingForm = ({
           staffId: values.staffId,
         });
       }
-
+      dispatch(clearFormDraft(FORMS_KEYS.BOOKING));
       onSuccess?.();
     } catch (error) {
       console.error("Booking update failed", error);
@@ -265,7 +275,7 @@ const BookingForm = ({
     return "";
   };
 
-  const initialValues = useMemo(
+  const baseInitialValues = useMemo(
     () => ({
       customerId: bookingToEdit?.customerId || initialCustomerId || "",
       selectedItems: bookingToEdit
@@ -296,18 +306,32 @@ const BookingForm = ({
     [bookingToEdit, initialCustomerId, customers],
   );
 
+  const initialValues =
+    bookingToEdit || !bookingDraft ? baseInitialValues : bookingDraft;
+
   return (
     <div className="fixed inset-0 bg-black/50 z-[200] flex items-center justify-center p-4">
       <div className="bg-card rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border">
           <h2 className="text-xl font-semibold text-foreground">New Booking</h2>
-          <button onClick={onCancel}>
+          <button
+            onClick={() => {
+              dispatch(
+                setFormDraft({
+                  key: FORMS_KEYS.BOOKING,
+                  data: formikRef.current?.values,
+                }),
+              );
+              onCancel();
+            }}
+          >
             <Icon name="X" size={20} />
           </button>
         </div>
 
         <Formik
+          innerRef={formikRef}
           enableReinitialize={true}
           initialValues={initialValues}
           validationSchema={appointmentValidationSchema}
@@ -376,7 +400,16 @@ const BookingForm = ({
                       ? (errors.customerId as string)
                       : undefined
                   }
-                  onAddNew={() => router.push("/customer-database")}
+                  onAddNew={() => {
+                    dispatch(
+                      setFormDraft({
+                        key: FORMS_KEYS.BOOKING,
+                        data: values,
+                      }),
+                    );
+
+                    router.push("/customer-database");
+                  }}
                   disabled={disableAllExceptDateTime || disableAllExceptStaff}
                 />
                 {/* Date */}
@@ -468,7 +501,16 @@ const BookingForm = ({
                   error={
                     touched.staffId ? (errors.staffId as string) : undefined
                   }
-                  onAddNew={() => router.push("/staff-management")}
+                  onAddNew={() => {
+                    dispatch(
+                      setFormDraft({
+                        key: FORMS_KEYS.BOOKING,
+                        data: values,
+                      }),
+                    );
+
+                    router.push("/staff-management");
+                  }}
                   disabled={isStaffUser}
                 />
 

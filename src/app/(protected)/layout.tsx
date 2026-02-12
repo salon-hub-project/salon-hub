@@ -101,7 +101,7 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
       );
 
       const customerNotifications: Notification[] = newCustomers
-        .filter((cust: any) => !cust.isDeleted)
+        // .filter((cust: any) => !cust.isDeleted)
         .map((cust: any) => ({
           id: cust._id,
           type: "success",

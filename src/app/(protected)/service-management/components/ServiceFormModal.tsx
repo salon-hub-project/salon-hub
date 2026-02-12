@@ -11,6 +11,12 @@ import { Checkbox } from "../../../components/ui/Checkbox";
 import { categoryApi } from "../../../services/category.api";
 import { serviceValidationSchema } from "@/app/components/validation/validation";
 import ConfirmModal from "@/app/components/ui/ConfirmModal";
+import {
+  setFormDraft,
+  clearFormDraft,
+} from "@/app/store/slices/formDraftSlice";
+import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
+import { FORMS_KEYS } from "@/app/constants/formKeys";
 
 interface ServiceFormModalProps {
   isOpen: boolean;
@@ -139,7 +145,10 @@ const ServiceFormModal = ({
   >([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(false);
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
-
+  const serviceDraft = useAppSelector(
+    (state) => state.formDraft.drafts[FORMS_KEYS.SERVICE],
+  );
+  const dispatch = useAppDispatch();
   const formikRef = useRef<any>(null);
 
   // Helper to get category name from id if editing service
@@ -185,7 +194,7 @@ const ServiceFormModal = ({
   }, [initialCategories]);
 
   // Initial form values
-  const initialValues: ServiceFormData = {
+  const baseInitialValues: ServiceFormData = {
     name: service?.name || "",
     category: service
       ? categoriesWithIds
@@ -197,6 +206,8 @@ const ServiceFormModal = ({
     isPopular: service?.isPopular || false,
     description: service?.description || "",
   };
+  const initialValues: ServiceFormData =
+    service || !serviceDraft ? baseInitialValues : serviceDraft;
 
   const handleAddCategories = async (newName?: string) => {
     if (!newName?.trim()) return;
@@ -242,7 +253,15 @@ const ServiceFormModal = ({
             {service ? "Edit Service" : "Add New Service"}
           </h2>
           <button
-            onClick={onClose}
+            onClick={() => {
+              dispatch(
+                setFormDraft({
+                  key: FORMS_KEYS.SERVICE,
+                  data: formikRef.current?.values,
+                }),
+              );
+              onClose();
+            }}
             className="flex items-center justify-center w-8 h-8 rounded-md hover:bg-muted transition-smooth"
           >
             <Icon name="X" size={20} className="text-muted-foreground" />
@@ -257,6 +276,7 @@ const ServiceFormModal = ({
           validationSchema={serviceValidationSchema}
           onSubmit={(values) => {
             onSubmit(values);
+            dispatch(clearFormDraft(FORMS_KEYS.SERVICE));
             onClose();
           }}
         >
@@ -343,7 +363,12 @@ const ServiceFormModal = ({
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={onClose}
+                    onClick={() => {
+                      service
+                        ? onClose()
+                        : dispatch(clearFormDraft(FORMS_KEYS.SERVICE));
+                      onClose();
+                    }}
                     fullWidth
                   >
                     Cancel

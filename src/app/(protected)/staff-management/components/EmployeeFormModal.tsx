@@ -27,6 +27,12 @@ import {
 import { rolesApi } from "@/app/services/roles.api";
 import ConfirmModal from "@/app/components/ui/ConfirmModal";
 import { profileApi } from "@/app/services/profile.api";
+import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
+import {
+  clearFormDraft,
+  setFormDraft,
+} from "@/app/store/slices/formDraftSlice";
+import { FORMS_KEYS } from "@/app/constants/formKeys";
 
 interface EmployeeFormModalProps {
   employee: Employee | null;
@@ -45,7 +51,7 @@ const EmployeeFormModal = ({
 }: EmployeeFormModalProps) => {
   const initialValues: EmployeeFormData = {
     name: "",
-    role: "",
+    role: [],
     phone: "",
     email: "",
     password: "",
@@ -68,7 +74,9 @@ const EmployeeFormModal = ({
       sunday: false,
     },
   };
-
+  const employeeDraft = useAppSelector(
+    (state) => state.formDraft.drafts[FORMS_KEYS.EMPLOYEE],
+  );
   const [services, setServices] = useState<ServiceApiResponse[]>([]);
   const [loadingServices, setLoadingServices] = useState(false);
   const [initialFormValues, setInitialFormValues] =
@@ -80,6 +88,7 @@ const EmployeeFormModal = ({
 
   const formikRef = useRef<any>(null);
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -161,6 +170,10 @@ const EmployeeFormModal = ({
 
   useEffect(() => {
     if (!employee?.id) {
+      if (employeeDraft) {
+        setInitialFormValues(employeeDraft);
+        return;
+      }
       setInitialFormValues({
         ...initialValues,
         availability:
@@ -191,7 +204,12 @@ const EmployeeFormModal = ({
 
         setInitialFormValues({
           name: emp.fullName || "",
-          role: typeof emp.role === "object" ? emp.role._id : emp.role || "",
+          // role: typeof emp.role === "object" ? emp.role._id : emp.role || "",
+          role: Array.isArray(emp.role)
+            ? emp.role.map((r: any) => (typeof r === "object" ? r._id : r))
+            : emp.role
+              ? [typeof emp.role === "object" ? emp.role._id : emp.role]
+              : [],
           commissionRate: emp.commissionRate || null,
           target: emp.target || 0,
           targetType: emp.targetType || "Monthly",
@@ -300,7 +318,7 @@ const EmployeeFormModal = ({
       formData.append("breakStartTime", values.breakStartTime);
       formData.append("breakEndTime", values.breakEndTime);
 
-      formData.append("role", values.role);
+      formData.append("role", JSON.stringify(values.role));
       formData.append("rating", String(values.rating));
       formData.append(
         "phoneNumber",
@@ -317,6 +335,7 @@ const EmployeeFormModal = ({
       }
 
       await staffApi.addStaff(formData);
+      dispatch(clearFormDraft(FORMS_KEYS.EMPLOYEE));
       onClose();
     } catch (error) {
       console.error("Failed to add staff", error);
@@ -351,7 +370,7 @@ const EmployeeFormModal = ({
       formData.append("breakStartTime", values.breakStartTime);
       formData.append("breakEndTime", values.breakEndTime);
 
-      formData.append("role", values.role);
+      formData.append("role", JSON.stringify(values.role));
       formData.append(
         "assignedServices",
         JSON.stringify(values.assignedServices),
@@ -379,12 +398,26 @@ const EmployeeFormModal = ({
 
       if (createdRole) {
         onRoleAdded(createdRole);
-        formikRef.current?.setFieldValue("role", createdRole._id);
+        const currentRoles = formikRef.current?.values.role || [];
+        // formikRef.current?.setFieldValue("role", createdRole._id);
+        formikRef.current?.setFieldValue("role", [
+          ...currentRoles,
+          createdRole._id,
+        ]);
       }
     } catch (err) {
       console.error(err);
     } finally {
       setIsAddRoleOpen(false);
+    }
+  };
+
+  const handleClose = () => {
+    if (employee) {
+      onClose();
+    } else {
+      dispatch(clearFormDraft(FORMS_KEYS.EMPLOYEE));
+      onClose();
     }
   };
 
@@ -400,7 +433,17 @@ const EmployeeFormModal = ({
             size="icon"
             iconName="X"
             iconSize={20}
-            onClick={onClose}
+            onClick={() => {
+              if (!employee && formikRef.current) {
+                dispatch(
+                  setFormDraft({
+                    key: FORMS_KEYS.EMPLOYEE,
+                    data: formikRef.current.values,
+                  }),
+                );
+              }
+              onClose();
+            }}
           />
         </div>
 
@@ -442,11 +485,20 @@ const EmployeeFormModal = ({
 
                     <Select
                       label="Role"
+                      multiple
+                      closeOnSelect={true}
                       placeholder="Select role"
                       options={roleFilterOptions}
                       value={values.role}
                       onChange={(value) => setFieldValue("role", value)}
-                      error={touched.role ? errors.role : undefined}
+                      //error={touched.role ? errors.role : undefined}
+                      error={
+                        touched.role
+                          ? Array.isArray(errors.role)
+                            ? errors.role[0]
+                            : errors.role
+                          : undefined
+                      }
                       onAddNew={() => setIsAddRoleOpen(true)}
                     />
 
@@ -612,7 +664,15 @@ const EmployeeFormModal = ({
                     searchable
                     closeOnSelect
                     disabled={loadingServices}
-                    onAddNew={() => router.push("/service-management")}
+                    onAddNew={() => {
+                      dispatch(
+                        setFormDraft({
+                          key: FORMS_KEYS.EMPLOYEE,
+                          data: formikRef.current.values,
+                        }),
+                      );
+                      router.push("/service-management");
+                    }}
                   />
 
                   <div>
@@ -683,7 +743,7 @@ const EmployeeFormModal = ({
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={onClose}
+                      onClick={handleClose}
                       fullWidth
                     >
                       Cancel
