@@ -161,6 +161,30 @@ export const staffApi = {
            })
         }
     },
+    staffUnavailableStatus: async(staffId: string, dates: string[]) => {
+        try{
+           const res= await api.post(`/staff/markunavailable/${staffId}`, {dates});
+           return res.data;
+        }catch(err: any){
+            console.log("UNAVAILABLE ERROR:", err?.response?.data);
+           showToast({
+            message: err?.response?.data?.message || "Failed to mark unavailable",
+            status: "error"
+           })
+        }
+    },
+    showUnavailableStatus: async(staffId: string) => {
+        try{
+            const res= await api.get(`/staff/unavailable-dates/${staffId}`);
+            return res.data;
+        }
+        catch(err: any){
+            showToast({
+               message: err?.response?.data?.message || "Failed to load unavailable history",
+               status: "error"
+            })
+        }
+    },
     updateStaffStatus: async(staffId: string, isActive: boolean) => {
         try{
             const res= await api.post(`/staff/updateactivestatus/${staffId}`, {isActive});
