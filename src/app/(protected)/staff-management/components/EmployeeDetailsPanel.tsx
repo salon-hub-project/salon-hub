@@ -36,6 +36,17 @@ const EmployeeDetailsPanel = ({
     null,
   );
 
+  const [showUnavailableModal, setShowUnavailableModal] = useState(false);
+  const [selectedDates, setSelectedDates] = useState<string[]>([]);
+  const [unavailableLoading, setUnavailableLoading] = useState(false);
+
+  const [showLeaveStatus, setShowLeaveStatus] = useState(false);
+  const [leaveHistory, setLeaveHistory] = useState<string[]>([]);
+  const [leaveStaffName, setLeaveStaffName] = useState("");
+  const [totalUnavailableDays, setTotalUnavailableDays] = useState(0);
+  const [leaveLoading, setLeaveLoading] = useState(false);
+  const [leaveError, setLeaveError] = useState<string | null>(null);
+
   if (!employee && !loading) return null;
 
   // From here on, employee is guaranteed to exist when not loading
@@ -67,6 +78,30 @@ const EmployeeDetailsPanel = ({
       setCommissionError("Failed to load commission history");
     } finally {
       setCommissionLoading(false);
+    }
+  };
+
+  const handleFetchLeaveStatus = async (staffId: string) => {
+    try {
+      setLeaveLoading(true);
+      setLeaveError(null);
+
+      const res = await staffApi.showUnavailableStatus(staffId);
+
+      if (res?.success) {
+        setLeaveHistory(res.unavailableDates || []);
+        setLeaveStaffName(res.staffName || "");
+        setTotalUnavailableDays(res.totalUnavailableDays || 0);
+      } else {
+        setLeaveHistory([]);
+        setLeaveStaffName("");
+        setTotalUnavailableDays(0);
+      }
+    } catch (error) {
+      console.error("Failed to fetch leave status", error);
+      setLeaveError("Failed to load leave history");
+    } finally {
+      setLeaveLoading(false);
     }
   };
 
@@ -155,6 +190,19 @@ const EmployeeDetailsPanel = ({
                   onClick={() => onEdit(employee)}
                 >
                   Edit Profile
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  iconName="CalendarX"
+                  iconPosition="left"
+                  onClick={() => {
+                    setSelectedDates([]);
+                    setShowUnavailableModal(true);
+                  }}
+                >
+                  Mark Unavailable
                 </Button>
               </div>
             </div>
@@ -473,6 +521,22 @@ const EmployeeDetailsPanel = ({
             >
               View Commission History
             </Button>
+            <Button
+              variant="outline"
+              iconPosition="left"
+              fullWidth
+              onClick={async () => {
+                if (!employee) return;
+
+                setShowLeaveStatus(true);
+
+                if (leaveHistory.length === 0) {
+                  handleFetchLeaveStatus(employee.id);
+                }
+              }}
+            >
+              View Leave Status
+            </Button>
           </div>
 
           {/* {showSchedule && (
@@ -741,7 +805,8 @@ const EmployeeDetailsPanel = ({
                               </td> */}
 
                               <td className="p-2">
-                                INR {item.resetCommissionAmount?.toFixed(2) || 0}
+                                INR{" "}
+                                {item.resetCommissionAmount?.toFixed(2) || 0}
                               </td>
 
                               <td className="p-2">
@@ -752,6 +817,161 @@ const EmployeeDetailsPanel = ({
                         </tbody>
                       </table>
                     </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {showUnavailableModal && (
+            <div className="fixed inset-0 bg-black/60 z-[120] flex items-center justify-center p-4">
+              <div className="bg-card rounded-lg shadow-xl max-w-md w-full">
+                {/* Header */}
+                <div className="border-b border-border px-6 py-4 flex items-center justify-between">
+                  <h4 className="text-lg font-semibold">
+                    Mark Staff Unavailable
+                  </h4>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    iconName="X"
+                    onClick={() => setShowUnavailableModal(false)}
+                  />
+                </div>
+
+                {/* Content */}
+                <div className="p-6 space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Select date to mark as unavailable.
+                  </p>
+
+                  {/* Date 1 */}
+                  <input
+                    type="date"
+                    className="w-full border border-border rounded-md p-2"
+                    value={selectedDates[0] || ""}
+                    onChange={(e) => {
+                      const newDates = [...selectedDates];
+                      newDates[0] = e.target.value;
+                      setSelectedDates(newDates.filter(Boolean));
+                    }}
+                    min={new Date().toISOString().split("T")[0]}
+                  />
+
+                  {/* Date 2 */}
+                  {/* <input
+                    type="date"
+                    className="w-full border border-border rounded-md p-2"
+                    value={selectedDates[1] || ""}
+                    onChange={(e) => {
+                      const newDates = [...selectedDates];
+                      newDates[1] = e.target.value;
+                      setSelectedDates(newDates.filter(Boolean));
+                    }}
+                    min={new Date().toISOString().split("T")[0]}
+                  /> */}
+
+                  <Button
+                    fullWidth
+                    disabled={selectedDates.length === 0 || unavailableLoading}
+                    onClick={async () => {
+                      if (!employee) return;
+
+                      try {
+                        setUnavailableLoading(true);
+
+                        await staffApi.staffUnavailableStatus(
+                          employee.id,
+                          selectedDates,
+                        );
+
+                        setShowUnavailableModal(false);
+                        setSelectedDates([]);
+                      } catch (err) {
+                        console.error(err);
+                      } finally {
+                        setUnavailableLoading(false);
+                      }
+                    }}
+                  >
+                    {unavailableLoading ? "Applying..." : "Apply Leave"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {showLeaveStatus && (
+            <div className="fixed inset-0 bg-black/70 z-[120] flex items-center justify-center p-4">
+              <div className="bg-card rounded-lg shadow-xl max-w-3xl w-full max-h-[85vh] overflow-y-auto">
+                {/* Header */}
+                <div className="sticky top-0 bg-card border-b border-border px-6 py-4 flex items-center justify-between">
+                  <h4 className="text-lg font-semibold text-foreground">
+                    Leave History
+                  </h4>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    iconName="X"
+                    onClick={() => setShowLeaveStatus(false)}
+                  />
+                </div>
+
+                {/* Content */}
+                <div className="p-6">
+                  {leaveLoading ? (
+                    <Loader label="Loading leave history..." />
+                  ) : leaveError ? (
+                    <p className="text-sm text-destructive">{leaveError}</p>
+                  ) : leaveHistory.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      No leave records found.
+                    </p>
+                  ) : (
+                    <>
+                      {/* Simple Header Info (NOT card) */}
+                      <div className="mb-4 space-y-1">
+                        <p className="text-sm text-muted-foreground">
+                          Staff:{" "}
+                          <span className="font-medium text-foreground">
+                            {leaveStaffName}
+                          </span>
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Total Unavailable Days:{" "}
+                          <span className="font-medium text-destructive">
+                            {totalUnavailableDays}
+                          </span>
+                        </p>
+                      </div>
+
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead className="bg-muted">
+                            <tr className="text-left">
+                              <th className="p-2">Unavailable Date</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {[...leaveHistory]
+                              .sort(
+                                (a, b) =>
+                                  new Date(a).getTime() - new Date(b).getTime(),
+                              )
+                              .map((date, index) => (
+                                <tr
+                                  key={index}
+                                  className="border-b border-border last:border-0"
+                                >
+                                  <td className="p-2">
+                                    {new Date(date).toLocaleDateString("en-GB")}
+                                  </td>
+                                </tr>
+                              ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </>
                   )}
                 </div>
               </div>
