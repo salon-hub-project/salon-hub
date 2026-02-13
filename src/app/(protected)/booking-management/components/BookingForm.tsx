@@ -205,6 +205,43 @@ const BookingForm = ({
     });
 
   const handleSubmit = async (values: any, { resetForm }: any) => {
+    // Check if salon is closed on selected date
+    const selectedDayIndex = values.date ? values.date.getDay() : null;
+    const isWorkingDay =
+      selectedDayIndex !== null && timings?.workingDays
+        ? timings.workingDays.includes(selectedDayIndex)
+        : true;
+
+    if (!isWorkingDay) {
+      import("@/app/components/ui/toast").then(({ showToast }) => {
+        showToast({
+          message:
+            "The salon is closed on this day. Please select another date.",
+          status: "error",
+        });
+      });
+      return;
+    }
+
+    // Check if salon is closed at selected time
+    const isWithinHours =
+      !values.startTime ||
+      !timings?.openingTime ||
+      !timings?.closingTime ||
+      (values.startTime >= timings.openingTime &&
+        values.startTime < timings.closingTime);
+
+    if (values.startTime && !isWithinHours) {
+      import("@/app/components/ui/toast").then(({ showToast }) => {
+        showToast({
+          message:
+            "The salon is closed at this time. Please select another time.",
+          status: "error",
+        });
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       if (!bookingToEdit) {
@@ -340,13 +377,11 @@ const BookingForm = ({
           {({ values, errors, touched, setFieldValue }) => {
             const isValidDate =
               values.date instanceof Date && !isNaN(values.date.getTime());
-            const selectedDayIndex = isValidDate
-              ? values?.date?.getDay()
-              : null;
+            const selectedDayIndex = isValidDate ? values.date.getDay() : null;
             const isWorkingDay =
-              (isValidDate ||
-                timings?.workingDays?.includes(selectedDayIndex!)) ??
-              true;
+              selectedDayIndex !== null && timings?.workingDays
+                ? timings.workingDays.includes(selectedDayIndex)
+                : true;
             const dateError =
               isValidDate && !isWorkingDay
                 ? "The salon is closed on this day. Please select another date."

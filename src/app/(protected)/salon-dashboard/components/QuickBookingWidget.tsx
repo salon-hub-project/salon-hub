@@ -295,9 +295,9 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
           const isValidDate = selectedDate && !isNaN(selectedDate.getTime());
           const selectedDayIndex = isValidDate ? selectedDate.getDay() : null;
           const isWorkingDay =
-            (isValidDate && timings?.workingDays
-              ? timings.workingDays.includes(selectedDayIndex!)
-              : true) ?? true;
+            selectedDayIndex !== null && timings?.workingDays
+              ? timings.workingDays.includes(selectedDayIndex)
+              : true;
           const dateError =
             isValidDate && !isWorkingDay
               ? "The salon is closed on this day."
