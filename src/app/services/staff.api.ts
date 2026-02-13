@@ -150,6 +150,17 @@ export const staffApi = {
             })
          }
     },
+    commissionHistory: async(staffId: string)=> {
+        try{
+          const res= await api.get(`/staff/commissionhistory/${staffId}`);
+          return res.data;
+        }catch(err: any){ 
+           showToast({
+            message: err?.response?.data?.message || "Failed to load history",
+            status: "error"
+           })
+        }
+    },
     updateStaffStatus: async(staffId: string, isActive: boolean) => {
         try{
             const res= await api.post(`/staff/updateactivestatus/${staffId}`, {isActive});
