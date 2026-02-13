@@ -5,6 +5,7 @@ import Button from "../../../components/ui/Button";
 import { Employee } from "../types";
 import EmployeeAvatar from "../types/EmployeeAvatar";
 import { appointmentApi } from "@/app/services/appointment.api";
+import { staffApi } from "@/app/services/staff.api";
 import { useState } from "react";
 
 interface EmployeeDetailsPanelProps {
@@ -25,6 +26,10 @@ const EmployeeDetailsPanel = ({
   profileWorkingDays = [],
 }: EmployeeDetailsPanelProps) => {
   const [showSchedule, setShowSchedule] = useState(false);
+  const [showCommissionHistory, setShowCommissionHistory] = useState(false);
+  const [commissionHistory, setCommissionHistory] = useState<any[]>([]);
+  const [commissionLoading, setCommissionLoading] = useState(false);
+  const [commissionError, setCommissionError] = useState<string | null>(null);
   const [appointments, setAppointments] = useState<any[]>([]);
   const [appointmentsLoading, setAppointmentsLoading] = useState(false);
   const [appointmentsError, setAppointmentsError] = useState<string | null>(
@@ -44,6 +49,26 @@ const EmployeeDetailsPanel = ({
         })
         .map(([day]) => day.charAt(0).toUpperCase() + day.slice(1))
     : [];
+
+  const handleFetchCommissionHistory = async (staffId: string) => {
+    try {
+      setCommissionLoading(true);
+      setCommissionError(null);
+
+      const res = await staffApi.commissionHistory(staffId);
+
+      if (res?.success) {
+        setCommissionHistory(res.data || []);
+      } else {
+        setCommissionHistory([]);
+      }
+    } catch (error) {
+      console.error("Failed to fetch commission history", error);
+      setCommissionError("Failed to load commission history");
+    } finally {
+      setCommissionLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -73,8 +98,8 @@ const EmployeeDetailsPanel = ({
   if (!employee) return null;
 
   const totalCommission =
-  Number(employee.performanceMetrics?.totalCommisionEarned || 0) +
-  Number(employee.performanceMetrics?.lifetimeCommision || 0);
+    Number(employee.performanceMetrics?.totalCommisionEarned || 0) +
+    Number(employee.performanceMetrics?.lifetimeCommision || 0);
 
   return (
     <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
@@ -320,7 +345,8 @@ const EmployeeDetailsPanel = ({
                       Paid Commission
                     </span>
                     <span className="text-lg font-bold text-success">
-                      INR {employee.performanceMetrics.lifetimeCommision?.toLocaleString()}
+                      INR{" "}
+                      {employee.performanceMetrics.lifetimeCommision?.toLocaleString()}
                     </span>
                   </div>
 
@@ -432,6 +458,20 @@ const EmployeeDetailsPanel = ({
               }}
             >
               View Schedule
+            </Button>
+            <Button
+              variant="outline"
+              iconPosition="left"
+              fullWidth
+              onClick={async () => {
+                if (!employee) return;
+                setShowCommissionHistory(true);
+                if (commissionHistory.length === 0) {
+                  handleFetchCommissionHistory(employee.id);
+                }
+              }}
+            >
+              View Commission History
             </Button>
           </div>
 
@@ -611,6 +651,101 @@ const EmployeeDetailsPanel = ({
                                 <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-muted text-foreground">
                                   {appt.status || "Pending"}
                                 </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {showCommissionHistory && (
+            <div className="fixed inset-0 bg-black/70 z-[110] flex items-center justify-center p-4">
+              <div className="bg-card rounded-lg shadow-xl max-w-4xl w-full max-h-[85vh] overflow-y-auto">
+                {/* Header */}
+                <div className="sticky top-0 bg-card border-b border-border px-6 py-4 flex items-center justify-between">
+                  <h4 className="text-lg font-semibold text-foreground">
+                    Commission History
+                  </h4>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    iconName="X"
+                    iconSize={18}
+                    onClick={() => setShowCommissionHistory(false)}
+                  />
+                </div>
+
+                {/* Content */}
+                <div className="p-6">
+                  {commissionLoading ? (
+                    <Loader label="Loading commission history..." />
+                  ) : commissionError ? (
+                    <p className="text-sm text-destructive">
+                      {commissionError}
+                    </p>
+                  ) : commissionHistory.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      No commission history found.
+                    </p>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead className="bg-muted">
+                          <tr className="text-left">
+                            <th className="p-2">Target Type</th>
+                            <th className="p-2">Start Date</th>
+                            <th className="p-2">End Date</th>
+                            {/* <th className="p-2">Achieved Amount</th> */}
+                            {/* <th className="p-2">Commission Before Reset</th> */}
+                            <th className="p-2">Reset Commission</th>
+                            <th className="p-2">Reset At</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {commissionHistory.map((item) => (
+                            <tr
+                              key={item._id}
+                              className="border-b border-border last:border-0"
+                            >
+                              <td className="p-2">{item.targetType}</td>
+
+                              <td className="p-2">
+                                {item?.resetStartDate
+                                  ? new Date(
+                                      item.resetStartDate,
+                                    ).toLocaleDateString("en-GB")
+                                  : "-"}
+                              </td>
+
+                              <td className="p-2">
+                                {item?.resetEndDate
+                                  ? new Date(
+                                      item.resetEndDate,
+                                    ).toLocaleDateString("en-GB")
+                                  : "-"}
+                              </td>
+
+                              {/* <td className="p-2">
+                                INR{" "}
+                                {item.achievedAmountBeforeReset?.toLocaleString()}
+                              </td> */}
+
+                              {/* <td className="p-2">
+                                INR{" "}
+                                {item.commissionEarnedBeforeReset?.toFixed(2)}
+                              </td> */}
+
+                              <td className="p-2">
+                                INR {item.resetCommissionAmount?.toFixed(2) || 0}
+                              </td>
+
+                              <td className="p-2">
+                                {new Date(item.resetAt).toLocaleString("en-GB")}
                               </td>
                             </tr>
                           ))}

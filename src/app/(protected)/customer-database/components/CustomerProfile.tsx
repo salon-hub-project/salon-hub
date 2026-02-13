@@ -1,10 +1,11 @@
 "use client";
-import { useState } from 'react';
-import Icon from '../../../components/AppIcon';
-import Image from '../../../components/AppImage';
-import Button from '../../../components/ui/Button';
-import { Customer, CustomerTag, ServiceHistory } from '../types';
-import Loader from '@/app/components/Loader';
+import { useState } from "react";
+import Icon from "../../../components/AppIcon";
+import Image from "../../../components/AppImage";
+import Button from "../../../components/ui/Button";
+import { Customer, CustomerTag, ServiceHistory } from "../types";
+import { customerApi } from "@/app/services/customer.api";
+import Loader from "@/app/components/Loader";
 
 interface CustomerProfileProps {
   customer: Customer | null;
@@ -12,7 +13,7 @@ interface CustomerProfileProps {
   onClose: () => void;
   onEdit: (customer: Customer) => void;
   onBookAppointment: (customerId: string) => void;
-  onDelete? : (customerId: string) => void;
+  onDelete?: (customerId: string) => void;
   onSendMessage: (customerId: string) => void;
   loading?: boolean;
 }
@@ -24,9 +25,13 @@ const CustomerProfile = ({
   onEdit,
   onBookAppointment,
   onSendMessage,
-  loading
+  loading,
 }: CustomerProfileProps) => {
-  const [activeTab, setActiveTab] = useState<'details' | 'history'>('details');
+  const [activeTab, setActiveTab] = useState<"details" | "history">("details");
+
+  const [historyData, setHistoryData] = useState<ServiceHistory[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyError, setHistoryError] = useState<string | null>(null);
 
   if (!customer && !loading) return null;
 
@@ -35,7 +40,9 @@ const CustomerProfile = ({
       <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
         <div className="bg-card rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
           <div className="sticky top-0 bg-card border-b border-border px-6 py-4 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-foreground">Customer Profile</h2>
+            <h2 className="text-xl font-semibold text-foreground">
+              Customer Profile
+            </h2>
             <Button
               variant="ghost"
               size="icon"
@@ -56,38 +63,75 @@ const CustomerProfile = ({
   if (!customer) return null;
   const getTagColor = (tag: CustomerTag): string => {
     const colors: Record<CustomerTag, string> = {
-      VIP: 'bg-accent text-accent-foreground',
-      New: 'bg-primary text-primary-foreground',
-      Frequent: 'bg-success text-success-foreground',
-      Inactive: 'bg-muted text-muted-foreground',
+      VIP: "bg-accent text-accent-foreground",
+      New: "bg-primary text-primary-foreground",
+      Frequent: "bg-success text-success-foreground",
+      Inactive: "bg-muted text-muted-foreground",
     };
     return colors[tag];
   };
 
   const formatDate = (date: Date): string => {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
     }).format(date);
   };
 
   const getPaymentStatusColor = (status: string): string => {
     const colors: Record<string, string> = {
-      paid: 'text-success',
-      pending: 'text-warning',
-      cancelled: 'text-error',
+      paid: "text-success",
+      pending: "text-warning",
+      cancelled: "text-error",
     };
-    return colors[status] || 'text-muted-foreground';
+    return colors[status] || "text-muted-foreground";
   };
 
+  const handleFetchServiceHistory = async () => {
+    if (!customer) return;
+
+    try {
+      setHistoryLoading(true);
+      setHistoryError(null);
+
+      const res = await customerApi.getCustomerServiceHistory(customer.id);
+      if (res?.success) {
+        const formatted = res.data.map((item: any) => ({
+          id: item._id,
+          date: new Date(item.appointmentDate),
+          staffName: item.staffId?.fullName || "N/A",
+          totalAmount: item.amount,
+          paymentStatus: item.status?.toLowerCase(),
+          services: item.services.map((service: any) => ({
+            id: service._id,
+            name: service.serviceName,
+            duration: service.duration,
+            price: service.price,
+          })),
+          notes: "",
+        }));
+
+        setHistoryData(formatted);
+      } else {
+        setHistoryData([]);
+      }
+    } catch (error) {
+      console.error("Failed to fetch service history", error);
+      setHistoryError("Failed to load service history");
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
   return (
     <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
       <div className="bg-card rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         <div className="flex items-center justify-between p-6 border-b border-border">
-          <h2 className="text-xl font-semibold text-foreground">Customer Profile</h2>
+          <h2 className="text-xl font-semibold text-foreground">
+            Customer Profile
+          </h2>
           <button
             onClick={onClose}
             className="p-2 rounded-md hover:bg-muted transition-smooth"
@@ -144,13 +188,17 @@ const CustomerProfile = ({
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                   <div className="bg-muted/30 rounded-lg p-4">
-                    <div className="text-xs text-muted-foreground mb-1">Total Visits</div>
+                    <div className="text-xs text-muted-foreground mb-1">
+                      Total Visits
+                    </div>
                     <div className="text-2xl font-semibold text-foreground">
                       {customer.totalVisits}
                     </div>
                   </div>
                   <div className="bg-muted/30 rounded-lg p-4">
-                    <div className="text-xs text-muted-foreground mb-1">Total Spent</div>
+                    <div className="text-xs text-muted-foreground mb-1">
+                      Total Spent
+                    </div>
                     <div className="text-2xl font-semibold text-foreground">
                       INR {customer.totalSpent.toFixed(2)}
                     </div>
@@ -185,38 +233,57 @@ const CustomerProfile = ({
             <div className="border-t border-border pt-6">
               <div className="flex gap-4 mb-6 border-b border-border">
                 <button
-                  onClick={() => setActiveTab('details')}
+                  onClick={() => setActiveTab("details")}
                   className={`px-4 py-2 text-sm font-medium transition-smooth border-b-2 ${
-                    activeTab === 'details' ?'border-primary text-primary' :'border-transparent text-muted-foreground hover:text-foreground'
+                    activeTab === "details"
+                      ? "border-primary text-primary"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   Details
                 </button>
-                {/* <button
-                  onClick={() => setActiveTab('history')}
+                <button
+                  onClick={() => {
+                    setActiveTab("history");
+                    if (historyData.length === 0) {
+                      handleFetchServiceHistory();
+                    }
+                  }}
                   className={`px-4 py-2 text-sm font-medium transition-smooth border-b-2 ${
-                    activeTab === 'history' ?'border-primary text-primary' :'border-transparent text-muted-foreground hover:text-foreground'
+                    activeTab === "history"
+                      ? "border-primary text-primary"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  Service History ({serviceHistory.length})
-                </button> */}
+                  Service History ({historyData.length})
+                </button>
               </div>
 
-              {activeTab === 'details' && (
+              {activeTab === "details" && (
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-sm font-medium text-muted-foreground">Phone</label>
-                      <div className="text-sm text-foreground mt-1">{customer.phone}</div>
+                      <label className="text-sm font-medium text-muted-foreground">
+                        Phone
+                      </label>
+                      <div className="text-sm text-foreground mt-1">
+                        {customer.phone}
+                      </div>
                     </div>
                     {customer.email && (
                       <div>
-                        <label className="text-sm font-medium text-muted-foreground">Email</label>
-                        <div className="text-sm text-foreground mt-1">{customer.email}</div>
+                        <label className="text-sm font-medium text-muted-foreground">
+                          Email
+                        </label>
+                        <div className="text-sm text-foreground mt-1">
+                          {customer.email}
+                        </div>
                       </div>
                     )}
                     <div>
-                      <label className="text-sm font-medium text-muted-foreground">Gender</label>
+                      <label className="text-sm font-medium text-muted-foreground">
+                        Gender
+                      </label>
                       <div className="text-sm text-foreground mt-1 capitalize">
                         {customer.gender}
                       </div>
@@ -226,7 +293,9 @@ const CustomerProfile = ({
                         <label className="text-sm font-medium text-muted-foreground">
                           Date of Birth
                         </label>
-                        <div className="text-sm text-foreground mt-1">{customer.dateOfBirth}</div>
+                        <div className="text-sm text-foreground mt-1">
+                          {customer.dateOfBirth}
+                        </div>
                       </div>
                     )}
                     {customer.preferredStaff && (
@@ -243,14 +312,20 @@ const CustomerProfile = ({
 
                   {customer.address && (
                     <div>
-                      <label className="text-sm font-medium text-muted-foreground">Address</label>
-                      <div className="text-sm text-foreground mt-1">{customer.address}</div>
+                      <label className="text-sm font-medium text-muted-foreground">
+                        Address
+                      </label>
+                      <div className="text-sm text-foreground mt-1">
+                        {customer.address}
+                      </div>
                     </div>
                   )}
 
                   {customer.notes && (
                     <div>
-                      <label className="text-sm font-medium text-muted-foreground">Notes</label>
+                      <label className="text-sm font-medium text-muted-foreground">
+                        Notes
+                      </label>
                       <div className="text-sm text-foreground mt-1 whitespace-pre-wrap">
                         {customer.notes}
                       </div>
@@ -259,64 +334,69 @@ const CustomerProfile = ({
                 </div>
               )}
 
-              {activeTab === 'history' && (
+              {activeTab === "history" && (
                 <div className="space-y-4">
-                  {serviceHistory.length === 0 ? (
+                  {historyLoading ? (
+                    <Loader label="Loading service history..." />
+                  ) : historyError ? (
+                    <p className="text-sm text-destructive">{historyError}</p>
+                  ) : historyData.length === 0 ? (
                     <div className="text-center py-12">
-                      <Icon name="Calendar" size={48} className="text-muted-foreground mx-auto mb-4" />
-                      <p className="text-muted-foreground">No service history available</p>
+                      <Icon
+                        name="Calendar"
+                        size={48}
+                        className="text-muted-foreground mx-auto mb-4"
+                      />
+                      <p className="text-muted-foreground">
+                        No service history available
+                      </p>
                     </div>
                   ) : (
-                    serviceHistory.map((history) => (
+                    historyData.map((history) => (
                       <div
                         key={history.id}
-                        className="bg-muted/30 rounded-lg p-4 space-y-3"
+                        className="bg-card border border-border rounded-xl p-5 shadow-sm hover:shadow-md transition-smooth"
                       >
-                        <div className="flex items-start justify-between gap-4">
+                        {/* Header */}
+                        <div className="flex items-center justify-between mb-4">
                           <div>
-                            <div className="text-sm font-medium text-foreground mb-1">
-                              {formatDate(history.date)}
+                            <div className="text-sm font-semibold text-foreground">
+                              {history.date.toLocaleDateString("en-GB")}
                             </div>
                             <div className="text-xs text-muted-foreground">
                               Staff: {history.staffName}
                             </div>
                           </div>
+
                           <div className="text-right">
-                            <div className="text-lg font-semibold text-foreground">
+                            <div className="text-lg font-bold text-primary">
                               INR {history.totalAmount.toFixed(2)}
                             </div>
-                            <div
-                              className={`text-xs font-medium capitalize ${getPaymentStatusColor(
-                                history.paymentStatus
-                              )}`}
-                            >
-                              {history.paymentStatus}
-                            </div>
+                            
                           </div>
                         </div>
 
+                        {/* Services */}
                         <div className="space-y-2">
                           {history.services.map((service) => (
                             <div
                               key={service.id}
-                              className="flex items-center justify-between text-sm"
+                              className="flex items-center justify-between bg-muted/40 rounded-md px-3 py-2 text-sm"
                             >
                               <div>
-                                <span className="text-foreground font-medium">{service.name}</span>
+                                <span className="font-medium text-foreground">
+                                  {service.name}
+                                </span>
                                 <span className="text-muted-foreground ml-2">
                                   ({service.duration} min)
                                 </span>
                               </div>
-                              <div className="text-foreground">INR {service.price.toFixed(2)}</div>
+                              <div className="text-foreground font-medium">
+                                INR {service.price.toFixed(2)}
+                              </div>
                             </div>
                           ))}
                         </div>
-
-                        {history.notes && (
-                          <div className="pt-2 border-t border-border">
-                            <div className="text-xs text-muted-foreground">{history.notes}</div>
-                          </div>
-                        )}
                       </div>
                     ))
                   )}
