@@ -47,6 +47,8 @@ const EmployeeDetailsPanel = ({
   const [leaveLoading, setLeaveLoading] = useState(false);
   const [leaveError, setLeaveError] = useState<string | null>(null);
 
+  const [showInputField, setShowInputField] = useState(false);
+
   if (!employee && !loading) return null;
 
   // From here on, employee is guaranteed to exist when not loading
@@ -198,7 +200,7 @@ const EmployeeDetailsPanel = ({
                   iconName="CalendarX"
                   iconPosition="left"
                   onClick={() => {
-                    setSelectedDates([]);
+                    setSelectedDates([""]);
                     setShowUnavailableModal(true);
                   }}
                 >
@@ -841,12 +843,22 @@ const EmployeeDetailsPanel = ({
 
                 {/* Content */}
                 <div className="p-6 space-y-4">
-                  <p className="text-sm text-muted-foreground">
-                    Select date to mark as unavailable.
-                  </p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-muted-foreground">
+                      Select date to mark as unavailable.
+                    </p>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      iconName="Plus"
+                      onClick={() => {
+                        setSelectedDates((prev) => [...prev, ""]);
+                      }}
+                    />
+                  </div>
 
                   {/* Date 1 */}
-                  <input
+                  {/* <input
                     type="date"
                     className="w-full border border-border rounded-md p-2"
                     value={selectedDates[0] || ""}
@@ -856,7 +868,36 @@ const EmployeeDetailsPanel = ({
                       setSelectedDates(newDates.filter(Boolean));
                     }}
                     min={new Date().toISOString().split("T")[0]}
-                  />
+                  /> */}
+                  {selectedDates.map((date, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <input
+                        type="date"
+                        className="w-full border border-border rounded-md p-2"
+                        value={date}
+                        onChange={(e) => {
+                          const updatedDates = [...selectedDates];
+                          updatedDates[index] = e.target.value;
+                          setSelectedDates(updatedDates);
+                        }}
+                        min={new Date().toISOString().split("T")[0]}
+                      />
+
+                      {/* Remove button (optional but recommended) */}
+                      {selectedDates.length !== 1 && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          iconName="X"
+                          onClick={() => {
+                            setSelectedDates((prev) =>
+                              prev.filter((_, i) => i !== index),
+                            );
+                          }}
+                        />
+                      )}
+                    </div>
+                  ))}
 
                   {/* Date 2 */}
                   {/* <input
@@ -873,10 +914,13 @@ const EmployeeDetailsPanel = ({
 
                   <Button
                     fullWidth
-                    disabled={selectedDates.length === 0 || unavailableLoading}
+                    disabled={
+                      selectedDates.length === 0 ||
+                      selectedDates.some((d) => !d) ||
+                      unavailableLoading
+                    }
                     onClick={async () => {
                       if (!employee) return;
-
                       try {
                         setUnavailableLoading(true);
 
@@ -884,7 +928,6 @@ const EmployeeDetailsPanel = ({
                           employee.id,
                           selectedDates,
                         );
-
                         setShowUnavailableModal(false);
                         setSelectedDates([]);
                       } catch (err) {
