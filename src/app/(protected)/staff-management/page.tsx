@@ -557,8 +557,8 @@ const StaffManagement = () => {
         <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
           <RolesManager
             roles={roles}
-            onAddRole={(name) => {
-              setRoles((prev) => [...prev, { _id: crypto.randomUUID(), name }]);
+            onAddRole={(role) => {
+              setRoles((prev) => [...prev, role]);
             }}
             onUpdateRole={(id, name) => {
               setRoles((prev) =>
