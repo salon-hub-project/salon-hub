@@ -10,7 +10,7 @@ import { StaffRoles } from "../types";
 
 interface RolesManagerProps {
   roles: StaffRoles[];
-  onAddRole?: (name: string) => void;
+  onAddRole?: (role: StaffRoles) => void;
   onUpdateRole?: (id: string, name: string) => void;
   onDeleteRole?: (id: string) => void;
 }
@@ -72,8 +72,12 @@ const RolesManager = ({
       return;
     }
     try {
-      await rolesApi.createRoles({ name: newRoleName.trim() });
-      onAddRole?.(newRoleName.trim());
+      const res = await rolesApi.createRoles({ name: newRoleName.trim() });
+      const createdRole = res?.data || res?.role;
+
+      if (createdRole) {
+        onAddRole?.(createdRole); // send full role object
+      }
       setNewRoleName("");
       setError("");
     } catch (err: any) {
@@ -91,20 +95,20 @@ const RolesManager = ({
   const confirmDelete = async () => {
     if (!selectedRoleId) return;
 
-    try{
-    setIsDeleting(true);
-    await rolesApi.deleteRole(selectedRoleId);
-    onDeleteRole?.(selectedRoleId);
+    try {
+      setIsDeleting(true);
+      await rolesApi.deleteRole(selectedRoleId);
+      onDeleteRole?.(selectedRoleId);
 
-    setConfirmOpen(false);
-    setSelectedRoleId(null);
-    }catch (err) {
-    console.error("Failed to delete role", err);
-  } finally {
-    setIsDeleting(false);
-    setConfirmOpen(false);
-    setSelectedRoleId(null);
-  }
+      setConfirmOpen(false);
+      setSelectedRoleId(null);
+    } catch (err) {
+      console.error("Failed to delete role", err);
+    } finally {
+      setIsDeleting(false);
+      setConfirmOpen(false);
+      setSelectedRoleId(null);
+    }
   };
 
   return (
@@ -177,7 +181,7 @@ const RolesManager = ({
                     size="icon"
                     variant="ghost"
                     iconName="Pencil"
-                    disabled= {isDeleting || isAdding}
+                    disabled={isDeleting || isAdding}
                     onClick={() => {
                       setEditingRoleId(role._id);
                       setEditingRoleName(role.name);
