@@ -120,7 +120,6 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
   const fetchServices = async () => {
     try {
       const res = await serviceApi.getAllServices({ limit: 100 });
-      console.log(res, "service");
       setServiceOptions(
         res.data.map((s: any) => ({
           value: s._id,

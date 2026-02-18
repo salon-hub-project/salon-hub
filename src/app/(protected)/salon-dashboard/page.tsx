@@ -58,6 +58,7 @@ const SalonDashboard = () => {
   const [staffUtilization, setStaffUtilization] = useState<StaffUtilization[]>(
     [],
   );
+  const [canBookAppointment, setCanBookAppointment] = useState<any>();
 
   const normalizeBookingStatus = (status: string): Booking["status"] => {
     switch (status) {
@@ -284,6 +285,31 @@ const SalonDashboard = () => {
     fetchAllNotifications();
   }, [isAuthenticated, isStaff]);
 
+  // useEffect(() => {
+  //   if (!isStaff) return;
+
+  //   const handleFocus = () => {
+  //     fetchStaffDetail();
+  //   };
+
+  //   window.addEventListener("focus", handleFocus);
+
+  //   return () => {
+  //     window.removeEventListener("focus", handleFocus);
+  //   };
+  // }, [isStaff]);
+
+  const fetchStaffDetail = async () => {
+    const res = await staffApi.getStaffPermission();
+    setCanBookAppointment(res.staff);
+  };
+
+  useEffect(() => {
+    if (isStaff) {
+      fetchStaffDetail();
+    }
+  }, []);
+
   const quickActions: QuickAction[] = [
     {
       id: "1",
@@ -373,7 +399,7 @@ const SalonDashboard = () => {
       <AuthGuard>
         <div className="min-h-screen bg-background">
           <main className="ml-0 lg:pb-8">
-            {user?.staff?.canBookAppointments && (
+            {canBookAppointment?.canBookAppointments && (
               <div className="lg:col-span-1 m-10">
                 <QuickBookingWidget onCreateBooking={handleCreateBooking} />
               </div>

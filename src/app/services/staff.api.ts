@@ -200,6 +200,18 @@ export const staffApi = {
                 status: "error"
             })
         }
+    },
+    getStaffPermission: async() => {
+        // try{
+            const res= await api.get('staff/staffdetails');
+            return res.data;
+        // }
+        // catch(err: any){
+        //     showToast({
+        //         message: err?.response?.data?.message || "Failed to load detail",
+        //         status: "error"
+        //     })
+        // }
     }
 
 };
