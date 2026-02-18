@@ -253,6 +253,31 @@ const EmployeeDetailsPanel = ({
 
               <div>
                 <h4 className="text-sm font-semibold text-foreground mb-3">
+                  Booking Permission
+                </h4>
+
+                <span
+                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium ${
+                    employee.canBookAppointments
+                      ? "bg-green-100 text-green-700"
+                      : "bg-gray-100 text-gray-600"
+                  }`}
+                >
+                  <div
+                    className={`w-2 h-2 rounded-full ${
+                      employee.canBookAppointments
+                        ? "bg-green-600"
+                        : "bg-gray-500"
+                    }`}
+                  />
+                  {employee.canBookAppointments
+                    ? "Can Book Appointments"
+                    : "Cannot Book Appointments"}
+                </span>
+              </div>
+
+              <div>
+                <h4 className="text-sm font-semibold text-foreground mb-3">
                   Working Days
                 </h4>
                 <div className="flex flex-wrap gap-2">

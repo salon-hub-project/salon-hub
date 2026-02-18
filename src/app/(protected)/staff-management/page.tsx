@@ -224,6 +224,7 @@ const StaffManagement = () => {
           lastResetCommissionAmount: res.resetCommissionAmount,
           remainingAchievedAmount: res.remainingAchievedAmount,
         },
+        canBookAppointments: emp?.canBookAppointments ?? false
       };
 
       setSelectedEmployee(updatedEmployee);
@@ -322,6 +323,7 @@ const StaffManagement = () => {
           bookingCompletionRate: 0,
           achievedAmount: emp.achievedAmount || 0,
         },
+        canBookAppointments: emp?.canBookAppointments
       }));
 
       const sortedEmployees = [...mappedEmployees].sort(
@@ -389,7 +391,7 @@ const StaffManagement = () => {
 
       const res = await staffApi.getStaffDetails(employee.id);
       const emp = res.staffDetails;
-
+      
       const mappedEmployee: Employee = {
         id: emp._id,
         name: emp.fullName,
@@ -443,6 +445,7 @@ const StaffManagement = () => {
           totalCommisionEarned: emp?.totalCommisionEarned || 0,
           lifetimeCommision: emp?.lifetimeCommision || 0,
         },
+        canBookAppointments: emp?.canBookAppointments ?? false
       };
       setSelectedEmployee(mappedEmployee);
     } catch (err) {

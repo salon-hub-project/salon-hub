@@ -37,6 +37,7 @@ export interface Employee {
     sunday: boolean;
   };
   commissionRate: number;
+  canBookAppointments: boolean;
 }
 
 export interface StaffFilters {
@@ -86,6 +87,7 @@ export interface EmployeeFormData {
     saturday: boolean;
     sunday: boolean;
   };
+  canBookAppointments?: boolean;
 }
 
 export interface Service {
@@ -115,6 +117,7 @@ export interface EmployeeApiResponse {
   lifetimeRevenue: number;
   completedAppointments: number;
   achievedAmount: number;
+  canBookAppointments : boolean
 }
 
 export interface ServiceApiResponse {

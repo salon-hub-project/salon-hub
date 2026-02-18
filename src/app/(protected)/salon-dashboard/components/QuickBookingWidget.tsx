@@ -14,18 +14,9 @@ import { staffApi } from "@/app/services/staff.api";
 import { customerApi } from "@/app/services/customer.api";
 import { showToast } from "@/app/components/ui/toast";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
-import { isStaff } from "@/app/utils/routePermissions";
 import { comboApi } from "@/app/services/combo.api";
 import GroupedSelect from "@/app/components/ui/GroupedSelect";
-import { motion, AnimatePresence } from "framer-motion";
-import { Clock } from "lucide-react";
-import { cn } from "@/app/utils/cn";
 import { fetchProfileTimings } from "@/app/store/slices/profileSlice";
-import {
-  setFormDraft,
-  clearFormDraft,
-} from "@/app/store/slices/formDraftSlice";
-import { FORMS_KEYS } from "@/app/constants/formKeys";
 
 interface QuickBookingWidgetProps {
   onCreateBooking: (data: any) => void;
@@ -81,7 +72,7 @@ const timeTo24h = (time12h: string) => {
 
 const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
   const user = useAppSelector((state) => state.auth.user);
-  const userRole = user?.role;
+  const userRole = user?.role?.[0];
   const [customerOptions, setCustomerOptions] = useState<
     { value: string; label: string }[]
   >([]);
@@ -106,7 +97,7 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
 
   const fetchCustomers = async () => {
     // Skip customer API call for staff - they don't have access to customer data
-    if (isStaff(userRole)) return;
+    // if (isStaff(userRole)) return;
 
     try {
       const res = await customerApi.getCustomers({ limit: 1000 });
@@ -129,6 +120,7 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
   const fetchServices = async () => {
     try {
       const res = await serviceApi.getAllServices({ limit: 100 });
+      console.log(res, "service");
       setServiceOptions(
         res.data.map((s: any) => ({
           value: s._id,
@@ -365,16 +357,11 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
                     }
                   }
                 }}
-                onAddNew={() => {
-                  // dispatch(
-                  //   setFormDraft({
-                  //     key: FORMS_KEYS.QUICK_BOOKING,
-                  //     data: values,
-                  //   }),
-                  // );
-
-                  router.push("/customer-database");
-                }}
+                onAddNew={
+                  userRole !== "STAFF"
+                    ? () => router.push("/customer-database")
+                    : undefined
+                }
                 error={touched.customer ? getError(errors.customer) : undefined}
               />
 
@@ -405,7 +392,7 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
                   error={
                     touched.time ? getError(errors.time) : (timeError as string)
                   }
-                  className="mt-2.5"
+                  
                 />
               </div>
 
@@ -448,16 +435,11 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
                 options={staffOptions}
                 value={values.staff}
                 onChange={(val) => setFieldValue("staff", val)}
-                onAddNew={() => {
-                  // dispatch(
-                  //   setFormDraft({
-                  //     key: FORMS_KEYS.QUICK_BOOKING,
-                  //     data: values,
-                  //   }),
-                  // );
-
-                  router.push("/staff-management");
-                }}
+                onAddNew={
+                  userRole !== "STAFF"
+                    ? () => router.push("/staff-management")
+                    : undefined
+                }
                 error={touched.staff ? getError(errors.staff) : undefined}
               />
 
