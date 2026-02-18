@@ -85,6 +85,7 @@ export const staffApi = {
     },
     getStaffDetails: async (staffId: string) => {
         const res = await api.get(`/staff/${staffId}`);
+        console.log(res.data, "detail");
         return res.data;
     },
     updateStaff: async (staffId: string, data: FormData) => {

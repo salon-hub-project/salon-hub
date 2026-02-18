@@ -1,8 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import Sidebar from "../../components/Sidebar";
-import Header from "../../components/Header";
-import MetricCard from "./components/MetricCard";
 import AppointmentCard from "./components/AppointmentCard";
 import QuickBookingWidget from "./components/QuickBookingWidget";
 import ActivityFeed from "./components/ActivityFeed";
@@ -376,6 +373,11 @@ const SalonDashboard = () => {
       <AuthGuard>
         <div className="min-h-screen bg-background">
           <main className="ml-0 lg:pb-8">
+            {user?.staff?.canBookAppointments && (
+              <div className="lg:col-span-1 m-10">
+                <QuickBookingWidget onCreateBooking={handleCreateBooking} />
+              </div>
+            )}
             <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
               <div className="mb-6">
                 <h1 className="text-2xl font-bold text-foreground">
@@ -385,7 +387,6 @@ const SalonDashboard = () => {
                   Your performance & earnings overview
                 </p>
               </div>
-
               <div className="bg-card border border-border rounded-lg p-6">
                 <SalesReportPanel />
               </div>

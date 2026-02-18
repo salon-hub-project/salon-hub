@@ -73,6 +73,7 @@ const EmployeeFormModal = ({
       saturday: true,
       sunday: false,
     },
+    canBookAppointments: false,
   };
   const employeeDraft = useAppSelector(
     (state) => state.formDraft.drafts[FORMS_KEYS.EMPLOYEE],
@@ -278,6 +279,7 @@ const EmployeeFormModal = ({
           password: "",
           rating: null,
           staffImage: emp.staffImage || null,
+          canBookAppointments: emp.canBookAppointments ?? false,
         });
       } catch (err) {
         console.error("Failed to fetch staff details", err);
@@ -329,10 +331,13 @@ const EmployeeFormModal = ({
         "assignedServices",
         JSON.stringify(values.assignedServices),
       );
-
       if (values.staffImage instanceof File) {
         formData.append("staffImage", values.staffImage);
       }
+      formData.append(
+        "canBookAppointments",
+        String(values.canBookAppointments ?? false),
+      );
 
       await staffApi.addStaff(formData);
       dispatch(clearFormDraft(FORMS_KEYS.EMPLOYEE));
@@ -376,11 +381,14 @@ const EmployeeFormModal = ({
         JSON.stringify(values.assignedServices),
       );
       formData.append("workingDays", JSON.stringify(workingDays));
-
       // Append only if the user selected a new image (typeof File)
       if (values.staffImage instanceof File) {
         formData.append("staffImage", values.staffImage);
       }
+      formData.append(
+        "canBookAppointments",
+        String(values.canBookAppointments ?? false),
+      );
 
       await staffApi.updateStaff(employee.id, formData);
       onClose();
@@ -708,6 +716,20 @@ const EmployeeFormModal = ({
                         alt="Employee"
                       />
                     )}
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      name="canBookAppointments"
+                      checked={values.canBookAppointments || false}
+                      onChange={(e) =>
+                        setFieldValue("canBookAppointments", e.target.checked)
+                      }
+                    />
+                    <label className="text-sm font-medium">
+                      Can book appointments for all staff?
+                    </label>
                   </div>
 
                   <div>

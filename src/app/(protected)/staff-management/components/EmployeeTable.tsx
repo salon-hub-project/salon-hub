@@ -135,7 +135,7 @@ const EmployeeTable = ({
       .map(([day]) => day.slice(0, 3))
       .join(", ");
   };
-
+  console.log(sortedEmployees);
   return (
     <div className="bg-card rounded-lg border border-border overflow-hidden overflow-x-auto">
       <table className="w-full">
@@ -178,6 +178,7 @@ const EmployeeTable = ({
               </button>
             </th>
             <th className="px-6 py-4 text-left">Status</th>
+            <th className="px-6 py-4 text-left">Permissions</th>
             <th className="px-6 py-4 text-right">Actions</th>
           </tr>
         </thead>
@@ -260,6 +261,18 @@ const EmployeeTable = ({
                     }`}
                   >
                     {employee.status === "active" ? "Active" : "Inactive"}
+                  </span>
+                </td>
+
+                <td className="px-6 py-4">
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      employee.canBookAppointments
+                        ? "bg-green-100 text-green-700"
+                        : "bg-gray-100 text-gray-600"
+                    }`}
+                  >
+                    {employee.canBookAppointments ? "Can Book" : "Cannot Book"}
                   </span>
                 </td>
 
