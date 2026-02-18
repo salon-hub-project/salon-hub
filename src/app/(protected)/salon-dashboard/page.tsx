@@ -305,7 +305,7 @@ const SalonDashboard = () => {
   };
 
   useEffect(() => {
-    if (isStaff) {
+    if(isStaff || canBookAppointment?.canBookAppointments=== true){
       fetchStaffDetail();
     }
   }, []);
