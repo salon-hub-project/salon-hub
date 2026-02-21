@@ -97,6 +97,7 @@ const EmployeeFilters = ({
               ]}
               value={filters.role}
               onChange={(value) => onFiltersChange({ ...filters, role: value })}
+              searchable
             />
 
             <Select

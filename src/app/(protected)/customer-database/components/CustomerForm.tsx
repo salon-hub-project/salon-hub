@@ -298,6 +298,7 @@ const CustomerForm = ({
                       );
                       router.push("/staff-management");
                     }}
+                  searchable
                 />
               </div>
 

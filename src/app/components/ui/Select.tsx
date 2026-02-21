@@ -37,6 +37,7 @@ export interface SelectProps extends Omit<
   onAddNew?: () => void;
   iconName?: string;
   closeOnSelect?: boolean;
+  allowCustomValue?: boolean;
 }
 
 const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
@@ -63,6 +64,7 @@ const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
       onAddNew,
       iconName,
       closeOnSelect = true,
+      allowCustomValue = false,
       ...props
     },
     ref,
@@ -88,6 +90,16 @@ const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
           )
         : options;
 
+    const hasExactMatch = options.some(
+      (option) => option.label.toLowerCase() === searchTerm.toLowerCase(),
+    );
+
+    const canAddCustom =
+      allowCustomValue &&
+      searchable &&
+      searchTerm.trim() !== "" &&
+      !hasExactMatch;
+
     // Get selected option(s) for display
     const getSelectedDisplay = (): string => {
       if (!value) return placeholder;
@@ -104,7 +116,8 @@ const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
       }
 
       const selectedOption = options.find((opt) => opt.value === value);
-      return selectedOption ? selectedOption.label : placeholder;
+      //return selectedOption ? selectedOption.label : placeholder;
+      return selectedOption ? selectedOption.label : String(value);
     };
 
     const handleToggle = (): void => {
@@ -298,7 +311,7 @@ const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
                 </div>
               )}
 
-              <div className="py-1 max-h-60 overflow-auto">
+              {/* <div className="py-1 max-h-60 overflow-auto">
                 {filteredOptions.length === 0 ? (
                   <div className="px-3 py-2 text-sm text-muted-foreground">
                     {searchTerm ? "No options found" : "No options available"}
@@ -357,6 +370,84 @@ const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
                       )}
                     </div>
                   ))
+                )}
+              </div> */}
+              <div className="py-1 max-h-60 overflow-auto">
+                {filteredOptions.length === 0 ? (
+                  canAddCustom ? (
+                    <div
+                      className="px-3 py-2 text-sm cursor-pointer bg-muted hover:bg-accent"
+                      onClick={() => {
+                        onChange?.(searchTerm.trim());
+                        setIsOpen(false);
+                        setSearchTerm("");
+                      }}
+                    >
+                      ➕ Add "{searchTerm}"
+                    </div>
+                  ) : (
+                    <div className="px-3 py-2 text-sm text-muted-foreground">
+                      {searchTerm ? "No options found" : "No options available"}
+                    </div>
+                  )
+                ) : (
+                  <>
+                    {filteredOptions.map((option) => {
+                      const isHeading = option.value
+                        ?.toString()
+                        .startsWith("__heading_");
+
+                      return (
+                        <div
+                          key={option.value}
+                          className={cn(
+                            "relative select-none rounded-sm px-3",
+                            isHeading
+                              ? "py-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground opacity-70 cursor-default"
+                              : "py-2 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground",
+                            !multiple &&
+                              !isHeading &&
+                              isSelected(option.value) &&
+                              "bg-primary text-primary-foreground",
+                            option.disabled && "pointer-events-none opacity-50",
+                          )}
+                          onClick={() => {
+                            if (!option.disabled && !isHeading) {
+                              handleOptionSelect(option);
+                            }
+                          }}
+                        >
+                          {multiple && !isHeading ? (
+                            <>
+                             <div className="flex">
+                              <Checkbox
+                                checked={isSelected(option.value)}
+                                readOnly
+                                className="pointer-events-none mr-2"
+                              />
+                              <span>{option.label}</span>
+                              </div>
+                            </>
+                          ) : (
+                            <span>{option.label}</span>
+                          )}
+                        </div>
+                      );
+                    })}
+
+                    {canAddCustom && (
+                      <div
+                        className="px-3 py-2 text-sm cursor-pointer bg-muted hover:bg-accent"
+                        onClick={() => {
+                          onChange?.(searchTerm.trim());
+                          setIsOpen(false);
+                          setSearchTerm("");
+                        }}
+                      >
+                        ➕ Add "{searchTerm}"
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>

@@ -90,8 +90,14 @@ export const serviceApi = {
     })
   }
   },
+
+  getMasterServices: async(categoryId: string) => {
+      const res= await api.get(`/masterservices/by-category?categoryId=${categoryId}`);
+      return res.data;
+  },
+
   // UPDATE SERVICE
-updateService: async (serviceId: string, payload: Partial<CreateServicePayload>) => {
+  updateService: async (serviceId: string, payload: Partial<CreateServicePayload>) => {
   try{
      const res = await api.put(`/service/${serviceId}`, payload);
      showToast({
