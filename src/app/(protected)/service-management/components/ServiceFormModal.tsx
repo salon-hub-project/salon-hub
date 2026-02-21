@@ -17,6 +17,7 @@ import {
 } from "@/app/store/slices/formDraftSlice";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { FORMS_KEYS } from "@/app/constants/formKeys";
+import { serviceApi } from "@/app/services/service.api";
 
 interface ServiceFormModalProps {
   isOpen: boolean;
@@ -145,6 +146,10 @@ const ServiceFormModal = ({
   >([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(false);
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
+  const [masterServices, setMasterServices] = useState<
+    { value: string; label: string }[]
+  >([]);
+  const [isLoadingServices, setIsLoadingServices] = useState(false);
   const serviceDraft = useAppSelector(
     (state) => state.formDraft.drafts[FORMS_KEYS.SERVICE],
   );
@@ -288,18 +293,51 @@ const ServiceFormModal = ({
             handleSubmit,
             setFieldValue,
           }) => {
+            useEffect(() => {
+              const fetchServices = async () => {
+                if (!values.category) {
+                  setMasterServices([]);
+                  setFieldValue("name", "");
+                  return;
+                }
+
+                const isBackendCategory = fetchedCategories.some(
+                  (cat) => cat.value === values.category,
+                );
+
+                if (!isBackendCategory) {
+                  setMasterServices([]);
+                  setFieldValue("name", "");
+                  return;
+                }
+
+                try {
+                  setIsLoadingServices(true);
+                  setFieldValue("name", ""); // clear old service
+
+                  const response = await serviceApi.getMasterServices(
+                    values.category,
+                  );
+                  const data = response?.data || response || [];
+
+                  if (Array.isArray(data)) {
+                    const mapped = data.map((srv: any) => ({
+                      value: srv.name,
+                      label: srv.name,
+                    }));
+                    setMasterServices(mapped);
+                  }
+                } catch (error) {
+                  console.error("Failed to fetch master services", error);
+                } finally {
+                  setIsLoadingServices(false);
+                }
+              };
+
+              fetchServices();
+            }, [values.category, fetchedCategories]);
             return (
               <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                {/* Service Name */}
-                <Input
-                  label="Service Name"
-                  name="name"
-                  value={values.name}
-                  onChange={handleChange}
-                  placeholder="e.g., Haircut, Manicure"
-                  error={touched.name ? errors.name : undefined}
-                />
-
                 {/* Category Select */}
                 <Select
                   label="Category"
@@ -309,6 +347,35 @@ const ServiceFormModal = ({
                   options={fetchedCategories}
                   error={touched.category ? errors.category : undefined}
                   onAddNew={() => setIsAddCategoryOpen(true)}
+                  searchable
+                />
+
+                {/* Service Name */}
+                {/* <Input
+                  label="Service Name"
+                  name="name"
+                  value={values.name}
+                  onChange={handleChange}
+                  placeholder="e.g., Haircut, Manicure"
+                  error={touched.name ? errors.name : undefined}
+                /> */}
+                <Select
+                  label="Service"
+                  name="name"
+                  value={values.name}
+                  onChange={(val) => setFieldValue("name", val)}
+                  options={masterServices}
+                  placeholder={
+                    values.category
+                      ? isLoadingServices
+                        ? "Loading services..."
+                        : "Select service"
+                      : "Select category first"
+                  }
+                  disabled={!values.category || isLoadingServices}
+                  error={touched.name ? errors.name : undefined}
+                  searchable
+                  allowCustomValue
                 />
 
                 {/* Duration & Price */}

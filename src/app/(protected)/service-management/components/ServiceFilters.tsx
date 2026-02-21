@@ -67,6 +67,7 @@ const ServiceFiltersComponent = ({
             onFilterChange({ ...filters, category: value as string })
           }
           placeholder="Filter by category"
+          searchable
         />
 
         {/* <Select

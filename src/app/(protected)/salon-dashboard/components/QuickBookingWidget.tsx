@@ -361,6 +361,7 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
                     ? () => router.push("/customer-database")
                     : undefined
                 }
+                searchable
                 error={touched.customer ? getError(errors.customer) : undefined}
               />
 
@@ -439,6 +440,7 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
                     ? () => router.push("/staff-management")
                     : undefined
                 }
+                searchable
                 error={touched.staff ? getError(errors.staff) : undefined}
               />
 
