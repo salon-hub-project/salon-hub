@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Icon from "../../../components/AppIcon";
 import Image from "../../../components/AppImage";
 import Button from "../../../components/ui/Button";
@@ -70,6 +70,12 @@ const CustomerProfile = ({
     };
     return colors[tag];
   };
+
+  useEffect(() => {
+    if (customer) {
+      handleFetchServiceHistory();
+    }
+  }, [customer]);
 
   const formatDate = (date: Date): string => {
     return new Intl.DateTimeFormat("en-US", {
@@ -245,9 +251,9 @@ const CustomerProfile = ({
                 <button
                   onClick={() => {
                     setActiveTab("history");
-                    if (historyData.length === 0) {
-                      handleFetchServiceHistory();
-                    }
+                    // if (historyData.length === 0) {
+                    //   handleFetchServiceHistory();
+                    // }
                   }}
                   className={`px-4 py-2 text-sm font-medium transition-smooth border-b-2 ${
                     activeTab === "history"
@@ -372,7 +378,6 @@ const CustomerProfile = ({
                             <div className="text-lg font-bold text-primary">
                               INR {history.totalAmount.toFixed(2)}
                             </div>
-                            
                           </div>
                         </div>
 

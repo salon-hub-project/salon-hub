@@ -70,9 +70,13 @@ export const customerApi = {
     const res = await api.get(`/customer/${id}`);
     return res.data.customerDetails;
   },
-  getCustomerServiceHistory: async(customerId: string)=> {
-      const res= await api.post(`customer/customerappointments/${customerId}`)
-      return res.data;
+  getCustomerServiceHistory: async (customerId: string) => {
+    const res = await api.post(`customer/customerappointments/${customerId}`);
+    return res.data;
+  },
+  importCustomerByExcel: async (customers: any[]) => {
+    const res = await api.post(`/customer/customer/bulk`, { customers });
+    return res.data;
   },
   updateCustomer: async (id: string, data: UpdateCustomerPayload) => {
     try {

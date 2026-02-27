@@ -508,6 +508,7 @@ const EmployeeFormModal = ({
                           : undefined
                       }
                       onAddNew={() => setIsAddRoleOpen(true)}
+                      searchable
                     />
 
                     {!employee && (

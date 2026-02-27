@@ -95,7 +95,7 @@ export function WhyChoose() {
                 <div>
                   <div className="font-semibold text-sm">Priya Sharma</div>
                   <div className="text-gray-500 text-xs">
-                    Salon Owner, Delhi
+                    Salon Owner, Mumbai
                   </div>
                 </div>
               </div>

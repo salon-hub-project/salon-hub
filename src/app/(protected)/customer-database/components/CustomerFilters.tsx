@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Icon from "../../../components/AppIcon";
 import Button from "../../../components/ui/Button";
 import Input from "../../../components/ui/Input";
@@ -12,31 +12,36 @@ import { useDebounce } from "@/app/store/hooks";
 interface CustomerFiltersProps {
   filters: FilterType;
   onFiltersChange: (filters: FilterType) => void;
-  onExport: () => void;
+  onImport: (file: File) => void;
   totalCustomers: number;
 }
 
 const CustomerFilters = ({
   filters,
   onFiltersChange,
-  onExport,
+  onImport,
   totalCustomers,
 }: CustomerFiltersProps) => {
-
-  const [search, setSearch]= useState(filters.searchQuery);
+  const [search, setSearch] = useState(filters.searchQuery);
   const [showAdvanced, setShowAdvanced] = useState(true);
   const [loadingTags, setLoadingTags] = useState(false);
   const [filterType, setFilterType] = useState("All");
 
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const debouncedSearch = useDebounce(search, 500);
 
-    useEffect(() => {
+  useEffect(() => {
     onFiltersChange({ ...filters, searchQuery: debouncedSearch });
   }, [debouncedSearch]);
 
   /* =======================
      HANDLERS
      ======================= */
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
   const handleSearchChange = (value: string) => {
     onFiltersChange({ ...filters, searchQuery: value });
   };
@@ -121,16 +126,30 @@ const CustomerFilters = ({
             )}
           </Button>
 
-          {/* <Button
+          <Button
             variant="outline"
             iconName="Download"
             iconPosition="left"
-            onClick={onExport}
+            onClick={handleImportClick}
           >
-            Export
-          </Button> */}
+            Import
+          </Button>
         </div>
       </div>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".xlsx,.xls,.csv"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) {
+            onImport(file);
+            e.target.value = ""; // reset so same file can be selected again
+          }
+        }}
+      />
 
       {showAdvanced && (
         <div className="pt-4 border-t border-border space-y-4">
