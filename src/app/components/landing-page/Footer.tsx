@@ -9,6 +9,7 @@ import {
   Phone,
   MapPin,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 import { useState } from "react";
@@ -19,6 +20,7 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
+  const router = useRouter();
 
   return (
     <footer className="bg-gray-900 text-white">
@@ -149,13 +151,13 @@ export function Footer() {
             <p>© {currentYear} Salonvala. All rights reserved.</p>
             <div className="flex gap-6">
               <button
-                onClick={() => setIsPrivacyOpen(true)}
+                onClick={() => router.push("/privacy-policy")}
                 className="hover:text-purple-400 transition-colors text-left"
               >
                 Privacy Policy
               </button>
               <button
-                onClick={() => setIsTermsOpen(true)}
+                onClick={() => router.push("/terms-conditions")}
                 className="hover:text-purple-400 transition-colors text-left"
               >
                 Terms of Service

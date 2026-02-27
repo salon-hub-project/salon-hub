@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback, useRef } from "react";
+import * as XLSX from "xlsx";
 import Icon from "../../components/AppIcon";
 import Button from "../../components/ui/Button";
 import CustomerTable from "./components/CustomerTable";
@@ -266,6 +267,125 @@ const CustomerDatabase = () => {
     }
   };
 
+  const handleImportCustomers = async (file: File) => {
+    try {
+      setLoading(true);
+
+      const buffer = await file.arrayBuffer();
+      const workbook = XLSX.read(buffer);
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+
+      const jsonData: any[] = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+
+      if (!jsonData.length) {
+        showToast({ message: "Excel file is empty", status: "error" });
+        return;
+      }
+
+      // ✅ Only name + phoneNumber
+      const customers = jsonData
+        .map((row) => ({
+          fullName:
+            row["name"] ||
+            row["Name"] ||
+            row["fullName"] ||
+            row["Full Name"] ||
+            row["customerName"] ||
+            row["Customer Name"] ||
+            row["clientName"] ||
+            row["Client Name"] ||
+            row["leadName"] ||
+            row["Lead Name"] ||
+            row["contactName"] ||
+            row["Contact Name"] ||
+            row["personName"] ||
+            row["Person Name"] ||
+            row["buyerName"] ||
+            row["Buyer Name"] ||
+            row["userName"] ||
+            row["User Name"] ||
+            row["consumerName"] ||
+            row["Consumer Name"] ||
+            row["accountName"] ||
+            row["Account Name"] ||
+            row["prospectName"] ||
+            row["Prospect Name"] ||
+            row["patientName"] ||
+            row["Patient Name"] ||
+            row["guestName"] ||
+            row["Guest Name"] ||
+            row["full_name"] ||
+            row["customer_name"] ||
+            row["client_name"] ||
+            row["contact_name"] ||
+            "",
+
+          phoneNumber: String(
+            row["phoneNumber"] ||
+              row["Phone Number"] ||
+              row["phone"] ||
+              row["Phone"] ||
+              row["mobile"] ||
+              row["Mobile"] ||
+              row["mobileNumber"] ||
+              row["Mobile Number"] ||
+              row["contactNumber"] ||
+              row["Contact Number"] ||
+              row["contactNo"] ||
+              row["Contact No"] ||
+              row["phoneNo"] ||
+              row["Phone No"] ||
+              row["telephone"] ||
+              row["Telephone"] ||
+              row["tel"] ||
+              row["Tel"] ||
+              row["cell"] ||
+              row["Cell"] ||
+              row["cellNumber"] ||
+              row["Cell Number"] ||
+              row["whatsapp"] ||
+              row["WhatsApp"] ||
+              row["whatsappNumber"] ||
+              row["WhatsApp Number"] ||
+              row["primaryPhone"] ||
+              row["Primary Phone"] ||
+              row["secondaryPhone"] ||
+              row["Secondary Phone"] ||
+              row["contact"] ||
+              row["Contact"] ||
+              row["phone_number"] ||
+              row["mobile_number"] ||
+              row["contact_number"] ||
+              "",
+          ).trim(),
+        }))
+        .filter((c) => c.fullName && c.phoneNumber);
+
+      if (!customers.length) {
+        showToast({
+          message: "No valid name & phoneNumber found",
+          status: "error",
+        });
+        return;
+      }
+
+      await customerApi.importCustomerByExcel(customers);
+
+      showToast({
+        message: `${customers.length} customers imported successfully`,
+        status: "success",
+      });
+
+      fetchCustomers(); // refresh list
+    } catch (error) {
+      console.error("Import failed", error);
+      showToast({ message: "Failed to import customers", status: "error" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleEditCustomer = (customer: Customer) => {
     setEditingCustomer(customer);
     setShowProfile(false);
@@ -380,7 +500,7 @@ const CustomerDatabase = () => {
         <CustomerFilters
           filters={filters}
           onFiltersChange={setFilters}
-          onExport={handleExport}
+          onImport={handleImportCustomers}
           totalCustomers={totalCustomers}
         />
 
