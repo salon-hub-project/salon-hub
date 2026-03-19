@@ -74,7 +74,7 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
   const user = useAppSelector((state) => state.auth.user);
   const userRole = user?.role?.[0];
   const [customerOptions, setCustomerOptions] = useState<
-    { value: string; label: string }[]
+    { value: string; label: string; }[]
   >([]);
   const [customers, setCustomers] = useState<any[]>([]);
   const [serviceOptions, setServiceOptions] = useState<
@@ -86,19 +86,12 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
   const [comboOptions, setComboOptions] = useState<
     { value: string; label: string; percent: number }[]
   >([]);
-  // const quickBookingDraft = useAppSelector(
-  //   (state) => state.formDraft.drafts[FORMS_KEYS.QUICK_BOOKING],
-  // );
   const timings = useAppSelector((state: any) => state.profile.timings);
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const dispatch = useAppDispatch();
-  // const formikRef = useRef<any>(null);
 
   const fetchCustomers = async () => {
-    // Skip customer API call for staff - they don't have access to customer data
-    // if (isStaff(userRole)) return;
-
     try {
       const res = await customerApi.getCustomers({ limit: 1000 });
       const sortedData = [...res.data].sort(
@@ -109,13 +102,15 @@ const QuickBookingWidget = ({ onCreateBooking }: QuickBookingWidgetProps) => {
       setCustomerOptions(
         sortedData.map((c: any) => ({
           value: c._id,
-          label: c.fullName,
+          label: `${c.fullName} - ${c.phoneNumber}`,
         })),
       );
     } catch (error) {
       console.error("Customer fetch error", error);
     }
   };
+
+  // console.log(customerOptions, "customer")
 
   const fetchServices = async () => {
     try {
