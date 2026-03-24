@@ -12,7 +12,6 @@ import { BookingFormProps, SelectedItem } from "../types";
 import { Staff, BookingFormData } from "../types";
 import { appointmentValidationSchema } from "@/app/components/validation/validation";
 import { staffApi } from "@/app/services/staff.api";
-import { comboApi } from "@/app/services/combo.api";
 import GroupedSelect from "@/app/components/ui/GroupedSelect";
 import { appointmentApi } from "@/app/services/appointment.api";
 import {
@@ -39,7 +38,7 @@ const StaffFetcher = ({
   // Sync external date
   useEffect(() => {
     if (selectedDate) setFieldValue("date", selectedDate);
-  }, [selectedDate, setFieldValue]);
+  }, [selectedDate, setFieldValue]);  
 
   // Sync external time
   useEffect(() => {
@@ -112,7 +111,6 @@ const StaffFetcher = ({
         setAvailableStaff(initialStaff);
       }
     };
-
     fetchStaff();
   }, [
     values.date,
