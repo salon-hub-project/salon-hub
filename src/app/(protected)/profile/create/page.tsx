@@ -283,22 +283,46 @@ const CreateProfile = () => {
     closingTime: profile?.closingTime ? timeTo12h(profile.closingTime) : "",
   };
 
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; 
+
   const ProfileSchema = Yup.object().shape({
     salonName: Yup.string().required("Salon name is required"),
     ownerName: Yup.string().required("Owner name is required"),
     openingTime: Yup.string(),
     closingTime: Yup.string(),
     workingDays: Yup.array().of(Yup.number()),
+    // salonImage: Yup.mixed()
+    //   .nullable()
+    //   .test("image-required", "Salon image is required", function (value) {
+    //     // create mode → image required
+    //     if (!isEditMode) {
+    //       return value instanceof File;
+    //     }
+    //     // edit mode → optional
+    //     return true;
+    //   }),
     salonImage: Yup.mixed()
-      .nullable()
-      .test("image-required", "Salon image is required", function (value) {
-        // create mode → image required
-        if (!isEditMode) {
-          return value instanceof File;
-        }
-        // edit mode → optional
-        return true;
-      }),
+    .nullable()
+    .test("image-required", "Salon image is required", function (value) {
+      if (!isEditMode) {
+        return value instanceof File;
+      }
+      return true;
+    })
+    .test("file-size", "File size must be less than 5MB", function (value) {
+      if (!value || typeof value === "string") return true;
+      if (value instanceof File) {
+        return value.size <= MAX_FILE_SIZE;
+      }
+      return false;
+    })
+    .test("file-type", "Only image files are allowed", function (value) {
+      if (!value || typeof value === "string") return true;
+      if (value instanceof File) {
+        return value.type.startsWith("image/");
+      }
+      return false;
+    }),
   });
 
   const handleSubmit = async (
